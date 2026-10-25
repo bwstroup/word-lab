@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Word Lab">
+<meta name="theme-color" content="#211735">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Felix's Word Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap" rel="stylesheet">
+<style>
+/* Layout: a word workshop. Sunflower letter tiles are the one motif; sections open as workbenches under a sticky header, with a bottom tab bar. */
+:root{
+  --bg:#F4F2F9; --card:#FFFFFF; --ink:#211735; --ink-2:#5D5577; --line:#DCD6EA; --soft:#ECE8F5;
+  --accent:#C92E66; --accent-ink:#FFFFFF; --accent-soft:#F9E1EA;
+  --tile:#FFC94A; --tile-ink:#211735; --tile-edge:#D9A42A;
+  --good:#1D8456; --good-soft:#DDF3E8; --bad:#BF3A33; --bad-soft:#FBE3E1; --ghost:#ABA3C2;
+  --hero:#211735; --hero-fg:#F4F2F9; --hero-2:#B9B0D6; --on-strong:#FFFFFF;
+  --sea:#DCE9F4; --landc:#F3E7C6; --landedge:#CDB98A; --slavic:#D6E6F7;
+  --f-display:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-glyph: system-ui, -apple-system, "Noto Sans", "Segoe UI", sans-serif;
+  --tabh:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#130F20; --card:#1D172E; --ink:#EEEAF8; --ink-2:#A69EC0; --line:#342C4C; --soft:#251E3A;
+  --accent:#FF6E9C; --accent-ink:#2A0816; --accent-soft:#3A1828;
+  --tile:#FFC94A; --tile-ink:#211735; --tile-edge:#B8892A;
+  --good:#4CC890; --good-soft:#123326; --bad:#FF7E74; --bad-soft:#3A1715; --ghost:#6A6188; --hero:#2B2245; --hero-fg:#EEEAF8; --hero-2:#A69EC0; --on-strong:#140F20; --sea:#14233A; --landc:#3A3250; --landedge:#564C70; --slavic:#1E3550; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#130F20; --card:#1D172E; --ink:#EEEAF8; --ink-2:#A69EC0; --line:#342C4C; --soft:#251E3A;
+  --accent:#FF6E9C; --accent-ink:#2A0816; --accent-soft:#3A1828;
+  --tile:#FFC94A; --tile-ink:#211735; --tile-edge:#B8892A;
+  --good:#4CC890; --good-soft:#123326; --bad:#FF7E74; --bad-soft:#3A1715; --ghost:#6A6188; --hero:#2B2245; --hero-fg:#EEEAF8; --hero-2:#A69EC0; --on-strong:#140F20; --sea:#14233A; --landc:#3A3250; --landedge:#564C70; --slavic:#1E3550; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--f-body);-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--card)}
+button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+.hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.hd-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;padding-block:10px}
+.seal{flex:none;width:44px;height:44px;border-radius:11px;background:var(--tile);box-shadow:0 3px 0 var(--tile-edge);display:grid;place-items:center;font:800 22px/1 var(--f-display);color:var(--tile-ink)}
+.hd h1{font:800 clamp(21px,3.4vw,27px)/1.1 var(--f-display);letter-spacing:-.01em}
+.hd p{color:var(--ink-2);font-size:14px}
+.hd .sp{flex:1;min-width:0}
+.icon-btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;min-height:44px;font-weight:700;font-size:15px}
+
+main{max-width:1000px;margin:0 auto;padding-block:18px calc(var(--tabh) + 28px + env(safe-area-inset-bottom,0px))}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar-in{max-width:620px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;height:var(--tabh)}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.tabbar button .g{font:800 20px/1 var(--f-display)}
+.tabbar button[aria-selected="true"]{color:var(--accent)}
+.tabbar button[aria-selected="true"] .g{background:var(--tile);color:var(--tile-ink);border-radius:7px;padding:2px 6px}
+
+/* shared */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.sec-h{font:800 clamp(24px,3.6vw,32px)/1.15 var(--f-display);letter-spacing:-.01em}
+.lede{color:var(--ink-2);max-width:62ch;margin-top:6px}
+.lab{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.btn{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:9px 16px;min-height:44px;font-weight:700;font-size:16px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.sm{min-height:36px;padding:5px 12px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stack{display:flex;flex-direction:column;gap:14px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+input[type=text],input:not([type]),textarea,select{font:inherit;font-size:18px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;width:100%}
+textarea{resize:vertical;line-height:1.45}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none}
+.tip{background:var(--accent-soft);border-radius:14px;padding:12px 14px}
+.tip b{color:var(--accent)}
+.muted{color:var(--ink-2)}
+.small{font-size:14px}
+.empty{color:var(--ink-2);text-align:center;padding:28px 10px}
+.hear{display:inline-grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--accent);padding:0;vertical-align:middle}
+.hear svg{width:18px;height:18px}
+.hear:active{transform:scale(.94)}
+.save{border:1.5px dashed var(--line);background:none;border-radius:999px;padding:4px 12px;min-height:34px;font-size:14px;font-weight:700;color:var(--ink-2)}
+.save.done{border-style:solid;border-color:var(--good);color:var(--good)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none;margin-top:14px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 15px;min-height:42px;font-weight:700;font-size:15px;white-space:nowrap}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:6px 12px;min-height:38px;font-weight:700;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.say{font-style:italic;color:var(--ink-2)}
+.ipa{font-family:var(--f-glyph);color:var(--ink-2);font-size:15px}
+.ex{font-style:italic;color:var(--ink-2);font-size:15px}
+.em{font-size:24px;line-height:1;flex:none;width:30px;text-align:center}
+
+/* tiles */
+.tiles{display:flex;flex-wrap:wrap;gap:6px}
+.tl{display:inline-grid;place-items:center;min-width:1.7em;height:1.85em;padding:0 .3em;border-radius:.3em;background:var(--tile);color:var(--tile-ink);font:800 1em/1 var(--f-display);box-shadow:0 .12em 0 var(--tile-edge);text-transform:uppercase}
+.tl.lc{text-transform:none}
+.tl.dim{background:var(--soft);color:var(--ink-2);box-shadow:0 .12em 0 var(--line)}
+.tl.ok{background:var(--good);color:var(--on-strong);box-shadow:0 .12em 0 rgba(0,0,0,.25)}
+.tl.no{background:var(--bad);color:var(--on-strong);box-shadow:0 .12em 0 rgba(0,0,0,.25)}
+.tl.gap{background:none;box-shadow:none;min-width:.6em}
+button.tl{border:0}
+button.tl.pick{outline:3px solid var(--accent);outline-offset:2px}
+.sil{color:var(--ghost);text-decoration:underline dotted 2px;text-underline-offset:4px}
+.swa{color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:0 1px}
+
+/* home */
+.wotd{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);background:var(--hero);color:var(--hero-fg);border:0}
+.wotd .lab{color:var(--tile)}
+.wotd h2{font:800 clamp(40px,8vw,66px)/1 var(--f-display);letter-spacing:-.02em;overflow-wrap:anywhere;margin-top:6px}
+.wotd .say{color:var(--hero-2);font-size:18px}
+.wotd .m{font-size:19px;margin-top:8px}
+.wotd .why{border-top:1px solid var(--hero-2);padding-top:12px}
+.wotd .hear{background:var(--tile);border-color:var(--tile);color:var(--tile-ink)}
+.wotd .save{color:var(--hero-fg);border-color:var(--hero-2)}
+.mods{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:14px}
+.mod{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:16px;min-height:170px}
+.mod:hover{border-color:var(--accent)}
+.mod .tiles{font-size:20px}
+.mod h3{font:800 22px/1.15 var(--f-display)}
+.mod p{color:var(--ink-2);font-size:15px}
+.mod .n{margin-top:auto;font-size:13px;font-weight:700;color:var(--accent)}
+.soon{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.soon span{border:1.5px dashed var(--line);border-radius:999px;padding:6px 12px;font-size:14px;color:var(--ink-2)}
+.back{border:0;background:none;color:var(--accent);font-weight:700;padding:6px 0;min-height:40px}
+
+/* twins */
+.twin-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.twin-h h3{font:800 24px/1.15 var(--f-display);overflow-wrap:anywhere;flex:1;min-width:0}
+.sense{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.sense:first-of-type{border-top:0}
+.sense .w{font-weight:700}
+.sense .tx{flex:1;min-width:0}
+.vs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch;margin-top:10px}
+.vs>div{background:var(--soft);border-radius:12px;padding:10px 12px}
+.vs .arrow{display:grid;place-items:center;font:800 22px var(--f-display);color:var(--accent);background:none;padding:0}
+@media (max-width:520px){.vs{grid-template-columns:minmax(0,1fr)}.vs .arrow{transform:rotate(90deg)}}
+.venn svg{width:100%;max-width:640px;height:auto;display:block;margin:0 auto}
+.venn .rg{cursor:pointer;transition:fill-opacity .2s}
+.venn .rg:hover,.venn .rg.on{fill-opacity:.62}
+.venn text{pointer-events:none;fill:var(--ink)}
+.venn .t1{font:800 19px var(--f-display)}
+.venn .t2{font:400 15px var(--f-body);fill:var(--ink-2)}
+.venn .cap{font:700 13px var(--f-body);letter-spacing:.08em}
+.quiz-q{font:800 clamp(24px,4vw,34px)/1.25 var(--f-display);margin:8px 0 14px}
+.quiz-q .blank{display:inline-block;min-width:3.2em;border-bottom:4px solid var(--accent);margin:0 .1em}
+.answers{display:flex;flex-wrap:wrap;gap:10px}
+.answers button{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:10px 20px;min-height:56px;font:800 22px var(--f-display)}
+.answers button.right{background:var(--good);border-color:var(--good);color:var(--on-strong)}
+.answers button.wrong{background:var(--bad);border-color:var(--bad);color:var(--on-strong)}
+.fb{min-height:3.2em;margin-top:12px}
+.fb.good{color:var(--good)} .fb.bad{color:var(--bad)}
+.score{font-weight:700;color:var(--ink-2);font-size:15px}
+.verdict{border-radius:16px;padding:16px;background:var(--soft)}
+.verdict.yes{background:var(--good-soft)}
+.verdict h3{font:800 26px/1.2 var(--f-display)}
+
+/* wordplay */
+.big-in{font:800 26px var(--f-display)!important;letter-spacing:.01em}
+.mirror{display:flex;flex-direction:column;gap:8px;font-size:clamp(16px,3.4vw,24px);overflow-x:auto;padding:4px 2px 10px}
+.mirror .tiles{flex-wrap:nowrap}
+.banner{font:800 24px/1.2 var(--f-display);padding:12px 16px;border-radius:14px}
+.banner.yes{background:var(--good-soft);color:var(--good)}
+.banner.no{background:var(--soft);color:var(--ink-2)}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums}
+.steps li{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:8px;align-items:baseline;padding:6px 10px;border-radius:10px;background:var(--soft);overflow-wrap:anywhere}
+.steps li b{color:var(--ink-2);font-size:14px}
+.steps li.end{background:var(--good-soft);color:var(--good);font-weight:700}
+.abc{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px;font-size:clamp(13px,2.6vw,20px)}
+@media (max-width:480px){.abc{grid-template-columns:repeat(9,minmax(0,1fr))}}
+.abc .tl{min-width:0;width:100%}
+.flip{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.flip>div{background:var(--soft);border-radius:14px;padding:16px;text-align:center}
+.flip .wd{font:800 clamp(32px,6vw,48px)/1.2 var(--f-glyph);overflow-wrap:anywhere}
+.flip .rot{display:inline-block;transform:rotate(180deg);transition:transform .6s}
+.gal{display:flex;flex-wrap:wrap;gap:8px}
+.gal button{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 13px;min-height:38px;font-size:15px}
+
+/* sounds */
+.wchip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:6px 12px;min-height:42px;font-size:19px;font-weight:700}
+.wchip svg{width:15px;height:15px;color:var(--accent)}
+.snd{display:inline-grid;place-items:center;min-width:2.2em;height:2.2em;padding:0 .5em;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:700}
+.lvs{display:grid;grid-template-columns:5.5em minmax(0,1fr) 2em;gap:8px;align-items:center;font-size:15px}
+.lvs i{display:block;height:14px;border-radius:7px}
+.ono{overflow-x:auto}
+.ono table{border-collapse:separate;border-spacing:6px;min-width:760px}
+.ono th{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:4px 6px}
+.ono td button{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:8px 10px;min-height:56px}
+.ono td button b{display:block;font-family:var(--f-glyph);font-size:17px}
+.ono td button span{display:block;font-size:13px;color:var(--ink-2)}
+.ono th.an{font-size:15px;text-transform:none;letter-spacing:0;color:var(--ink);white-space:nowrap}
+
+/* alphabets */
+.lotd{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.lotd .big,.qz .big{font:500 92px/1 var(--f-glyph);width:136px;height:136px;display:grid;place-items:center;border-radius:24px;background:var(--soft)}
+@media (max-width:440px){.lotd{grid-template-columns:minmax(0,1fr)}.lotd .big{width:100%}}
+.nm-row{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:10px;align-items:center;padding:6px 10px;border-radius:12px;background:var(--soft)}
+.nm-row span{font-size:14px;color:var(--ink-2);font-weight:700}
+.nm-row b{font:500 30px/1.25 var(--f-glyph);overflow-wrap:anywhere}
+.scripts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:12px;min-height:120px}
+.sc .g{font:500 40px/1.1 var(--f-glyph);margin-bottom:6px}
+.sc small{color:var(--ink-2);font-size:13px}
+.sc[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.facts span{background:var(--soft);border-radius:999px;padding:5px 12px;font-size:14px;font-weight:700}
+.gtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-top:12px}
+.gtile{border:1px solid var(--line);border-radius:12px;padding:10px 4px 8px;text-align:center;background:var(--bg)}
+.gtile .tg{font:500 32px/1.15 var(--f-glyph);display:block}
+.gtile small{display:block;font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}
+.qz{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center}
+@media (max-width:520px){.qz{grid-template-columns:minmax(0,1fr)}.qz .big{margin:0 auto}}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(110px,190px) minmax(0,1fr) 2.4em;gap:10px;align-items:center;font-size:15px}
+.bar .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .lb b{font-family:var(--f-glyph);font-size:18px;margin-right:6px}
+.bar i{display:block;height:22px;border-radius:6px;background:var(--accent)}
+.bar span{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* detective */
+.det-word{font:800 clamp(40px,8vw,64px)/1 var(--f-display);letter-spacing:-.02em;overflow-wrap:anywhere}
+.pos{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--soft);border-radius:6px;padding:1px 7px;margin-right:6px}
+.answer{white-space:pre-wrap;line-height:1.6;min-height:2em}
+.loading{display:inline-flex;gap:5px}
+.loading i{width:10px;height:10px;border-radius:3px;background:var(--tile);animation:bob 1s infinite}
+.loading i:nth-child(2){animation-delay:.15s}.loading i:nth-child(3){animation-delay:.3s}
+@keyframes bob{50%{transform:translateY(-6px)}}
+
+/* my words */
+.wl{list-style:none;margin:0;padding:0}
+.wl li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.wl li .tx{flex:1;min-width:0}
+.wl li b{font:800 20px var(--f-display);overflow-wrap:anywhere}
+.kind{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+
+/* sheet + toast */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(10,6,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--card);width:100%;max-width:640px;border-radius:22px 22px 0 0;max-height:88vh;overflow:auto;padding:10px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.vlist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.vlist button{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;min-height:48px}
+.vlist button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.vlist small{color:var(--ink-2)}
+.vlist svg{width:20px;height:20px;flex:none;color:var(--accent)}
+.no-claude [data-claude]{display:none!important}
+.pairs{width:100%;border-collapse:collapse;margin-top:8px;font-size:17px}
+.pairs th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line)}
+.pairs td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.pairs-wrap{overflow-x:auto}
+.pairs.wide{min-width:420px}
+.map svg{width:100%;height:auto;display:block;border-radius:14px}
+.mdot{cursor:pointer}
+.mdot circle{fill:var(--accent);stroke:var(--card);stroke-width:2.5}
+.mdot.on circle{fill:var(--tile);stroke:var(--ink)}
+.mdot text{font:700 14px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--sea);stroke-width:4px}
+.mdot.cluster circle{fill:var(--ink)}
+.mdot.cluster text.cn{fill:var(--bg);stroke:none;font:800 16px var(--f-body)}
+.mdot:focus-visible circle{stroke:var(--ink);stroke-width:4}
+.cous{overflow-x:auto;padding:10px}
+.cous table{border-collapse:separate;border-spacing:4px;min-width:720px}
+.cous thead th{font:800 16px var(--f-display);text-align:left;padding:4px 6px}
+.cous tbody th{text-align:left;font-size:14px;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.cous td button,.cous td .cell{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:6px 8px;min-height:44px}
+.cous td b{display:block;font-family:var(--f-glyph);font-size:17px}
+.cous td span:not(.cell){display:block;font-size:12px;color:var(--ink-2)}
+.cous tr.ctrl td button{border-color:var(--accent)}
+.fam-g{background:var(--tile);color:var(--tile-ink)} .fam-r{background:var(--accent-soft);color:var(--ink)} .fam-s{background:var(--slavic);color:var(--ink)} .fam-a{background:var(--soft);color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabh) + 14px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;max-width:min(92vw,520px);font-size:15px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="hd gut">
+  <div class="hd-in">
+    <div class="seal" aria-hidden="true">Aa</div>
+    <div class="sp"><h1>Felix's Word Lab</h1><p>Every word is a puzzle.</p></div>
+    <button class="icon-btn" id="voice-btn" aria-label="Voice settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>Voice</button>
+  </div>
+</header>
+
+<main class="gut">
+  <section id="v-explore">
+    <div id="home" class="stack">
+      <div class="card wotd" id="wotd"></div>
+      <div>
+        <h2 class="sec-h">Explore</h2>
+        <div class="mods" id="mods"></div>
+      </div>
+      <div class="card">
+        <h2 class="lab">Being built next</h2>
+        <div class="soon" id="soon"></div>
+      </div>
+    </div>
+    <div id="module" hidden>
+      <button class="back" id="back">‹ All sections</button>
+      <h2 class="sec-h" id="mod-title"></h2>
+      <p class="lede" id="mod-lede"></p>
+      <nav class="chips" id="mod-chips" aria-label="Activities"></nav>
+      <div id="mod-body" class="stack"></div>
+    </div>
+  </section>
+
+  <section id="v-detective" hidden class="stack">
+    <div class="card stack">
+      <div><h2 class="sec-h">Word Detective</h2><p class="lede">Type any word. Claude investigates its meaning, sound, history, and twins.</p></div>
+      <form id="det-form" class="row" autocomplete="off">
+        <input id="det-in" maxlength="40" placeholder="colonel" autocapitalize="none" spellcheck="false" style="flex:1;min-width:180px" aria-label="Word to investigate">
+        <button class="btn primary" type="submit">Investigate</button>
+      </form>
+      <div class="gal" id="det-sug"></div>
+    </div>
+    <div id="det-out"></div>
+    <div class="card stack">
+      <div><h2 class="sec-h" style="font-size:24px">Ask a word question</h2><p class="lede">Why is there a B in doubt? What's the longest word? Ask anything about words, letters, or language.</p></div>
+      <form id="ask-form" class="stack" autocomplete="off">
+        <textarea id="ask-in" rows="2" maxlength="300" placeholder="Why does colonel sound like kernel?" aria-label="Your question"></textarea>
+        <div class="row"><button class="btn primary" type="submit" id="ask-go">Ask Claude</button><button class="btn" type="button" id="ask-stop" hidden>Stop</button></div>
+      </form>
+      <div id="ask-out" class="answer" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="v-words" hidden class="stack">
+    <div class="card stack">
+      <div><h2 class="sec-h">My Words</h2><p class="lede">Felix's collection: twins he finds, words he invents, anything worth keeping. Tap Save anywhere in the app to add to it.</p></div>
+      <form id="add-form" class="stack" autocomplete="off">
+        <div class="row" style="align-items:stretch">
+          <input id="add-w" maxlength="80" placeholder="flour / flower" style="flex:2;min-width:180px" aria-label="Word or words">
+          <select id="add-k" style="flex:1;min-width:150px" aria-label="Kind of word"></select>
+        </div>
+        <input id="add-n" maxlength="140" placeholder="A note (optional)" aria-label="Note">
+        <div class="row"><button class="btn primary" type="submit">Add to my words</button><span class="small muted" id="store-note"></span></div>
+      </form>
+    </div>
+    <div class="card" id="w-chart"></div>
+    <div class="card"><ul class="wl" id="w-list"></ul></div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Main">
+  <div class="tabbar-in" role="tablist">
+    <button role="tab" data-v="explore" aria-selected="true"><span class="g">Aa</span>Explore</button>
+    <button role="tab" data-v="detective" aria-selected="false" data-claude><span class="g">?</span>Detective</button>
+    <button role="tab" data-v="words" aria-selected="false"><span class="g">★</span>My Words</button>
+  </div>
+</nav>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-in" role="dialog" aria-label="Voice settings" id="sheet-in"></div>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const reduced=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const PAL=['#E8483D','#F5A524','#2BA84A','#2E7FE0','#8E5BD8','#E8579B','#16A6A0','#C9A227','#8A6548','#5868C8'];
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>';
+let C=null; // content
+let toastT=null;
+function toast(msg,ms){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true},ms||3600); }
+
+/* ---------- marked words: [x] = marked letters ---------- */
+const plain=w=>w.replace(/[\[\]]/g,'');
+function marked(w,cls){ return esc(w).replace(/\[([^\]]+)\]/g,(m,x)=>`<span class="${cls}">${x}</span>`); }
+function markIdx(w){ const out=[]; let i=0,on=false; for(const ch of w){ if(ch==='['){on=true;continue;} if(ch===']'){on=false;continue;} out.push({ch,on,i:i++}); } return out; }
+
+/* ---------- voice ---------- */
+const TTS={ok:'speechSynthesis' in window, voices:[], chosen:store.get('wl.voice',''), rate:store.get('wl.rate',0.9)};
+const NOVELTY=/(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Junior|Ralph|Kathy|Eddy|Flo|Grandma|Grandpa|Reed|Rocko|Sandy|Shelley|Princess|Bruce|Agnes|Vicki|Victoria)/i;
+const PREFER=/(Ava|Zoe|Samantha|Allison|Evan|Nathan|Tom|Susan|Joelle|Nicky|Noelle|Serena|Karen|Daniel|Moira|Tessa|Fiona|Aaron)/;
+function loadVoices(){ try{ TTS.voices=speechSynthesis.getVoices()||[]; }catch(e){ TTS.voices=[]; } }
+if(TTS.ok){ loadVoices(); try{ speechSynthesis.addEventListener('voiceschanged',loadVoices); }catch(e){} }
+try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+const vQual=v=>{ const id=(v.name||'')+' '+(v.voiceURI||''); return /premium/i.test(id)?2:/enhanced/i.test(id)?1:0; };
+function vScore(v){ let s=0; const q=vQual(v); if(q===2) s+=100; else if(q===1) s+=60; if(PREFER.test(v.name)) s+=40; if(/^en[-_]US/i.test(v.lang)) s+=20; if(v.localService) s+=5; return s; }
+function goodVoices(prefix){ return TTS.voices.filter(v=>v.lang && v.lang.toLowerCase().startsWith(prefix) && !NOVELTY.test(v.name)).sort((a,b)=>vScore(b)-vScore(a)); }
+function voiceFor(lang){
+  const p=lang.slice(0,2).toLowerCase();
+  if(p==='en' && TTS.chosen){ const v=TTS.voices.find(v=>v.voiceURI===TTS.chosen); if(v) return v; }
+  const exact=goodVoices(lang.toLowerCase()); if(exact.length) return exact[0];
+  const g=goodVoices(p); return g[0]||null;
+}
+const LANGNAME={en:'English',es:'Spanish',fr:'French',de:'German',ja:'Japanese',ko:'Korean',ru:'Russian',zh:'Chinese'};
+/* recorded voices: natural recordings of every built-in word, keyed by exact text */
+const REC={list:[{id:'bella',name:'Bella',d:'Warm American voice'},{id:'michael',name:'Michael',d:'Friendly American voice'}],mode:store.get('wl.vmode','bella'),data:{},buf:new Map(),ctx:null,src:null};
+function recLoad(id){ if(!REC.data[id]) REC.data[id]=fetch('voice-'+id+'.json').then(r=>r.ok?r.json():null).catch(()=>null); return REC.data[id]; }
+function ensureCtx(){ try{ if(!REC.ctx){ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null; REC.ctx=new AC(); } if(REC.ctx.state==='suspended') REC.ctx.resume(); return REC.ctx; }catch(e){ return null; } }
+function stopRec(){ try{ if(REC.src){ REC.src.stop(); REC.src=null; } }catch(e){} }
+async function playRec(text){
+  const d=await recLoad(REC.mode); if(!d) return false;
+  const b64=d[text]; if(!b64) return false;
+  const ctx=ensureCtx(); if(!ctx) return false;
+  const key=REC.mode+'|'+text; let buf=REC.buf.get(key);
+  try{ if(!buf){ const bin=atob(b64), bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i); buf=await ctx.decodeAudioData(bytes.buffer); REC.buf.set(key,buf); } }catch(e){ return false; }
+  stopRec(); try{ speechSynthesis.cancel(); }catch(e){}
+  const src=ctx.createBufferSource(); src.buffer=buf; src.connect(ctx.destination); src.start(0); REC.src=src; return true;
+}
+function speakDevice(text,lang){
+  if(!TTS.ok){ toast('This browser cannot speak words aloud.'); return; }
+  if(!TTS.voices.length) loadVoices();
+  const v=voiceFor(lang);
+  if(!v && !lang.startsWith('en')){ toast(`This iPad doesn't have a ${LANGNAME[lang.slice(0,2)]||''} voice yet. Add one in Settings → Accessibility → Read & Speak → Voices.`,6000); return; }
+  try{
+    stopRec(); speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(String(text).replace(/\s*\/\s*/g,', '));
+    u.lang=lang; if(v) u.voice=v; u.rate=TTS.rate; u.pitch=1;
+    speechSynthesis.speak(u);
+  }catch(e){ toast('The voice could not start. Try again.'); }
+}
+function speak(text,lang){
+  lang=lang||'en-US'; text=String(text||'').trim(); if(!text) return;
+  if(lang.startsWith('en') && REC.mode!=='device'){ ensureCtx(); playRec(text).then(ok=>{ if(!ok) speakDevice(text,lang); }); return; }
+  speakDevice(text,lang);
+}
+const hear=(text,lang,label)=>`<button class="hear" data-say="${esc(text)}"${lang?` data-lang="${esc(lang)}"`:''} aria-label="Hear ${esc(label||text)}">${SPK}</button>`;
+const wchip=(html,say,lang)=>`<button class="wchip" data-say="${esc(say)}"${lang?` data-lang="${lang}"`:''}><span>${html}</span>${SPK}</button>`;
+const wc=w=>wchip(esc(w),w);
+
+function openVoice(){
+  loadVoices();
+  const vs=goodVoices('en').filter((v,i,a)=>a.findIndex(x=>x.name===v.name&&x.lang===v.lang)===i);
+  const cur=voiceFor('en-US');
+  $('#sheet-in').innerHTML=`<div class="grab"></div>
+    <div class="row" style="justify-content:space-between"><h2 class="sec-h" style="font-size:24px">Voice</h2><button class="btn sm" id="sheet-x">Done</button></div>
+    <p class="lede">Pick the voice that reads words aloud. Tap one to hear it.</p>
+    <div class="lab" style="margin-top:14px">Recorded voices (best)</div>
+    <div class="vlist" id="rlist">${REC.list.map(r=>`<button data-rec="${r.id}" aria-pressed="${REC.mode===r.id}"><span>${esc(r.name)}<br><small>${esc(r.d)}</small></span>${SPK}</button>`).join('')}</div>
+    <p class="small muted" style="margin-top:6px">Every word built into the app is recorded. Words Felix types, and answers from Claude, use the iPad voice.</p>
+    <div class="lab" style="margin-top:16px">Speed (iPad voice only)</div>
+    <div class="seg" id="rate" style="margin-top:6px"><button data-r="0.72" aria-pressed="${TTS.rate<0.8}">Slower</button><button data-r="0.9" aria-pressed="${TTS.rate>=0.8&&TTS.rate<1}">Normal</button><button data-r="1.05" aria-pressed="${TTS.rate>=1}">Faster</button></div>
+    <div class="lab" style="margin-top:16px">iPad voices (${vs.length})</div>
+    <div class="vlist" id="vlist">${vs.length? vs.map(v=>`<button data-uri="${esc(v.voiceURI)}" aria-pressed="${REC.mode==='device'&&cur&&cur.voiceURI===v.voiceURI}"><span>${esc(v.name)}<br><small>${esc(v.lang)}${vQual(v)===2?' · best quality (Premium)':vQual(v)===1?' · high quality (Enhanced)':''}</small></span>${SPK}</button>`).join('') : '<p class="muted">No voices found yet. They can take a moment to load. Close this and open it again.</p>'}</div>
+    <div class="tip" style="margin-top:16px"><b>iPad voices sound robotic?</b> Use a recorded voice above, or download a better voice on the iPad: Settings → Accessibility → Read &amp; Speak → Voices → English. Pick one marked Premium or Enhanced, like Ava or Zoe, and tap the download button. (On older iPads this is under Spoken Content instead.) Then reopen this app.</div>`;
+  $('#sheet').hidden=false;
+  $('#sheet-x').onclick=()=>{$('#sheet').hidden=true;};
+  $('#rate').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; TTS.rate=+b.dataset.r; store.set('wl.rate',TTS.rate); $$('#rate button').forEach(x=>x.setAttribute('aria-pressed',x===b)); speakDevice('Knight and night sound exactly the same.','en-US'); };
+  const mark=b=>$$('#rlist button, #vlist button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('#vlist').onclick=e=>{ const b=e.target.closest('button[data-uri]'); if(!b) return; TTS.chosen=b.dataset.uri; store.set('wl.voice',TTS.chosen); REC.mode='device'; store.set('wl.vmode','device'); mark(b); speak('Knight and night sound exactly the same.'); };
+  $('#rlist').onclick=e=>{ const b=e.target.closest('button[data-rec]'); if(!b) return; REC.mode=b.dataset.rec; store.set('wl.vmode',REC.mode); mark(b); speak('Knight and night sound exactly the same.'); };
+}
+$('#voice-btn').onclick=openVoice;
+$('#sheet').addEventListener('click',e=>{ if(e.target.id==='sheet') $('#sheet').hidden=true; });
+
+/* ---------- Claude ---------- */
+let samplePromise=null, noClaude=false;
+function setNoClaude(){ if(noClaude) return; noClaude=true; document.body.classList.add('no-claude');
+  if(curMod) openMod(curMod.id,curChip); if(!$('#v-detective').hidden) go('explore');
+  if(C) renderHome(); }
+function getSample(){ if(!samplePromise) samplePromise=(window.claude&&window.claude.use)? window.claude.use('sample').catch(()=>null) : Promise.resolve(null); return samplePromise; }
+const KID='You are helping inside Felix\'s Word Lab, a language app for an 8-year-old boy who reads a couple of grade levels above his age. He loves homophones, homographs, heteronyms, silent letters, vowel teams, and where words come from. Write for a bright young reader: clear, lively, and accurate, never babyish. Use American English. Never invent facts. If you are not sure about something, like a word\'s origin, say so plainly. Keep everything appropriate for a child.';
+function errCopy(e){
+  const c=e&&e.code;
+  if(c==='unavailable'||c==='not_granted'||c==='sampling_disabled'||c==='not_declared'||c==='capability_disabled'||c==='capability_removed') return 'Claude isn\'t switched on for this app on this iPad. Ask Dad to open the app while signed in to Claude and allow it.';
+  if(c==='rate_limited') return 'Claude needs a short break. Try again in a minute.';
+  if(c==='invalid_json') return 'Claude\'s answer came back scrambled. Try again.';
+  if(c==='prompt_too_large') return 'That was too long. Try something shorter.';
+  return 'Something went wrong reaching Claude. Try again.';
+}
+const OFF=['unavailable','not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'];
+async function askJSON(prompt){
+  const s=await getSample(); if(!s){ setNoClaude(); throw {code:'unavailable'}; }
+  try{ return await s.json(prompt,{modelTier:'default'}); }
+  catch(e){ if(e&&OFF.includes(e.code)) setNoClaude(); throw e; }
+}
+const clean=s=>String(s||'').replace(/["\\\n\r]/g,' ').replace(/\s+/g,' ').trim().slice(0,60);
+const loading='<span class="loading" aria-label="Thinking"><i></i><i></i><i></i></span>';
+
+/* ---------- My Words store ---------- */
+const KINDS=['Homophones','Homonyms','Heteronyms','Capitonyms','Contronyms','Oronyms','Palindrome','Semordnilap','Anagram','Pangram','Silent letters','Rhymes','Cool word','Invented'];
+let words=store.get('wl.words',[]); if(!Array.isArray(words)) words=[];
+let db=null, dbTried=false;
+async function initDb(){
+  if(dbTried) return; dbTried=true;
+  try{
+    if(!window.claude||!window.claude.use) return;
+    db=await window.claude.use('db'); if(!db) return;
+    const snap=await db.collection('words').orderBy('at','desc').limit(500).get();
+    const remote=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const pending=words.filter(w=>!w.id);
+    for(const w of pending){ try{ const ref=await db.collection('words').add({w:w.w,k:w.k,n:w.n||'',at:w.at}); remote.unshift({...w,id:ref.id}); }catch(e){} }
+    words=remote; store.set('wl.words',[]);
+    renderWords();
+  }catch(e){ db=null; }
+}
+function hasWord(w,k){ const n=w.toLowerCase(); return words.some(x=>x.w.toLowerCase()===n&&x.k===k); }
+async function addWord(w,k,n){
+  w=String(w||'').trim().slice(0,80); if(!w) return false;
+  if(hasWord(w,k)){ toast('Already in My Words.'); return false; }
+  const item={w,k,n:String(n||'').slice(0,140),at:Date.now()};
+  if(db){ try{ const ref=await db.collection('words').add(item); item.id=ref.id; }catch(e){ db=null; } }
+  words.unshift(item);
+  if(!db) store.set('wl.words',words);
+  renderWords(); toast(`Saved "${w}" to My Words.`);
+  return true;
+}
+async function delWord(i){
+  const it=words[i]; if(!it) return;
+  if(db && it.id){ try{ await db.collection('words').doc(it.id).delete(); }catch(e){ toast('Could not delete. Try again.'); return; } }
+  words.splice(i,1); if(!db) store.set('wl.words',words); renderWords();
+}
+const saveBtn=(w,k,n)=>`<button class="save${hasWord(w,k)?' done':''}" data-save="${esc(JSON.stringify({w,k,n:n||''}))}">${hasWord(w,k)?'Saved':'☆ Save'}</button>`;
+function renderWords(){
+  const L=$('#w-list');
+  $('#store-note').textContent= db? 'Saved to your Claude account.' : 'Saved on this iPad.';
+  if(!words.length){ L.innerHTML='<li class="empty" style="display:block;border:0">No words yet. Tap ☆ Save on any word in the app, or add one above.</li>'; $('#w-chart').innerHTML='<p class="muted">A chart of your collection will appear here.</p>'; return; }
+  L.innerHTML=words.map((x,i)=>`<li><div class="tx"><span class="kind">${esc(x.k)}</span><br><b>${esc(x.w)}</b>${x.n?`<div class="small muted">${esc(x.n)}</div>`:''}</div>${hear(x.w.replace(/\//g,','),null,x.w)}<button class="btn sm" data-del="${i}">Remove</button></li>`).join('');
+  const counts={}; words.forEach(x=>counts[x.k]=(counts[x.k]||0)+1);
+  const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]); const mx=Math.max(...rows.map(r=>r[1]));
+  $('#w-chart').innerHTML=`<h3 class="lab">My collection: ${words.length} ${words.length===1?'word':'words'}</h3><div class="bars" style="margin-top:10px">${rows.map(([k,n],i)=>`<div class="bar"><div class="lb">${esc(k)}</div><i style="width:${Math.max(4,n/mx*100)}%;background:${PAL[i%PAL.length]}"></i><span>${n}</span></div>`).join('')}</div>`;
+}
+$('#add-k').innerHTML=KINDS.map(k=>`<option>${esc(k)}</option>`).join('');
+$('#add-form').addEventListener('submit',async e=>{ e.preventDefault(); const ok=await addWord($('#add-w').value,$('#add-k').value,$('#add-n').value); if(ok){ $('#add-w').value=''; $('#add-n').value=''; } });
+$('#w-list').addEventListener('click',e=>{
+  const b=e.target.closest('[data-del]'); if(!b) return;
+  if(b.dataset.sure){ delWord(+b.dataset.del); return; }
+  b.dataset.sure='1'; b.textContent='Tap again to remove'; b.classList.add('primary');
+  setTimeout(()=>{ if(b.isConnected){ delete b.dataset.sure; b.textContent='Remove'; b.classList.remove('primary'); } },3000);
+});
+
+/* ---------- global taps ---------- */
+document.addEventListener('click',e=>{
+  const h=e.target.closest('[data-say]'); if(h){ speak(h.dataset.say,h.dataset.lang); }
+  const s=e.target.closest('[data-save]');
+  if(s && !s.classList.contains('done')){ try{ const d=JSON.parse(s.dataset.save); addWord(d.w,d.k,d.n).then(ok=>{ if(ok||hasWord(d.w,d.k)){ s.classList.add('done'); s.textContent='Saved'; } }); }catch(err){} }
+});
+
+/* ======================================================================
+   WORD TWINS
+   ====================================================================== */
+const VENN={
+  left:{t:'Homophones',d:'Words that sound the same but are spelled differently and mean different things.',ex:'knight / night · flour / flower · there / their / they\'re',chip:'homophones'},
+  mid:{t:'Homonyms',d:'Words with the same spelling and the same sound, but different meanings. They\'re in both circles!',ex:'bark (a dog\'s sound) / bark (a tree\'s skin) · bat / bat',chip:'homonyms'},
+  right:{t:'Heteronyms',d:'Words spelled the same but said differently, with different meanings. You have to read the sentence to know how to say them.',ex:'a tear in my eye / tear the paper · lead / lead',chip:'heteronyms'}
+};
+function vennSVG(sel){
+  const L='M300,77.34 A150,150 0 1 0 300,342.66 A150,150 0 0 1 300,77.34 Z';
+  const M='M300,77.34 A150,150 0 0 0 300,342.66 A150,150 0 0 0 300,77.34 Z';
+  const R='M300,77.34 A150,150 0 1 1 300,342.66 A150,150 0 0 0 300,77.34 Z';
+  const rg=(id,d,fill)=>`<path class="rg${sel===id?' on':''}" data-r="${id}" d="${d}" fill="${fill}" fill-opacity=".3" stroke="var(--ink)" stroke-width="2" tabindex="0" role="button" aria-label="${VENN[id].t}"/>`;
+  return `<svg viewBox="0 0 600 380" role="img" aria-label="Word twins diagram">
+    ${rg('left',L,'var(--accent)')}${rg('right',R,'var(--tile)')}${rg('mid',M,'#8E5BD8')}
+    <text class="cap" x="150" y="40" text-anchor="middle">SAME SOUND</text><text class="t2" x="150" y="60" text-anchor="middle">all homophones</text>
+    <text class="cap" x="450" y="40" text-anchor="middle">SAME SPELLING</text><text class="t2" x="450" y="60" text-anchor="middle">all homographs</text>
+    <text class="t1" x="150" y="205" text-anchor="middle">Homophones</text><text class="t2" x="150" y="230" text-anchor="middle">knight / night</text>
+    <text class="t1" x="300" y="205" text-anchor="middle">Homonyms</text><text class="t2" x="300" y="230" text-anchor="middle">bark / bark</text>
+    <text class="t1" x="450" y="205" text-anchor="middle">Heteronyms</text><text class="t2" x="450" y="230" text-anchor="middle">lead / lead</text>
+  </svg>`;
+}
+const twins={
+  map:{label:'Twin map',render(){ return `<div class="card venn"><p class="lede" style="margin:0 0 10px">Word twins live in two circles: words that <b>sound</b> the same, and words that are <b>spelled</b> the same. Tap a part of the map.</p><div id="venn">${vennSVG(null)}</div><div id="venn-d" class="tip" style="margin-top:12px">Tap a colored part to learn its name.</div></div>
+    <div class="grid">
+      <div class="card"><h3 class="sec-h" style="font-size:21px">Capitonyms</h3><p class="lede">The meaning changes with a capital letter. <i>Polish</i> means from Poland; <i>polish</i> means make shiny.</p></div>
+      <div class="card"><h3 class="sec-h" style="font-size:21px">Contronyms</h3><p class="lede">One word that means its own opposite, like <i>dust</i>: add dust, or wipe it away. They live in the middle of the map.</p></div>
+      <div class="card"><h3 class="sec-h" style="font-size:21px">Oronyms</h3><p class="lede">Whole phrases that sound alike: <i>ice cream</i> and <i>I scream</i>. They're homophones made of more than one word.</p></div>
+    </div>
+    <p class="small muted">Heads up: people use "homonym" in different ways. Some use it for any word twins. In this app, homonyms means same sound and same spelling.</p>`; },
+    mount(){ const f=id=>{ const v=VENN[id]; $('#venn').innerHTML=vennSVG(id); $('#venn-d').innerHTML=`<b>${v.t}.</b> ${esc(v.d)}<br><i>${esc(v.ex)}</i><div class="row" style="margin-top:10px"><button class="btn sm" data-go="${v.chip}">See all ${v.t.toLowerCase()}</button></div>`; };
+      $('#venn').onclick=e=>{ const r=e.target.closest('[data-r]'); if(r) f(r.dataset.r); };
+      $('#venn').onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ const r=e.target.closest('[data-r]'); if(r){ e.preventDefault(); f(r.dataset.r);} } };
+      $('#venn-d').onclick=e=>{ const b=e.target.closest('[data-go]'); if(b) openChip(b.dataset.go); }; }},
+  homophones:{label:'Homophones',render(){ const n=C.homophones.reduce((a,h)=>a+h.ws.length,0);
+    return `<div class="row"><input id="hp-q" placeholder="Search, like knight" style="flex:1;min-width:180px" aria-label="Search homophones"><div class="seg" id="hp-f"><button data-f="all" aria-pressed="true">All</button><button data-f="3" aria-pressed="false">Triples and more</button><button data-f="note" aria-pressed="false">Fun facts</button></div></div>
+    <p class="small muted">${C.homophones.length} sets, ${n} words. Each set sounds the same, so the speaker says it once.</p><div class="grid" id="hp-list"></div>`; },
+    mount(){ let f='all'; const draw=()=>{ const q=$('#hp-q').value.trim().toLowerCase();
+      const list=C.homophones.filter(h=>(f==='all'||(f==='3'&&h.ws.length>=3)||(f==='note'&&h.note)) && (!q||h.ws.some(x=>x[0].toLowerCase().includes(q))));
+      $('#hp-list').innerHTML= list.length? list.map(h=>{ const title=h.ws.map(x=>x[0]).join(' / ');
+        return `<div class="card"><div class="twin-h"><h3>${esc(title)}</h3>${hear(h.ws[0][0],null,title)}</div>${h.ws.map(x=>`<div class="sense"><span class="em">${x[2]}</span><div class="tx"><span class="w">${esc(x[0])}</span>: ${esc(x[1])}</div></div>`).join('')}${h.note?`<p class="tip small" style="margin-top:8px">${esc(h.note)}</p>`:''}<div class="row" style="margin-top:10px">${saveBtn(title,'Homophones')}</div></div>`; }).join('') : '<p class="empty">No sets match. Try Word Detective to look it up!</p>'; };
+      $('#hp-q').oninput=draw; $('#hp-f').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; f=b.dataset.f; $$('#hp-f button').forEach(x=>x.setAttribute('aria-pressed',x===b)); draw(); }; draw(); }},
+  homonyms:{label:'Homonyms',render(){ return `<p class="lede" style="margin:0">Same spelling, same sound, different meaning. You need the rest of the sentence to know which one it is.</p><div class="grid">${C.homonyms.map(([w,ss])=>`<div class="card"><div class="twin-h"><h3>${esc(w)}</h3>${hear(w)}</div>${ss.map(s=>`<div class="sense"><span class="em">${s[1]}</span><div class="tx">${esc(s[0])}</div></div>`).join('')}<div class="row" style="margin-top:10px">${saveBtn(w,'Homonyms',ss.map(s=>s[0]).join(' · '))}</div></div>`).join('')}</div>`; }},
+  heteronyms:{label:'Heteronyms',render(){ return `<div class="tip">Each button says one way to pronounce the word. The iPad reads a respelling, because computers mix these words up too. That's how tricky heteronyms are!</div>
+    <div class="grid">${C.heteronyms.map(h=>`<div class="card"><div class="twin-h"><h3>${esc(h.w)}</h3></div>${h.s.map(s=>`<div class="sense"><span class="em">${s.e}</span><div class="tx"><span class="w">${esc(s.r)}</span> <span class="ipa">${esc(s.ipa)}</span><br>${esc(s.m)}<div class="ex">"${esc(s.x)}"</div></div>${hear(s.say,null,s.r)}</div>`).join('')}${h.note?`<p class="tip small" style="margin-top:8px">${esc(h.note)}</p>`:''}<div class="row" style="margin-top:10px">${saveBtn(h.w,'Heteronyms',h.s.map(s=>s.r).join(' / '))}</div></div>`).join('')}</div>`; }},
+  capitonyms:{label:'Capitonyms',render(){ return `<p class="lede" style="margin:0">A capital letter changes the meaning. Sometimes it changes the sound too!</p><div class="grid">${C.capitonyms.map(c=>`<div class="card"><div class="twin-h"><h3>${esc(c.w)}</h3></div>${c.s.map(s=>`<div class="sense"><span class="em">${s.e}</span><div class="tx"><span class="w">${esc(s.t)}</span>${s.r?` <span class="say">(${esc(s.r)})</span>`:''}: ${esc(s.m)}</div>${hear(s.say||s.t,null,s.t)}</div>`).join('')}${c.note?`<p class="tip small" style="margin-top:8px">${esc(c.note)}</p>`:''}<div class="row" style="margin-top:10px">${saveBtn(c.w,'Capitonyms')}</div></div>`).join('')}</div>`; }},
+  contronyms:{label:'Contronyms',render(){ return `<p class="lede" style="margin:0">One word, two opposite meanings. Some people call them Janus words, after a Roman god with two faces looking opposite ways.</p><div class="grid">${C.contronyms.map(c=>`<div class="card"><div class="twin-h"><h3>${esc(c.w)}</h3>${hear(c.w)}</div><div class="vs"><div><span class="em">${c.a[2]}</span> <b>${esc(c.a[0])}</b><div class="ex">${esc(c.a[1])}</div></div><div class="arrow" aria-hidden="true">⇄</div><div><span class="em">${c.b[2]}</span> <b>${esc(c.b[0])}</b><div class="ex">${esc(c.b[1])}</div></div></div><div class="row" style="margin-top:10px">${saveBtn(c.w,'Contronyms',c.a[0]+' ⇄ '+c.b[0])}</div></div>`).join('')}</div>`; }},
+  oronyms:{label:'Oronyms',render(){ return `<p class="lede" style="margin:0">Phrases that sound alike. Play both. Can you hear any difference? Some only work in certain accents.</p><div class="grid">${C.oronyms.map(o=>`<div class="card"><div class="sense"><span class="em">${o[2]}</span><div class="tx"><b style="font:800 21px var(--f-display)">${esc(o[0])}</b></div>${hear(o[0])}</div><div class="sense"><span class="em">${o[3]}</span><div class="tx"><b style="font:800 21px var(--f-display)">${esc(o[1])}</b></div>${hear(o[1])}</div><div class="row" style="margin-top:8px">${saveBtn(o[0]+' / '+o[1],'Oronyms')}</div></div>`).join('')}</div>`; }},
+  quiz:{label:'Twin Trouble',render(){ return `<div class="card"><div class="row" style="justify-content:space-between"><div class="seg" id="qz-mode"><button data-m="spell" aria-pressed="true">Pick the spelling</button><button data-m="sort" aria-pressed="false">Sort the twins</button><button data-m="say" aria-pressed="false">Say it right</button></div><span class="score" id="qz-score"></span></div><div id="qz"></div></div>`; },
+    mount(){ quiz.start('spell'); $('#qz-mode').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; $$('#qz-mode button').forEach(x=>x.setAttribute('aria-pressed',x===b)); quiz.start(b.dataset.m); }; }},
+  invent:{label:'Invent twins',claude:true,render(){ return `<div class="card stack"><div><h3 class="sec-h" style="font-size:24px">Found a new pair?</h3><p class="lede">Type two or three words you think are twins. Claude checks them and explains each one.</p></div>
+    <form id="inv-f" class="stack" autocomplete="off"><div class="row"><input id="inv-1" maxlength="30" placeholder="flour" style="flex:1;min-width:140px" aria-label="First word" autocapitalize="none"><input id="inv-2" maxlength="30" placeholder="flower" style="flex:1;min-width:140px" aria-label="Second word" autocapitalize="none"><input id="inv-3" maxlength="30" placeholder="third (optional)" style="flex:1;min-width:140px" aria-label="Third word" autocapitalize="none"></div><div class="row"><button class="btn primary" type="submit">Check my twins</button></div></form><div id="inv-out"></div></div>`; },
+    mount(){ $('#inv-f').addEventListener('submit',async e=>{ e.preventDefault(); const ws=['#inv-1','#inv-2','#inv-3'].map(s=>clean($(s).value)).filter(Boolean);
+      const out=$('#inv-out'); if(ws.length<2){ out.innerHTML='<p class="muted">Type at least two words.</p>'; return; }
+      out.innerHTML=loading;
+      const list=ws.map(w=>`"${w}"`).join(', ');
+      try{ const r=await askJSON(`${KID}\n\nFelix thinks these might be word twins: ${list}.\nDecide which kind they are, using these meanings: homophones (same sound, different spelling and meaning), homonyms (same spelling and same sound, different meaning), heteronyms (same spelling, different sound and meaning), capitonyms (meaning changes with a capital letter), contronyms (one word with opposite meanings), oronyms (phrases that sound alike), near miss (close, but not quite twins), not twins. If they are twins only in some accents, say so.\nIf the words are rude or not suitable for a child, use verdict "not twins" and a kind, short explanation.\nReply with only JSON in this shape: {"verdict":"homophones | homonyms | heteronyms | capitonyms | contronyms | oronyms | near miss | not twins","headline":"a short headline, excited if they are twins and encouraging if not","explanation":"2 or 3 sentences","words":[{"word":"","say":"simple respelling like FLOW-er","meaning":"short meaning"}],"sentence":"one fun sentence using all the words","rare":true or false (true if this is an unusual set that would impress a word lover)}`);
+        const yes=r && r.verdict && !/not twins|near miss/i.test(r.verdict);
+        out.innerHTML=`<div class="verdict${yes?' yes':''}"><div class="lab">${esc(r.verdict||'')}</div><h3>${esc(r.headline||'')}</h3>${r.rare?'<p class="kind" style="margin-top:4px">★ Rare find!</p>':''}<p style="margin-top:8px">${esc(r.explanation||'')}</p>${(r.words||[]).map(x=>`<div class="sense"><div class="tx"><span class="w">${esc(x.word)}</span> <span class="say">${esc(x.say||'')}</span>: ${esc(x.meaning||'')}</div>${hear(x.word)}</div>`).join('')}${r.sentence?`<p class="ex" style="margin-top:8px">"${esc(r.sentence)}"</p>`:''}<div class="row" style="margin-top:12px">${yes?saveBtn(ws.join(' / '),'Invented',r.verdict):''}</div></div>`;
+      }catch(err){ out.innerHTML=`<p class="muted">${esc(errCopy(err))}</p>`; }
+    }); }}
+};
+
+/* quiz engine */
+const quiz={mode:'spell',n:0,right:0,total:10,cur:null,locked:false,
+  start(m){ this.mode=m; this.n=0; this.right=0; this.next(); },
+  best(){ return store.get('wl.best.'+this.mode,0); },
+  scoreLine(){ $('#qz-score').textContent=`${this.right} of ${this.n} · best ${this.best()} of ${this.total}`; },
+  next(){
+    this.locked=false; const box=$('#qz'); if(!box) return;
+    if(this.n>=this.total){ const b=this.best(); if(this.right>b) store.set('wl.best.'+this.mode,this.right);
+      box.innerHTML=`<div class="banner yes" style="margin-top:14px">${this.right} out of ${this.total}!${this.right>b?' New best score!':''}</div><div class="row" style="margin-top:12px"><button class="btn primary" id="qz-again">Play again</button></div>`; $('#qz-again').onclick=()=>this.start(this.mode); this.scoreLine(); return; }
+    this.scoreLine();
+    if(this.mode==='spell'){
+      const set=pick(C.homophones), w=pick(set.ws); this.cur={ans:w[0],set};
+      box.innerHTML=`<p class="lab" style="margin-top:14px">Question ${this.n+1}. Which spelling fits?</p><p class="quiz-q">${esc(w[3]).replace('___','<span class="blank"></span>')}</p><div class="answers">${shuffle(set.ws.map(x=>x[0])).map(a=>`<button data-a="${esc(a)}">${esc(a)}</button>`).join('')}</div><div class="fb" id="qz-fb"></div>`;
+    } else if(this.mode==='say'){
+      const h=pick(C.heteronyms), si=Math.floor(Math.random()*2), s=h.s[si]; this.cur={ans:s.r,h,s};
+      box.innerHTML=`<p class="lab" style="margin-top:14px">Question ${this.n+1}. How do you say <b>${esc(h.w)}</b> here?</p><p class="quiz-q">${esc(s.x).replace(new RegExp('\\b('+h.w+')\\b','i'),'<u>$1</u>')}</p><div class="answers">${shuffle(h.s.map(x=>x.r)).map(a=>`<button data-a="${esc(a)}">${esc(a)}</button>`).join('')}</div><div class="fb" id="qz-fb"></div>`;
+    } else {
+      const kinds=['left','mid','right','none']; const k=pick(kinds); let pair='',why='';
+      if(k==='left'){ const set=pick(C.homophones); const two=shuffle(set.ws).slice(0,2); pair=two.map(x=>`<b>${esc(x[0])}</b> <span class="small muted">(${esc(x[1])})</span>`).join('<br>'); why=`They sound the same but are spelled differently.`; }
+      else if(k==='mid'){ const [w,ss]=pick(C.homonyms); pair=ss.slice(0,2).map(s=>`<b>${esc(w)}</b> <span class="small muted">(${esc(s[0])})</span>`).join('<br>'); why='Same spelling and same sound, so they are in both circles.'; }
+      else if(k==='right'){ const h=pick(C.heteronyms); pair=h.s.map(s=>`<b>${esc(h.w)}</b> <span class="small muted">(${esc(s.r)}: ${esc(s.m)})</span>`).join('<br>'); why='Same spelling, but they are said differently.'; }
+      else { const a=pick(C.homophones), b=pick(C.homophones.filter(x=>x!==a)); pair=`<b>${esc(a.ws[0][0])}</b><br><b>${esc(b.ws[0][0])}</b>`; why='These don\'t sound alike or look alike. Not twins!'; }
+      this.cur={ans:k,why};
+      box.innerHTML=`<p class="lab" style="margin-top:14px">Question ${this.n+1}. Where do these belong? Tap the map.</p><p style="font-size:22px;margin:8px 0">${pair}</p><div class="venn" id="qz-venn">${vennSVG(null)}</div><div class="row" style="justify-content:center"><button class="btn" data-a="none">Not twins</button></div><div class="fb" id="qz-fb"></div>`;
+      $('#qz-venn').onclick=e=>{ const r=e.target.closest('[data-r]'); if(r) this.answer(r.dataset.r,null); };
+    }
+  },
+  answer(a,btn){
+    if(this.locked) return; this.locked=true; this.n++;
+    const ok=a===this.cur.ans; if(ok) this.right++;
+    const fb=$('#qz-fb');
+    if(this.mode==='spell'){
+      $$('#qz .answers button').forEach(b=>{ if(b.dataset.a===this.cur.ans) b.classList.add('right'); else if(b===btn) b.classList.add('wrong'); });
+      fb.className='fb '+(ok?'good':'bad'); fb.innerHTML=(ok?'<b>Yes!</b> ':'<b>Not this time.</b> ')+this.cur.set.ws.map(x=>`<b>${esc(x[0])}</b> means ${esc(x[1])}.`).join(' ');
+    } else if(this.mode==='say'){
+      $$('#qz .answers button').forEach(b=>{ if(b.dataset.a===this.cur.ans) b.classList.add('right'); else if(b===btn) b.classList.add('wrong'); });
+      fb.className='fb '+(ok?'good':'bad'); fb.innerHTML=(ok?'<b>Right!</b> ':'<b>Tricky!</b> ')+`Here it's <b>${esc(this.cur.s.r)}</b>, meaning ${esc(this.cur.s.m)}.`;
+      speak(this.cur.s.say);
+    } else {
+      const names={left:'homophones',mid:'homonyms',right:'heteronyms',none:'not twins'};
+      $('#qz-venn').innerHTML=vennSVG(this.cur.ans==='none'?null:this.cur.ans);
+      fb.className='fb '+(ok?'good':'bad'); fb.innerHTML=(ok?'<b>Yes!</b> ':`<b>Not quite.</b> `)+`They're ${names[this.cur.ans]}. ${esc(this.cur.why)}`;
+    }
+    this.scoreLine();
+    fb.insertAdjacentHTML('beforeend','<div class="row" style="margin-top:10px"><button class="btn primary" id="qz-next">Next</button></div>');
+    $('#qz-next').onclick=()=>this.next();
+  }
+};
+document.addEventListener('click',e=>{ const b=e.target.closest('#qz [data-a]'); if(b) quiz.answer(b.dataset.a,b); });
+
+/* ======================================================================
+   WORDPLAY
+   ====================================================================== */
+const norm=s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,'');
+const tilesOf=(s,cls)=>`<div class="tiles">${[...s].map(ch=>`<span class="tl${cls?' '+cls:''}">${esc(ch)}</span>`).join('')}</div>`;
+const galBtns=(arr,attr)=>arr.map(x=>`<button ${attr}="${esc(x)}">${esc(x)}</button>`).join('');
+const ROT={H:'H',I:'I',N:'N',O:'O',S:'S',X:'X',Z:'Z',M:'W',W:'M',b:'q',q:'b',d:'p',p:'d',n:'u',u:'n',o:'o',s:'s',x:'x',z:'z',l:'l',m:'w',w:'m',' ':' '};
+const SEM=new Map();
+function semMap(){ if(!SEM.size) C.semordnilaps.forEach(([a,b])=>{SEM.set(a,b);SEM.set(b,a);}); return SEM; }
+const play={
+  palindromes:{label:'Palindromes',render(){ const P=C.palindromes; return `<div class="card stack"><input id="pal-in" class="big-in" maxlength="80" value="racecar" aria-label="Type anything" autocapitalize="none"><div id="pal-out" class="stack"></div>
+    <div><div class="lab">Words</div><div class="gal" style="margin-top:6px">${galBtns(P.words,'data-pal')}</div></div>
+    <div><div class="lab">Sentences</div><div class="gal" style="margin-top:6px">${galBtns(P.sentences,'data-pal')}</div></div>
+    <div><div class="lab">Numbers and dates</div><div class="gal" style="margin-top:6px">${galBtns(P.numbers,'data-pal')}</div></div></div>
+    <div class="grid">${P.facts.map(f=>`<p class="tip">${esc(f)}</p>`).join('')}</div>`; },
+    mount(){ const draw=()=>{ const raw=$('#pal-in').value, n=norm(raw), r=[...n].reverse().join(''); const out=$('#pal-out');
+      if(!n){ out.innerHTML='<p class="muted">Type a word, a sentence, or a number.</p>'; return; }
+      const yes=n===r && n.length>1;
+      const row=(s)=>`<div class="tiles">${[...s].map((ch,i)=>`<span class="tl ${ch===(s===n?r:n)[i]?'ok':'dim'}">${esc(ch)}</span>`).join('')}</div>`;
+      out.innerHTML=`<div class="mirror"><div class="lab">Forward</div>${row(n)}<div class="lab">Backward</div>${row(r)}</div><div class="banner ${yes?'yes':'no'}">${yes?'Palindrome! It reads the same both ways.':n.length<2?'Keep typing…':`Not a palindrome. Backward it's "${esc(r)}."`}</div>${yes?`<div class="row">${hear(raw)}${saveBtn(raw.trim(),'Palindrome')}</div>`:''}<p class="small muted">Spaces, capitals, and punctuation don't count.</p>`; };
+      $('#pal-in').oninput=draw; draw();
+      $('#mod-body').onclick=e=>{ const b=e.target.closest('[data-pal]'); if(b){ $('#pal-in').value=b.dataset.pal; draw(); } }; }},
+  machine:{label:'Palindrome machine',render(){ return `<div class="card stack"><div><h3 class="sec-h" style="font-size:24px">Turn any number into a palindrome</h3><p class="lede">Flip the number backward and add it to itself. Keep going until you get a palindrome.</p></div>
+    <div class="row"><input id="pm-in" class="big-in" inputmode="numeric" maxlength="12" value="87" style="max-width:220px" aria-label="Starting number"><button class="btn primary" id="pm-go">Run the machine</button></div>
+    <div class="gal"><span class="lab" style="align-self:center">Try</span>${galBtns(['57','87','59','89','196'],'data-pm')}</div>
+    <div id="pm-out"></div></div>`; },
+    mount(){ const run=()=>{ const v=$('#pm-in').value.replace(/\D/g,''); const out=$('#pm-out'); if(!v){ out.innerHTML='<p class="muted">Type a whole number.</p>'; return; }
+      let x=BigInt(v); const rev=b=>BigInt([...b.toString()].reverse().join('')); const isP=b=>{const s=b.toString();return s===[...s].reverse().join('');};
+      let html=''; let steps=0; const MAX=60;
+      if(isP(x)){ out.innerHTML=`<div class="banner yes">${x} is already a palindrome!</div>`; return; }
+      while(steps<MAX){ const r=rev(x), y=x+r; steps++; const end=isP(y); html+=`<li class="${end?'end':''}"><b>${steps}</b><span>${x} + ${r} = ${y}</span></li>`; x=y; if(end) break; }
+      const done=isP(x);
+      out.innerHTML=`<ol class="steps">${html}</ol><div class="banner ${done?'yes':'no'}" style="margin-top:10px">${done?`Palindrome in ${steps} ${steps===1?'step':'steps'}!`:`Still no palindrome after ${MAX} steps.`}</div>${v==='196'||(!done)?'<p class="tip" style="margin-top:10px">196 is famous. Computers have run it for billions of steps and never found a palindrome. Mathematicians call numbers like this <b>Lychrel numbers</b>, but nobody has proven 196 never makes one.</p>':''}${v==='89'?'<p class="tip" style="margin-top:10px">89 takes 24 steps. That\'s one of the longest trips for a two-digit number!</p>':''}`; };
+      $('#pm-go').onclick=run; $('#pm-in').onkeydown=e=>{ if(e.key==='Enter') run(); };
+      $('#mod-body').onclick=e=>{ const b=e.target.closest('[data-pm]'); if(b){ $('#pm-in').value=b.dataset.pm; run(); } }; run(); }},
+  semordnilaps:{label:'Semordnilaps',render(){ return `<div class="card stack"><p class="lede" style="margin:0">A semordnilap spells a different word backward. The name is "palindromes" spelled backward!</p><input id="sm-in" class="big-in" maxlength="20" value="stressed" aria-label="Type a word" autocapitalize="none"><div id="sm-out"></div></div>
+    <div class="grid">${C.semordnilaps.map(([a,b])=>`<button class="card" data-sm="${esc(a)}" style="text-align:left;font:800 22px var(--f-display)">${esc(a)} <span style="color:var(--accent)">⇄</span> ${esc(b)}</button>`).join('')}</div>`; },
+    mount(){ const draw=()=>{ const w=norm($('#sm-in').value).replace(/\d/g,''); const r=[...w].reverse().join(''); const out=$('#sm-out'); if(!w){ out.innerHTML=''; return; }
+      const m=semMap();
+      let msg='';
+      if(w===r) msg=`<div class="banner yes">That's a palindrome, so backward it's the same word.</div>`;
+      else if(m.get(w)===r) msg=`<div class="banner yes">Yes! ${esc(w)} backward is <b>${esc(r)}</b>.</div><div class="row" style="margin-top:8px">${saveBtn(w+' ⇄ '+r,'Semordnilap')}</div>`;
+      else msg=`<div class="banner no">Backward: <b>${esc(r)}</b>. Is that a real word?</div><div class="row" style="margin-top:8px" data-claude><button class="btn" id="sm-ask">Ask Claude</button></div><div id="sm-ans" style="margin-top:8px"></div>`;
+      out.innerHTML=`<div class="mirror">${tilesOf(w)}${tilesOf(r,'dim')}</div>${msg}`;
+      const ask=$('#sm-ask'); if(ask) ask.onclick=async()=>{ const a=$('#sm-ans'); a.innerHTML=loading; try{ const j=await askJSON(`${KID}\n\nIs "${clean(r)}" a real English word? Reply with only JSON: {"isWord":true or false,"meaning":"a short meaning for a child if it is a word, otherwise empty"}`); a.innerHTML= j.isWord? `<div class="banner yes">Yes! ${esc(r)}: ${esc(j.meaning||'')}</div><div class="row" style="margin-top:8px">${saveBtn(w+' ⇄ '+r,'Semordnilap')}</div>` : `<p class="muted">Claude says ${esc(r)} isn't a word. Try another!</p>`; }catch(err){ a.innerHTML=`<p class="muted">${esc(errCopy(err))}</p>`; } }; };
+      $('#sm-in').oninput=draw; draw();
+      $('#mod-body').onclick=e=>{ const b=e.target.closest('[data-sm]'); if(b){ $('#sm-in').value=b.dataset.sm; draw(); window.scrollTo({top:0,behavior:reduced?'auto':'smooth'}); } }; }},
+  anagrams:{label:'Anagrams',render(){ return `<div class="card stack"><p class="lede" style="margin:0">Same letters, new word. Type two words or phrases to check them.</p><div class="row"><input id="an-a" class="big-in" maxlength="40" value="listen" style="flex:1;min-width:160px" aria-label="First" autocapitalize="none"><input id="an-b" class="big-in" maxlength="40" value="silent" style="flex:1;min-width:160px" aria-label="Second" autocapitalize="none"></div><div id="an-out"></div>
+    <div class="row" data-claude><button class="btn" id="an-find">Find anagrams of the first word</button></div><div id="an-found" data-claude></div>
+    <div><div class="lab">Famous anagrams</div><div class="gal" style="margin-top:6px">${C.anagrams.map(([a,b])=>`<button data-an="${esc(a)}|${esc(b)}">${esc(a)} → ${esc(b)}</button>`).join('')}</div></div></div>`; },
+    mount(){ const L=s=>norm(s).replace(/\d/g,''); const draw=()=>{ const a=L($('#an-a').value), b=L($('#an-b').value), out=$('#an-out'); if(!a||!b){ out.innerHTML=''; return; }
+      const ca={},cb={}; for(const c of a) ca[c]=(ca[c]||0)+1; for(const c of b) cb[c]=(cb[c]||0)+1;
+      const keys=[...new Set([...a,...b])].sort(); const extraA=[],extraB=[]; keys.forEach(k=>{ const d=(ca[k]||0)-(cb[k]||0); for(let i=0;i<d;i++) extraA.push(k); for(let i=0;i<-d;i++) extraB.push(k); });
+      const yes=!extraA.length&&!extraB.length&&a!==b;
+      out.innerHTML=`<div class="mirror">${tilesOf([...a].sort().join(''))}${tilesOf([...b].sort().join(''),yes?'':'dim')}</div><p class="small muted">Letters sorted A to Z, so you can compare them.</p><div class="banner ${yes?'yes':'no'}">${yes?'Anagrams! They use exactly the same letters.':a===b?'Those are the same word. Try rearranging it!':`Not anagrams. ${extraA.length?`The first has extra: ${extraA.join(', ').toUpperCase()}. `:''}${extraB.length?`The second has extra: ${extraB.join(', ').toUpperCase()}.`:''}`}</div>${yes?`<div class="row" style="margin-top:8px">${saveBtn($('#an-a').value.trim()+' → '+$('#an-b').value.trim(),'Anagram')}</div>`:''}`; };
+      $('#an-a').oninput=draw; $('#an-b').oninput=draw; draw();
+      $('#an-find').onclick=async()=>{ const w=clean($('#an-a').value); const box=$('#an-found'); if(!w){ return; } box.innerHTML=loading;
+        try{ const j=await askJSON(`${KID}\n\nFind real English anagrams of "${w}": words or short phrases that use exactly the same letters, each letter once. Common words first. Do not include "${w}" itself. Reply with only JSON: {"anagrams":["up to 10"],"note":"a short friendly note, especially if there are none"}`);
+          const target=[...L(w)].sort().join(''); const good=(j.anagrams||[]).filter(x=>[...L(x)].sort().join('')===target && L(x)!==L(w));
+          box.innerHTML= good.length? `<div class="gal">${good.map(x=>`<button data-an="${esc(w)}|${esc(x)}">${esc(x)}</button>`).join('')}</div><p class="small muted" style="margin-top:6px">Every answer was double-checked letter by letter. Tap one to compare.</p>` : `<p class="muted">${esc(j.note||'No anagrams found for that one.')}</p>`;
+        }catch(err){ box.innerHTML=`<p class="muted">${esc(errCopy(err))}</p>`; } };
+      $('#mod-body').onclick=e=>{ const b=e.target.closest('[data-an]'); if(b){ const [x,y]=b.dataset.an.split('|'); $('#an-a').value=x; $('#an-b').value=y; draw(); } }; }},
+  pangrams:{label:'Pangrams',render(){ return `<div class="card stack"><p class="lede" style="margin:0">A pangram uses every letter from A to Z. Type one and watch the alphabet light up. The shorter, the harder!</p><textarea id="pg-in" rows="2" maxlength="200" aria-label="Your sentence">Sphinx of black quartz, judge my vow.</textarea><div id="pg-out" class="stack"></div>
+    <div><div class="lab">Famous pangrams</div><div class="gal" style="margin-top:6px">${galBtns(C.pangrams,'data-pg')}</div></div></div>`; },
+    mount(){ const draw=()=>{ const t=$('#pg-in').value, l=t.toLowerCase().replace(/[^a-z]/g,''), have=new Set(l); const missing=[...'abcdefghijklmnopqrstuvwxyz'].filter(c=>!have.has(c));
+      $('#pg-out').innerHTML=`<div class="abc">${[...'abcdefghijklmnopqrstuvwxyz'].map(c=>`<span class="tl ${have.has(c)?'':'dim'}">${c}</span>`).join('')}</div><div class="banner ${missing.length?'no':'yes'}">${missing.length?`${26-missing.length} of 26 letters. Still missing: ${missing.join(' ').toUpperCase()}`:`Pangram! You used all 26 letters in ${l.length} letters total.`}</div>${!missing.length?`<div class="row">${saveBtn(t.trim(),'Pangram',l.length+' letters')}</div>`:''}`; };
+      $('#pg-in').oninput=draw; draw();
+      $('#mod-body').onclick=e=>{ const b=e.target.closest('[data-pg]'); if(b){ $('#pg-in').value=b.dataset.pg; draw(); } }; }},
+  upside:{label:'Upside-down words',render(){ return `<div class="card stack"><p class="lede" style="margin:0">Some words still read as words when you turn them upside down. Type one to flip it.</p><input id="ud-in" class="big-in" maxlength="16" value="SWIMS" aria-label="Type a word" autocapitalize="none"><div id="ud-out"></div>
+    <div><div class="lab">Try these</div><div class="gal" style="margin-top:6px">${galBtns(C.upsidedown,'data-ud')}</div></div><p class="small muted">Capitals and small letters flip differently. MOM becomes WOW, and pod stays pod.</p></div>`; },
+    mount(){ const draw=()=>{ const w=$('#ud-in').value.trim(); const out=$('#ud-out'); if(!w){ out.innerHTML=''; return; }
+      const ok=[...w].every(c=>ROT[c]); const flip=[...w].reverse().map(c=>ROT[c]||'?').join('');
+      out.innerHTML=`<div class="flip"><div><div class="lab">Right side up</div><div class="wd">${esc(w)}</div></div><div><div class="lab">Upside down</div><div class="wd"><span class="rot">${esc(w)}</span></div></div></div><div class="banner ${ok?'yes':'no'}" style="margin-top:10px">${ok? (flip===w?`${esc(w)} stays ${esc(w)} upside down!`:`${esc(w)} turns into <b>${esc(flip)}</b>!`) : 'Some of these letters don\'t survive the flip. Try letters like S, O, N, H, I, X, Z, M, and W.'}</div>`; };
+      $('#ud-in').oninput=draw; draw();
+      $('#mod-body').onclick=e=>{ const b=e.target.closest('[data-ud]'); if(b){ $('#ud-in').value=b.dataset.ud; draw(); } }; }}
+};
+
+/* ======================================================================
+   SOUNDS
+   ====================================================================== */
+const TEAMGAME=['ea','oo','ou','ow','ie','ei','oe'];
+const sounds={
+  count:{label:'Count the sounds',render(){ return `<div class="card stack"><p class="lede" style="margin:0">Letters are what you see. Phonemes are what you hear. Listen, then count the sounds, not the letters.</p><div id="ph"></div></div>`; },
+    mount(){ let n=0,right=0,order=shuffle(C.phonemes),cur=null,locked=false; const box=$('#ph');
+      const next=()=>{ locked=false; if(n>=10){ const b=store.get('wl.best.ph',0); if(right>b) store.set('wl.best.ph',right); box.innerHTML=`<div class="banner yes">${right} out of 10!${right>b?' New best!':''}</div><div class="row" style="margin-top:12px"><button class="btn primary" id="ph-again">Play again</button></div>`; $('#ph-again').onclick=()=>{n=0;right=0;order=shuffle(C.phonemes);next();}; return; }
+        cur=order[n%order.length];
+        box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10</span><span class="score">${right} right · best ${store.get('wl.best.ph',0)}</span></div><div class="row" style="gap:14px;margin:10px 0"><span class="det-word">${esc(cur[0])}</span>${hear(cur[0])}</div><p>How many sounds?</p><div class="answers" id="ph-a">${[1,2,3,4,5,6].map(k=>`<button data-k="${k}">${k}</button>`).join('')}</div><div id="ph-fb" class="fb"></div>`; };
+      box.onclick=e=>{ const b=e.target.closest('#ph-a [data-k]'); if(!b||locked) return; locked=true; n++; const ans=cur[1].length, ok=+b.dataset.k===ans; if(ok) right++;
+        $$('#ph-a button').forEach(x=>{ if(+x.dataset.k===ans) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+        const L=cur[0].length, mx=Math.max(L,ans);
+        $('#ph-fb').innerHTML=`<p class="${ok?'good':'bad'}" style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Listen again.'}</b> ${esc(cur[0])} has ${ans} ${ans===1?'sound':'sounds'}:</p><div class="row" style="margin:8px 0">${cur[1].map(s=>`<span class="snd">${esc(s)}</span>`).join('<span class="muted">·</span>')}</div><p class="ipa">In the phonetic alphabet: ${esc(cur[2])}</p><div class="stack" style="gap:6px;margin-top:10px"><div class="lvs"><span>Letters</span><i style="width:${L/mx*100}%;background:var(--tile)"></i><b>${L}</b></div><div class="lvs"><span>Sounds</span><i style="width:${ans/mx*100}%;background:var(--accent)"></i><b>${ans}</b></div></div><div class="row" style="margin-top:12px"><button class="btn primary" id="ph-next">Next word</button></div>`;
+        $('#ph-next').onclick=next; };
+      next(); }},
+  silent:{label:'Silent letters',render(){ return `<div class="row" style="justify-content:space-between"><div class="seg" id="sl-mode"><button data-m="look" aria-pressed="true">Explore</button><button data-m="game" aria-pressed="false">Find the silent letters</button></div></div><div id="sl"></div>`; },
+    mount(){ let letter=C.silent[0].l; const box=$('#sl');
+      const look=()=>{ const g=C.silent.find(x=>x.l===letter);
+        box.innerHTML=`<div class="chips" id="sl-l" style="margin-top:0">${C.silent.map(x=>`<button data-l="${x.l}" aria-pressed="${x.l===letter}">Silent ${x.l}</button>`).join('')}</div><div class="card stack"><div class="row">${g.words.map(w=>wchip(marked(w,'sil'),plain(w))).join('')}</div><p class="tip">${esc(g.note)}</p><p class="small muted">Faded, dotted letters are silent. Tap a word to hear it.</p><div class="row">${saveBtn('Silent '+g.l+': '+g.words.slice(0,4).map(plain).join(', '),'Silent letters')}</div></div>`;
+        $('#sl-l').onclick=e=>{ const b=e.target.closest('[data-l]'); if(b){ letter=b.dataset.l; look(); } }; };
+      const game=()=>{ const all=[]; C.silent.forEach(g=>g.words.forEach(w=>all.push(w))); let n=0,right=0,cur=null,picked=new Set();
+        const next=()=>{ if(n>=10){ box.innerHTML=`<div class="card"><div class="banner yes">${right} out of 10 words perfect!</div><div class="row" style="margin-top:12px"><button class="btn primary" id="sg-again">Play again</button></div></div>`; $('#sg-again').onclick=game; return; }
+          cur=pick(all); picked=new Set(); const m=markIdx(cur);
+          box.innerHTML=`<div class="card stack"><div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10 · ${right} perfect</span>${hear(plain(cur))}</div><p>Tap every silent letter, then press Check.</p><div class="tiles" id="sg-t" style="font-size:clamp(24px,5vw,38px)">${m.map(x=>`<button class="tl lc" data-i="${x.i}">${esc(x.ch)}</button>`).join('')}</div><div class="row"><button class="btn primary" id="sg-check">Check</button></div><div id="sg-fb"></div></div>`;
+          $('#sg-t').onclick=e=>{ const b=e.target.closest('[data-i]'); if(!b||b.disabled) return; const i=+b.dataset.i; if(picked.has(i)){picked.delete(i);b.classList.remove('pick');} else {picked.add(i);b.classList.add('pick');} };
+          $('#sg-check').onclick=()=>{ const m2=markIdx(cur), want=new Set(m2.filter(x=>x.on).map(x=>x.i)); const ok=want.size===picked.size&&[...want].every(i=>picked.has(i)); n++; if(ok) right++;
+            $$('#sg-t button').forEach(b=>{ const i=+b.dataset.i; b.disabled=true; b.classList.remove('pick'); if(want.has(i)) b.classList.add(picked.has(i)?'ok':'no'); else if(picked.has(i)) b.classList.add('dim'); });
+            const g=C.silent.find(x=>x.words.includes(cur));
+            $('#sg-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Perfect!':'Almost.'}</b> In ${esc(plain(cur))}, the silent ${want.size>1?'letters are':'letter is'} shown in color.</p><p class="small muted" style="margin-top:6px">${esc(g?g.note:'')}</p><div class="row" style="margin-top:10px"><button class="btn primary" id="sg-next">Next word</button></div>`;
+            $('#sg-check').hidden=true; $('#sg-next').onclick=next; speak(plain(cur)); }; };
+        next(); };
+      $('#sl-mode').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; $$('#sl-mode button').forEach(x=>x.setAttribute('aria-pressed',x===b)); b.dataset.m==='game'?game():look(); };
+      look(); }},
+  teams:{label:'Vowel teams',render(){ return `<div class="tip"><b>"When two vowels go walking, the first one does the talking."</b> Teachers say it a lot. In 1963, a researcher named Theodore Clymer checked the rule and found it worked only about 45% of the time!</div>
+    <div class="row"><div class="seg" id="vt-mode"><button data-m="look" aria-pressed="true">Explore</button><button data-m="game" aria-pressed="false">Which sound?</button></div></div><div id="vt"></div>`; },
+    mount(){ const box=$('#vt');
+      const look=()=>{ box.innerHTML=`<div class="grid">${C.vowelteams.map(t=>`<div class="card"><div class="tiles" style="font-size:28px">${t.t.split(' / ').map(x=>`<span class="tl lc">${esc(x)}</span>`).join('<span class="tl gap">/</span>')}</div>${t.sounds.map(s=>`<div style="margin-top:10px"><div class="lab">${esc(s[0])}</div><div class="row" style="margin-top:6px">${s[1].map(w=>wc(w)).join('')}</div></div>`).join('')}${t.note?`<p class="tip small" style="margin-top:10px">${esc(t.note)}</p>`:''}</div>`).join('')}</div>`; };
+      const game=()=>{ const teams=C.vowelteams.filter(t=>TEAMGAME.includes(t.t)); let n=0,right=0,locked=false,cur=null;
+        const next=()=>{ locked=false; if(n>=10){ box.innerHTML=`<div class="card"><div class="banner yes">${right} out of 10!</div><div class="row" style="margin-top:12px"><button class="btn primary" id="vg-again">Play again</button></div></div>`; $('#vg-again').onclick=game; return; }
+          const t=pick(teams), si=Math.floor(Math.random()*t.sounds.length), w=pick(t.sounds[si][1]); cur={t,si,w};
+          box.innerHTML=`<div class="card stack"><div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10 · ${right} right</span></div><div class="row" style="gap:14px"><span class="det-word">${esc(w).replace(new RegExp(t.t,'i'),m=>`<span style="color:var(--accent)">${m}</span>`)}</span>${hear(w)}</div><p>What sound does <b>${esc(t.t.toUpperCase())}</b> make here?</p><div class="answers" id="vg-a">${t.sounds.map((s,i)=>`<button data-i="${i}" style="font-size:17px">${esc(s[0])}</button>`).join('')}</div><div id="vg-fb" class="fb"></div></div>`; };
+        box.onclick=e=>{ const b=e.target.closest('#vg-a [data-i]'); if(!b||locked) return; locked=true; n++; const ok=+b.dataset.i===cur.si; if(ok) right++;
+          $$('#vg-a button').forEach(x=>{ if(+x.dataset.i===cur.si) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+          $('#vg-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Not this time.'}</b> In ${esc(cur.w)}, ${esc(cur.t.t.toUpperCase())} makes the ${esc(cur.t.sounds[cur.si][0])} sound.</p><div class="row" style="margin-top:10px"><button class="btn primary" id="vg-next">Next word</button></div>`; $('#vg-next').onclick=next; };
+        next(); };
+      $('#vt-mode').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; $$('#vt-mode button').forEach(x=>x.setAttribute('aria-pressed',x===b)); box.onclick=null; b.dataset.m==='game'?game():look(); };
+      look(); }},
+  schwa:{label:'The schwa',render(){ const S=C.schwa; return `<div class="card stack"><div class="row" style="gap:16px"><span class="tl lc" style="font-size:56px">ə</span><div style="flex:1;min-width:200px"><h3 class="sec-h" style="font-size:26px">The lazy "uh"</h3><p class="lede">Say <i>banana</i> fast. The first and last A's don't sound like A at all. They sound like "uh." That sound is the schwa.</p></div></div>
+    <div class="row">${S.words.map(w=>wchip(marked(w,'swa'),plain(w))).join('')}</div><p class="small muted">The highlighted letters make the schwa sound.</p></div>
+    <div class="grid">${S.facts.map(f=>`<p class="tip">${esc(f)}</p>`).join('')}</div>
+    <div class="card stack"><h3 class="sec-h" style="font-size:22px">Find the schwa</h3><div id="sw-g"></div></div>`; },
+    mount(){ const box=$('#sw-g'); let n=0,right=0;
+      const next=()=>{ if(n>=8){ box.innerHTML=`<div class="banner yes">${right} out of 8!</div><div class="row" style="margin-top:10px"><button class="btn primary" id="sw-again">Play again</button></div>`; $('#sw-again').onclick=()=>{n=0;right=0;next();}; return; }
+        const w=pick(C.schwa.words), m=markIdx(w); let picked=new Set();
+        box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 8 · ${right} perfect</span>${hear(plain(w))}</div><p style="margin:8px 0">Tap every letter that says "uh," then Check.</p><div class="tiles" id="sw-t" style="font-size:clamp(24px,5vw,38px)">${m.map(x=>`<button class="tl lc" data-i="${x.i}">${esc(x.ch)}</button>`).join('')}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="sw-c">Check</button></div><div id="sw-fb"></div>`;
+        $('#sw-t').onclick=e=>{ const b=e.target.closest('[data-i]'); if(!b||b.disabled) return; const i=+b.dataset.i; if(picked.has(i)){picked.delete(i);b.classList.remove('pick');} else {picked.add(i);b.classList.add('pick');} };
+        $('#sw-c').onclick=()=>{ const want=new Set(m.filter(x=>x.on).map(x=>x.i)); const ok=want.size===picked.size&&[...want].every(i=>picked.has(i)); n++; if(ok) right++;
+          $$('#sw-t button').forEach(b=>{ const i=+b.dataset.i; b.disabled=true; b.classList.remove('pick'); if(want.has(i)) b.classList.add(picked.has(i)?'ok':'no'); else if(picked.has(i)) b.classList.add('dim'); });
+          $('#sw-fb').innerHTML=`<p style="margin-top:10px;color:var(--${ok?'good':'bad'})"><b>${ok?'Perfect!':'Almost.'}</b> The schwa ${want.size>1?'letters are':'letter is'} shown in color.</p><div class="row" style="margin-top:10px"><button class="btn primary" id="sw-n">Next word</button></div>`; $('#sw-c').hidden=true; $('#sw-n').onclick=next; speak(plain(w)); }; };
+      next(); }},
+  spellsounds:{label:'One spelling, many sounds',render(){ return `<p class="lede" style="margin:0">The same letters can make completely different sounds.</p><div class="grid">${C.spellsounds.map(g=>`<div class="card"><div class="tiles" style="font-size:28px">${[...g.sp].map(c=>`<span class="tl lc">${esc(c)}</span>`).join('')}</div><div class="stack" style="gap:6px;margin-top:12px">${g.items.map(([w,s])=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap">${wc(w)}<span class="snd" style="background:var(--soft);color:var(--ink)">${esc(s)}</span></div>`).join('')}</div>${g.note?`<p class="tip small" style="margin-top:10px">${esc(g.note)}</p>`:''}</div>`).join('')}</div>
+    <div class="card"><div class="lab">Reading challenge</div><p style="font-size:19px;margin-top:6px">A rough-coated, dough-faced, thoughtful ploughman strode through the streets of Scarborough; after falling into a slough, he coughed and hiccoughed.</p><p class="small muted" style="margin-top:6px">Every OUGH in this old sentence sounds different. Can you read it aloud?</p><div class="row" style="margin-top:8px">${hear('A rough-coated, dough-faced, thoughtful ploughman strode through the streets of Scarborough; after falling into a slough, he coughed and hiccoughed.',null,'the sentence')}</div></div>`; }},
+  soundspells:{label:'One sound, many spellings',render(){ return `<p class="lede" style="margin:0">The same sound can be spelled lots of different ways. Tap words to hear that they all share a sound.</p><div class="grid">${C.soundspells.map(g=>`<div class="card"><h3 class="sec-h" style="font-size:22px">The ${esc(g.snd)} sound</h3><p class="small muted">${g.items.length} spellings</p><div class="row" style="margin-top:10px">${g.items.map(w=>wc(w)).join('')}</div>${g.note?`<p class="tip small" style="margin-top:10px">${esc(g.note)}</p>`:''}</div>`).join('')}</div>`; }},
+  rhymes:{label:'Rhymes',render(){ const R=C.rhymes; return `<div class="grid">${R.types.map(t=>`<div class="card"><h3 class="sec-h" style="font-size:22px">${esc(t[0])}</h3><p class="lede">${esc(t[1])}</p><div class="row" style="margin-top:10px">${t[2].map(x=>wc(x)).join('')}</div></div>`).join('')}</div><p class="tip">${esc(R.fact)}</p>
+    <div class="card stack" data-claude><h3 class="sec-h" style="font-size:24px">Rhyme finder</h3><form id="rh-f" class="row" autocomplete="off"><input id="rh-in" maxlength="30" placeholder="light" style="flex:1;min-width:160px" aria-label="Word to rhyme" autocapitalize="none"><button class="btn primary" type="submit">Find rhymes</button></form><div id="rh-out"></div></div>`; },
+    mount(){ $('#rh-f').addEventListener('submit',async e=>{ e.preventDefault(); const w=clean($('#rh-in').value); const out=$('#rh-out'); if(!w) return; out.innerHTML=loading;
+      try{ const j=await askJSON(`${KID}\n\nList rhymes for "${w}". Reply with only JSON: {"perfect":["up to 12 real words, common ones a kid knows first, then a few harder ones"],"near":["up to 6 near rhymes"],"eye":["up to 4 eye rhymes: words that look like they rhyme with it but don't sound alike"],"note":"one interesting sentence about these rhymes, or an empty string"}. Use only real English words suitable for a child. If "${w}" isn't a word, return empty lists and a friendly note.`);
+        const grp=(t,a)=>a&&a.length?`<div style="margin-top:10px"><div class="lab">${t}</div><div class="row" style="margin-top:6px">${a.map(x=>wc(x)).join('')}</div></div>`:'';
+        out.innerHTML=`${grp('Perfect rhymes',j.perfect)}${grp('Near rhymes',j.near)}${grp('Eye rhymes',j.eye)}${j.note?`<p class="tip" style="margin-top:12px">${esc(j.note)}</p>`:''}${(j.perfect||[]).length?`<div class="row" style="margin-top:10px">${saveBtn(w+': '+j.perfect.slice(0,6).join(', '),'Rhymes')}</div>`:''}`;
+      }catch(err){ out.innerHTML=`<p class="muted">${esc(errCopy(err))}</p>`; } }); }},
+  ono:{label:'Onomatopoeia',render(){ const O=C.ono; return `<p class="lede" style="margin:0">Words that sound like what they mean. Animals make the same sounds everywhere, but every language writes them differently! Tap a box to hear it in that language.</p>
+    <div class="card ono"><table><thead><tr><th></th>${O.langs.map(l=>`<th>${esc(l[1])}</th>`).join('')}</tr></thead><tbody>${O.animals.map(a=>`<tr><th class="an">${a[1]} ${esc(a[0])}</th>${a[2].map((c,i)=>`<td><button data-say="${esc(c[0])}" data-lang="${O.langs[i][0]}"><b>${esc(c[0])}</b>${c[1]?`<span>${esc(c[1])}</span>`:''}</button></td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="small muted">Other languages need their own iPad voice. If a box doesn't speak, the app will say how to add that voice.</p>
+    <div class="grid">${O.english.map(g=>`<div class="card"><h3 class="sec-h" style="font-size:21px">${esc(g[0])}</h3><div class="row" style="margin-top:8px">${g[1].map(w=>wc(w)).join('')}</div></div>`).join('')}</div><p class="tip">${esc(O.fact)}</p>`; }}
+};
+
+/* ======================================================================
+   ALPHABETS (ported from the Chart Lab)
+   ====================================================================== */
+const KIND={
+  'Alphabet':'Letters stand for both consonants and vowels, like English.',
+  'Abjad':'Letters are mostly consonants. Vowels are often left out or added as small marks.',
+  'Abugida':'Each consonant comes with a built-in vowel sound. Small marks change the vowel.',
+  'Syllabary':'Each symbol stands for a whole syllable, like "ka" or "mo".',
+  'Featural alphabet':'Letter shapes show how your mouth makes the sound, and letters stack into syllable blocks.'
+};
+const sp=(glyphs,sounds)=>{ const g=Array.from(glyphs), s=sounds.split(' '); return g.map((x,i)=>[x,s[i]||'']); };
+const HIRA=sp('あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん','a i u e o ka ki ku ke ko sa shi su se so ta chi tsu te to na ni nu ne no ha hi fu he ho ma mi mu me mo ya yu yo ra ri ru re ro wa wo n');
+const CHER=(()=>{ const s='a e i o u v ga ka ge gi go gu gv ha he hi ho hu hv la le li lo lu lv ma me mi mo mu'.split(' '); return s.map((x,i)=>[String.fromCodePoint(0x13A0+i),x]); })();
+const SCRIPTS=[
+  {id:'greek',name:'Greek',where:'Greece',count:'24',dir:'Left to right',kind:'Alphabet',sample:'Ω',fact:'The word "alphabet" comes from the first two Greek letters, alpha and beta.',
+    tiles:[['Α α','alpha · a'],['Β β','beta · b'],['Γ γ','gamma · g'],['Δ δ','delta · d'],['Ε ε','epsilon · e'],['Ζ ζ','zeta · z'],['Η η','eta · ee'],['Θ θ','theta · th'],['Ι ι','iota · i'],['Κ κ','kappa · k'],['Λ λ','lambda · l'],['Μ μ','mu · m'],['Ν ν','nu · n'],['Ξ ξ','xi · ks'],['Ο ο','omicron · o'],['Π π','pi · p'],['Ρ ρ','rho · r'],['Σ σ','sigma · s'],['Τ τ','tau · t'],['Υ υ','upsilon · u'],['Φ φ','phi · f'],['Χ χ','chi · kh'],['Ψ ψ','psi · ps'],['Ω ω','omega · o']]},
+  {id:'russian',name:'Russian (Cyrillic)',where:'Russia, Ukraine, Bulgaria, Serbia and more',count:'33',dir:'Left to right',kind:'Alphabet',sample:'Ж',fact:'Cyrillic is named in honor of Saint Cyril, a teacher who lived in the 800s.',
+    tiles:sp('АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ','a b v g d ye yo zh z ee y k l m n o p r s t oo f kh ts ch sh shch (hard) ih (soft) e yu ya')},
+  {id:'hebrew',name:'Hebrew',where:'Israel',count:'22',dir:'Right to left',rtl:true,kind:'Abjad',sample:'א',fact:'Five Hebrew letters change shape when they come at the end of a word.',
+    tiles:[['א','alef · silent'],['ב','bet · b/v'],['ג','gimel · g'],['ד','dalet · d'],['ה','he · h'],['ו','vav · v'],['ז','zayin · z'],['ח','het · kh'],['ט','tet · t'],['י','yod · y'],['כ','kaf · k/kh'],['ל','lamed · l'],['מ','mem · m'],['נ','nun · n'],['ס','samekh · s'],['ע','ayin · silent'],['פ','pe · p/f'],['צ','tsadi · ts'],['ק','qof · k'],['ר','resh · r'],['ש','shin · sh/s'],['ת','tav · t']]},
+  {id:'arabic',name:'Arabic',where:'Egypt, Saudi Arabia, Morocco and many more',count:'28',dir:'Right to left',rtl:true,kind:'Abjad',sample:'ع',fact:'Most Arabic letters join together and change shape depending on where they sit in a word.',
+    tiles:[['ا','alif · a'],['ب','ba · b'],['ت','ta · t'],['ث','tha · th'],['ج','jim · j'],['ح','ha · h (breathy)'],['خ','kha · kh'],['د','dal · d'],['ذ','dhal · th'],['ر','ra · r'],['ز','zay · z'],['س','sin · s'],['ش','shin · sh'],['ص','sad · s (heavy)'],['ض','dad · d (heavy)'],['ط','ta · t (heavy)'],['ظ','za · th (heavy)'],['ع','ayn · throat'],['غ','ghayn · gh'],['ف','fa · f'],['ق','qaf · q'],['ك','kaf · k'],['ل','lam · l'],['م','mim · m'],['ن','nun · n'],['ه','ha · h'],['و','waw · w'],['ي','ya · y']]},
+  {id:'hindi',name:'Hindi (Devanagari)',where:'India and Nepal',count:'about 47',dir:'Left to right',kind:'Abugida',sample:'क',fact:'See the line along the top? Letters hang from it, like laundry on a clothesline.',note:'Vowels first, then consonants.',
+    tiles:sp('अआइईउऊऋएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह','a aa i ee u oo ri e ai o au ka kha ga gha nga cha chha ja jha nya ṭa ṭha ḍa ḍha ṇa ta tha da dha na pa pha ba bha ma ya ra la va sha ṣha sa ha')},
+  {id:'korean',name:'Korean (Hangul)',where:'South Korea and North Korea',count:'24',dir:'Left to right',kind:'Featural alphabet',sample:'한',fact:'King Sejong had Hangul invented in 1443 so that everyone, not just scholars, could learn to read.',note:'14 consonants, then 10 vowels. They stack together: ㅎ + ㅏ + ㄴ = 한 (han).',
+    tiles:sp('ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ','g/k n d/t r/l m b/p s silent/ng j ch k t p h a ya eo yeo o yo u yu eu i')},
+  {id:'japanese',name:'Japanese (Hiragana)',where:'Japan',count:'46',dir:'Left to right, or top to bottom',kind:'Syllabary',sample:'あ',fact:'Japanese mixes three writing systems: hiragana, katakana, and kanji.',tiles:HIRA},
+  {id:'georgian',name:'Georgian',where:'Georgia (the country)',count:'33',dir:'Left to right',kind:'Alphabet',sample:'ა',fact:'Everyday Georgian writing has no capital letters.',
+    tiles:sp('აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ',"a b g d e v z t i k' l m n o p' zh r s t' u p k gh q' sh ch ts dz ts' ch' kh j h")},
+  {id:'thai',name:'Thai',where:'Thailand',count:'44 consonants',dir:'Left to right',kind:'Abugida',sample:'ก',fact:'Thai has no spaces between words. Spaces mark the end of a phrase or sentence.',note:'A sample of the 44 consonants. Vowels are marks written around them.',
+    tiles:sp('กขคงจฉชซญดตถทนบปผฝพฟมยรลวสหอฮ','k kh kh ng j ch ch s y d t th th n b p ph f ph f m y r l w s h (vowel) h')},
+  {id:'cherokee',name:'Cherokee',where:'Cherokee Nation, USA',count:'85',dir:'Left to right',kind:'Syllabary',sample:'Ꮳ',fact:'Sequoyah created this syllabary in the 1820s, and within a few years many Cherokee people could read and write.',note:'The first 30 of the 85 symbols.',tiles:CHER},
+  {id:'latin',name:'English (Latin)',where:'English, Spanish, French and many more',count:'26',dir:'Left to right',kind:'Alphabet',sample:'A',fact:'The Romans made this alphabet from letters that started with the Greeks and the Etruscans.',
+    tiles:Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ').map(c=>[c+' '+c.toLowerCase(),''])}
+];
+
+const COUNTS={title:'How many letters in each writing system?',type:'hbar',sort:'desc',pct:false,items:[
+  {emoji:'Ꭰ',label:'Cherokee',value:85},{emoji:'ក',label:'Khmer (Cambodia)',value:74},{emoji:'क',label:'Hindi',value:47},{emoji:'あ',label:'Japanese',value:46},
+  {emoji:'ก',label:'Thai',value:44},{emoji:'Ж',label:'Russian',value:33},{emoji:'ა',label:'Georgian',value:33},{emoji:'ع',label:'Arabic',value:28},
+  {emoji:'A',label:'English',value:26},{emoji:'Ω',label:'Greek',value:24},{emoji:'한',label:'Korean',value:24},{emoji:'א',label:'Hebrew',value:22},
+  {emoji:'ʻ',label:'Hawaiian',value:13},{emoji:'R',label:'Rotokas (Papua New Guinea)',value:12}
+].map((d,i)=>({...d,color:PAL[i%PAL.length]}))};
+
+
+function greedy(s,table){ let out='',i=0; while(i<s.length){ let hit=null; for(const [a,b] of table){ if(s.startsWith(a,i)){ hit=[a,b]; break; } } if(hit){ out+=hit[1]; i+=hit[0].length; } else i++; } return out; }
+const cap=s=>s? s.charAt(0).toUpperCase()+s.slice(1) : s;
+const prepName=n=>String(n||'').toLowerCase().replace(/[^a-z]/g,'').replace(/c(?=[eiy])/g,'s').replace(/qu/g,'kv').replace(/(.)\1+/g,'$1');
+const GR=[['th','θ'],['ph','φ'],['ch','χ'],['ps','ψ'],['ks','ξ'],['x','ξ'],['sh','σ'],['ou','ου'],['a','α'],['b','β'],['c','κ'],['d','δ'],['e','ε'],['f','φ'],['g','γ'],['h',''],['i','ι'],['j','τζ'],['k','κ'],['l','λ'],['m','μ'],['n','ν'],['o','ο'],['p','π'],['q','κ'],['r','ρ'],['s','σ'],['t','τ'],['u','ου'],['v','β'],['w','ου'],['y','ι'],['z','ζ']];
+const CY=[['shch','щ'],['sh','ш'],['ch','ч'],['zh','ж'],['ts','ц'],['kh','х'],['th','т'],['ph','ф'],['ya','я'],['yu','ю'],['yo','йо'],['ye','е'],['x','кс'],['a','а'],['b','б'],['c','к'],['d','д'],['e','е'],['f','ф'],['g','г'],['h','х'],['i','и'],['j','дж'],['k','к'],['l','л'],['m','м'],['n','н'],['o','о'],['p','п'],['q','к'],['r','р'],['s','с'],['t','т'],['u','у'],['v','в'],['w','в'],['y','и'],['z','з']];
+function toGreek(n){ const s=greedy(prepName(n),GR).replace(/σ$/,'ς'); return cap(s); }
+function toCyr(n){ return cap(greedy(prepName(n),CY)); }
+function tokens(n){
+  const s=prepName(n), out=[], V='aeiou'; let i=0;
+  while(i<s.length){
+    const c=s[i], two=s.slice(i,i+2), nx=s[i+1];
+    if(V.includes(c)){ out.push({v:c}); i++; continue; }
+    if(c==='y'||c==='w'){ const prevC=out.length&&out[out.length-1].c; if(nx&&V.includes(nx)&&!(c==='y'&&prevC)) out.push({c}); else out.push({v:c==='y'?'i':'u'}); i++; continue; }
+    if(['sh','ch','th','ph','ck','ts','kh','zh'].includes(two)){ out.push({c:{sh:'sh',ch:'ch',th:'s',ph:'f',ck:'k',ts:'ts',kh:'k',zh:'j'}[two]}); i+=2; continue; }
+    if(two==='ng' && !(s[i+2]&&V.includes(s[i+2]))){ out.push({c:'ng'}); i+=2; continue; }
+    if(c==='x'){ out.push({c:'k'},{c:'s'}); i++; continue; }
+    out.push({c:{c:'k',q:'k',l:'l'}[c]||c}); i++;
+  }
+  return out;
+}
+const VI={a:0,i:1,u:2,e:3,o:4};
+const KROW={k:'カキクケコ',g:'ガギグゲゴ',s:'サシスセソ',z:'ザジズゼゾ',n:'ナニヌネノ',h:'ハヒフヘホ',b:'バビブベボ',p:'パピプペポ',m:'マミムメモ',r:'ラリルレロ',l:'ラリルレロ'};
+const KSP={t:['タ','ティ','トゥ','テ','ト'],d:['ダ','ディ','ドゥ','デ','ド'],f:['ファ','フィ','フ','フェ','フォ'],v:['ヴァ','ヴィ','ヴ','ヴェ','ヴォ'],j:['ジャ','ジ','ジュ','ジェ','ジョ'],ch:['チャ','チ','チュ','チェ','チョ'],sh:['シャ','シ','シュ','シェ','ショ'],ts:['ツァ','ツィ','ツ','ツェ','ツォ'],w:['ワ','ウィ','ウ','ウェ','ウォ'],y:['ヤ','イ','ユ','イェ','ヨ']};
+const KLONE={k:'ク',g:'グ',s:'ス',z:'ズ',t:'ト',d:'ド',n:'ン',m:'ム',h:'',b:'ブ',p:'プ',r:'ル',l:'ル',f:'フ',v:'ヴ',j:'ジ',ch:'チ',sh:'シュ',ts:'ツ',ng:'ング'};
+function toKana(n){
+  const T=tokens(n); let out='';
+  for(let i=0;i<T.length;i++){
+    const t=T[i], nx=T[i+1];
+    if(t.v){ out+='アイウエオ'[VI[t.v]]; continue; }
+    if(nx&&nx.v){ const v=VI[nx.v]; out+= KROW[t.c]? KROW[t.c][v] : KSP[t.c]? KSP[t.c][v] : t.c==='ng'? 'ン'+KROW.g[v] : 'アイウエオ'[v]; i++; }
+    else out+=KLONE[t.c]||'';
+  }
+  return out;
+}
+const HV={a:0,e:5,i:20,o:8,u:13}, YV={a:2,e:7,i:20,o:12,u:17}, WV={a:9,e:15,i:16,o:14,u:13};
+const HL={k:15,g:0,n:2,d:3,t:16,r:5,l:5,m:6,b:7,v:7,p:17,f:17,s:9,z:12,j:12,ch:14,h:18,sh:9,y:11,w:11,ng:11,ts:14};
+const HF={n:4,m:16,l:8,r:8,k:1,p:17,ng:21};
+function toHangul(n){
+  const T=tokens(n), out=[], syl=(L,V,F)=>String.fromCharCode(0xAC00+(L*21+V)*28+(F||0));
+  for(let i=0;i<T.length;i++){
+    const t=T[i]; let L,V;
+    if(t.v){ L=11; V=HV[t.v]; }
+    else{
+      const nx=T[i+1];
+      if(nx&&nx.v){ L=HL[t.c]; if(L==null) L=11; V=(t.c==='y'||t.c==='sh')? YV[nx.v] : t.c==='w'? WV[nx.v] : HV[nx.v]; i++; }
+      else{ if(t.c==='h') continue; out.push(syl(HL[t.c]==null?11:HL[t.c], ['ch','j','sh'].includes(t.c)?20:18)); continue; }
+    }
+    let F=0; const a=T[i+1], b=T[i+2];
+    if(a&&a.c&&HF[a.c]!=null&&(!b||b.c)){ F=HF[a.c]; i++; }
+    out.push(syl(L,V,F));
+  }
+  return out.join('');
+}
+
+const TRICK=[
+  {g:'Р',from:'Russian',ans:'R',trap:'P',why:'Р looks like our P, but in Russian it says R.'},
+  {g:'Н',from:'Russian',ans:'N',trap:'H',why:'Н looks like our H, but in Russian it says N.'},
+  {g:'В',from:'Russian',ans:'V',trap:'B',why:'В looks like our B, but in Russian it says V.'},
+  {g:'С',from:'Russian',ans:'S',trap:'K',why:'С looks like our C, and in Russian it always says S.'},
+  {g:'У',from:'Russian',ans:'OO',trap:'Y',why:'У looks like our Y, but in Russian it says OO, as in "moon".'},
+  {g:'Х',from:'Russian',ans:'KH',trap:'KS',why:'Х looks like our X, but it says KH, a scratchy sound like the end of "Bach".'},
+  {g:'И',from:'Russian',ans:'EE',trap:'N',why:'И looks like a backwards N, but in Russian it says EE.'},
+  {g:'Я',from:'Russian',ans:'YA',trap:'R',why:'Я looks like a backwards R, but in Russian it says YA.'},
+  {g:'Ш',from:'Russian',ans:'SH',trap:'W',why:'Ш looks a bit like W, but in Russian it says SH.'},
+  {g:'Ρ',from:'Greek',ans:'R',trap:'P',why:'Greek Ρ (rho) looks like P, but it says R.'},
+  {g:'ν',from:'Greek',ans:'N',trap:'V',why:'Greek ν (nu) looks like v, but it says N.'},
+  {g:'Η',from:'Greek',ans:'EE',trap:'H',why:'Greek Η (eta) looks like H, but in modern Greek it says EE.'},
+  {g:'Χ',from:'Greek',ans:'KH',trap:'KS',why:'Greek Χ (chi) looks like X, but it says KH.'},
+  {g:'γ',from:'Greek',ans:'G',trap:'Y',why:'Greek γ (gamma) looks like y, but it makes a G sound.'}
+];
+
+const alpha={
+  today:{label:'Today',render(){ return `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"><div class="card"><div class="lab">Letter of the day</div><div class="lotd" id="a-lotd" style="margin-top:10px"></div></div><div class="card stack"><label class="lab" for="a-name">My name around the world</label><input id="a-name" maxlength="20" autocomplete="off" autocapitalize="words" spellcheck="false"><div class="stack" style="gap:8px" id="a-names"></div><p class="small muted">These spell how a name sounds, so they're close but not always the official spelling.</p></div></div>`; },
+    mount(){ drawLotd(false); $('#a-name').value=store.get('wl.name','Felix'); $('#a-name').oninput=drawNames; drawNames(); }},
+  scripts:{label:'Writing systems',render(){ return `<div class="card"><p class="lede" style="margin:0 0 12px">Tap one to see its letters.</p><div class="scripts" id="a-grid"></div><div id="a-detail"></div></div>`; }, mount(){ drawScripts(); $('#a-grid').onclick=e=>{ const b=e.target.closest('.sc'); if(!b) return; openScript=openScript===b.dataset.id?null:b.dataset.id; drawScripts(); if(openScript){ try{ $('#a-detail').scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'}); }catch(err){} } }; }},
+  counts:{label:'How many letters?',render(){ const it=COUNTS.items.slice().sort((a,b)=>b.value-a.value), mx=it[0].value; return `<div class="card stack"><p class="lede" style="margin:0">Basic letters or symbols in each writing system.</p><div class="bars">${it.map((d,i)=>`<div class="bar"><div class="lb"><b>${esc(d.emoji)}</b>${esc(d.label)}</div><i style="width:${d.value/mx*100}%;background:${PAL[i%PAL.length]}"></i><span>${d.value}</span></div>`).join('')}</div><p class="small muted">Some counts depend on how you count. Hindi is about 47, and Thai's 44 are only its consonants, because its vowels are marks.</p></div>`; }},
+  trick:{label:'Trick letters',render(){ return `<div class="card"><p class="lede" style="margin:0 0 12px">These letters look like ours, but they make a different sound. What sound does this one make?</p><div class="qz"><div class="big" id="q-glyph" aria-live="polite"></div><div><span class="lab" id="q-from"></span><div class="answers" id="q-choices" style="margin:10px 0"></div><p class="fb" id="q-fb" aria-live="polite"></p><div class="row"><button class="btn" id="q-next">Next letter</button><span class="score" id="q-score"></span></div></div></div></div>`; },
+    mount(){ newQ(); $('#q-next').onclick=newQ; $('#q-choices').onclick=e=>{ const b=e.target.closest('button'); if(!b||qDone) return; qDone=true; qTried++; const ok=b.dataset.c===q.ans; if(ok) qRight++;
+      $$('#q-choices button').forEach(x=>{ if(x.dataset.c===q.ans) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+      $('#q-fb').innerHTML=(ok?'<b style="color:var(--good)">Yes!</b> ':'<b style="color:var(--bad)">Tricky one.</b> ')+esc(q.why); $('#q-score').textContent=`${qRight} of ${qTried} right`; }; }}
+};
+function drawLotd(random){
+  const pool=[]; SCRIPTS.forEach(s=>{ if(s.id!=='latin') s.tiles.forEach(t=>pool.push([s,t])); });
+  const d=new Date(), day=d.getFullYear()*400+d.getMonth()*32+d.getDate();
+  const idx=random? Math.floor(Math.random()*pool.length) : (day*7919)%pool.length;
+  const [s,t]=pool[idx];
+  $('#a-lotd').innerHTML=`<div class="big">${esc(t[0])}</div><div><h3 class="sec-h" style="font-size:22px">${esc(s.name)}</h3><p class="muted" style="margin:4px 0 10px">Sounds like: <b style="color:var(--ink)">${esc(t[1]||'—')}</b><br>Written ${esc(s.dir.toLowerCase())}.</p><button class="btn sm" id="lotd-more">Show me another</button></div>`;
+  $('#lotd-more').onclick=()=>drawLotd(true);
+}
+function drawNames(){
+  const n=$('#a-name').value.trim();
+  if(!/[a-z]/i.test(n)){ $('#a-names').innerHTML='<p class="muted">Type a name using English letters.</p>'; return; }
+  const rows=[['Greek',toGreek(n)],['Russian (Cyrillic)',toCyr(n)],['Japanese (Katakana)',toKana(n)],['Korean (Hangul)',toHangul(n)]];
+  $('#a-names').innerHTML=rows.map(([a,b])=>`<div class="nm-row"><span>${a}</span><b>${esc(b)}</b></div>`).join('');
+  store.set('wl.name',n);
+}
+let openScript=null;
+function drawScripts(){
+  $('#a-grid').innerHTML=SCRIPTS.map(s=>`<button class="sc" data-id="${s.id}" aria-expanded="${openScript===s.id}"><span class="g">${esc(s.sample)}</span><b>${esc(s.name)}</b><small>${esc(s.count)} · ${s.rtl?'right to left ←':'left to right →'}</small></button>`).join('');
+  const s=SCRIPTS.find(x=>x.id===openScript);
+  if(!s){ $('#a-detail').innerHTML=''; return; }
+  $('#a-detail').innerHTML=`<div style="margin-top:16px;border-top:2px dashed var(--line);padding-top:16px"><h3 class="sec-h" style="font-size:26px">${esc(s.name)}</h3>
+    <div class="facts"><span>${esc(s.count)} letters</span><span>${esc(s.dir)}</span><span>Type: ${esc(s.kind)}</span><span>Used in: ${esc(s.where)}</span></div>
+    <p style="margin:0 0 6px"><b>${esc(s.kind)}:</b> ${esc(KIND[s.kind])}</p><p>${esc(s.fact)}</p>
+    ${s.note?`<p class="small muted" style="margin-top:6px">${esc(s.note)}</p>`:''}${s.rtl?'<p class="small muted" style="margin-top:6px">The letters below are laid out right to left, the way this script is read.</p>':''}
+    <div class="gtiles" dir="${s.rtl?'rtl':'ltr'}">${s.tiles.map(t=>`<div class="gtile"><span class="tg">${esc(t[0])}</span>${t[1]?`<small dir="ltr">${esc(t[1])}</small>`:''}</div>`).join('')}</div></div>`;
+}
+let q=null,qRight=0,qTried=0,qLast=-1,qDone=false;
+function newQ(){
+  let i; do{ i=Math.floor(Math.random()*TRICK.length); }while(i===qLast&&TRICK.length>1); qLast=i; q=TRICK[i]; qDone=false;
+  const others=[...new Set(TRICK.map(t=>t.ans))].filter(a=>a!==q.ans&&a!==q.trap);
+  const ch=shuffle([q.ans,q.trap,pick(others)]);
+  $('#q-glyph').textContent=q.g; $('#q-from').textContent=q.from+' letter';
+  $('#q-choices').innerHTML=ch.map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('#q-fb').textContent=''; $('#q-score').textContent=qTried?`${qRight} of ${qTried} right`:'';
+}
+
+/* ======================================================================
+   SPELLING MYSTERIES
+   ====================================================================== */
+const arrowSay=s=>s.replace(/\s*→\s*/g,', ');
+const spell={
+  weird:{label:'Weird spellings',render(){ const S=C.spelling; return `<div class="grid">${S.history.map(h=>`<div class="card"><h3 class="sec-h" style="font-size:20px">${esc(h[0])}</h3><p class="lede">${esc(h[1])}</p></div>`).join('')}</div>
+    <div class="grid">${S.weird.map(w=>`<div class="card"><div class="twin-h"><h3>${esc(w[0])}</h3>${hear(w[0])}</div><p class="say">Said: ${esc(w[1])}</p><p style="margin-top:8px">${esc(w[2])}</p><div class="row" style="margin-top:10px">${saveBtn(w[0],'Cool word','said '+w[1])}</div></div>`).join('')}</div>`; }},
+  ghoti:{label:'Ghoti',render(){ const G=C.spelling.ghoti; return `<div class="card stack"><div class="row" style="gap:14px;align-items:center"><div class="tiles" style="font-size:clamp(28px,6vw,44px)">${['g','h','o','t','i'].map(c=>`<span class="tl lc">${c}</span>`).join('')}</div><span style="font:800 clamp(28px,6vw,44px) var(--f-display)">= fish?</span></div>
+      <div class="grid">${G.parts.map(p=>`<div class="tip"><span class="tl lc">${esc(p[0])}</span> says <b>${esc(p[1])}</b>, as in ${esc(p[2])}</div>`).join('')}</div>
+      <p>${esc(G.history)}</p><p class="muted">${esc(G.why)}</p></div>
+    <div class="card stack"><h3 class="sec-h" style="font-size:22px">Even weirder: potato</h3><div class="tiles" style="font-size:clamp(18px,4vw,28px)">${G.potato.parts.map(p=>`<span class="tl lc">${esc(p[0])}</span>`).join('')}</div><p class="ipa" style="font-size:17px">${esc(G.potato.w)}</p><div class="stack" style="gap:4px">${G.potato.parts.map(p=>`<p class="small"><b>${esc(p[0])}</b> says ${esc(p[1])}, as in ${esc(p[2])}</p>`).join('')}</div></div>
+    <div class="card stack"><h3 class="sec-h" style="font-size:24px">Build your own weird spelling</h3><p class="lede">Pick a word, then choose a strange spelling for each sound.</p><div class="seg" id="gb-t">${G.targets.map((t,i)=>`<button data-t="${i}" aria-pressed="${i===0}">${esc(t[0])}</button>`).join('')}</div><div id="gb"></div></div>`; },
+    mount(){ const G=C.spelling.ghoti; let ti=0, pick=[]; const box=$('#gb');
+      const draw=()=>{ const [w,ss]=G.targets[ti]; if(pick.length!==ss.length) pick=ss.map(()=>0);
+        const built=ss.map((s,i)=>G.options[s][pick[i]][0]).join('');
+        box.innerHTML=`<div class="stack" style="gap:10px;margin-top:6px">${ss.map((s,i)=>`<div><div class="lab">Sound ${i+1}: ${esc(s.toUpperCase())}</div><div class="seg" style="margin-top:4px" data-slot="${i}">${G.options[s].map((o,j)=>`<button data-o="${j}" aria-pressed="${pick[i]===j}">${esc(o[0])} <span class="small muted" style="font-weight:400">(${esc(o[1])})</span></button>`).join('')}</div></div>`).join('')}</div>
+          <div class="banner yes" style="margin-top:12px;overflow-wrap:anywhere">${esc(built)} <span style="font-weight:400">spells</span> ${esc(w)}</div>
+          <p class="small muted" style="margin-top:6px">${ss.map((s,i)=>{ const o=G.options[s][pick[i]]; return `${esc(o[0])} as in ${esc(o[1])}`; }).join(' · ')}</p>
+          <div class="row" style="margin-top:8px">${hear(w)}${saveBtn(built+' = '+w,'Invented','weird spelling')}</div>`; };
+      $('#gb-t').onclick=e=>{ const b=e.target.closest('[data-t]'); if(!b) return; ti=+b.dataset.t; pick=[]; $$('#gb-t button').forEach(x=>x.setAttribute('aria-pressed',x===b)); draw(); };
+      box.onclick=e=>{ const b=e.target.closest('[data-o]'); if(!b) return; const slot=+b.closest('[data-slot]').dataset.slot; pick[slot]=+b.dataset.o; draw(); };
+      draw(); }},
+  ie:{label:'I before E',render(){ const I=C.spelling.iebefore; return `<div class="card stack"><p style="font:800 clamp(20px,3.6vw,28px)/1.3 var(--f-display)">"${esc(I.rule)}"</p><p class="tip">${esc(I.fact)}</p></div><div class="card stack"><h3 class="sec-h" style="font-size:22px">IE or EI?</h3><div id="ie"></div></div>`; },
+    mount(){ const box=$('#ie'); let n=0,right=0,breakers=0,order=shuffle(C.spelling.iebefore.words),cur=null,locked=false;
+      const next=()=>{ locked=false; if(n>=12){ box.innerHTML=`<div class="banner yes">${right} out of 12! You found ${breakers} rule ${breakers===1?'breaker':'breakers'}.</div><div class="row" style="margin-top:10px"><button class="btn primary" id="ie-again">Play again</button></div>`; $('#ie-again').onclick=()=>{n=0;right=0;breakers=0;order=shuffle(C.spelling.iebefore.words);next();}; return; }
+        cur=order[n]; const [w]=cur; const parts=w.split('__');
+        box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 12</span><span class="score">${right} right</span></div><p class="quiz-q">${esc(parts[0])}<span class="blank"></span>${esc(parts[1])}</p><div class="answers" id="ie-a"><button data-a="ie">ie</button><button data-a="ei">ei</button></div><div class="fb" id="ie-fb"></div>`; };
+      box.onclick=e=>{ const b=e.target.closest('#ie-a [data-a]'); if(!b||locked) return; locked=true; n++; const [w,ans,follows]=cur; const ok=b.dataset.a===ans; if(ok) right++; if(!follows) breakers++;
+        $$('#ie-a button').forEach(x=>{ if(x.dataset.a===ans) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+        const full=w.replace('__',ans); speak(full);
+        $('#ie-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Not this time.'}</b> It's <b>${esc(full)}</b>. ${follows?'This one follows the rule.':'<b>Rule breaker!</b> This word ignores the rule.'}</p><div class="row" style="margin-top:10px"><button class="btn primary" id="ie-next">Next word</button></div>`; $('#ie-next').onclick=next; };
+      next(); }},
+  plurals:{label:'Strange plurals',render(){ const P=C.spelling.plurals; return `<div class="grid">${P.groups.map(g=>`<div class="card"><h3 class="sec-h" style="font-size:21px">${esc(g[0])}</h3><div class="row" style="margin-top:8px">${g[1].map(x=>wchip(esc(x),arrowSay(x))).join('')}</div><p class="small muted" style="margin-top:10px">${esc(g[2])}</p></div>`).join('')}</div><p class="tip">${esc(P.octopus)}</p><div class="card stack"><h3 class="sec-h" style="font-size:22px">Make it plural</h3><div id="pl"></div></div>`; },
+    mount(){ const box=$('#pl'); let n=0,right=0,order=shuffle(C.spelling.plurals.quiz),cur=null,locked=false;
+      const next=()=>{ locked=false; if(n>=10){ box.innerHTML=`<div class="banner yes">${right} out of 10!</div><div class="row" style="margin-top:10px"><button class="btn primary" id="pl-again">Play again</button></div>`; $('#pl-again').onclick=()=>{n=0;right=0;order=shuffle(C.spelling.plurals.quiz);next();}; return; }
+        cur=order[n]; box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10</span><span class="score">${right} right</span></div><p class="quiz-q">one ${esc(cur[0])}, two…</p><div class="answers" id="pl-a">${shuffle([cur[1],...cur[2]]).map(a=>`<button data-a="${esc(a)}">${esc(a)}</button>`).join('')}</div><div class="fb" id="pl-fb"></div>`; };
+      box.onclick=e=>{ const b=e.target.closest('#pl-a [data-a]'); if(!b||locked) return; locked=true; n++; const ok=b.dataset.a===cur[1]; if(ok) right++;
+        $$('#pl-a button').forEach(x=>{ if(x.dataset.a===cur[1]) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); }); speak(cur[1]);
+        $('#pl-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Tricky!'}</b> The plural is <b>${esc(cur[1])}</b>.</p><div class="row" style="margin-top:10px"><button class="btn primary" id="pl-next">Next word</button></div>`; $('#pl-next').onclick=next; };
+      next(); }},
+  ukus:{label:'British vs. American',render(){ const U=C.spelling.ukus; return `<p class="tip">${esc(U.story)}</p>
+    <div class="grid">${U.groups.map(g=>`<div class="card"><h3 class="sec-h" style="font-size:21px">${esc(g[0])}</h3><table class="pairs"><thead><tr><th>British</th><th>American</th></tr></thead><tbody>${g[1].map(p=>`<tr><td>${esc(p[0])}</td><td>${esc(p[1])}</td></tr>`).join('')}</tbody></table>${g[2]?`<p class="small muted" style="margin-top:8px">${esc(g[2])}</p>`:''}</div>`).join('')}</div>
+    <div class="card"><h3 class="sec-h" style="font-size:22px">Different words for the same thing</h3><div class="pairs-wrap"><table class="pairs wide"><thead><tr><th>British</th><th>American</th></tr></thead><tbody>${U.words.map(p=>`<tr><td>${esc(p[0])}</td><td>${esc(p[1])}</td></tr>`).join('')}</tbody></table></div><p class="small muted" style="margin-top:8px">Watch out: British chips are American fries, and American chips are British crisps!</p></div>
+    <div class="card stack"><h3 class="sec-h" style="font-size:22px">Which side of the ocean?</h3><div id="uk"></div></div>`; },
+    mount(){ const pool=[]; C.spelling.ukus.groups.forEach(g=>{ if(/ise/.test(g[0])) return; g[1].forEach(p=>{ pool.push([p[0],'uk',p[1]]); pool.push([p[1],'us',p[0]]); }); });
+      const box=$('#uk'); let n=0,right=0,order=shuffle(pool),cur=null,locked=false;
+      const next=()=>{ locked=false; if(n>=10){ box.innerHTML=`<div class="banner yes">${right} out of 10!</div><div class="row" style="margin-top:10px"><button class="btn primary" id="uk-again">Play again</button></div>`; $('#uk-again').onclick=()=>{n=0;right=0;order=shuffle(pool);next();}; return; }
+        cur=order[n]; box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Spelling ${n+1} of 10</span><span class="score">${right} right</span></div><p class="quiz-q">${esc(cur[0])}</p><div class="answers" id="uk-a"><button data-a="uk">British</button><button data-a="us">American</button></div><div class="fb" id="uk-fb"></div>`; };
+      box.onclick=e=>{ const b=e.target.closest('#uk-a [data-a]'); if(!b||locked) return; locked=true; n++; const ok=b.dataset.a===cur[1]; if(ok) right++;
+        $$('#uk-a button').forEach(x=>{ if(x.dataset.a===cur[1]) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+        $('#uk-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Not quite.'}</b> ${esc(cur[0])} is the ${cur[1]==='uk'?'British':'American'} spelling. The ${cur[1]==='uk'?'American':'British'} one is ${esc(cur[2])}.</p><div class="row" style="margin-top:10px"><button class="btn primary" id="uk-next">Next</button></div>`; $('#uk-next').onclick=next; };
+      next(); }},
+  rules:{label:'Spelling rules',render(){ const R=C.spelling.rules; return `<div class="grid">${R.list.map(r=>`<div class="card"><h3 class="sec-h" style="font-size:21px">${esc(r[0])}</h3><p style="margin-top:6px">${esc(r[1])}</p><div class="row" style="margin-top:10px">${r[2].map(x=>`<span class="wchip" style="cursor:default">${esc(x)}</span>`).join('')}</div>${r[3]?`<p class="tip small" style="margin-top:10px"><b>Watch out:</b> ${esc(r[3])}</p>`:''}</div>`).join('')}</div><div class="card stack"><h3 class="sec-h" style="font-size:22px">Add the ending</h3><div id="ru"></div></div>`; },
+    mount(){ const box=$('#ru'); let n=0,right=0,order=shuffle(C.spelling.rules.quiz),cur=null,locked=false;
+      const next=()=>{ locked=false; if(n>=10){ box.innerHTML=`<div class="banner yes">${right} out of 10!</div><div class="row" style="margin-top:10px"><button class="btn primary" id="ru-again">Play again</button></div>`; $('#ru-again').onclick=()=>{n=0;right=0;order=shuffle(C.spelling.rules.quiz);next();}; return; }
+        cur=order[n]; box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10</span><span class="score">${right} right</span></div><p class="quiz-q">${esc(cur[0])} + ${esc(cur[1])} = ?</p><div class="answers" id="ru-a">${shuffle([cur[2],...cur[3]]).map(a=>`<button data-a="${esc(a)}">${esc(a)}</button>`).join('')}</div><div class="fb" id="ru-fb"></div>`; };
+      box.onclick=e=>{ const b=e.target.closest('#ru-a [data-a]'); if(!b||locked) return; locked=true; n++; const ok=b.dataset.a===cur[2]; if(ok) right++;
+        $$('#ru-a button').forEach(x=>{ if(x.dataset.a===cur[2]) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+        $('#ru-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Not this time.'}</b> It's <b>${esc(cur[2])}</b>.</p><div class="row" style="margin-top:10px"><button class="btn primary" id="ru-next">Next</button></div>`; $('#ru-next').onclick=next; };
+      next(); }},
+  longest:{label:'Longest words',render(){ const L=C.spelling.longest, mx=L[0].w.length; return `<div class="card"><h3 class="lab">Letters in each word</h3><div class="bars" style="margin-top:10px">${L.map((l,i)=>`<div class="bar"><div class="lb">${esc(l.w.length>16?l.w.slice(0,14)+'…':l.w)}</div><i style="width:${l.w.length/mx*100}%;background:${PAL[i%PAL.length]}"></i><span>${l.w.length}</span></div>`).join('')}</div></div>
+    ${L.map((l,i)=>`<div class="card stack"><div class="row" style="justify-content:space-between"><span class="lab">${l.w.length} letters</span>${hear(l.w,null,'the word')}</div><div class="tiles" style="font-size:clamp(17px,3.4vw,24px)">${l.parts.map((p,j)=>`<span class="tl lc"${j%2?' style="background:var(--accent-soft);box-shadow:0 .12em 0 var(--line)"':''}>${esc(p)}</span>`).join('')}</div><p><b>Meaning:</b> ${esc(l.m)}</p><p class="muted">${esc(l.story)}</p><div class="row">${saveBtn(l.w,'Cool word',l.m)}</div></div>`).join('')}
+    <div class="grid">${C.spelling.longestFacts.map(f=>`<p class="tip" style="overflow-wrap:anywhere">${esc(f)}</p>`).join('')}</div>`; }},
+  bee:{label:'Spelling bee',render(){ return `<div class="card stack"><div><h3 class="sec-h" style="font-size:26px">Spelling bee</h3><p class="lede">Listen to the word, then type it. Just like a real bee, you can ask for the meaning or a sentence.</p></div><div class="seg" id="bee-l"><button data-l="0" aria-pressed="true">Level 1</button><button data-l="1" aria-pressed="false">Level 2</button><button data-l="2" aria-pressed="false">Level 3</button></div><div id="bee"></div></div>`; },
+    mount(){ let lvl=store.get('wl.beeLvl',0); const box=$('#bee'); let n=0,right=0,order=[],cur=null,done=false;
+      const start=()=>{ n=0; right=0; order=shuffle(C.spelling.bee[lvl]); $$('#bee-l button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.l===lvl)); next(); };
+      const next=()=>{ done=false; if(n>=10){ const k='wl.best.bee'+lvl, b=store.get(k,0); if(right>b) store.set(k,right); box.innerHTML=`<div class="banner yes">${right} out of 10 spelled right!${right>b?' New best!':''}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="bee-again">Play again</button></div>`; $('#bee-again').onclick=start; return; }
+        cur=order[n];
+        box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10 · Level ${lvl+1}</span><span class="score">${right} right · best ${store.get('wl.best.bee'+lvl,0)}</span></div>
+          <div class="row" style="margin:10px 0"><button class="btn primary" data-say="${esc(cur[0])}">${SPK.replace('<svg','<svg width="18" height="18"')} Hear the word</button><button class="btn" data-say="${esc(cur[2])}">Use it in a sentence</button><button class="btn" id="bee-def">Meaning</button><button class="btn" id="bee-hint">Hint</button></div>
+          <p id="bee-info" class="muted" style="min-height:1.6em"></p>
+          <form id="bee-f" class="row" autocomplete="off"><input id="bee-in" class="big-in" maxlength="40" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" aria-label="Type the spelling" style="flex:1;min-width:200px"><button class="btn primary" type="submit">Check</button></form><div id="bee-fb" style="margin-top:12px"></div>`;
+        setTimeout(()=>speak(cur[0]),150);
+        $('#bee-def').onclick=()=>{ $('#bee-info').textContent='Meaning: '+cur[1]; };
+        $('#bee-hint').onclick=()=>{ const w=cur[0]; $('#bee-info').textContent=`It has ${w.length} letters and starts with ${w[0].toUpperCase()}: ${w[0].toUpperCase()}${' _'.repeat(w.length-1)}`; };
+        $('#bee-f').addEventListener('submit',e=>{ e.preventDefault(); if(done) return; const typed=$('#bee-in').value.trim(); if(!typed) return; done=true; n++;
+          const w=cur[0], ok=typed.toLowerCase()===w.toLowerCase(); if(ok) right++;
+          const t=typed.toLowerCase(), a=w.toLowerCase();
+          $('#bee-fb').innerHTML=`<div class="banner ${ok?'yes':'no'}">${ok?'Correct!':'Not quite.'}</div>
+            <div class="mirror" style="margin-top:10px"><div class="lab">Correct spelling</div>${tilesOf(w)}${ok?'':`<div class="lab">You typed</div><div class="tiles">${[...t].map((c,i)=>`<span class="tl ${c===a[i]?'ok':'no'}">${esc(c)}</span>`).join('')}</div>`}</div>
+            ${cur[3]?`<p class="tip" style="margin-top:10px"><b>Tip:</b> ${esc(cur[3])}</p>`:''}<div class="row" style="margin-top:10px"><button class="btn primary" id="bee-next">Next word</button>${ok?'':saveBtn(w,'Cool word','practice: '+cur[1])}</div>`;
+          $('#bee-next').onclick=next; });
+        setTimeout(()=>{ try{ $('#bee-in').focus(); }catch(err){} },200); };
+      $('#bee-l').onclick=e=>{ const b=e.target.closest('[data-l]'); if(!b) return; lvl=+b.dataset.l; store.set('wl.beeLvl',lvl); start(); };
+      start(); }}
+};
+
+/* ======================================================================
+   WORD ORIGINS
+   ====================================================================== */
+// simplified world outline, [lon,lat] points, drawn by hand
+const WORLD={
+ land:[
+  [[-168,66],[-156,71],[-128,70],[-95,72],[-80,73],[-62,60],[-56,52],[-66,45],[-70,42],[-76,38],[-81,31],[-80,25],[-84,30],[-90,29],[-97,26],[-97,21],[-87,21],[-88,15],[-83,9],[-78,8],[-80,7],[-86,11],[-92,15],[-105,20],[-110,23],[-115,30],[-118,34],[-124,40],[-124,48],[-131,55],[-140,60],[-152,59],[-160,56],[-165,60]],
+  [[-55,60],[-44,60],[-20,70],[-18,77],[-30,83],[-60,82],[-72,78],[-58,70]],
+  [[-77,8],[-62,10],[-50,0],[-35,-6],[-39,-14],[-48,-26],[-58,-38],[-65,-42],[-68,-52],[-72,-53],[-75,-45],[-71,-30],[-70,-18],[-76,-14],[-81,-6],[-80,0]],
+  [[-9,37],[-9,43],[-2,43.5],[-4.5,48],[2,51],[8,54],[8.5,57],[10.5,57.7],[12,56],[12.5,58],[5,58.5],[5,62],[14,68],[25,71],[30,70],[40,68],[60,69],[70,73],[80,73],[100,77],[115,73],[140,72],[160,70],[180,68],[180,65],[170,60],[162,57],[157,51],[143,59],[136,54],[141,47],[131,43],[129,35],[126,37],[122,40],[121,31],[119,25],[110,21],[108,16],[109,12],[105,9],[100,13],[103,1],[98,9],[97,17],[92,22],[87,22],[80,15],[78,8],[73,18],[67,25],[57,25],[59,22],[52,16],[43,13],[39,21],[35,28],[34,30],[32,31],[36,36],[28,37],[26,40],[23,37],[21,40],[19,42],[13,45.5],[16,41.5],[18.5,40],[16,38],[12,42],[9,44],[3,43],[0,39],[-5,36]],
+  [[-5.5,50],[1.5,51],[1.8,52.8],[-2,56],[-3,58.6],[-6,58.5],[-5,55],[-3,54],[-5,52]],
+  [[-10,51.5],[-6,52],[-6,55],[-8,55.3],[-10,54]],
+  [[-24,65.5],[-14,66.3],[-14,64.5],[-22,63.5]],
+  [[-17,21],[-17,15],[-12,8],[-8,4.5],[0,5],[9,4],[9,-1],[12,-6],[13,-12],[12,-17],[15,-27],[18,-34],[25,-34],[32,-28],[35,-24],[40,-15],[40,-10],[39,-5],[42,0],[51,11],[43,12],[37,18],[34,27],[32,31],[25,31.5],[20,31],[12,33],[10,37],[0,36],[-6,35.8],[-10,30]],
+  [[44,-16],[50,-15],[47,-25],[43,-22]],
+  [[114,-22],[122,-18],[130,-12],[136,-12],[142,-11],[146,-19],[153,-26],[150,-37],[145,-38],[138,-35],[131,-31],[115,-34]],
+  [[172.5,-34.5],[178,-38],[175,-41.5],[173,-40]],[[172,-41],[174,-41.5],[168,-46.5],[166.5,-45.5]],
+  [[130,31],[131,34],[135,35],[139,38],[140,41],[142,40],[141,36],[138,34.5],[135,33.5],[132,33]],[[140,42],[142,45.5],[145.5,43.5],[143,42]],
+  [[95,5.5],[98,3],[106,-6],[102,-4]],[[105,-6],[114,-7],[114,-8.5],[106,-7.5]],[[109,1.5],[117,7],[119,1],[116,-4],[110,-3]],[[131,-1],[141,-2.5],[150,-10],[141,-9],[137,-5]],
+  [[120,18.5],[122.5,18],[126,7],[124,6],[121,13]],[[80,9.8],[82,7],[81,6],[80,7]],[[-156,19],[-155,20.3],[-154.8,19.4]],[[-160,22],[-157.6,21.3],[-159,21.9]]
+ ],
+ water:[
+  [[10,54],[14,54],[20,54.5],[21,57],[24,57.5],[23.5,59.5],[28,60],[22,60.5],[21.5,63],[25,65.5],[22,65.8],[17,62.5],[18.5,60],[16.5,56.5],[13,55.5],[11,56]],
+  [[28,41.5],[28,44],[30,46],[33.5,46],[36,45.3],[38.5,44.5],[41.5,41.5],[36,41.7],[31,41.2]],
+  [[47,44.5],[50,46.5],[53,47],[53,45],[51,44],[52.5,42],[54,38],[51,36.8],[49,37.5],[49.5,40.5]],
+  [[48,30],[50.5,29],[52,27],[56,26.5],[56.4,24.8],[54,24],[51.5,24.3],[51,26],[50,26.5],[48.5,28.5]],
+  [[-95,58.5],[-88,56.5],[-82,55],[-79,51.5],[-77,58],[-78,62],[-87,64],[-94,61]]
+ ]
+};
+const MAPV={world:{x0:-170,x1:180,y0:80,y1:-50,W:700,H:260},europe:{x0:-13,x1:46,y0:68,y1:33,W:700,H:415}};
+const inEurope=l=>l[2]>=-15&&l[2]<=46&&l[3]>=34&&l[3]<=70;
+function mapSVG(view,sel){
+  const V=MAPV[view], px=lon=>(lon-V.x0)/(V.x1-V.x0)*V.W, py=lat=>(V.y0-lat)/(V.y0-V.y1)*V.H;
+  const path=poly=>'M'+poly.map(([a,b])=>px(a).toFixed(1)+' '+py(b).toFixed(1)).join('L')+'Z';
+  const langs=C.origins.langs;
+  let dots='';
+  const dot=(i,l,lab)=>{ const x=px(l[2]),y=py(l[3]),on=sel===i; return `<g class="mdot${on?' on':''}" data-li="${i}" tabindex="0" role="button" aria-label="${esc(l[0])}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${on?11:8}"/>${lab?`<text x="${(x+12).toFixed(1)}" y="${(y+5).toFixed(1)}">${esc(l[0])}</text>`:''}</g>`; };
+  if(view==='world'){
+    langs.forEach((l,i)=>{ if(!inEurope(l)) dots+=dot(i,l,false); });
+    const ex=px(10),ey=py(50), n=langs.filter(inEurope).length;
+    dots+=`<g class="mdot cluster" data-europe="1" tabindex="0" role="button" aria-label="Europe, ${n} languages"><circle cx="${ex}" cy="${ey}" r="16"/><text x="${ex}" y="${ey+6}" text-anchor="middle" class="cn">${n}</text></g>`;
+  } else langs.forEach((l,i)=>{ if(inEurope(l)) dots+=dot(i,l,true); });
+  return `<svg viewBox="0 0 ${V.W} ${V.H}" role="img" aria-label="Map of where English words came from"><rect width="${V.W}" height="${V.H}" fill="var(--sea)"/>${WORLD.land.map(p=>`<path d="${path(p)}" fill="var(--landc)" stroke="var(--landedge)" stroke-width="1"/>`).join('')}${WORLD.water.map(p=>`<path d="${path(p)}" fill="var(--sea)"/>`).join('')}${dots}</svg>`;
+}
+function langCard(i){ const l=C.origins.langs[i]; return `<div class="card stack"><div><div class="lab">Borrowed from</div><h3 class="sec-h" style="font-size:26px">${esc(l[0])}</h3><p class="muted">${esc(l[1])}</p></div>${l[4].map(([w,st])=>`<div class="sense"><div class="tx"><span class="w" style="font-size:19px">${esc(w)}</span>: ${esc(st)}</div>${hear(w)}</div>`).join('')}<div class="row">${saveBtn(l[0]+': '+l[4].map(x=>x[0]).join(', '),'Cool word','borrowed words')}</div></div>`; }
+const orig={
+  map:{label:'Borrowed words map',render(){ return `<div class="card stack"><p class="lede" style="margin:0">English has borrowed words from all over the world. Tap a dot to see which words came from there.</p><div class="seg" id="mp-v"><button data-v="world" aria-pressed="true">World</button><button data-v="europe" aria-pressed="false">Europe close-up</button></div><div class="map" id="mp"></div><p class="small muted">The map is simplified, so coastlines are only roughly right.</p><div class="gal" id="mp-list"></div></div><div id="mp-d"></div>`; },
+    mount(){ let view='world', sel=null; const langs=C.origins.langs;
+      const draw=()=>{ $('#mp').innerHTML=mapSVG(view,sel); $$('#mp-v button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===view)); };
+      const choose=i=>{ sel=i; if(inEurope(langs[i])&&view==='world') view='europe'; draw(); $('#mp-d').innerHTML=langCard(i); try{ $('#mp-d').scrollIntoView({behavior:reduced?'auto':'smooth',block:'nearest'}); }catch(e){} };
+      $('#mp-list').innerHTML=langs.map((l,i)=>`<button data-li="${i}">${esc(l[0])}</button>`).join('');
+      $('#mp-v').onclick=e=>{ const b=e.target.closest('[data-v]'); if(!b) return; view=b.dataset.v; draw(); };
+      const hit=e=>{ const g=e.target.closest('[data-li],[data-europe]'); if(!g) return; if(g.dataset.europe){ view='europe'; draw(); return; } choose(+g.dataset.li); };
+      $('#mp').onclick=hit; $('#mp-list').onclick=hit;
+      $('#mp').onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hit(e); } };
+      draw(); }},
+  chart:{label:'Where English comes from',render(){ const O=C.origins, mx=Math.max(...O.sources.map(s=>s[1])); return `<div class="card stack"><h3 class="sec-h" style="font-size:24px">Where English words come from</h3><div class="bars">${O.sources.map((s,i)=>`<div class="bar"><div class="lb" style="white-space:normal">${esc(s[0])}</div><i style="width:${s[1]/mx*100}%;background:${PAL[i%PAL.length]}"></i><span>${s[1]}%</span></div>`).join('')}</div><p class="small muted">${esc(O.sourcesNote)}</p></div>`; }},
+  eponyms:{label:'Named after people',render(){ return `<p class="lede" style="margin:0">An eponym is a word named after a person.</p><div class="grid">${C.origins.eponyms.map(e=>`<div class="card"><div class="twin-h"><h3>${esc(e[0])}</h3>${hear(e[0])}</div><p class="lab" style="margin-top:6px">Named after</p><p><b>${esc(e[1])}</b>: ${esc(e[2])}</p><div class="row" style="margin-top:10px">${saveBtn(e[0],'Cool word','named after '+e[1])}</div></div>`).join('')}</div>`; }},
+  toponyms:{label:'Named after places',render(){ return `<p class="lede" style="margin:0">A toponym is a word named after a place.</p><div class="grid">${C.origins.toponyms.map(e=>`<div class="card"><div class="twin-h"><h3>${esc(e[0])}</h3>${hear(e[0])}</div><p class="lab" style="margin-top:6px">Named after</p><p><b>${esc(e[1])}</b>${e[2]?`. ${esc(e[2])}`:''}</p><div class="row" style="margin-top:10px">${saveBtn(e[0],'Cool word','named after '+e[1])}</div></div>`).join('')}</div>`; }},
+  farm:{label:'Farm words vs. castle words',render(){ const F=C.origins.farm; return `<div class="card stack"><p style="font-size:18px">${esc(F.story)}</p><div class="pairs-wrap"><table class="pairs wide"><thead><tr><th>On the farm (English)</th><th>At the table (French)</th><th>The French word</th></tr></thead><tbody>${F.pairs.map(p=>`<tr><td>${wc(p[0])}</td><td>${wc(p[1])}</td><td class="say">${esc(p[2])}</td></tr>`).join('')}</tbody></table></div><p class="small muted">${esc(F.caveat)}</p></div>
+    <div class="card stack"><h3 class="sec-h" style="font-size:22px">Three ways to say it</h3><p class="lede">${esc(F.tripNote)}</p><div class="pairs-wrap"><table class="pairs wide"><thead><tr><th>Old English</th><th>French</th><th>Latin</th></tr></thead><tbody>${F.triplets.map(t=>`<tr>${t.map(w=>`<td>${wc(w)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`; }},
+  cousins:{label:'Cousin words',render(){ const K=C.origins.cousins; const fam={Germanic:'fam-g',Romance:'fam-r',Slavic:'fam-s',Ancient:'fam-a'};
+    return `<p class="lede" style="margin:0">The same word in ten languages. English is the top row, so you can compare. Tap a word to hear it.</p>
+    <div class="row small">${Object.entries({Germanic:'Germanic family',Romance:'Romance family (from Latin)',Slavic:'Slavic family',Ancient:'Ancient Latin'}).map(([k,v])=>`<span class="row" style="gap:6px"><i class="${fam[k]}" style="width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid var(--line)"></i>${v}</span>`).join('')}</div>
+    <div class="card cous"><table><thead><tr><th></th>${K.words.map(w=>`<th>${esc(w[0])}</th>`).join('')}</tr></thead><tbody>${K.langs.map((L,li)=>`<tr${li===0?' class="ctrl"':''}><th class="${fam[L[2]]}">${esc(L[0])}</th>${K.words.map(w=>{ const c=w[1][li], txt=Array.isArray(c)?c[0]:c, rom=Array.isArray(c)?c[1]:''; return `<td>${L[1]?`<button data-say="${esc(txt)}" data-lang="${L[1]}">`:'<span class="cell">'}<b>${esc(txt)}</b>${rom?`<span>${esc(rom)}</span>`:''}${L[1]?'</button>':'</span>'}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="tip">${esc(K.fact)}</p>`; }},
+  quiz:{label:'Guess the language',render(){ return `<div class="card stack"><h3 class="sec-h" style="font-size:24px">Where did this word come from?</h3><div id="oq"></div></div>`; },
+    mount(){ const langs=C.origins.langs, pool=[]; langs.forEach((l,i)=>l[4].forEach(w=>pool.push([w[0],w[1],i]))); const box=$('#oq'); let n=0,right=0,order=shuffle(pool),cur=null,locked=false;
+      const next=()=>{ locked=false; if(n>=10){ box.innerHTML=`<div class="banner yes">${right} out of 10!</div><div class="row" style="margin-top:10px"><button class="btn primary" id="oq-again">Play again</button></div>`; $('#oq-again').onclick=()=>{n=0;right=0;order=shuffle(pool);next();}; return; }
+        cur=order[n]; const others=shuffle(langs.map((l,i)=>i).filter(i=>i!==cur[2])).slice(0,3);
+        box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">Word ${n+1} of 10</span><span class="score">${right} right</span></div><div class="row" style="gap:14px;margin:8px 0 14px"><span class="det-word">${esc(cur[0])}</span>${hear(cur[0])}</div><div class="answers" id="oq-a">${shuffle([cur[2],...others]).map(i=>`<button data-i="${i}" style="font-size:18px">${esc(langs[i][0])}</button>`).join('')}</div><div class="fb" id="oq-fb"></div>`; };
+      box.onclick=e=>{ const b=e.target.closest('#oq-a [data-i]'); if(!b||locked) return; locked=true; n++; const ok=+b.dataset.i===cur[2]; if(ok) right++;
+        $$('#oq-a button').forEach(x=>{ if(+x.dataset.i===cur[2]) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); });
+        $('#oq-fb').innerHTML=`<p style="color:var(--${ok?'good':'bad'})"><b>${ok?'Yes!':'Not this time.'}</b> ${esc(cur[0])} came from ${esc(langs[cur[2]][0])}: ${esc(cur[1])}.</p><div class="row" style="margin-top:10px"><button class="btn primary" id="oq-next">Next word</button></div>`; $('#oq-next').onclick=next; };
+      next(); }}
+};
+
+/* ======================================================================
+   MODULES + NAVIGATION
+   ====================================================================== */
+const MODS=[
+  {id:'twins',name:'Word Twins',tiles:['knight','night'],blurb:'Homophones, homonyms, heteronyms, and their stranger cousins.',lede:'Words that look alike, sound alike, or both. Start with the twin map.',chips:twins},
+  {id:'play',name:'Wordplay',tiles:['level'],blurb:'Palindromes, anagrams, pangrams, and words that work upside down.',lede:'Games built from the shapes of words.',chips:play},
+  {id:'sounds',name:'Sound Lab',tiles:['sh','ee','p'],blurb:'Phonemes, silent letters, vowel teams, the schwa, rhymes.',lede:'How letters turn into the sounds we say.',chips:sounds},
+  {id:'spell',name:'Spelling Mysteries',tiles:['gh','o','ti'],blurb:'Weird spellings and their stories, ghoti, plurals, rules, and a spelling bee.',lede:'Why English spelling is so strange, and how to beat it.',chips:spell},
+  {id:'origins',name:'Word Origins',tiles:['α','β'],blurb:'A map of borrowed words, words named after people and places, and word cousins.',lede:'Where English words came from.',chips:orig},
+  {id:'alpha',name:'Alphabets',tiles:['Ω','Ж','한'],blurb:'Eleven writing systems, your name around the world, and trick letters.',lede:'English is just one way to write. Here are some others.',chips:alpha}
+];
+const SOON=['Word Building','Sentences and Grammar','Idioms and Figurative Language','Codes, Braille, and Morse','Chinese characters and hieroglyphs','Languages of the World','Regional words','Syllables, stress, and bossy R','Felix vs. Dad','Badges and streaks'];
+let curMod=null, curChip=null;
+function renderHome(){
+  const W=C.wotd, day=Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);
+  let wi=store.get('wl.wotdOffset',0); const w=W[((day+wi)%W.length+W.length)%W.length];
+  $('#wotd').innerHTML=`<div><div class="lab">Word of the day</div><div class="row" style="gap:14px;align-items:flex-end"><h2>${esc(w[0])}</h2>${hear(w[0])}</div><p class="say">${esc(w[1])}</p><p class="m">${esc(w[2])}</p></div><p class="why"><b style="color:var(--tile)">Why it's cool:</b> ${esc(w[3])}</p><div class="row">${saveBtn(w[0],'Cool word',w[2])}<button class="save" id="wotd-more">Another word</button></div>`;
+  $('#wotd-more').onclick=()=>{ store.set('wl.wotdOffset',wi+1); renderHome(); };
+  $('#mods').innerHTML=MODS.map(m=>`<button class="mod" data-mod="${m.id}"><div class="tiles">${m.tiles.map(t=>`<span class="tl lc">${esc(t)}</span>`).join('')}</div><h3>${esc(m.name)}</h3><p>${esc(m.blurb)}</p><span class="n">${Object.keys(m.chips).filter(k=>!(noClaude&&m.chips[k].claude)).length} activities →</span></button>`).join('');
+  $('#soon').innerHTML=SOON.map(s=>`<span>${esc(s)}</span>`).join('');
+}
+$('#mods').addEventListener('click',e=>{ const b=e.target.closest('[data-mod]'); if(b) openMod(b.dataset.mod); });
+function openMod(id,chip){
+  const m=MODS.find(x=>x.id===id); if(!m) return; curMod=m;
+  $('#home').hidden=true; $('#module').hidden=false;
+  $('#mod-title').textContent=m.name; $('#mod-lede').textContent=m.lede;
+  const keys=Object.keys(m.chips).filter(k=>!(noClaude&&m.chips[k].claude));
+  chip=chip&&m.chips[chip]?chip:(store.get('wl.chip.'+id,keys[0]));
+  if(!m.chips[chip]) chip=keys[0];
+  $('#mod-chips').innerHTML=keys.map(k=>`<button data-chip="${k}" aria-pressed="${k===chip}">${esc(m.chips[k].label)}</button>`).join('');
+  openChip(chip,true);
+  store.set('wl.last',{v:'explore',mod:id});
+}
+function openChip(k,noScroll){
+  const m=curMod; if(!m||!m.chips[k]) return; if(noClaude&&m.chips[k].claude) k=Object.keys(m.chips)[0]; curChip=k;
+  $$('#mod-chips button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.chip===k));
+  const body=$('#mod-body'); body.onclick=null;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  body.innerHTML=m.chips[k].render();
+  if(m.chips[k].mount) m.chips[k].mount();
+  store.set('wl.chip.'+m.id,k);
+  const b=$(`#mod-chips [data-chip="${k}"]`); if(b) try{ b.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){}
+  if(!noScroll) window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});
+}
+$('#mod-chips').addEventListener('click',e=>{ const b=e.target.closest('[data-chip]'); if(b) openChip(b.dataset.chip); });
+$('#back').onclick=()=>{ $('#module').hidden=true; $('#home').hidden=false; curMod=null; store.set('wl.last',{v:'explore'}); window.scrollTo({top:0}); };
+function go(v){
+  ['explore','detective','words'].forEach(x=>{ $('#v-'+x).hidden=x!==v; });
+  $$('.tabbar button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
+  if(v==='words') renderWords();
+  const last=store.get('wl.last',{}); store.set('wl.last',{...last,v});
+  window.scrollTo({top:0});
+}
+$('.tabbar').addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if(b){ if(b.dataset.v==='explore'&&!$('#v-explore').hidden&&curMod){ $('#back').click(); } go(b.dataset.v); } });
+
+/* ======================================================================
+   DETECTIVE + ASK
+   ====================================================================== */
+const SUG=['colonel','queue','Wednesday','island','knight','muscle','tear','dinosaur'];
+$('#det-sug').innerHTML='<span class="lab" style="align-self:center">Try</span>'+galBtns(SUG,'data-det');
+$('#det-sug').addEventListener('click',e=>{ const b=e.target.closest('[data-det]'); if(b){ $('#det-in').value=b.dataset.det; investigate(); } });
+$('#det-form').addEventListener('submit',e=>{ e.preventDefault(); investigate(); });
+$('#det-out').addEventListener('click',e=>{ const b=e.target.closest('[data-det]'); if(b){ $('#det-in').value=b.dataset.det; investigate(); window.scrollTo({top:0,behavior:reduced?'auto':'smooth'}); } });
+let detBusy=false;
+async function investigate(){
+  const w=clean($('#det-in').value); const out=$('#det-out'); if(!w||detBusy) return; detBusy=true;
+  out.innerHTML=`<div class="card">${loading} <span class="muted">Investigating ${esc(w)}…</span></div>`;
+  try{
+    const r=await askJSON(`${KID}\n\nExplain the word "${w}". Reply with only JSON in this shape:\n{"ok":true,"word":"the word, correctly spelled","say":"simple respelling with the stressed syllable in capitals, like KUR-nul","ipa":"American IPA between slashes","syllables":["syl","la","bles"],"meanings":[{"pos":"noun","meaning":"","example":"a sentence using the word"}],"origin":{"from":"the language or source it came from","story":"1 to 3 sentences about where it came from and how it changed"},"twins":[{"word":"","type":"homophone | homograph | homonym | heteronym | capitonym | contronym","meaning":"short"}],"silent":[{"letter":"","why":"short reason"}],"rhymes":["up to 5"],"fun_fact":"one surprising true fact about this word"}\nGive at most 3 meanings and 4 twins. Use empty lists when there are none. If it is misspelled, explain the correct spelling and mention the mix-up in fun_fact. If "${w}" is not a real word, or is not something to explain to a child, reply {"ok":false,"note":"a short, friendly sentence"} instead.`);
+    if(!r||r.ok===false){ out.innerHTML=`<div class="card"><p>${esc((r&&r.note)||'Claude could not find that word. Check the spelling and try again.')}</p></div>`; return; }
+    const sy=(r.syllables||[]);
+    out.innerHTML=`<div class="card stack">
+      <div class="row" style="gap:14px;align-items:flex-end"><span class="det-word">${esc(r.word||w)}</span>${hear(r.word||w)}</div>
+      <div class="row" style="gap:14px"><span class="say" style="font-size:19px">${esc(r.say||'')}</span><span class="ipa">${esc(r.ipa||'')}</span></div>
+      ${sy.length>1?`<div><div class="lab">${sy.length} syllables</div><div class="tiles" style="margin-top:6px;font-size:22px">${sy.map(s=>`<span class="tl lc">${esc(s)}</span>`).join('')}</div></div>`:''}
+      ${(r.meanings||[]).map(m=>`<div class="sense"><div class="tx"><span class="pos">${esc(m.pos||'')}</span>${esc(m.meaning||'')}${m.example?`<div class="ex">"${esc(m.example)}"</div>`:''}</div></div>`).join('')}
+      ${r.origin&&r.origin.story?`<div class="tip"><b>Where it came from${r.origin.from?`: ${esc(r.origin.from)}`:''}.</b> ${esc(r.origin.story)}</div>`:''}
+      ${(r.silent||[]).length?`<div><div class="lab">Silent letters</div>${r.silent.map(s=>`<p style="margin-top:4px"><span class="tl">${esc(s.letter)}</span> ${esc(s.why||'')}</p>`).join('')}</div>`:''}
+      ${(r.twins||[]).length?`<div><div class="lab">Word twins</div><div class="gal" style="margin-top:6px">${r.twins.map(t=>`<button data-det="${esc(t.word)}" title="${esc(t.meaning||'')}">${esc(t.word)} <span class="kind">${esc(t.type||'')}</span></button>`).join('')}</div><p class="small muted" style="margin-top:4px">Tap a twin to investigate it.</p></div>`:''}
+      ${(r.rhymes||[]).length?`<div><div class="lab">Rhymes</div><div class="row" style="margin-top:6px">${r.rhymes.map(x=>wc(x)).join('')}</div></div>`:''}
+      ${r.fun_fact?`<p class="tip"><b>Fun fact.</b> ${esc(r.fun_fact)}</p>`:''}
+      <div class="row">${saveBtn(r.word||w,'Cool word',(r.meanings&&r.meanings[0]&&r.meanings[0].meaning)||'')}</div>
+      <p class="small muted">Answers come from Claude, which can make mistakes. Check surprising facts in a dictionary.</p></div>`;
+  }catch(err){ out.innerHTML=`<div class="card"><p>${esc(errCopy(err))}</p></div>`; }
+  finally{ detBusy=false; }
+}
+let askCtl=null;
+$('#ask-form').addEventListener('submit',async e=>{
+  e.preventDefault(); const qq=String($('#ask-in').value||'').trim().slice(0,300); const out=$('#ask-out'); if(!qq) return;
+  const s=await getSample(); if(!s){ out.textContent=errCopy({code:'unavailable'}); return; }
+  if(askCtl) askCtl.abort(); askCtl=new AbortController();
+  $('#ask-go').disabled=true; $('#ask-stop').hidden=false; out.innerHTML=loading;
+  try{
+    await s(`${KID}\n\nFelix asked: "${qq.replace(/"/g,"'")}"\n\nAnswer in under 150 words, in plain text with no markdown, headings, or bullet symbols. If the question is not about words, language, letters, spelling, sounds, grammar, or writing, say kindly that this box is for word questions and suggest one he could ask instead.`,{signal:askCtl.signal,onText:({text})=>{ out.textContent=text; }});
+  }catch(err){ if(err&&err.code!=='cancelled'){ out.textContent=(err.text?err.text+'\n\n':'')+errCopy(err); if(OFF.includes(err.code)) setNoClaude(); } }
+  finally{ $('#ask-go').disabled=false; $('#ask-stop').hidden=true; askCtl=null; }
+});
+$('#ask-stop').onclick=()=>{ if(askCtl) askCtl.abort(); };
+
+/* ---------- boot ---------- */
+async function boot(){
+  try{ const r=await fetch('content.json'); if(!r.ok) throw 0; C=await r.json(); }
+  catch(e){ $('#home').innerHTML='<div class="card"><h2 class="sec-h">The word lists didn\'t load.</h2><p class="lede">Check the internet connection, then reload the app.</p></div>'; return; }
+  renderHome(); renderWords();
+  const last=store.get('wl.last',{});
+  if(last.v==='explore'&&last.mod) openMod(last.mod);
+  go(last.v||'explore');
+  initDb();
+  getSample().then(x=>{ if(!x) setNoClaude(); });
+  if(REC.mode!=='device') recLoad(REC.mode);
+}
+boot();
+})();
+</script>
+
+</body>
+</html>
