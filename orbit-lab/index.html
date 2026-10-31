@@ -90,7 +90,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .planet p{margin:0;color:var(--muted);font-size:16px;max-width:min(30ch,calc(100% - 96px))}
 .planet .host-row{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700}
 .planet .host-row .avatar{width:54px;height:54px;border-width:3px;box-shadow:none}
-.planet .lvl{display:inline-flex;align-items:center;padding:2px 10px;border:3px solid var(--ink);border-radius:999px;background:var(--yellow);color:var(--ink-text);font-weight:800;font-size:14px}
+.planet .lvl{white-space:nowrap;display:inline-flex;align-items:center;padding:2px 10px;border:3px solid var(--ink);border-radius:999px;background:var(--yellow);color:var(--ink-text);font-weight:800;font-size:14px}
 .planet.soon{cursor:default;opacity:.6;box-shadow:7px 7px 0 var(--ink)}
 .planet.soon:active{transform:none}
 .planet.soon h2{color:var(--cream)}
@@ -226,6 +226,55 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .crew-card p{margin:2px 0 0;font-size:14px;color:var(--muted)}
 .crew-win{width:min(100%,900px)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- batch 2 ---------- */
+.work{padding:20px;display:flex;flex-direction:column;gap:16px}
+.ansbox{display:inline-grid;place-items:center;min-width:4.2ch;height:64px;padding:0 14px;border:4px dashed var(--muted);border-radius:10px;background:var(--navy);font-weight:800;font-size:36px;font-variant-numeric:tabular-nums;color:var(--cream)}
+.ansbox.filled{border-style:solid;border-color:var(--cyan)}
+.ansbox.right{border-color:var(--good);background:rgba(91,224,138,.18)}
+.eq{font-weight:800;font-size:32px;font-variant-numeric:tabular-nums}
+.arr-wrap{overflow-x:auto;padding:4px 4px 10px;max-width:100%}
+.crates{--cs:30px;display:inline-grid;gap:6px;align-items:center;padding:14px;background:#101A3E;border:3px solid var(--ink);border-radius:8px}
+@media (max-width:480px){.crates{--cs:22px;gap:4px}}
+.crate{width:var(--cs);height:var(--cs);background:var(--orange);border:3px solid var(--ink);border-radius:4px;box-shadow:inset -6px -6px 0 rgba(0,0,0,.22)}
+.rowsum{min-width:3ch;padding-left:10px;font-weight:800;color:var(--yellow);font-variant-numeric:tabular-nums}
+.amodel{display:grid;gap:5px;width:100%;min-width:320px;max-width:680px}
+.am-h{display:grid;place-items:center;font-weight:800;font-size:20px;color:var(--yellow);font-variant-numeric:tabular-nums}
+.am-h.side{justify-items:end;padding-right:8px}
+.am-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;border:4px solid var(--ink);border-radius:6px;background:var(--tint);color:var(--ink-text);cursor:pointer;min-width:0}
+.am-cell.active{box-shadow:0 0 0 4px var(--cyan)}
+.am-cell .am-q{font-weight:700;font-size:15px;white-space:nowrap}
+.am-cell .am-v{min-width:3ch;min-height:38px;padding:0 8px;border:3px dashed rgba(20,18,31,.5);border-radius:6px;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;display:grid;place-items:center;background:rgba(255,255,255,.6)}
+.am-cell.done .am-v{border-style:solid;border-color:var(--ink-text);background:#fff}
+.sumline{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.share{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:start}
+@media (max-width:600px){.share{grid-template-columns:minmax(0,1fr)}}
+.dock{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;padding:12px;border:3px dashed var(--muted);border-radius:8px;min-height:64px}
+.dock-label{font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);width:100%}
+.pods{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:12px}
+.pod{display:flex;flex-direction:column;gap:6px;min-height:92px;padding:10px;border:4px solid var(--ink);border-radius:24px 24px 10px 10px;background:var(--panel-2);box-shadow:4px 4px 0 var(--ink)}
+.pod-name{font-family:var(--display);letter-spacing:1px;color:var(--cyan);font-size:18px}
+.blks{display:flex;flex-wrap:wrap;gap:3px;align-items:flex-end;max-width:240px}
+.b0{width:11px;height:11px;background:var(--teal);border:2px solid var(--ink)}
+.b1{width:11px;height:32px;background:var(--yellow);border:2px solid var(--ink);background-image:repeating-linear-gradient(0deg,transparent 0 4px,rgba(0,0,0,.3) 4px 5px)}
+.b2{width:30px;height:30px;background:var(--orange);border:2px solid var(--ink);background-image:repeating-linear-gradient(0deg,transparent 0 4px,rgba(0,0,0,.22) 4px 5px),repeating-linear-gradient(90deg,transparent 0 4px,rgba(0,0,0,.22) 4px 5px)}
+.b3{width:32px;height:32px;margin:4px 4px 0 0;background:var(--pink);border:2px solid var(--ink);box-shadow:4px -4px 0 #8E1E4A,4px -4px 0 2px var(--ink)}
+.more{font-weight:800;color:var(--cream);font-size:15px;align-self:center}
+.blkcount{font-size:13px;font-weight:700;color:var(--muted)}
+.bus{display:grid;justify-content:start;font-weight:800;font-size:34px;font-variant-numeric:tabular-nums;line-height:1.25;padding:10px 16px;background:#101A3E;border:3px solid var(--ink);border-radius:8px}
+.bus .qd{color:var(--yellow);text-align:center;min-height:1.25em}
+.bus .qd.zero{color:#5D6BA8}
+.bus .dv{border-top:4px solid var(--cream);text-align:center}
+.bus .dk{border-right:4px solid var(--cream);padding-right:10px;color:var(--cyan);border-radius:0 0 14px 0}
+.shape-view{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px;background:#101A3E;border:3px solid var(--ink);border-radius:8px}
+.shape-view svg{width:min(100%,360px);height:auto;max-height:340px}
+.shape-view canvas{width:100%;max-width:520px;height:300px;touch-action:none;cursor:grab}
+.spin-tip{font-size:13px;color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.opts{grid-template-columns:minmax(0,1fr)}}
+.spec{display:flex;flex-wrap:wrap;gap:8px}
+.spec span{padding:4px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--yellow);color:var(--ink-text);font-weight:800;font-size:15px}
+.formula{font-size:15px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -388,6 +437,94 @@ const PLACE_TAGS=['1s','10s','100s','1,000s','10,000s','100,000s'];
 /* pi: 200 decimal places, verified by Machin's formula at build time */
 const PI_DIGITS='14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196';
 const PI_GOALS=[10,20,30,50,100];
+/* --- Number Ops --- */
+function splitPlaces(n){const s=String(n);const out=[];for(let i=0;i<s.length;i++){const d=+s[i];if(d)out.push(d*10**(s.length-1-i));}return out;}
+function makeMul(L){
+  let a,b;
+  if(L===0){a=ri(2,9);b=ri(3,10);return {kind:'array',a,b,ans:a*b};}
+  if(L===1){a=ri(3,9);do{b=ri(12,49);}while(b%10===0);}
+  else if(L===2){do{a=ri(12,39);b=ri(12,29);}while(a%10===0||b%10===0);}
+  else if(L===3){a=ri(3,9);do{b=ri(112,899);}while(String(b).includes('0'));}
+  else {do{a=ri(31,89);b=ri(32,98);}while(a%10===0||b%10===0);}
+  const rows=splitPlaces(a),cols=splitPlaces(b);const partials=[];
+  rows.forEach((r,i)=>cols.forEach((c,j)=>partials.push({i,j,r,c,v:r*c})));
+  return {kind:'area',a,b,rows,cols,partials,ans:a*b};
+}
+function partialHint(r,c){
+  const tz=n=>{let z=0;while(n%10===0&&n>0){n/=10;z++;}return [n,z];};
+  const [rd,rz]=tz(r),[cd,cz]=tz(c);const z=rz+cz;
+  return z?`${rd} × ${cd} = ${rd*cd}, then add ${z} zero${z>1?'s':''}.`:`${r} × ${c} is a fact you know.`;
+}
+const PLACE_NAMES=['ones','tens','hundreds','thousands'];
+function placeWord(p,n){const w=PLACE_NAMES[p];return n===1?w.slice(0,-1):w;}
+const DIV_LEVELS=[[2,5,20,99],[3,9,40,99],[2,6,100,599],[4,9,100,999],[3,9,1000,9999]];
+function makeDiv(L){
+  const R=DIV_LEVELS[L];const k=ri(R[0],R[1]);let N;do{N=ri(R[2],R[3]);}while(N<k*3);
+  return {N,k,q:Math.floor(N/k),r:N%k,steps:divSteps(N,k)};
+}
+function divSteps(N,k){const s=String(N);const steps=[];let carry=0;
+  for(let i=0;i<s.length;i++){const p=s.length-1-i;const avail=carry*10+(+s[i]);const each=Math.floor(avail/k);const left=avail-each*k;
+    steps.push({p,avail,each,used:each*k,left});carry=left;}
+  return steps;}
+
+/* --- Shape Forge --- */
+const S2D={
+  triangle:{name:'Triangle'},
+  equilateral:{name:'Equilateral triangle',also:['isosceles']},
+  isosceles:{name:'Isosceles triangle'},
+  scalene:{name:'Scalene triangle'},
+  right:{name:'Right triangle',also:['scalene']},
+  square:{name:'Square',also:['rectangle','rhombus','parallelogram','trapezoid','kite']},
+  rectangle:{name:'Rectangle',also:['parallelogram','trapezoid']},
+  rhombus:{name:'Rhombus',also:['parallelogram','kite','trapezoid']},
+  parallelogram:{name:'Parallelogram',also:['trapezoid']},
+  trapezoid:{name:'Trapezoid'},kite:{name:'Kite'},
+  pentagon:{name:'Pentagon',n:5},hexagon:{name:'Hexagon',n:6},heptagon:{name:'Heptagon',n:7},octagon:{name:'Octagon',n:8},
+  nonagon:{name:'Nonagon',n:9},decagon:{name:'Decagon',n:10},circle:{name:'Circle'},
+};
+const S3D={
+  cube:{name:'Cube',also:['rectprism'],F:6,E:12,V:8},rectprism:{name:'Rectangular prism',F:6,E:12,V:8},
+  triprism:{name:'Triangular prism',F:5,E:9,V:6},sqpyramid:{name:'Square pyramid',F:5,E:8,V:5},
+  tripyramid:{name:'Triangular pyramid',F:4,E:6,V:4},pentprism:{name:'Pentagonal prism',F:7,E:15,V:10},
+  hexprism:{name:'Hexagonal prism',F:8,E:18,V:12},cylinder:{name:'Cylinder'},cone:{name:'Cone'},sphere:{name:'Sphere'},
+};
+const POLYS=['cube','rectprism','triprism','sqpyramid','tripyramid','pentprism','hexprism'];
+const NAME_POOLS=[
+  {d2:['triangle','square','rectangle','circle','pentagon','hexagon','octagon','trapezoid']},
+  {d2:['equilateral','isosceles','scalene','right','square','rectangle','rhombus','parallelogram','trapezoid','kite']},
+  {d3:['cube','rectprism','triprism','sqpyramid','tripyramid','hexprism','cylinder','cone','sphere']},
+  {count:POLYS},
+  {d2:['equilateral','isosceles','scalene','right','rhombus','parallelogram','trapezoid','kite','pentagon','hexagon','heptagon','octagon','nonagon','decagon'],
+   d3:['cube','rectprism','triprism','sqpyramid','tripyramid','pentprism','hexprism','cylinder','cone','sphere'],count:POLYS},
+];
+function makeName(L){
+  const pool=NAME_POOLS[L];const kind=pick(Object.keys(pool));const ids=pool[kind];const id=pick(ids);
+  if(kind==='count'){const ask=pick(['faces','edges','vertices']);const sh=S3D[id];
+    return {kind,id,ask,answer:sh[ask==='faces'?'F':ask==='edges'?'E':'V'],name:sh.name};}
+  const T=kind==='d2'?S2D:S3D;const sh=T[id];const bad=new Set([id,...(sh.also||[])]);
+  const cand=shuffle(ids.filter(x=>!bad.has(x)));
+  return {kind,id,answer:sh.name,options:shuffle([sh.name,...cand.slice(0,3).map(x=>T[x].name)])};
+}
+function r2(x){return Math.round(x*100)/100;}
+function makeArea(L){
+  if(L===0){const w=ri(3,9),h=ri(2,7);return {shape:'rect',w,h,ans:w*h};}
+  if(L===1){const W=ri(6,10),H=ri(5,8),cw=ri(2,W-3),ch=ri(2,H-3);return {shape:'L',W,H,cw,ch,ans:W*H-cw*ch};}
+  if(L===2){
+    if(Math.random()<.5){let b,h;do{b=ri(4,12);h=ri(3,9);}while((b*h)%2);return {shape:'tri',b,h,x:ri(1,b-1),ans:b*h/2};}
+    const b=ri(4,10),h=ri(3,7),s=ri(1,3);return {shape:'para',b,h,s,ans:b*h};}
+  if(L===3){
+    if(Math.random()<.5){let w,h1,h2;do{w=ri(4,10);h1=ri(3,6);h2=ri(2,5);}while((w*h2)%2);return {shape:'house',w,h1,h2,ans:w*h1+w*h2/2};}
+    let a,b,h;do{b=ri(6,12);a=ri(2,b-2);h=ri(3,7);}while((b-a)%2||((a+b)*h)%2);return {shape:'trap',a,b,h,ans:(a+b)*h/2};}
+  const r=ri(2,10);return {shape:'circle',r,ans:r2(314*r*r/100)};
+}
+function makeVol(L){
+  if(L===0){const l=ri(2,4),w=ri(2,3),h=ri(2,4);return {shape:'cubes',l,w,h,ans:l*w*h};}
+  if(L===1){const l=ri(3,8),w=ri(2,5),h=ri(2,6);return {shape:'box',l,w,h,ans:l*w*h};}
+  if(L===2){const w=ri(2,4),l1=ri(2,4),h1=ri(3,6),l2=ri(2,4),h2=ri(1,h1-1);return {shape:'step',w,l1,h1,l2,h2,ans:l1*w*h1+l2*w*h2};}
+  if(L===3){const r=ri(1,6),h=ri(2,10);return {shape:'cyl',r,h,ans:r2(314*r*r*h/100)};}
+  if(Math.random()<.5){const r=ri(2,6);return {shape:'sphere',r,ans:Math.round(1256*r**3/300),exact:r2(1256*r**3/300)};}
+  const r=ri(2,6),h=3*ri(1,4);return {shape:'cone',r,h,ans:r2(314*r*r*(h/3)/100)};
+}
 /* ===== LOGIC END ===== */
 
 /* ---------- state ---------- */
@@ -428,6 +565,7 @@ const CREW={
   pix:{name:'Pix (PX-314)',bio:'The station robot, built to remember. Keeper of the Pi Vault.',
     cheer:['Digits stored! Beep-boop!','Memory banks glowing!'],hint:['Processing… try chunks of three.'],enc:['Rebooting memory. Retry!','Almost! Here is the digit.']},
 };
+const SHORT={nova:'Commander Nova',jay:'Pilot Jay',kofi:'Engineer Kofi',priya:'Dr. Priya',qel:'Navigator Qel',pix:'Pix the robot'};
 const EXPR_FILE={hero:'hero',cheer:'cheer',hint:'think',enc:'encourage'};
 let currentHost='jay';
 function say(expr,text){
@@ -448,12 +586,14 @@ const ZONES={
     peek:['Add, subtract and doubling patterns','Times patterns, growing jumps, and two-step patterns','Squares, halving, and ×3, ×4, ×5, ×10','Add the two before, cubes, and ×2 then +1','Challenge: decimals, going below zero, and prime numbers']},
   fuel:{name:'Fuel Depot',host:'kofi',color:'#F26B1D',ring:'#FFD23F',blurb:'Add up the fuel tankers column by column, carrying as you go.',start:startFuel,
     peek:['Two tankers with 3-digit loads','Three tankers with 2- and 3-digit loads','Two tankers with 4-digit loads','Three tankers with 3- and 4-digit loads','Challenge: four tankers, up to 5-digit loads']},
+  ops:{name:'Number Ops',host:'nova',color:'#D6336C',ring:'#FFD23F',blurb:'See multiplication as crates and area pieces. Share supplies among pods to divide.',start:startOps,
+    peek:['× crate arrays · ÷ 2-digit numbers by 2 to 5','× 2-digit by 1-digit · ÷ 2-digit numbers by 3 to 9','× 2-digit by 2-digit · ÷ 3-digit numbers by 2 to 6','× 3-digit by 1-digit · ÷ 3-digit numbers by 4 to 9','Challenge: × big 2-digit pairs · ÷ 4-digit numbers']},
+  shapes:{name:'Shape Forge',host:'kofi',color:'#7FE9FF',ring:'#F26B1D',blurb:'Name 2-D and 3-D shapes, then measure area and volume.',start:startShapes,
+    peek:['Shape names · rectangle area · counting cubes','Triangle and 4-sided shape types · L-shaped areas · box volume','3-D solids · triangles and parallelograms · joined boxes','Faces, edges and vertices · roofs and trapezoids · cylinders with π','Challenge: mixed names · circles with π · spheres and cones']},
   pi:{name:'Pi Vault',host:'pix',color:'#FFD23F',ring:'#D6336C',blurb:'Memorize the digits of π, three at a time, then recite from memory.',start:startPi,
     peek:PI_GOALS.map((g,i)=>`Recite goal: ${g} digits of π${i===4?' (challenge)':''}`)},
 };
 const SOON=[
-  {name:'Number Ops',host:'nova',color:'#D6336C',ring:'#FFD23F',blurb:'Watch multiplication and division come alive.'},
-  {name:'Shape Forge',host:'kofi',color:'#7FE9FF',ring:'#F26B1D',blurb:'2-D and 3-D shapes, area and volume.'},
   {name:'Observatory',host:'priya',color:'#9AA3B5',ring:'#1FB5A8',blurb:'Constellations, and slicing cones into orbits.'},
 ];
 let Z=null; // current zone id
@@ -466,7 +606,7 @@ function buildMap(){
       el('span',{class:'orb','aria-hidden':'true'}),
       el('h2',{},z.name),el('p',{},z.blurb),
       el('div',{class:'host-row'},el('div',{class:'avatar'},el('img',{src:`crew/${z.host}_hero.svg`,alt:''})),
-        el('span',{},CREW[z.host].name.split(',')[0]),el('span',{class:'lvl'},'Level '+LEVEL_LABELS[S.levels[id]??0]))));
+        el('span',{},SHORT[z.host]),el('span',{class:'lvl'},'Level '+LEVEL_LABELS[S.levels[id]??0]))));
   }
   for(const z of SOON){
     map.append(el('div',{class:'planet soon',style:`--c:${z.color};--ring:${z.ring}`,'aria-disabled':'true'},
@@ -530,7 +670,7 @@ function editStr(s,k,max=7){ // returns new string for typed key
 let timers=[];
 function later(fn,ms){const t=setTimeout(fn,ms);timers.push(t);return t;}
 let tickId=null;
-function stopTimers(){timers.forEach(clearTimeout);timers=[];if(tickId){clearInterval(tickId);tickId=null;}}
+function stopTimers(){timers.forEach(clearTimeout);timers=[];if(tickId){clearInterval(tickId);tickId=null;}if(typeof stopSpin==='function')stopSpin();}
 function closeOverlay(){$('#overlay').hidden=true;$('#overlay').textContent='';}
 function award(n){S.stars+=n;save();}
 function showWin({title='Mission complete!',lines=[],stars=1,again}){
@@ -871,6 +1011,426 @@ function piRecite(vault,st,goal){
       ov.append(box);ov.hidden=false;box.querySelector('.btn').focus();}
     else showWin({title:'Vault cracked!',lines,stars,again:startPi});
   };
+}
+
+/* =================== shared bits for batch 2 =================== */
+function modeTabs(modes,cur,onPick){
+  return el('div',{class:'mode-tabs',role:'group','aria-label':'Mode'},modes.map(([k,lab])=>el('button',{class:'chip',type:'button','aria-pressed':String(cur===k),onclick:()=>{if(k===cur)return;SFX.tap();onPick(k);}},lab)));
+}
+function dots(prog,N,n){prog.textContent='';for(let i=0;i<N;i++)prog.append(el('i',{class:i<n?'done':i===n?'now':''}));}
+function numInput({dot=false,minus=false,max=8,onCheck,goLabel}){
+  let s='';const box=el('div',{class:'ansbox','aria-label':'Your answer'});
+  const paint=()=>{box.textContent=s||'?';box.classList.toggle('filled',!!s);};paint();
+  const pad=keypad({dot,minus,goLabel,onKey:k=>{if(box.classList.contains('right'))return;if(k==='go'){if(s)onCheck(s);return;}s=editStr(s,k,max);paint();}});
+  return {box,pad,clear(){s='';paint();},set(v){s=v;paint();}};
+}
+const TINTS=['#FFD23F','#7FE9FF','#F9A66C','#B6A8FF','#8EE3C8','#FF9EBB'];
+/* zone runner: tabs + progress + work panel + keypad slot */
+function runZone({modes,mode,setMode,round,make,play,finishLines,again,title}){
+  const st=$('#stage');st.textContent='';keyHandler=null;
+  st.append(modeTabs(modes,mode,k=>{setMode(k);stopTimers();again();}));
+  const prog=el('div',{class:'progress','aria-hidden':'true'});const work=el('div',{class:'panel work'});const padWrap=el('div',{});
+  st.append(prog,work,padWrap);
+  let n=0,clean=0;
+  const next=()=>{dots(prog,round,n);work.textContent='';padWrap.textContent='';keyHandler=null;stopSpin();
+    play(make(),work,padWrap,ok=>{if(ok)clean++;n++;later(()=>{if(n>=round)finish();else next();},1500);});};
+  const finish=()=>{keyHandler=null;stopSpin();let stars=1;const lines=finishLines(round,clean);if(clean===round){stars++;lines.push('Flawless: bonus star!');}
+    showWin({title,lines,stars,again});};
+  next();
+}
+
+/* =================== NUMBER OPS (Nova) =================== */
+let OPSMODE='mul';
+function startOps(){
+  const L=level();
+  runZone({modes:[['mul','Multiply'],['div','Divide']],mode:OPSMODE,setMode:k=>OPSMODE=k,
+    round:OPSMODE==='mul'?5:(L<2?4:3),title:OPSMODE==='mul'?'Cargo counted!':'Supplies shared!',
+    make:()=>OPSMODE==='mul'?makeMul(L):makeDiv(L),
+    play:(P,work,pad,done)=>OPSMODE==='div'?divShare(P,work,pad,done):P.kind==='array'?mulArray(P,work,pad,done):mulArea(P,work,pad,done),
+    finishLines:(r,c)=>[`${r} ${OPSMODE==='mul'?'cargo loads multiplied':'supply runs shared'}.`,`${c} of ${r} with no hints.`],again:startOps});
+}
+function mulArray(P,work,padWrap,done){
+  const {a,b}=P;let tries=0;
+  const grid=el('div',{class:'crates',style:`grid-template-columns:repeat(${b},var(--cs)) auto`,role:'img','aria-label':`${a} rows of ${b} crates`});
+  const sums=[];
+  for(let r=0;r<a;r++){for(let c=0;c<b;c++)grid.append(el('span',{class:'crate'}));const s=el('span',{class:'rowsum'});sums.push(s);grid.append(s);}
+  const showSums=n=>sums.forEach((s,i)=>{s.textContent=i<n?String((i+1)*b):'';});
+  const inp=numInput({onCheck:v=>{
+    if(sameNum(v,P.ans)){SFX.ok();inp.box.classList.add('right');anim(inp.box,'pop');showSums(a);sayLine('cheer',`${a} × ${b} = ${P.ans}.`);keyHandler=null;done(tries===0);}
+    else{tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();
+      if(tries===1){showSums(Math.min(2,a));say('enc',`Skip-count down the rows: ${b}, ${2*b}, ${3*b}…`);}
+      else{showSums(a-1);say('hint',`Keep counting: the last row adds ${b} more.`);}}}});
+  work.append(el('div',{class:'prompt'},`${a} rows of ${b} cargo crates. How many crates in all?`),el('div',{class:'arr-wrap'},grid),
+    el('div',{class:'row'},el('span',{class:'eq'},`${a} × ${b} =`),inp.box));
+  padWrap.append(inp.pad);
+  say('hero','Count crates the fast way: rows × crates in each row.');
+}
+function mulArea(P,work,padWrap,done){
+  const {a,b,rows,cols,partials}=P;let cur=0,stage='parts',tries=0,hinted=false,s='';
+  const colT=cols.map(c=>`minmax(92px,${Math.max(1,Math.round(c/b*10))}fr)`).join(' ');
+  const rowT=rows.map(r=>`minmax(84px,${Math.max(1,Math.round(r/a*10))}fr)`).join(' ');
+  const gridEl=el('div',{class:'amodel',style:`grid-template-columns:56px ${colT};grid-template-rows:36px ${rowT};height:${rows.length>1?280:150}px`});
+  gridEl.append(el('div',{}));cols.forEach(c=>gridEl.append(el('div',{class:'am-h'},withCommas(c))));
+  const cells=[];
+  rows.forEach((r,i)=>{gridEl.append(el('div',{class:'am-h side'},withCommas(r)));
+    cols.forEach((c,j)=>{const k=cells.length;const v=el('span',{class:'am-v'},'');
+      const cell=el('button',{type:'button',class:'am-cell',style:`--tint:${TINTS[(i*2+j)%TINTS.length]}`,'aria-label':`${r} times ${c}`,
+        onclick:()=>{if(stage!=='parts'||cell.classList.contains('done'))return;SFX.tap();if(!cells[cur].classList.contains('done'))cells[cur].v.textContent='';cur=k;s='';tries=0;mark();}},el('span',{class:'am-q'},`${withCommas(r)} × ${withCommas(c)}`),v);
+      cell.v=v;cells.push(cell);gridEl.append(cell);});});
+  const totalRow=el('div',{class:'row',hidden:true});const totalBox=el('div',{class:'ansbox'},'?');
+  const mark=()=>{cells.forEach((c,k)=>c.classList.toggle('active',k===cur&&stage==='parts'));paint();};
+  const paint=()=>{if(stage==='parts'){const c=cells[cur];c.v.textContent=s;}else{totalBox.textContent=s||'?';totalBox.classList.toggle('filled',!!s);}};
+  const nextOpen=()=>cells.findIndex(c=>!c.classList.contains('done'));
+  const pad=keypad({onKey:k=>{
+    if(stage==='done')return;
+    if(k==='go'){if(s)check();return;}
+    s=editStr(s,k,7);paint();}});
+  function check(){
+    if(stage==='parts'){const p=partials[cur],c=cells[cur];
+      if(sameNum(s,p.v)){SFX.ok();c.classList.add('done');c.v.textContent=withCommas(p.v);anim(c,'pop');s='';tries=0;
+        const nx=nextOpen();if(nx>=0){cur=nx;mark();say('cheer',pick(CREW.nova.cheer)+' Next piece.');}
+        else{stage='total';mark();totalRow.hidden=false;
+          say('hero',`Now add the pieces together.`);}}
+      else{tries++;hinted=true;SFX.no();anim(c,'wiggle');s='';paint();
+        if(tries===1)say('enc',partialHint(p.r,p.c));else{say('hint',`${withCommas(p.r)} × ${withCommas(p.c)} = ${withCommas(p.v)}. Type it in.`);}}
+    } else {
+      if(sameNum(s,P.ans)){stage='done';SFX.ok();totalBox.classList.add('right');totalBox.textContent=withCommas(P.ans);anim(totalBox,'pop');
+        sayLine('cheer',`${a} × ${withCommas(b)} = ${withCommas(P.ans)}.`);keyHandler=null;done(!hinted);}
+      else{tries++;hinted=true;SFX.no();anim(totalBox,'wiggle');s='';paint();
+        say(tries===1?'enc':'hint',tries===1?'Line the pieces up by place value and add carefully.':`The pieces add up to ${withCommas(P.ans)}.`);}
+    }
+  }
+  totalRow.append(el('span',{class:'sumline'},partials.map(p=>withCommas(p.v)).join(' + ')+' ='),totalBox);
+  work.append(el('div',{class:'prompt'},`Load ${a} × ${withCommas(b)}. Split it into pieces and fill in each piece.`),
+    el('div',{class:'arr-wrap'},gridEl),totalRow);
+  padWrap.append(pad);mark();
+  say('hero',`Each piece is an easier multiplication. Tap a piece, type it, press Check.`);
+}
+function blockIcons(p,n,max=14){
+  const w=el('div',{class:'blks'});const show=Math.min(n,max);
+  for(let i=0;i<show;i++)w.append(el('span',{class:'b'+p}));
+  if(n>max)w.append(el('span',{class:'more'},`+${n-max}`));return w;
+}
+function divShare(P,work,padWrap,done){
+  const {N,k,steps,q,r}=P;const nd=steps.length;const digs=String(N).split('').map(Number);
+  const dock=new Array(nd).fill(0),pod=new Array(nd).fill(0);digs.forEach((d,i)=>dock[nd-1-i]=d);
+  let si=0,tries=0,hinted=false;
+  const dockEl=el('div',{class:'dock'});const podsEl=el('div',{class:'pods'});
+  const qCells=[];const bus=el('div',{class:'bus',style:`grid-template-columns:auto repeat(${nd},1.2ch)`,'aria-label':'Long division'});
+  bus.append(el('span',{}));digs.forEach(()=>{const c=el('span',{class:'qd'},'');qCells.push(c);bus.append(c);});
+  bus.append(el('span',{class:'dk'},k));digs.forEach(d=>bus.append(el('span',{class:'dv'},d)));
+  const remEl=el('div',{class:'stat',hidden:true});
+  const prompt=el('div',{class:'prompt'});
+  function render(){
+    dockEl.textContent='';dockEl.append(el('div',{class:'dock-label'},'On the dock'));
+    for(let p=nd-1;p>=0;p--)if(dock[p])dockEl.append(el('div',{},blockIcons(p,dock[p]),el('div',{class:'blkcount'},`${dock[p]} ${placeWord(p,dock[p])}`)));
+    if(dock.every(x=>!x))dockEl.append(el('div',{class:'blkcount'},'Empty'));
+    podsEl.textContent='';
+    for(let i=0;i<k;i++){const pe=el('div',{class:'pod'},el('div',{class:'pod-name'},`Pod ${i+1}`));
+      for(let p=nd-1;p>=0;p--)if(pod[p])pe.append(blockIcons(p,pod[p],9));podsEl.append(pe);}
+  }
+  const inp=numInput({onCheck:v=>check(v)});
+  function ask(){const S=steps[si];tries=0;inp.clear();
+    prompt.textContent=`Share ${S.avail} ${placeWord(S.p,S.avail)} among ${k} pods. How many ${PLACE_NAMES[S.p]} does each pod get?`;
+    say('hero',S.avail<k?`Only ${S.avail} ${placeWord(S.p,S.avail)}: not enough for every pod. Each pod gets 0 of these.`:`How many ${PLACE_NAMES[S.p]} can every pod get?`);}
+  function check(v){const S=steps[si];
+    if(sameNum(v,S.each)){SFX.ok();inp.box.classList.add('right');anim(inp.box,'pop');
+      pod[S.p]=S.each;dock[S.p]=S.left;qCells[si].textContent=S.each;qCells[si].classList.toggle('zero',S.each===0&&si===0);render();
+      const last=si===nd-1;
+      if(last){
+        remEl.hidden=false;remEl.innerHTML='';remEl.append(`${withCommas(N)} ÷ ${k} = `,el('b',{},withCommas(q)),r?` R ${r}`:'');
+        prompt.textContent=r?`Each pod gets ${withCommas(q)}. ${r} left on the dock: that's the remainder.`:`Each pod gets ${withCommas(q)}, with nothing left over.`;
+        sayLine('cheer',r?`${r} left over is the remainder.`:'No remainder!');keyHandler=null;done(!hinted);
+      } else if(S.left>0){
+        say('cheer',`${S.used} ${placeWord(S.p,S.used)} shared, ${S.left} left. Trade ${S.left} ${placeWord(S.p,S.left)} for ${S.left*10} ${placeWord(S.p-1,S.left*10)}.`);
+        later(()=>{dock[S.p]=0;dock[S.p-1]+=S.left*10;SFX.carry();render();anim(dockEl,'pop');si++;inp.box.classList.remove('right');later(ask,900);},1400);
+      } else {say('cheer',`All ${PLACE_NAMES[S.p]} shared evenly.`);later(()=>{si++;inp.box.classList.remove('right');ask();},1000);}
+    } else {tries++;hinted=true;SFX.no();anim(inp.box,'wiggle');inp.clear();
+      if(tries===1)say('enc',`How many groups of ${k} fit in ${S.avail}? Try ${k} × ${S.each} = ${S.each*k} and ${k} × ${S.each+1} = ${(S.each+1)*k}.`);
+      else say('hint',`Each pod gets ${S.each}: ${k} × ${S.each} = ${S.used}, with ${S.left} left.`);}
+  }
+  work.append(el('div',{class:'prompt',style:'font-size:22px'},`Share ${withCommas(N)} supply blocks equally among ${k} crew pods.`),
+    el('div',{class:'share'},el('div',{style:'display:flex;flex-direction:column;gap:14px;min-width:0'},dockEl,podsEl),el('div',{style:'display:flex;flex-direction:column;gap:10px'},bus,remEl)),
+    prompt,el('div',{class:'row'},el('span',{class:'eq',style:'font-size:22px'},'Each pod gets'),inp.box));
+  padWrap.append(inp.pad);render();ask();
+}
+
+/* =================== 3-D renderer (canvas, no libraries) =================== */
+function v3sub(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
+function v3dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function v3norm(a){const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];}
+function newell(P){const n=[0,0,0];for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];n[0]+=(a[1]-b[1])*(a[2]+b[2]);n[1]+=(a[2]-b[2])*(a[0]+b[0]);n[2]+=(a[0]-b[0])*(a[1]+b[1]);}return n;}
+function newMesh(){return {v:[],f:[],labels:[],lines:[]};}
+function addFace(m,idx,ref,props,isOut){
+  const P=idx.map(i=>m.v[i]);const n=newell(P);
+  const fc=P.reduce((s,p)=>[s[0]+p[0]/P.length,s[1]+p[1]/P.length,s[2]+p[2]/P.length],[0,0,0]);
+  const out=isOut?ref:v3sub(fc,ref);
+  if(v3dot(n,out)<0)idx=idx.slice().reverse();m.f.push(Object.assign({i:idx},props));
+}
+function addBox(m,x,y,z,l,h,w,col,grid){
+  const b=m.v.length;[[0,0,0],[l,0,0],[l,0,w],[0,0,w],[0,h,0],[l,h,0],[l,h,w],[0,h,w]].forEach(c=>m.v.push([x+c[0],y+c[1],z+c[2]]));
+  const ctr=[x+l/2,y+h/2,z+w/2];
+  [[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]].forEach(q=>addFace(m,q.map(i=>b+i),ctr,{col,grid}));
+}
+function regPoly(n,r,rot=-Math.PI/2){return [...Array(n)].map((_,i)=>[r*Math.cos(rot+2*Math.PI*i/n),r*Math.sin(rot+2*Math.PI*i/n)]);}
+function addPrism(m,poly,h,col,g){ // poly in x-z plane, extruded up y
+  const b=m.v.length,n=poly.length;poly.forEach(([x,z])=>m.v.push([x,0,z]));poly.forEach(([x,z])=>m.v.push([x,h,z]));
+  const cx=poly.reduce((s,p)=>s+p[0],0)/n,cz=poly.reduce((s,p)=>s+p[1],0)/n;const ctr=[cx,h/2,cz];
+  addFace(m,[...Array(n).keys()].map(i=>b+i),ctr,{col});addFace(m,[...Array(n).keys()].map(i=>b+n+i),ctr,{col});
+  for(let i=0;i<n;i++){const j=(i+1)%n;addFace(m,[b+i,b+j,b+n+j,b+n+i],ctr,{col,g});}
+}
+function addPyramid(m,poly,h,col,g){
+  const b=m.v.length,n=poly.length;poly.forEach(([x,z])=>m.v.push([x,0,z]));
+  const cx=poly.reduce((s,p)=>s+p[0],0)/n,cz=poly.reduce((s,p)=>s+p[1],0)/n;m.v.push([cx,h,cz]);const ap=b+n;const ctr=[cx,h/4,cz];
+  addFace(m,[...Array(n).keys()].map(i=>b+i),ctr,{col});
+  for(let i=0;i<n;i++)addFace(m,[b+i,b+(i+1)%n,ap],ctr,{col,g});
+}
+function addExtrudeXY(m,poly,w,col){ // poly CCW in x-y (y up), extruded along z
+  const b=m.v.length,n=poly.length;poly.forEach(([x,y])=>m.v.push([x,y,0]));poly.forEach(([x,y])=>m.v.push([x,y,w]));
+  addFace(m,[...Array(n).keys()].map(i=>b+n+i),[0,0,1],{col},true);addFace(m,[...Array(n).keys()].map(i=>b+i),[0,0,-1],{col},true);
+  for(let i=0;i<n;i++){const j=(i+1)%n;const [x1,y1]=poly[i],[x2,y2]=poly[j];addFace(m,[b+i,b+j,b+n+j,b+n+i],[y2-y1,-(x2-x1),0],{col},true);}
+}
+function addSphere(m,r,nu,nv,cols){
+  const b=m.v.length;m.v.push([0,r,0]);
+  for(let j=1;j<nv;j++){const th=Math.PI*j/nv;for(let i=0;i<nu;i++){const ph=2*Math.PI*i/nu;m.v.push([r*Math.sin(th)*Math.cos(ph),r*Math.cos(th),r*Math.sin(th)*Math.sin(ph)]);}}
+  const bot=m.v.length;m.v.push([0,-r,0]);const V=(j,i)=>b+1+(j-1)*nu+((i%nu)+nu)%nu;const ctr=[0,0,0];
+  for(let i=0;i<nu;i++)addFace(m,[b,V(1,i),V(1,i+1)],ctr,{col:cols[0],g:'s'});
+  for(let j=1;j<nv-1;j++)for(let i=0;i<nu;i++)addFace(m,[V(j,i),V(j,i+1),V(j+1,i+1),V(j+1,i)],ctr,{col:cols[Math.floor(j/2)%cols.length],g:'s'});
+  for(let i=0;i<nu;i++)addFace(m,[V(nv-1,i),V(nv-1,i+1),bot],ctr,{col:cols[0],g:'s'});
+}
+function prepMesh(m){
+  const adj=new Map();m.f.forEach((f,fi)=>f.i.forEach((a,k)=>{const b=f.i[(k+1)%f.i.length];const key=a<b?a+'-'+b:b+'-'+a;if(!adj.has(key))adj.set(key,[]);adj.get(key).push(fi);}));m.adj=adj;
+  const mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];m.v.forEach(p=>p.forEach((c,i)=>{mn[i]=Math.min(mn[i],c);mx[i]=Math.max(mx[i],c);}));
+  m.c=mn.map((c,i)=>(c+mx[i])/2);m.R=Math.max(...m.v.map(p=>Math.hypot(...v3sub(p,m.c))));return m;
+}
+function rot3(p,yaw,pitch){const [x,y,z]=p;const cy=Math.cos(yaw),sy=Math.sin(yaw);const X=x*cy+z*sy;let Z=-x*sy+z*cy;const cp=Math.cos(pitch),sp=Math.sin(pitch);const Y=y*cp-Z*sp;Z=y*sp+Z*cp;return [X,Y,Z];}
+function darkHex(hex,k){const n=parseInt(hex.slice(1),16);return '#'+[n>>16,(n>>8)&255,n&255].map(c=>Math.round(c*k).toString(16).padStart(2,'0')).join('');}
+function shadeHex(hex,k){const n=parseInt(hex.slice(1),16);const f=c=>Math.max(0,Math.min(255,Math.round(c*k)));return `rgb(${f(n>>16)},${f((n>>8)&255)},${f(n&255)})`;}
+const LIGHT=v3norm([-0.45,0.75,0.6]);
+function draw3D(cv,m,yaw,pitch,opt={}){
+  const dpr=window.devicePixelRatio||1;const W=cv.clientWidth||400,H=cv.clientHeight||300;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  const s=Math.min(W,H)*0.47/m.R;
+  const P=m.v.map(v=>rot3(v3sub(v,m.c),yaw,pitch));
+  const proj=P.map(([x,y,z])=>{const k=s*(1+z/(m.R*7));return [W/2+x*k,H/2-y*k];});
+  const F=m.f.map((f,fi)=>{const Q=f.i.map(i=>P[i]);const n=v3norm(newell(Q));return {f,fi,n,vis:n[2]>1e-4,depth:Q.reduce((a,p)=>a+p[2],0)/Q.length};});
+  const path=idx=>{ctx.beginPath();idx.forEach((i,k)=>k?ctx.lineTo(proj[i][0],proj[i][1]):ctx.moveTo(proj[i][0],proj[i][1]));ctx.closePath();};
+  F.filter(x=>x.vis).sort((a,b)=>a.depth-b.depth).forEach(({f,fi,n})=>{
+    const c=shadeHex(f.col,0.55+0.5*Math.max(0,v3dot(n,LIGHT)));path(f.i);ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=1.2;ctx.stroke();
+    if(f.grid&&f.i.length===4){const [A,B,C,D]=f.i.map(i=>m.v[i]);const nu=Math.round(Math.hypot(...v3sub(B,A))),nv=Math.round(Math.hypot(...v3sub(D,A)));
+      const pr=w=>{const [x,y,z]=rot3(v3sub(w,m.c),yaw,pitch);const k=s*(1+z/(m.R*7));return [W/2+x*k,H/2-y*k];};
+      const lerp=(p,q,t)=>[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t,p[2]+(q[2]-p[2])*t];
+      ctx.strokeStyle='rgba(5,6,15,.55)';ctx.lineWidth=1.6;ctx.beginPath();
+      for(let i=1;i<nu;i++){const a=pr(lerp(A,B,i/nu)),b=pr(lerp(D,C,i/nu));ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);}
+      for(let j=1;j<nv;j++){const a=pr(lerp(A,D,j/nv)),b=pr(lerp(B,C,j/nv));ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);}
+      ctx.stroke();}
+    ctx.strokeStyle='#05060F';ctx.lineWidth=3.4;ctx.lineJoin='round';ctx.lineCap='round';
+    f.i.forEach((a,k)=>{const b=f.i[(k+1)%f.i.length];const key=a<b?a+'-'+b:b+'-'+a;const other=m.adj.get(key).find(x=>x!==fi);
+      if(other!==undefined&&f.g&&m.f[other].g===f.g&&F[other].vis)return;ctx.beginPath();ctx.moveTo(proj[a][0],proj[a][1]);ctx.lineTo(proj[b][0],proj[b][1]);ctx.stroke();});
+  });
+  if(opt.ghost){ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(127,233,255,.6)';ctx.lineWidth=2;
+    m.adj.forEach((fs,key)=>{if(fs.every(fi=>!F[fi].vis)){const [a,b]=key.split('-').map(Number);ctx.beginPath();ctx.moveTo(proj[a][0],proj[a][1]);ctx.lineTo(proj[b][0],proj[b][1]);ctx.stroke();}});ctx.restore();}
+  const pr=w=>{const [x,y,z]=rot3(v3sub(w,m.c),yaw,pitch);const k=s*(1+z/(m.R*7));return [W/2+x*k,H/2-y*k];};
+  m.lines.forEach(Ln=>{const a=pr(Ln.a),b=pr(Ln.b);ctx.save();ctx.setLineDash(Ln.dash?[7,6]:[]);ctx.strokeStyle='#05060F';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();
+    ctx.strokeStyle=Ln.col||'#FFD23F';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();ctx.restore();});
+  ctx.font='800 17px Lexend, system-ui, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+  m.labels.forEach(Lb=>{const a=pr(Lb.a),b=pr(Lb.b);let mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;const dx=mx-W/2,dy=my-H/2,dl=Math.hypot(dx,dy)||1;mx+=dx/dl*22;my+=dy/dl*22;
+    ctx.lineWidth=5;ctx.strokeStyle='#05060F';ctx.strokeText(Lb.text,mx,my);ctx.fillStyle='#FFD23F';ctx.fillText(Lb.text,mx,my);});
+}
+let spin=null;
+function stopSpin(){if(spin){cancelAnimationFrame(spin.raf);spin=null;}}
+function spinner(cv,m,opt={}){
+  stopSpin();prepMesh(m);const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const st={yaw:opt.yaw??0.65,pitch:opt.pitch??0.42,auto:!reduce,last:null};
+  const me={raf:0};spin=me;
+  const frame=()=>{if(spin!==me)return;if(st.auto)st.yaw+=0.005;draw3D(cv,m,st.yaw,st.pitch,opt);me.raf=requestAnimationFrame(frame);};
+  cv.addEventListener('pointerdown',e=>{st.auto=false;st.last=[e.clientX,e.clientY];try{cv.setPointerCapture(e.pointerId);}catch(_){}});
+  cv.addEventListener('pointermove',e=>{if(!st.last)return;st.yaw+=(e.clientX-st.last[0])*0.012;st.pitch=Math.max(-1.3,Math.min(1.3,st.pitch+(e.clientY-st.last[1])*0.01));st.last=[e.clientX,e.clientY];});
+  const up=()=>{st.last=null;};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  me.raf=requestAnimationFrame(frame);
+}
+const SOLID_COLS=['#1FB5A8','#F26B1D','#FFD23F','#D6336C','#B6A8FF','#7FE9FF'];
+function solidMesh(id,col){
+  const m=newMesh();
+  if(id==='cube')addBox(m,0,0,0,2,2,2,col);
+  else if(id==='rectprism')addBox(m,0,0,0,3.2,1.5,1.4,col);
+  else if(id==='triprism')addExtrudeXY(m,[[0,0],[2.2,0],[1.1,1.8]],3,col);
+  else if(id==='sqpyramid')addPyramid(m,[[-1,-1],[1,-1],[1,1],[-1,1]],1.9,col);
+  else if(id==='tripyramid')addPyramid(m,regPoly(3,1.3),1.9,col);
+  else if(id==='pentprism')addPrism(m,regPoly(5,1.15),1.5,col);
+  else if(id==='hexprism')addPrism(m,regPoly(6,1.15),1.5,col);
+  else if(id==='cylinder')addPrism(m,regPoly(36,1),2.2,col,'side');
+  else if(id==='cone')addPyramid(m,regPoly(36,1.1),2.3,col,'side');
+  else if(id==='sphere')addSphere(m,1.3,28,16,[col,darkHex(col,0.82)]);
+  return m;
+}
+
+/* =================== 2-D shape drawings =================== */
+const SHAPE_PTS={
+  equilateral:regPoly(3,88).map(([x,y])=>[100+x,118+y]),
+  isosceles:[[100,22],[152,178],[48,178]],scalene:[[30,170],[178,170],[118,36]],right:[[40,172],[166,172],[40,52]],
+  square:[[42,42],[158,42],[158,158],[42,158]],rectangle:[[18,58],[182,58],[182,142],[18,142]],
+  rhombus:[[100,16],[164,100],[100,184],[36,100]],parallelogram:[[58,52],[188,52],[142,148],[12,148]],
+  trapezoid:[[64,52],[136,52],[184,150],[16,150]],kite:[[100,16],[152,76],[100,186],[48,76]],
+};
+function tickMarks(p,q,n){ // small ticks across the middle of a side
+  const mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2,dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;let d='';
+  for(let i=0;i<n;i++){const o=(i-(n-1)/2)*7;const cx=mx+ux*o,cy=my+uy*o;d+=`M${cx-nx*9},${cy-ny*9}L${cx+nx*9},${cy+ny*9}`;}
+  return `<path d="${d}" stroke="#05060F" stroke-width="3.5" stroke-linecap="round"/>`;
+}
+function rightMark(c,a,b){const u=v=>{const d=Math.hypot(v[0]-c[0],v[1]-c[1]);return [(v[0]-c[0])/d*16,(v[1]-c[1])/d*16];};const [ax,ay]=u(a),[bx,by]=u(b);
+  return `<path d="M${c[0]+ax},${c[1]+ay}L${c[0]+ax+bx},${c[1]+ay+by}L${c[0]+bx},${c[1]+by}" fill="none" stroke="#05060F" stroke-width="3"/>`;}
+function arrowMark(p,q,n=1){const mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2,dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;let d='';
+  for(let i=0;i<n;i++){const cx=mx+ux*(i*8),cy=my+uy*(i*8);d+=`M${cx-ux*7+nx*7},${cy-uy*7+ny*7}L${cx},${cy}L${cx-ux*7-nx*7},${cy-uy*7-ny*7}`;}
+  return `<path d="${d}" fill="none" stroke="#05060F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;}
+function shapeSVG(id,fill){
+  if(id==='triangle')id=pick(['equilateral','isosceles','scalene','right']);
+  let body='',marks='';
+  if(id==='circle')body=`<circle cx="100" cy="100" r="82" fill="${fill}" stroke="#05060F" stroke-width="6"/>`;
+  else{const pts=SHAPE_PTS[id]||regPoly(S2D[id].n,84).map(([x,y])=>[100+x,104+y]);
+    body=`<polygon points="${pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="${fill}" stroke="#05060F" stroke-width="6" stroke-linejoin="round"/>`;
+    const P=pts,T=(i,j,n)=>tickMarks(P[i],P[j],n);
+    if(id==='equilateral')marks=T(0,1,1)+T(1,2,1)+T(2,0,1);
+    else if(id==='isosceles')marks=T(0,1,1)+T(2,0,1);
+    else if(id==='right')marks=rightMark(P[0],P[1],P[2]);
+    else if(id==='square')marks=T(0,1,1)+T(1,2,1)+T(2,3,1)+T(3,0,1)+rightMark(P[3],P[2],P[0]);
+    else if(id==='rectangle')marks=rightMark(P[0],P[1],P[3])+rightMark(P[2],P[1],P[3])+T(0,1,1)+T(2,3,1)+T(1,2,2)+T(3,0,2);
+    else if(id==='rhombus')marks=T(0,1,1)+T(1,2,1)+T(2,3,1)+T(3,0,1);
+    else if(id==='parallelogram')marks=arrowMark(P[0],P[1],1)+arrowMark(P[3],P[2],1)+arrowMark(P[3],P[0],2)+arrowMark(P[2],P[1],2);
+    else if(id==='trapezoid')marks=arrowMark(P[0],P[1],1)+arrowMark(P[3],P[2],1);
+    else if(id==='kite')marks=T(0,1,1)+T(3,0,1)+T(1,2,2)+T(2,3,2);
+    else if(S2D[id].n)marks=P.map((p,i)=>T(i,(i+1)%P.length,1)).join('');
+  }
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="A shape">${body}${marks}</svg>`;
+}
+function areaSVG(A){
+  const pad=34;let w,h,draw='',labels=[];const T=(x,y,t,anchor='middle')=>labels.push(`<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle" font-family="Lexend,system-ui,sans-serif" font-weight="800" font-size="16" fill="#FFD23F" stroke="#05060F" stroke-width="4" paint-order="stroke">${t}</text>`);
+  if(A.shape==='circle'){const R=110;const svg=`<svg viewBox="0 0 280 280" role="img" aria-label="Circle with radius ${A.r} meters"><circle cx="140" cy="140" r="${R}" fill="#7FE9FF" stroke="#05060F" stroke-width="6"/><circle cx="140" cy="140" r="5" fill="#05060F"/><path d="M140,140 L${140+R},140" stroke="#05060F" stroke-width="7"/><path d="M140,140 L${140+R},140" stroke="#FFD23F" stroke-width="3"/><text x="${140+R/2}" y="122" text-anchor="middle" font-family="Lexend,system-ui,sans-serif" font-weight="800" font-size="18" fill="#FFD23F" stroke="#05060F" stroke-width="4" paint-order="stroke">r = ${A.r} m</text></svg>`;return svg;}
+  let poly=[],dash=[];
+  if(A.shape==='rect'){w=A.w;h=A.h;poly=[[0,0],[w,0],[w,h],[0,h]];labels=[];}
+  if(A.shape==='L'){w=A.W;h=A.H;poly=[[0,0],[A.W-A.cw,0],[A.W-A.cw,A.ch],[A.W,A.ch],[A.W,A.H],[0,A.H]];}
+  if(A.shape==='tri'){w=A.b;h=A.h;poly=[[A.x,0],[A.b,A.h],[0,A.h]];dash=[[[A.x,0],[A.x,A.h]]];}
+  if(A.shape==='para'){w=A.b+A.s;h=A.h;poly=[[A.s,0],[A.s+A.b,0],[A.b,A.h],[0,A.h]];dash=[[[A.s,0],[A.s,A.h]]];}
+  if(A.shape==='house'){w=A.w;h=A.h1+A.h2;poly=[[A.w/2,0],[A.w,A.h2],[A.w,h],[0,h],[0,A.h2]];dash=[[[0,A.h2],[A.w,A.h2]],[[A.w/2,0],[A.w/2,A.h2]]];}
+  if(A.shape==='trap'){w=A.b;h=A.h;const o=(A.b-A.a)/2;poly=[[o,0],[o+A.a,0],[A.b,A.h],[0,A.h]];dash=[[[o,0],[o,A.h]]];}
+  const u=Math.max(16,Math.min(40,Math.floor(Math.min(320/w,230/h))));const X=x=>pad+x*u,Y=y=>pad+y*u;const VW=w*u+pad*2,VH=h*u+pad*2;
+  let grid='';for(let i=0;i<=w;i++)grid+=`M${X(i)},${Y(0)}V${Y(h)}`;for(let j=0;j<=h;j++)grid+=`M${X(0)},${Y(j)}H${X(w)}`;
+  draw+=`<path d="${grid}" stroke="#2C3D7E" stroke-width="1.5"/>`;
+  draw+=`<polygon points="${poly.map(([x,y])=>X(x)+','+Y(y)).join(' ')}" fill="rgba(255,210,63,.32)" stroke="#05060F" stroke-width="5" stroke-linejoin="round"/>`;
+  draw+=`<polygon points="${poly.map(([x,y])=>X(x)+','+Y(y)).join(' ')}" fill="none" stroke="#FFD23F" stroke-width="2" stroke-linejoin="round"/>`;
+  dash.forEach(([a,b])=>draw+=`<path d="M${X(a[0])},${Y(a[1])}L${X(b[0])},${Y(b[1])}" stroke="#7FE9FF" stroke-width="3" stroke-dasharray="7 6"/>`);
+  if(A.shape==='rect'){T(X(w/2),Y(h)+18,`${w} m`);T(X(0)-6,Y(h/2),`${h} m`,'end');}
+  if(A.shape==='L'){T(X(w/2),Y(h)+18,`${A.W} m`);T(X(0)-6,Y(h/2),`${A.H} m`,'end');T(X((A.W-A.cw)/2),Y(0)-16,`${A.W-A.cw} m`);T(X(A.W)+6,Y((A.ch+A.H)/2),`${A.H-A.ch} m`,'start');
+    T(X(A.W-A.cw/2),Y(A.ch)-16,`${A.cw} m`);T(X(A.W-A.cw)+6,Y(A.ch/2),`${A.ch} m`,'start');}
+  if(A.shape==='tri'){T(X(w/2),Y(h)+18,`base ${A.b} m`);T(X(A.x)+8,Y(h/2),`height ${A.h} m`,'start');}
+  if(A.shape==='para'){T(X(A.b/2),Y(h)+18,`base ${A.b} m`);T(X(A.s)+8,Y(h/2),`height ${A.h} m`,'start');}
+  if(A.shape==='house'){T(X(w/2),Y(h)+18,`${A.w} m`);T(X(w)+6,Y(A.h2+A.h1/2),`${A.h1} m`,'start');T(X(w/2)+8,Y(A.h2/2),`${A.h2} m`,'start');}
+  if(A.shape==='trap'){T(X(w/2),Y(0)-16,`top ${A.a} m`);T(X(w/2),Y(h)+18,`bottom ${A.b} m`);T(X((A.b-A.a)/2)+8,Y(h/2),`height ${A.h} m`,'start');}
+  return `<svg viewBox="0 0 ${VW} ${VH}" role="img" aria-label="Shape on a grid of 1-meter squares">${draw}${labels.join('')}</svg>`;
+}
+const AREA_HINT={
+  rect:A=>[`Count the squares in one row, then the rows: ${A.w} × ${A.h}.`,`${A.w} × ${A.h} = ${A.ans}.`],
+  L:A=>[`Split it into two rectangles, or take the big rectangle and subtract the missing corner: ${A.W} × ${A.H} − ${A.cw} × ${A.ch}.`,`${A.W*A.H} − ${A.cw*A.ch} = ${A.ans}.`],
+  tri:A=>['A triangle is half of a rectangle: base × height ÷ 2.',`${A.b} × ${A.h} = ${A.b*A.h}, and half of that is ${A.ans}.`],
+  para:A=>['Slide the slanted end across and it becomes a rectangle: base × height.',`${A.b} × ${A.h} = ${A.ans}.`],
+  house:A=>['Rectangle plus triangle roof. Find each, then add.',`${A.w} × ${A.h1} = ${A.w*A.h1}, plus ${A.w} × ${A.h2} ÷ 2 = ${A.w*A.h2/2}. Total ${A.ans}.`],
+  trap:A=>['Trapezoid area = (top + bottom) ÷ 2 × height.',`(${A.a} + ${A.b}) ÷ 2 = ${(A.a+A.b)/2}, × ${A.h} = ${A.ans}.`],
+  circle:A=>['Circle area = π × r × r. Use 3.14 for π.',`3.14 × ${A.r} × ${A.r} = 3.14 × ${A.r*A.r} = ${fmtNum(A.ans)}.`],
+};
+const AREA_PROMPT={rect:'This deck panel is drawn on 1-meter squares. What is its area?',L:'An L-shaped landing pad. What is its area?',tri:'A triangular solar sail. What is its area?',
+  para:'A slanted hangar door. What is its area?',house:'The front wall of a moon base: a rectangle with a triangle roof. What is its area?',trap:'A trapezoid-shaped window. What is its area?',circle:'A round landing pad. What is its area? Use 3.14 for π.'};
+
+/* =================== SHAPE FORGE (Kofi) =================== */
+let SHMODE='name';
+function startShapes(){
+  const L=level();
+  runZone({modes:[['name','Name it'],['area','Area'],['vol','Volume']],mode:SHMODE,setMode:k=>SHMODE=k,
+    round:SHMODE==='name'?8:SHMODE==='area'?6:5,title:'Forge work done!',
+    make:()=>SHMODE==='name'?makeName(L):SHMODE==='area'?makeArea(L):makeVol(L),
+    play:(P,w,p,d)=>SHMODE==='name'?(P.kind==='count'?shapeCount(P,w,p,d):shapeName(P,w,p,d)):SHMODE==='area'?areaPlay(P,w,p,d):volPlay(P,w,p,d),
+    finishLines:(r,c)=>[`${r} ${SHMODE==='name'?'shapes named':SHMODE==='area'?'areas measured':'volumes measured'}.`,`${c} of ${r} right on the first try.`],again:startShapes});
+}
+function shapeView(P){
+  const view=el('div',{class:'shape-view'});
+  if(P.kind==='d2'){view.innerHTML=shapeSVG(P.id,pick(TINTS));return view;}
+  const cv=el('canvas',{role:'img','aria-label':'A 3-D solid you can spin'});view.append(cv,el('div',{class:'spin-tip'},'Drag to spin it.'));
+  later(()=>spinner(cv,solidMesh(P.id,pick(SOLID_COLS)),{ghost:P.kind==='count'}),0);return view;
+}
+function shapeName(P,work,padWrap,done){
+  let tries=0;const opts=el('div',{class:'opts',role:'group','aria-label':'Pick the name'});
+  P.options.forEach(o=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
+    if(o===P.answer){b.classList.add('right');anim(b,'pop');SFX.ok();opts.querySelectorAll('button').forEach(x=>x.disabled=true);sayLine('cheer',`Yes: ${P.answer.toLowerCase()}.`);done(tries===0);}
+    else{tries++;anim(b,'wiggle');SFX.no();b.disabled=true;say('enc',SHAPE_TIP[P.id]||'Look at the sides and corners again.');}}},o)));
+  work.append(el('div',{class:'prompt'},P.kind==='d2'?'What is the best name for this shape?':'What is this solid called?'),shapeView(P),opts);
+  say('hero',P.kind==='d2'?'Count the sides. Check the marks: matching ticks mean equal sides, arrows mean parallel sides, a little square means a right angle.':'Spin it around. Look at the faces: flat or curved? Does it come to a point?');
+}
+const SHAPE_TIP={equilateral:'All three sides have the same tick mark.',isosceles:'Exactly two sides match.',scalene:'No sides match.',right:'See the little square? That corner is a right angle.',
+  square:'Four equal sides and four right angles.',rectangle:'Four right angles, but the sides are not all equal.',rhombus:'Four equal sides, but no right angles.',parallelogram:'Two pairs of parallel sides.',
+  trapezoid:'Only one pair of parallel sides.',kite:'Two pairs of matching sides that sit next to each other.',triangle:'Count the sides.',
+  pentagon:'Count the sides: 5.',hexagon:'Count the sides: 6.',heptagon:'Count the sides: 7.',octagon:'Count the sides: 8.',nonagon:'Count the sides: 9.',decagon:'Count the sides: 10.',circle:'No sides or corners at all.',
+  cube:'Every face is a square.',rectprism:'Six rectangle faces.',triprism:'The two ends are triangles.',sqpyramid:'A square base that comes to a point.',tripyramid:'A triangle base that comes to a point.',
+  pentprism:'The ends have 5 sides.',hexprism:'The ends have 6 sides.',cylinder:'Two circle ends and a curved side.',cone:'One circle base and a point.',sphere:'Perfectly round, like a planet.'};
+function shapeCount(P,work,padWrap,done){
+  let tries=0;const word=P.ask==='faces'?'faces (flat sides)':P.ask==='edges'?'edges (where two faces meet)':'vertices (corners)';
+  const inp=numInput({onCheck:v=>{
+    if(sameNum(v,P.answer)){SFX.ok();inp.box.classList.add('right');anim(inp.box,'pop');keyHandler=null;
+      const s=S3D[P.id];sayLine('cheer',`${s.name}: ${s.F} faces, ${s.E} edges, ${s.V} vertices.`);done(tries===0);}
+    else{tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();
+      if(tries===1)say('enc',P.ask==='edges'?'Spin it slowly. The dashed blue lines are edges on the back.':P.ask==='faces'?'Count the top and bottom, then the sides around.':'Count the corners on top, then on the bottom.');
+      else say('hint',`It has ${P.answer} ${P.ask}.`);}}});
+  work.append(el('div',{class:'prompt'},`How many ${word} does this ${S3D[P.id].name.toLowerCase()} have?`),shapeView(P),el('div',{class:'row'},el('span',{class:'eq',style:'font-size:22px'},P.ask[0].toUpperCase()+P.ask.slice(1)+':'),inp.box));
+  padWrap.append(inp.pad);say('hero','Spin it to see every side. Dashed lines are hidden on the back.');
+}
+function areaPlay(A,work,padWrap,done){
+  let tries=0;const hint=AREA_HINT[A.shape](A);
+  const view=el('div',{class:'shape-view'});view.innerHTML=areaSVG(A);
+  const inp=numInput({dot:A.shape==='circle',onCheck:v=>{
+    if(sameNum(v,A.ans)){SFX.ok();inp.box.classList.add('right');anim(inp.box,'pop');keyHandler=null;sayLine('cheer',`${fmtNum(A.ans)} square meters.`);done(tries===0);}
+    else{tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();say(tries===1?'enc':'hint',hint[tries===1?0:1]);}}});
+  work.append(el('div',{class:'prompt'},AREA_PROMPT[A.shape]),view,el('div',{class:'formula'},AREA_FORMULA[A.shape]),
+    el('div',{class:'row'},el('span',{class:'eq',style:'font-size:22px'},'Area ='),inp.box,el('span',{class:'eq',style:'font-size:20px'},'square meters')));
+  padWrap.append(inp.pad);say('hero',A.shape==='rect'?'Each little square is 1 square meter.':'Measure twice, answer once.');
+}
+const AREA_FORMULA={rect:'Rectangle: length × width',L:'Two rectangles added together',tri:'Triangle: base × height ÷ 2',para:'Parallelogram: base × height',house:'Rectangle + triangle',trap:'Trapezoid: (top + bottom) ÷ 2 × height',circle:'Circle: π × r × r, with π ≈ 3.14'};
+function volMesh(V){
+  const m=newMesh();
+  if(V.shape==='cubes'||V.shape==='box'){addBox(m,0,0,0,V.l,V.h,V.w,'#F26B1D',true);
+    m.labels.push({a:[0,0,V.w],b:[V.l,0,V.w],text:`${V.l} m`},{a:[V.l,0,0],b:[V.l,0,V.w],text:`${V.w} m`},{a:[0,0,V.w],b:[0,V.h,V.w],text:`${V.h} m`});}
+  else if(V.shape==='step'){addExtrudeXY(m,[[0,0],[V.l1+V.l2,0],[V.l1+V.l2,V.h2],[V.l1,V.h2],[V.l1,V.h1],[0,V.h1]],V.w,'#1FB5A8');
+    m.labels.push({a:[0,0,V.w],b:[V.l1,0,V.w],text:`${V.l1} m`},{a:[V.l1,0,V.w],b:[V.l1+V.l2,0,V.w],text:`${V.l2} m`},{a:[0,0,V.w],b:[0,V.h1,V.w],text:`${V.h1} m`},
+      {a:[V.l1+V.l2,0,V.w],b:[V.l1+V.l2,V.h2,V.w],text:`${V.h2} m`},{a:[V.l1+V.l2,0,0],b:[V.l1+V.l2,0,V.w],text:`${V.w} m`});}
+  else if(V.shape==='cyl'){addPrism(m,regPoly(40,V.r),V.h,'#7FE9FF','side');m.lines.push({a:[0,V.h,0],b:[V.r,V.h,0]});}
+  else if(V.shape==='cone'){addPyramid(m,regPoly(40,V.r),V.h,'#FFD23F','side');m.lines.push({a:[0,0,0],b:[0,V.h,0],dash:true,col:'#7FE9FF'},{a:[0,0,0],b:[V.r,0,0]});}
+  else {addSphere(m,V.r,30,18,['#D6336C','#F26B1D','#E8557A']);m.lines.push({a:[0,0,0],b:[V.r,0,0]});}
+  return m;
+}
+const VOL_PROMPT={cubes:'This cargo stack is built from 1-meter cubes. How many cubes? That is its volume in cubic meters.',box:'A cargo hold shaped like a box. What is its volume?',
+  step:'Two cargo blocks joined together. What is the total volume?',cyl:'A fuel tank shaped like a cylinder. What is its volume? Use 3.14 for π.',
+  sphere:'Moon Talo is a sphere. What is its volume? Use 3.14 for π and round to the nearest whole number.',cone:'A rocket nose cone. What is its volume? Use 3.14 for π.'};
+const VOL_FORMULA={cubes:'Count one layer, then multiply by the number of layers.',box:'Box: length × width × height',step:'Find each block, then add them.',
+  cyl:'Cylinder: π × r × r × height',sphere:'Sphere: 4/3 × π × r × r × r',cone:'Cone: 1/3 × π × r × r × height'};
+function volHint(V){
+  if(V.shape==='cubes'||V.shape==='box')return [`One layer has ${V.l} × ${V.w} = ${V.l*V.w} cubes. How many layers?`,`${V.l} × ${V.w} × ${V.h} = ${V.ans}.`];
+  if(V.shape==='step')return ['Find the tall block and the short block separately, then add.',`${V.l1} × ${V.w} × ${V.h1} = ${V.l1*V.w*V.h1}, and ${V.l2} × ${V.w} × ${V.h2} = ${V.l2*V.w*V.h2}. Total ${V.ans}.`];
+  if(V.shape==='cyl')return [`First the circle on top: 3.14 × ${V.r} × ${V.r}. Then × the height.`,`3.14 × ${V.r*V.r} = ${fmtNum(r2(3.14*V.r*V.r))}, × ${V.h} = ${fmtNum(V.ans)}.`];
+  if(V.shape==='cone')return [`A cone is 1/3 of a cylinder: 3.14 × ${V.r} × ${V.r} × ${V.h} ÷ 3.`,`${V.h} ÷ 3 = ${V.h/3}, so 3.14 × ${V.r*V.r} × ${V.h/3} = ${fmtNum(V.ans)}.`];
+  return [`r × r × r = ${V.r**3}. Then × 3.14, × 4, ÷ 3.`,`4/3 × 3.14 × ${V.r**3} = ${fmtNum(V.exact)}, which rounds to ${V.ans}.`];
+}
+function volPlay(V,work,padWrap,done){
+  let tries=0;const hint=volHint(V);
+  const view=el('div',{class:'shape-view'});const cv=el('canvas',{role:'img','aria-label':'A 3-D shape you can spin'});view.append(cv,el('div',{class:'spin-tip'},'Drag to spin it.'));
+  const spec=el('div',{class:'spec'});
+  ({cyl:[`radius ${V.r} m`,`height ${V.h} m`],cone:[`radius ${V.r} m`,`height ${V.h} m`],sphere:[`radius ${V.r} km`]}[V.shape]||[]).forEach(t=>spec.append(el('span',{},t)));
+  const unit=V.shape==='sphere'?'cubic kilometers':'cubic meters';
+  const inp=numInput({dot:['cyl','cone'].includes(V.shape),onCheck:v=>{
+    if(sameNum(v,V.ans)){SFX.ok();inp.box.classList.add('right');anim(inp.box,'pop');keyHandler=null;sayLine('cheer',`${withCommas(V.ans)} ${unit}.`);done(tries===0);}
+    else{tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();say(tries===1?'enc':'hint',hint[tries===1?0:1]);}}});
+  work.append(el('div',{class:'prompt'},VOL_PROMPT[V.shape]),view,spec,el('div',{class:'formula'},VOL_FORMULA[V.shape]),
+    el('div',{class:'row'},el('span',{class:'eq',style:'font-size:22px'},'Volume ='),inp.box,el('span',{class:'eq',style:'font-size:20px'},unit)));
+  padWrap.append(inp.pad);
+  later(()=>spinner(cv,volMesh(V),{yaw:0.6,pitch:0.45}),0);
+  say('hero',V.shape==='cubes'?'Spin it to count the layers.':'Measure twice, answer once.');
 }
 
 /* ---------- boot ---------- */
