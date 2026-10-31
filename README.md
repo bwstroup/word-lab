@@ -21,3 +21,9 @@ Open it at https://bwstroup.github.io/word-lab/orbit-lab/
 Riddles, clues and dragons in Mossy Hollow: Sherlock's Clue Grids, the Sphinx's Picture Riddles and Saying Scroll, Watson's Rhyme Riddles, Elowen's Analogies, Brindle's Bridge (spot the flaw in an argument) and Ember's Dragon Games (Last Gem, Potion Code, Tower of Treasure).
 
 Open it at https://bwstroup.github.io/word-lab/logic-lab/
+
+# Vroom Garage
+
+57 realistic 3D vehicles, each with its own number, plus number games, Fire Rescue missions and a Letters worksite with a Letter Book.
+
+Open it at https://bwstroup.github.io/word-lab/vroom-garage/
