@@ -282,6 +282,17 @@ button.tl.pick{outline:3px solid var(--accent);outline-offset:2px}
 .cous tr.ctrl td button{border-color:var(--accent)}
 .fam-g{background:var(--tile);color:var(--tile-ink)} .fam-r{background:var(--accent-soft);color:var(--ink)} .fam-s{background:var(--slavic);color:var(--ink)} .fam-a{background:var(--soft);color:var(--ink)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabh) + 14px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;max-width:min(92vw,520px);font-size:15px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+
+/* grown-ups reset */
+.rs-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.rs{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer}
+.rs input{width:24px;height:24px;margin:2px 0 0;accent-color:var(--accent);flex:none}
+.rs b{display:block}.rs small{display:block;color:var(--ink-2);font-size:14px}
+.hold{position:relative;overflow:hidden;width:100%;margin-top:14px;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.hold .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(0,0,0,.28)}
+.hold .txt{position:relative}
+.rs-msg{margin-top:10px;min-height:1.4em;font-weight:700;text-align:center}
+.rs-msg.ok{color:var(--good)}.rs-msg.warn{color:var(--bad)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -290,6 +301,7 @@ button.tl.pick{outline:3px solid var(--accent);outline-offset:2px}
     <div class="seal" aria-hidden="true">Aa</div>
     <div class="sp"><h1>Felix's Word Lab</h1><p>Every word is a puzzle.</p></div>
     <button class="icon-btn" id="voice-btn" aria-label="Voice settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>Voice</button>
+    <button class="icon-btn" id="grown-btn" aria-label="Grown-ups: reset progress"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
 </header>
 
@@ -438,6 +450,7 @@ const wchip=(html,say,lang)=>`<button class="wchip" data-say="${esc(say)}"${lang
 const wc=w=>wchip(esc(w),w);
 
 function openVoice(){
+  $('#sheet-in').setAttribute('aria-label','Voice settings');
   loadVoices();
   const vs=goodVoices('en').filter((v,i,a)=>a.findIndex(x=>x.name===v.name&&x.lang===v.lang)===i);
   const cur=voiceFor('en-US');
@@ -460,6 +473,44 @@ function openVoice(){
   $('#rlist').onclick=e=>{ const b=e.target.closest('button[data-rec]'); if(!b) return; REC.mode=b.dataset.rec; store.set('wl.vmode',REC.mode); mark(b); speak('Knight and night sound exactly the same.'); };
 }
 $('#voice-btn').onclick=openVoice;
+
+function wireHold(box,RESETS,onDone){
+  const btn=box.querySelector('.hold'),fill=btn.querySelector('.fill'),msg=box.querySelector('.rs-msg');let start=0,raf=0,busy=false;
+  const chosen=()=>RESETS.filter(r=>box.querySelector('#rs-'+r.id).checked);
+  const tick=()=>{const p=Math.min(1,(performance.now()-start)/1600);fill.style.width=(p*100)+'%';if(p>=1)finish();else raf=requestAnimationFrame(tick)};
+  const begin=e=>{e.preventDefault();if(busy)return;if(!chosen().length){msg.className='rs-msg warn';msg.textContent='Tick at least one thing to reset.';return}
+    msg.textContent='';start=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)};
+  const stop=()=>{cancelAnimationFrame(raf);fill.style.width='0%'};
+  async function finish(){cancelAnimationFrame(raf);busy=true;const done=chosen();for(const r of done){try{await r.run()}catch(e){}}fill.style.width='0%';busy=false;
+    msg.className='rs-msg ok';msg.textContent='Reset: '+done.map(r=>r.label.toLowerCase()).join(', ')+'.';
+    RESETS.forEach(r=>{const n=box.querySelector('#rsn-'+r.id);if(n)n.textContent=r.note()});onDone&&onDone(done)}
+  btn.addEventListener('pointerdown',begin);['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,stop));
+  btn.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.repeat)begin(e)});btn.addEventListener('keyup',stop);
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+}
+const rsList=RESETS=>RESETS.map(r=>`<label class="rs"><input type="checkbox" id="rs-${r.id}"${r.on?' checked':''}><span><b>${esc(r.label)}</b><small id="rsn-${r.id}">${esc(r.note())}</small></span></label>`).join('');
+
+function lsKeys(prefix){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(prefix))out.push(k)}}catch(e){}return out}
+const WL_RESETS=[
+  {id:'words',label:'My Words collection',on:true,note:()=>`${words.length} ${words.length===1?'word':'words'} saved${db?' (in your Claude account)':''}`,
+    async run(){if(db){for(const w of words.slice()){if(w.id){try{await db.collection('words').doc(w.id).delete()}catch(e){}}}}words=[];store.set('wl.words',[]);renderWords()}},
+  {id:'best',label:'Best quiz scores',on:true,note:()=>{const n=lsKeys('wl.best.').length;return n?`${n} best ${n===1?'score':'scores'} saved`:'none saved yet'},
+    run(){lsKeys('wl.best.').forEach(k=>{try{localStorage.removeItem(k)}catch(e){}})}},
+  {id:'bee',label:'Spelling bee level',on:false,note:()=>'goes back to the first level',run(){try{localStorage.removeItem('wl.beeLvl')}catch(e){}}},
+];
+function openGrown(){
+  $('#sheet-in').setAttribute('aria-label','For grown-ups');
+  $('#sheet-in').innerHTML=`<div class="grab"></div>
+    <div class="row" style="justify-content:space-between"><h2 class="sec-h" style="font-size:24px">For grown-ups</h2><button class="btn sm" id="sheet-x">Done</button></div>
+    <p class="lede">Progress is saved only on this device, in this browser. Tick what to clear, then press and hold the button until it fills. Felix's name and the voice settings are always kept.</p>
+    <div class="rs-list">${rsList(WL_RESETS)}</div>
+    <button class="btn primary hold" id="hold"><span class="fill"></span><span class="txt">Press and hold to reset</span></button>
+    <p class="rs-msg" aria-live="polite"></p>`;
+  $('#sheet').hidden=false;
+  $('#sheet-x').onclick=()=>{$('#sheet').hidden=true;$('#sheet-in').setAttribute('aria-label','Voice settings');if(curMod)openMod(curMod.id,curChip)};
+  wireHold($('#sheet-in'),WL_RESETS);
+}
+$('#grown-btn').onclick=openGrown;
 $('#sheet').addEventListener('click',e=>{ if(e.target.id==='sheet') $('#sheet').hidden=true; });
 
 /* ---------- Claude ---------- */

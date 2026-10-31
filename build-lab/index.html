@@ -638,6 +638,20 @@ body.focus.panelopen .measure{display:block}
 body.focus .atlasgrid{grid-template-columns:minmax(0,1fr)}
 body.focus .atlasgrid .aside{display:none;position:fixed;right:max(12px,env(safe-area-inset-right,0px));top:max(64px,env(safe-area-inset-top,0px));width:min(340px,92vw);max-height:calc(100vh - 84px);overflow:auto;z-index:35;box-shadow:0 12px 32px rgba(0,0,0,.45)}
 body.focus.panelopen .atlasgrid .aside{display:block}
+
+/* grown-ups reset */
+.grownbtn{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:50%;border:2px solid var(--grid-strong);background:var(--field-2);color:var(--chalk-dim);cursor:pointer;flex:none}
+.crumbs:empty+.grownbtn{margin-left:auto}
+.rs-list{display:flex;flex-direction:column;gap:8px}
+.rs{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border:2px solid var(--grid-strong);border-radius:14px;background:var(--field-2);cursor:pointer}
+.modal label.rs{flex-direction:row;font:inherit}
+.rs input{width:24px;height:24px;margin:2px 0 0;accent-color:var(--tang);flex:none}
+.rs b{display:block;font-family:var(--display);font-size:1.05rem}.rs small{display:block;color:var(--chalk-dim);font-size:.88rem}
+.btn.hold{position:relative;overflow:hidden;width:100%;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.btn.hold .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(0,0,0,.3)}
+.btn.hold .txt{position:relative}
+.rs-msg{min-height:1.4em;font-weight:700;text-align:center;margin:0}
+.rs-msg.ok{color:var(--mint)}.rs-msg.warn{color:var(--tang)}
 .gsize{display:inline-flex;align-items:center;gap:6px}.gsize .tl{font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--chalk-dim)}
 </style>
 </head><body>
@@ -649,6 +663,7 @@ body.focus.panelopen .atlasgrid .aside{display:block}
       <div><b>Felix's Build Lab</b><span>Plan it · Draw it · Build it</span></div>
     </button>
     <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
+    <button class="grownbtn" id="grownBtn" type="button" aria-label="Grown-ups: reset progress"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </header>
   <main id="view"></main>
 </div>
@@ -1179,10 +1194,52 @@ function toast(msg,who='otto',actions=null,ms=3200){const t=$('#toast');clearTim
 let VIEW='home';
 const TITLES={paper:'Paper Missions',mission:'Mission',home:'Home',blueprint:'Blueprint Lab',draft:'Drafting Table',detective:'Plan Detective',challenges:'Challenges',shed:'Tool Shed',notebook:'Notebook',interior:'Interior Design',stylist:'Room Stylist',clients:'Clients',doctor:'Room Doctor',utilities:'Utilities',layers:'Layer Explorer',flow:'Follow the Flow',hookup:'Hook-Up Puzzles',block:'Block',roads:'World Atlas',atlas:'Explore',develop:'Developer',subway:'Subway',city:'City Builder',build:'City',cmissions:'Missions',whatif:'What If?'};
 function go(v){VIEW=v;$('#toast').hidden=true;if(document.body.classList.contains('focus'))setFocus(false);document.body.classList.remove('panelopen');if(!$('#stage').hidden)closeStage();render();window.scrollTo(0,0)}
+
+function wireHold(box,RESETS,onDone){
+  const btn=box.querySelector('.hold'),fill=btn.querySelector('.fill'),msg=box.querySelector('.rs-msg');let start=0,raf=0,busy=false;
+  const chosen=()=>RESETS.filter(r=>box.querySelector('#rs-'+r.id).checked);
+  const tick=()=>{const p=Math.min(1,(performance.now()-start)/1600);fill.style.width=(p*100)+'%';if(p>=1)finish();else raf=requestAnimationFrame(tick)};
+  const begin=e=>{e.preventDefault();if(busy)return;if(!chosen().length){msg.className='rs-msg warn';msg.textContent='Tick at least one thing to reset.';return}
+    msg.textContent='';start=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)};
+  const stop=()=>{cancelAnimationFrame(raf);fill.style.width='0%'};
+  async function finish(){cancelAnimationFrame(raf);busy=true;const done=chosen();for(const r of done){try{await r.run()}catch(e){}}fill.style.width='0%';busy=false;
+    msg.className='rs-msg ok';msg.textContent='Reset: '+done.map(r=>r.label.toLowerCase()).join(', ')+'.';
+    RESETS.forEach(r=>{const n=box.querySelector('#rsn-'+r.id);if(n)n.textContent=r.note()});onDone&&onDone(done)}
+  btn.addEventListener('pointerdown',begin);['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,stop));
+  btn.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.repeat)begin(e)});btn.addEventListener('keyup',stop);
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+}
+const rsList=RESETS=>RESETS.map(r=>`<label class="rs"><input type="checkbox" id="rs-${r.id}"${r.on?' checked':''}><span><b>${esc(r.label)}</b><small id="rsn-${r.id}">${esc(r.note())}</small></span></label>`).join('');
+
+const BL_RESETS=[
+  {id:'progress',label:'Missions and puzzle progress',on:true,
+    note:()=>{const pm=Object.keys(S.paper||{}).length,ch=Object.keys(S.chDone||{}).length;return `${pm} paper ${pm===1?'mission':'missions'} stamped · ${ch} ${ch===1?'challenge':'challenges'} done · plus puzzles, detective and map missions`},
+    run(){['chDone','paper','mistakes','detRight','atlasDone','atlasRight','subDone'].forEach(k=>delete S[k]);S.uSolved={};S.cSolved={}}},
+  {id:'badges',label:'Badges',on:true,note:()=>`${Object.keys(S.badges||{}).length} of ${BADGES.length} earned`,run(){S.badges={}}},
+  {id:'designs',label:'Saved designs',on:false,note:()=>{const n=(S.designs||[]).length;return `${n} ${n===1?'design':'designs'} in the notebook: houses, rooms, blocks, cities and maps`},
+    run(){S.designs=[];S.current=null;delete S.currentRoom;delete S.currentBlock;delete S.currentCity}},
+  {id:'photos',label:'Notebook photos',on:false,note:()=>{const n=(S.photos||[]).length;return `${n} ${n===1?'photo':'photos'}`},
+    async run(){for(const p of (S.photos||[])){try{await PH.del(p.id)}catch(e){}}S.photos=[]}},
+  {id:'settings',label:'Levels, budgets and the tool checklist',on:false,note:()=>'math dial picks, scale, budgets, Tool Shed ticks and pencil mode',
+    run(){S.levels={};S.scale=2;S.budget=2000;S.rbudget=2000;S.kit={};delete S.pencil}},
+];
+function openGrownUps(){
+  openModal(`<h3>For grown-ups</h3>
+    <p>Progress is saved only on this device, in this browser. Tick what to clear, then press and hold the button until it fills. Saved designs and photos are not ticked unless you tick them.</p>
+    <div class="rs-list">${rsList(BL_RESETS)}</div>
+    <button class="btn primary hold" id="holdBtn" type="button"><span class="fill"></span><span class="txt">Press and hold to reset</span></button>
+    <p class="rs-msg" aria-live="polite"></p>
+    <div class="row"><button class="btn" data-x="done" type="button">Done</button></div>`,{done:()=>{closeModal();render()}});
+  const box=$('#modal .box');box.setAttribute('aria-label','For grown-ups');
+  wireHold(box,BL_RESETS,done=>{clearTimeout(saveTimer);try{localStorage.setItem(LS_KEY,JSON.stringify(S))}catch(e){}
+    if(done.some(r=>r.id==='designs')){const m=box.querySelector('.rs-msg');m.textContent+=' Restarting the app…';setTimeout(()=>location.reload(),1400)}});
+}
+$('#grownBtn').onclick=openGrownUps;
 function render(){
   const trail=VIEW==='home'?[]:VIEW==='mission'?['home','blueprint','paper','mission']:['blueprint','interior','utilities','roads','city','shed','notebook'].includes(VIEW)?['home',VIEW]:['build','cmissions','whatif'].includes(VIEW)?['home','city',VIEW]:['atlas','develop','subway'].includes(VIEW)?['home','roads',VIEW]:['stylist','clients','doctor'].includes(VIEW)?['home','interior',VIEW]:['layers','flow','hookup','block'].includes(VIEW)?['home','utilities',VIEW]:['home','blueprint',VIEW];
   $('#crumbs').innerHTML=trail.map(v=>`<button data-go="${v}" class="${v===VIEW?'here':''}" ${v===VIEW?'aria-current="page"':''}>${TITLES[v]}</button>`).join('');
   $('#crumbs').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  $('#grownBtn').hidden=VIEW!=='home';
   ({paper:viewPaper,mission:viewMission,home:viewHome,blueprint:viewLab,draft:viewDraft,detective:viewDetective,challenges:viewChallenges,shed:viewShed,notebook:viewNotebook,interior:viewInterior,stylist:viewStylist,clients:viewClients,doctor:viewDoctor,utilities:viewUtilities,layers:viewLayers,flow:viewFlow,hookup:viewHookup,block:viewBlock,roads:viewRoads,atlas:viewAtlas,develop:viewDevelop,subway:viewSubway,city:viewCity,build:viewBuild,cmissions:viewCMissions,whatif:viewWhatIf})[VIEW]();
 }
 $('#brand').onclick=()=>go('home');
