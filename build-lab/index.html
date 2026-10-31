@@ -621,6 +621,24 @@ body.standalone .amap{max-height:calc(100vh - 200px)}
 .amap{max-height:none}
 .am-river.wide{vector-effect:none}
 .gpin span{position:absolute;top:calc(50% + 13px)}.gpin.up span{top:auto;bottom:calc(50% + 13px)}
+
+/* big board kit */
+.zbbar{margin-bottom:6px}.zbdims{background:var(--field-2);color:var(--chalk-dim);border:2px solid var(--grid-strong)}
+.zbwrap{align-items:flex-start}.zbwrap>.rboard{flex:none;margin:auto}
+.zbwrap>.rboard svg{width:100%!important;height:100%!important;display:block}
+.zbinfo{display:none}body.focus .zbinfo{display:inline-flex}
+body.focus #rbanner,body.focus #ubanner,body.focus #cbanner{display:none}
+body.focus .measure{display:none;position:fixed;right:max(12px,env(safe-area-inset-right,0px));top:max(64px,env(safe-area-inset-top,0px));width:min(340px,92vw);max-height:calc(100vh - 84px);overflow:auto;z-index:35;box-shadow:0 12px 32px rgba(0,0,0,.45)}
+body.focus.panelopen .measure{display:block}
+
+/* atlas labels sized in screen pixels */
+.am-lab{font:700 17px var(--body)}.am-lab.big{font:800 20px var(--display)}
+.am-rlab{font:italic 700 16px var(--body)}.am-slab{font:italic 700 17px var(--body)}.am-plab{font:700 15px var(--body)}
+.amap text{stroke-width:4px}
+body.focus .atlasgrid{grid-template-columns:minmax(0,1fr)}
+body.focus .atlasgrid .aside{display:none;position:fixed;right:max(12px,env(safe-area-inset-right,0px));top:max(64px,env(safe-area-inset-top,0px));width:min(340px,92vw);max-height:calc(100vh - 84px);overflow:auto;z-index:35;box-shadow:0 12px 32px rgba(0,0,0,.45)}
+body.focus.panelopen .atlasgrid .aside{display:block}
+.gsize{display:inline-flex;align-items:center;gap:6px}.gsize .tl{font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--chalk-dim)}
 </style>
 </head><body>
 
@@ -1320,7 +1338,7 @@ function setZoom(z,cx,cy){const wrap=$('#sheetwrap'),svg=$('#board');if(!wrap)re
   zoom=Math.max(1,Math.min(5,z));sizeBoard();const r2=svg.getBoundingClientRect();wrap.scrollLeft+=r2.left+fx*r2.width-cx;wrap.scrollTop+=r2.top+fy*r2.height-cy}
 function setFocus(on){document.body.classList.toggle('focus',on);document.body.classList.remove('panelopen');const fb=$('#focusBtn');if(fb){fb.setAttribute('aria-pressed',on);fb.textContent=on?'Exit big canvas':'Big canvas'}
   try{const el=document.documentElement;if(on){const f=el.requestFullscreen||el.webkitRequestFullscreen;const p=f&&f.call(el);if(p&&p.catch)p.catch(()=>{})}else if(document.fullscreenElement||document.webkitFullscreenElement){const x=document.exitFullscreen||document.webkitExitFullscreen;const p=x&&x.call(document);if(p&&p.catch)p.catch(()=>{})}}catch(e){}
-  window.scrollTo(0,0);setTimeout(sizeBoard,60);setTimeout(sizeBoard,450)}
+  window.scrollTo(0,0);const rs=()=>{sizeBoard();zbSize();atlasRefit()};setTimeout(rs,60);setTimeout(rs,450);const zf=$('#zbFocus');if(zf){zf.setAttribute('aria-pressed',on);zf.textContent=on?'Exit big canvas':'Big canvas'}const af=$('#aFocus');if(af){af.setAttribute('aria-pressed',on);af.textContent=on?'Exit big canvas':'Big canvas'}}
 window.addEventListener('resize',()=>{if(VIEW==='draft')sizeBoard()});
 function renderFTabs(){const el=$('#ftabs');if(!el)return;sortLevels(D);
   el.innerHTML=D.levels.map(l=>`<button data-lv="${l.k}" class="${l.k===D.cur?'on':''}" aria-pressed="${l.k===D.cur}">${LVD[l.k].n}</button>`).join('')+(D.levels.length<LEVEL_DEFS.length?'<button class="addfloor" id="addFloor">+ Add a floor</button>':'');
@@ -2390,6 +2408,7 @@ function viewStylist(){const L=lvl('interior'),cl=R.client&&CLIENTS.find(c=>c.id
   $('#rUndo').onclick=()=>{if(!rundo.length){toast('Nothing to undo yet.','kofi');return}R=JSON.parse(rundo.pop());rsel=-1;renderRTools();updateRoom()};
   $('#rNew').onclick=newRoomDialog;$('#rSave').onclick=saveRoomDialog;
   wireRoomBoard($('#rboard'));renderRTools();updateRoom();
+  boardKit('rboard',{who:'kofi',dims:()=>[R.W,R.H],grow:growRoom,after:()=>{renderRTools();updateRoom()},undoLen:()=>rundo.length,undo:()=>{R=JSON.parse(rundo.pop())},maxMsg:'This room is as big as a room can get: 30 by 24 squares!',panelName:'Room checks'});
 }
 function renderRTools(){const L=lvl('interior'),it=R.items[rsel];
   const modes=[['move','Arrange','furn'],['door','Move door','door'],['window','Windows','window']];
@@ -2740,7 +2759,8 @@ function viewBlock(){if(!B)B=makeBlock(null);const L=lvl('utilities'),p=B.puzzle
   $('#uUndo').onclick=()=>{if(!uundo.length){toast('Nothing to undo yet.','luz');return}B=JSON.parse(uundo.pop());updateBlock()};
   $('#uClear').onclick=()=>{if(!B.lines.length)return;openModal(`<h3>Take out all the pipes?</h3><p>You can still press Undo afterwards.</p><div class="row"><button class="btn" data-x="no">Keep them</button><button class="btn primary" data-x="yes">Take them out</button></div>`,{no:closeModal,yes:()=>{closeModal();uPush();B.lines=[];updateBlock()}})};
   $('#uHint').onclick=showHint;$('#uSave').onclick=saveBlockDialog;
-  wireBlockBoard($('#uboard'));renderUTools();updateBlock()}
+  wireBlockBoard($('#uboard'));renderUTools();updateBlock();
+  boardKit('uboard',{who:'luz',dims:()=>[B.W,B.H],grow:B.puzzle?null:growBlock,sides:['t','l','r'],after:()=>{renderUTools();updateBlock()},undoLen:()=>uundo.length,undo:()=>{B=JSON.parse(uundo.pop())},maxMsg:'The block is as big as it gets: 30 by 20 squares!',panelName:'Block checks'})}
 function renderUTools(){const sand=!B.puzzle;
   const tools=[...UKEYS.map(u=>[u,UT[u].name+' pipe',UT[u].c]),['erase','Eraser',null]];
   const place=[['house','House'],['tree','Tree'],['rock','Rock'],...UKEYS.map(u=>['box-'+u,UT[u].box])];
@@ -2996,13 +3016,14 @@ function distToPts(x,y,pts){let m=1e9;for(let i=0;i+1<pts.length;i++){const [ax,
 const APATCH={nyc:[{n:'East River',wkm:.5,pts:[[-74.012,40.700],[-73.998,40.706],[-73.975,40.711],[-73.970,40.728],[-73.969,40.742],[-73.963,40.754],[-73.952,40.763],[-73.942,40.773],[-73.930,40.781],[-73.910,40.788],[-73.890,40.795],[-73.860,40.800],[-73.830,40.803],[-73.800,40.805]]},
   {n:'Harlem River',wkm:.22,pts:[[-73.932,40.781],[-73.929,40.798],[-73.933,40.813],[-73.934,40.828],[-73.928,40.845],[-73.918,40.860],[-73.912,40.872],[-73.922,40.877],[-73.928,40.879]]}]};
 const AXSEA={japan:[['Tokyo Bay',139.86,35.50]],nyc:[['Upper Bay',-74.045,40.665]],sf:[],london:[],norway:[],ohio:[],rockies:[]};
-function placeLabels(items,lz,bd){/* items: {x,y,r,t,fs}; greedy, most important first; returns [{dx,dy,a}|null] */
-  const boxes=[],out=new Array(items.length).fill(null),hit=b=>boxes.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
+function placeLabels(items,lz,bd,obst){/* items: {x,y,r,t,fs}; greedy, most important first; returns [{dx,dy,a}|null] */
+  const boxes=(obst||[]).slice(),out=new Array(items.length).fill(null),hit=b=>boxes.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
   items.forEach(it=>{const r=(it.r||6)*lz;boxes.push([it.x-r,it.y-r,it.x+r,it.y+r])});
   items.map((it,i)=>i).sort((a,b)=>(items[b].pri||0)-(items[a].pri||0)).forEach(i=>{const it=items[i],fs=(it.fs||15)*lz,w=it.t.length*fs*.56,r=(it.r||6)*lz+4*lz;
     const opts=[{dx:r,dy:fs*.32,a:'start',b:[it.x+r,it.y-fs*.6,it.x+r+w,it.y+fs*.45]},{dx:-r,dy:fs*.32,a:'end',b:[it.x-r-w,it.y-fs*.6,it.x-r,it.y+fs*.45]},
       {dx:0,dy:-r-2*lz,a:'middle',b:[it.x-w/2,it.y-r-fs,it.x+w/2,it.y-r]},{dx:0,dy:r+fs*.8,a:'middle',b:[it.x-w/2,it.y+r,it.x+w/2,it.y+r+fs]}];
-    for(const o of opts){if(bd&&(o.b[0]<bd[0]||o.b[2]>bd[2]||o.b[1]<bd[1]||o.b[3]>bd[3]))continue;if(!hit(o.b)){boxes.push(o.b);out[i]={dx:o.dx/lz,dy:o.dy/lz,a:o.a};break}}});
+    for(const o of opts){if(bd&&(o.b[0]<bd[0]||o.b[2]>bd[2]||o.b[1]<bd[1]||o.b[3]>bd[3]))continue;if(!hit(o.b)){boxes.push(o.b);out[i]={dx:o.dx/lz,dy:o.dy/lz,a:o.a};break}}
+    if(!out[i]&&it.force){const o=opts.find(o=>!bd||(o.b[0]>=bd[0]&&o.b[2]<=bd[2]&&o.b[1]>=bd[1]&&o.b[3]<=bd[3]))||opts[0];boxes.push(o.b);out[i]={dx:o.dx/lz,dy:o.dy/lz,a:o.a}}});
   return out}
 function labT(l,cls,text){return l?`<text class="${cls}" x="${l.dx.toFixed(1)}" y="${l.dy.toFixed(1)}" text-anchor="${l.a}">${esc(text)}</text>`:''}
 /* Water and mountain masks for a pack, sampled on a fine canvas */
@@ -3128,7 +3149,8 @@ function ruleIcon(k){const s={odd:'<path d="M12 6v28M28 6v28" stroke="#5b6372" s
   return `<svg viewBox="0 0 40 40" aria-hidden="true">${s}</svg>`}
 /* ---- map renderer (shared by Explore, Developer and Subway) ---- */
 function mapDefs(u){return `<defs><pattern id="mtn${u}" width="26" height="22" patternUnits="userSpaceOnUse"><path d="M3 18l6-9 6 9M13 14l5-7 5 7" fill="none" stroke="#a07a4c" stroke-width="1.6" stroke-linejoin="round" opacity=".75"/></pattern></defs>`}
-function shieldSVG(l,n){const t=esc(n),w=Math.max(26,n.length*9+12);
+function shieldSVG(l,n){return `<g transform="scale(1.35)">${shieldIn(l,n)}</g>`}
+function shieldIn(l,n){const t=esc(n),w=Math.max(26,n.length*9+12);
   if(l==='Interstate')return `<path d="M${-w/2} -11Q0 -16 ${w/2} -11L${w/2-2} 5Q0 16 ${-w/2+2} 5Z" fill="#1d4fa8" stroke="#fff" stroke-width="2"/><path d="M${-w/2} -11Q0 -16 ${w/2} -11L${w/2-.5} -5H${-w/2+.5}Z" fill="#c8312b"/><text y="6" class="am-sh">${t}</text>`;
   if(l==='Federal')return `<path d="M${-w/2} -12H${w/2}L${w/2-2} 4Q0 14 ${-w/2+2} 4Z" fill="#fff" stroke="#1d2a3a" stroke-width="2"/><text y="3" class="am-sh dark">${t}</text>`;
   return `<ellipse rx="${w/2}" ry="11" fill="#fff" stroke="#1d2a3a" stroke-width="2"/><text y="4" class="am-sh dark">${t}</text>`}
@@ -3153,11 +3175,14 @@ function mapInner(p,o={}){const u=o.u||'m',L=o.layers||{hwy:1,road:1,rail:1,rive
     s+=Object.values(seen).map(r=>{const m=r.pts[Math.floor(r.pts.length/2)];return `<g class="lab" style="transform:translate(${m[0]}px,${m[1]}px) scale(var(--lz,1))"><text class="am-rlab" y="-6">${esc(r.n)}</text></g>`}).join('');
     s+=p.seas.map(q=>`<g class="lab" style="transform:translate(${q.x}px,${q.y}px) scale(var(--lz,1))"><text class="am-slab">${esc(q.n)}</text></g>`).join('');
     s+=p.peaks.map(q=>`<g class="lab" style="transform:translate(${q.x}px,${q.y}px) scale(var(--lz,1))"><path d="M-7 5L0 -7L7 5Z" fill="#7a5230" stroke="#fff" stroke-width="1.5"/><text class="am-plab" y="18">${esc(q.n)}</text></g>`).join('')}
-  if(L.hwy&&L.names&&!o.noRoads&&isUS(p.reg)){const placed=[];p.roadsP.forEach(r=>{if(!r.n||!['Interstate','Federal','State'].includes(r.l)||r.pts.length<2)return;
+  const lzz=o.lz||1,obst=[];
+  if(L.hwy&&L.names&&!o.noRoads&&isUS(p.reg)){const placed=[],hw=24*lzz,hh=20*lzz;p.roadsP.forEach(r=>{if(!r.n||!['Interstate','Federal','State'].includes(r.l)||r.pts.length<2)return;
       if(r.l==='State'&&p.kmWide>300)return;if(r.l==='Federal'&&p.kmWide>1500)return;const m=r.pts[Math.floor(r.pts.length/2)];
-      if(m[0]<20||m[1]<20||m[0]>p.w-20||m[1]>p.h-20)return;if(placed.some(q=>(q.n===r.n&&Math.hypot(q.x-m[0],q.y-m[1])<190)||Math.hypot(q.x-m[0],q.y-m[1])<40))return;placed.push({n:r.n,x:m[0],y:m[1],l:r.l})});
-    placed.sort((a,b)=>(a.l==='Interstate')-(b.l==='Interstate'));s+=placed.map(q=>`<g class="lab shield" style="transform:translate(${q.x}px,${q.y}px) scale(var(--lz,1))">${shieldSVG(q.l,q.n)}</g>`).join('')}
-  if(!o.noPlaces){const hl=o.hlPlaces||[],LB=o.noNames?[]:placeLabels(p.places.map((q,i)=>({x:q.x,y:q.y,r:q.t==='city'&&q.w>=4?7:6,t:q.n,fs:q.w>=4?18:15,pri:q.w*10+(hl.includes(i)?100:0)})),o.lz||1,[0,0,p.w,p.h]);
+      if(m[0]<hw||m[1]<hh||m[0]>p.w-hw||m[1]>p.h-hh)return;if(placed.some(q=>(q.n===r.n&&Math.hypot(q.x-m[0],q.y-m[1])<280*lzz)||(Math.abs(q.x-m[0])<hw*2.2&&Math.abs(q.y-m[1])<hh*2.2)))return;if(!o.noPlaces&&p.places.some(q=>Math.abs(q.x-m[0])<hw+8*lzz&&Math.abs(q.y-m[1])<hh+8*lzz))return;placed.push({n:r.n,x:m[0],y:m[1],l:r.l})});
+    const rank={Interstate:0,Federal:1,State:2};placed.sort((a,b)=>rank[a.l]-rank[b.l]);const keep=[];placed.forEach(q=>{if(keep.filter(k=>k.l===q.l).length<(q.l==='Interstate'?18:q.l==='Federal'?10:6))keep.push(q)});
+    keep.forEach(q=>obst.push([q.x-hw,q.y-hh,q.x+hw,q.y+hh]));
+    s+=keep.sort((a,b)=>rank[b.l]-rank[a.l]).map(q=>`<g class="lab shield" style="transform:translate(${q.x}px,${q.y}px) scale(var(--lz,1))">${shieldSVG(q.l,q.n)}</g>`).join('')}
+  if(!o.noPlaces){const hl=o.hlPlaces||[],LB=o.noNames?[]:placeLabels(p.places.map((q,i)=>({x:q.x,y:q.y,r:q.t==='city'&&q.w>=4?7:6,t:q.n,fs:q.w>=4?20:17,force:q.w>=5||hl.includes(i),pri:q.w*10+(hl.includes(i)?100:0)})),o.lz||1,[0,0,p.w,p.h],obst);
     s+=p.places.map((q,i)=>{const on=hl.includes(i),big=q.w>=4,r=q.t==='city'?(big?7:5):5;
       const mark=q.t==='air'?`<path d="M0 -8l2 5 6 2-6 2-2 6-2-6-6-2 6-2z" fill="${PICONS.air}" stroke="#fff" stroke-width="1.5"/>`:q.t==='peak'?`<path d="M-7 5L0 -7L7 5Z" fill="${PICONS.peak}" stroke="#fff" stroke-width="1.5"/>`
         :q.t==='sight'||q.t==='park'?`<rect x="-5" y="-5" width="10" height="10" rx="2" transform="rotate(45)" fill="${PICONS[q.t]}" stroke="#fff" stroke-width="1.5"/>`
@@ -3168,7 +3193,7 @@ function mapSVG(p,o={}){return `<svg class="amap" ${o.id?`id="${o.id}"`:''} view
 
 /* pan and zoom by changing the viewBox */
 function mapZoomer(svg,p,opt={}){const z={x:0,y:0,w:p.w,h:p.h,ptrs:new Map(),g:null};
-  const apply=(quiet)=>{svg.setAttribute('viewBox',`${z.x} ${z.y} ${z.w} ${z.h}`);svg.style.setProperty('--lz',(z.w/p.w).toFixed(4));if(!quiet&&opt.onChange)opt.onChange(z)};
+  z.lz=()=>z.w/(svg.getBoundingClientRect().width||p.w);const apply=(quiet)=>{svg.setAttribute('viewBox',`${z.x} ${z.y} ${z.w} ${z.h}`);svg.style.setProperty('--lz',z.lz().toFixed(4));if(!quiet&&opt.onChange)opt.onChange(z)};z.apply=apply;
   const clamp=()=>{z.w=Math.max(p.w/6,Math.min(p.w,z.w));z.h=z.w*p.h/p.w;z.x=Math.max(0,Math.min(p.w-z.w,z.x));z.y=Math.max(0,Math.min(p.h-z.h,z.y))};
   z.zoomAt=(f,cx,cy)=>{const r=svg.getBoundingClientRect(),ux=z.x+(cx-r.left)/r.width*z.w,uy=z.y+(cy-r.top)/r.height*z.h;z.w/=f;z.h/=f;clamp();
     z.x=ux-(cx-r.left)/r.width*z.w;z.y=uy-(cy-r.top)/r.height*z.h;clamp();apply()};
@@ -3185,9 +3210,13 @@ function scaleBarHTML(p,z,el){const px=el.getBoundingClientRect().width||600,kmP
   return `<div class="sbar"><i style="width:${w.toFixed(0)}px"></i><span>${v} ${us?(v===1?'mile':'miles'):'km'}</span></div>`}
 function compassHTML(){return `<svg class="mcompass" viewBox="0 0 60 60" aria-label="Compass: north is up"><circle cx="30" cy="30" r="27" fill="rgba(255,255,255,.9)" stroke="#1d2a3a" stroke-width="2"/><path d="M30 6l6 24h-12z" fill="#c8312b"/><path d="M30 54l6-24h-12z" fill="#1d2a3a"/><text x="30" y="-2" text-anchor="middle" font-size="0">N</text><circle cx="30" cy="30" r="3" fill="#fff" stroke="#1d2a3a"/><text x="30" y="5" dy="0" text-anchor="middle" class="cN">N</text></svg>`}
 
-function fitMap(svg,p){if(!svg)return;const col=svg.closest('.mapcol'),W=(col?col.clientWidth:innerWidth-40)-4,H=Math.max(340,innerHeight-(innerWidth<760?150:210)),k=Math.min(W/p.w,H/p.h);
+function fitMap(svg,p){if(!svg)return;const col=svg.closest('.mapcol'),foc=document.body.classList.contains('focus'),W=(col?col.clientWidth:innerWidth-40)-4,H=Math.max(340,innerHeight-(foc?130:innerWidth<760?150:210)),k=Math.min(W/p.w,H/p.h);
   svg.style.width=Math.floor(p.w*k)+'px';svg.style.height=Math.floor(p.h*k)+'px'}
-addEventListener('resize',()=>{const s=document.querySelector('.mapbox .amap');if(!s)return;const p=VIEW==='atlas'?getPack(AT.reg,AT.si):VIEW==='develop'&&DV?getPack(DV.reg,DV.si):VIEW==='subway'&&SB?getPack(SB.reg,0):null;if(p)fitMap(s,p)});
+function atlasRefit(){const s=document.querySelector('.mapbox .amap');if(!s)return;const p=VIEW==='atlas'?getPack(AT.reg,AT.si):VIEW==='develop'&&DV?getPack(DV.reg,DV.si):VIEW==='subway'&&SB?getPack(SB.reg,0):null;if(!p)return;fitMap(s,p);
+  const Z=VIEW==='atlas'?AX.Z:VIEW==='develop'?DV.Z:SB.Z;if(Z){Z.apply()}}
+addEventListener('resize',atlasRefit);
+function atlasFocusBtns(){const on=document.body.classList.contains('focus');return `<button class="toggle" id="aFocus" aria-pressed="${on}">${on?'Exit big canvas':'Big canvas'}</button><button class="toggle zbinfo" id="aInfo" aria-pressed="false">Panel</button>`}
+function wireAtlasFocus(){if($('#aFocus'))$('#aFocus').onclick=()=>setFocus(!document.body.classList.contains('focus'));if($('#aInfo'))$('#aInfo').onclick=()=>{const on=!document.body.classList.contains('panelopen');document.body.classList.toggle('panelopen',on);$('#aInfo').setAttribute('aria-pressed',on)}}
 /* ---- Explore ---- */
 const AX={layers:{hwy:1,road:1,rail:1,river:1,border:1,names:1},tab:'facts',q:null,done:false,picked:null,right:0,asked:0,fi:0};
 const LAYER_NAMES={hwy:'Highways',road:'Roads',rail:'Railroads',river:'Rivers',border:'Borders',names:'Names'};
@@ -3195,14 +3224,14 @@ function viewAtlas(){const r=regionById(AT.reg),L=AT.si+1,p=getPack(AT.reg,AT.si
   $('#view').innerHTML=`<div class="pagehead"><div><p class="eyebrow">Map size ${L}: ${SIZE_NAMES[L].n} · ${esc(r.name)}</p><h2>${esc(p.title)}</h2></div>${sizeDialHTML()}</div>
   <div class="atlasgrid"><div class="mapcol">
     <div class="maptools"><div class="layers" role="group" aria-label="Map layers">${Object.keys(LAYER_NAMES).map(k=>`<button class="toggle small" data-ly="${k}" aria-pressed="${!!AX.layers[k]}">${LAYER_NAMES[k]}</button>`).join('')}</div>
-      <span class="spacer"></span><div class="zoomer" role="group" aria-label="Zoom"><button id="azOut" aria-label="Zoom out">−</button><button id="azFit">Fit</button><button id="azIn" aria-label="Zoom in">+</button></div></div>
+      <span class="spacer"></span><div class="zoomer" role="group" aria-label="Zoom"><button id="azOut" aria-label="Zoom out">−</button><button id="azFit">Fit</button><button id="azIn" aria-label="Zoom in">+</button></div>${atlasFocusBtns()}</div>
     <div class="mapbox" id="mapBox">${mapSVG(p,{id:'aMap',layers:AX.layers,u:'x'})}${compassHTML()}<div id="sbar"></div></div>
     <div class="row mapacts"><button class="btn" id="toGlobe">Back to the globe</button><span class="spacer"></span><button class="btn primary" id="toDev">Be the developer here</button>${r.subway?'<button class="btn" id="toSub">Design a subway</button>':''}</div></div>
     <aside class="panel aside"><div class="tabs" role="group" aria-label="Panel"><button data-tab="facts" class="${AX.tab==='facts'?'on':''}">Hiro's facts</button><button data-tab="quiz" class="${AX.tab==='quiz'?'on':''}">Map questions</button><button data-tab="legend" class="${AX.tab==='legend'?'on':''}">Legend</button></div><div id="aPanel"></div></aside></div>`;
   wireSizeDial($('#view'),()=>{AT.si=mapSize()-1;viewAtlas()});
   const svg=$('#aMap'),box=$('#mapBox');fitMap(svg,p);let Z;
   const sb=()=>{$('#sbar').innerHTML=scaleBarHTML(p,Z,svg)};
-  AX.lastO={};Z=mapZoomer(svg,p,{onChange:()=>{if($('#sbar'))sb();debounceLabels(()=>redrawAtlasMap())}});AX.Z=Z;sb();
+  AX.lastO={};Z=mapZoomer(svg,p,{onChange:()=>{if($('#sbar'))sb();debounceLabels(()=>redrawAtlasMap())}});AX.Z=Z;sb();wireAtlasFocus();redrawAtlasMap({});
   svg.addEventListener('pointerdown',e=>{e.preventDefault();Z.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});try{svg.setPointerCapture(e.pointerId)}catch(_){};Z.startGesture();AX.tap={x:e.clientX,y:e.clientY,t:Date.now()}});
   svg.addEventListener('pointermove',e=>{const q=Z.ptrs.get(e.pointerId);if(!q)return;q.x=e.clientX;q.y=e.clientY;Z.moveGesture()});
   const up=e=>{if(!Z.ptrs.has(e.pointerId))return;Z.ptrs.delete(e.pointerId);Z.startGesture();if(!Z.ptrs.size)Z.g=null;
@@ -3214,7 +3243,7 @@ function viewAtlas(){const r=regionById(AT.reg),L=AT.si+1,p=getPack(AT.reg,AT.si
   $('#view').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AX.tab=b.dataset.tab;$('#view').querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));renderAPanel()});
   $('#toGlobe').onclick=()=>{GLOBE.sel=AT.reg;go('roads')};$('#toDev').onclick=()=>startDevelop(AT.reg,AT.si);if($('#toSub'))$('#toSub').onclick=()=>startSubway(AT.reg);
   renderAPanel()}
-function redrawAtlasMap(o){if(o)AX.lastO=o;o=AX.lastO||{};const p=getPack(AT.reg,AT.si),svg=$('#aMap');if(!svg)return;svg.innerHTML=mapInner(p,Object.assign({layers:AX.layers,u:'x',lz:AX.Z?AX.Z.w/p.w:1},o))}
+function redrawAtlasMap(o){if(o)AX.lastO=o;o=AX.lastO||{};const p=getPack(AT.reg,AT.si),svg=$('#aMap');if(!svg)return;svg.innerHTML=mapInner(p,Object.assign({layers:AX.layers,u:'x',lz:AX.Z?AX.Z.lz():1},o))}
 function debounceLabels(fn){clearTimeout(debounceLabels.t);debounceLabels.t=setTimeout(fn,160)}
 function mapTapInfo(p,x,y,e){let best=-1,bd=1e9;p.places.forEach((q,i)=>{const d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=i}});const lz=AX.Z?AX.Z.w/p.w:1;
   let msg=null;if(best>=0&&bd<22*lz){const q=p.places[best];msg=q.n+(q.pop?` · about ${q.pop>=1e6?(q.pop/1e6).toFixed(1)+' million':Math.round(q.pop/1000)*1000>0?(Math.round(q.pop/1000)).toLocaleString('en-US')+',000':q.pop} people`:'')+(q.t==='air'?' · airport':'')}
@@ -3308,13 +3337,13 @@ const AMISS={
   norway:[{si:0,a:'Bergen',b:'Askoy',t:'Askoy is an island. Connect it to Bergen.'},
           {si:1,a:'Laerdal',b:'Flam',t:'Connect Laerdal and Flam. The real road goes through the longest road tunnel in the world!'}]};
 
-function devGrid(p){if(p.grid)return p.grid;const cols=40,cell=p.w/cols,rows=Math.max(8,Math.floor(p.h/cell)),M=packMask(p),T=[];
+function devGrid(p,cols){cols=cols||(DV&&DV.gcols)||40;p.grids=p.grids||{};if(p.grids[cols])return p.grids[cols];const cell=p.w/cols,rows=Math.max(8,Math.floor(p.h/cell)),M=packMask(p),T=[];
   for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){let w=0,m=0,u=0;for(let j=0;j<3;j++)for(let i=0;i<3;i++){const px=(x+(i+.5)/3)*cell,py=(y+(j+.5)/3)*cell;if(M.water(px,py))w++;else{if(M.mtn(px,py))m++;if(M.urban(px,py))u++}}
     T.push(w>=5?'w':m>=4?'m':u>=4?'u':'l')}
   const ckm=cell*p.kmu,towns=[];p.places.forEach((q,i)=>{if(q.t==='peak')return;const cx=Math.min(cols-1,Math.floor(q.x/cell)),cy=Math.min(rows-1,Math.floor(q.y/cell));
     if(T[cy*cols+cx]==='w'){/* nudge onto land */let best=null;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=cx+dx,ny=cy+dy;if(nx>=0&&ny>=0&&nx<cols&&ny<rows&&T[ny*cols+nx]!=='w'&&!best)best=[nx,ny]}if(!best)return;towns.push({i,x:best[0],y:best[1]});return}
     towns.push({i,x:cx,y:cy})});
-  return p.grid={cols,rows,cell,T,ckm,towns,rx:{}}}
+  return p.grids[cols]={cols,rows,cell,T,ckm,towns,rx:{}}}
 function riverCross(p,G,a,b){const k=a+'|'+b;if(k in G.rx)return G.rx[k];const c=G.cell,A=[(a[0]+.5)*c,(a[1]+.5)*c],B=[(b[0]+.5)*c,(b[1]+.5)*c];let hit=null;
   for(const r of p.riversP){if(r.r>11)continue;for(let i=0;i+1<r.pts.length;i++){if(segX(A,B,r.pts[i],r.pts[i+1])){hit=r.n||'river';break}}if(hit)break}
   return G.rx[k]=hit}
@@ -3338,14 +3367,16 @@ function netTime(E,net,ta,tb,onlyHwy){const src=E.attach(net,ta),dst=new Set(E.a
   while(Q.length){Q.sort((a,b)=>a[0]-b[0]);const [d,k]=Q.shift();if(d>dist.get(k))continue;if(dst.has(k))return d;for(const e of E.adj[net].get(k)||[]){if(onlyHwy&&DV.pieces[e.piece].k!=='hwy')continue;const nd=d+e.min;if(nd<(dist.has(e.to)?dist.get(e.to):Infinity)){dist.set(e.to,nd);Q.push([nd,e.to])}}}return Infinity}
 function connected(E,net,ts){if(ts.length<2)return true;return ts.slice(1).every(t=>netTime(E,net,ts[0],t)<Infinity)}
 /* cheapest or fastest possible route on the terrain, for mission targets */
+function heapPush(H,v){H.push(v);let i=H.length-1;while(i){const j=(i-1)>>1;if(H[j][0]<=H[i][0])break;[H[i],H[j]]=[H[j],H[i]];i=j}}
+function heapPop(H){const top=H[0],last=H.pop();if(H.length){H[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<H.length&&H[l][0]<H[m][0])m=l;if(r<H.length&&H[r][0]<H[m][0])m=r;if(m===i)break;[H[i],H[m]]=[H[m],H[i]];i=m}}return top}
 function bestRoute(p,G,a,b,o){const N=G.cols*G.rows,dist=new Float64Array(N).fill(Infinity),run=new Float64Array(N),s=a.y*G.cols+a.x,t=b.y*G.cols+b.x;dist[s]=0;const Q=[[0,s]];
-  while(Q.length){let bi=0;for(let i=1;i<Q.length;i++)if(Q[i][0]<Q[bi][0])bi=i;const [d,k]=Q.splice(bi,1)[0];if(d>dist[k])continue;if(k===t)return d;const x=k%G.cols,y=(k-x)/G.cols;
+  while(Q.length){const [d,k]=heapPop(Q);if(d>dist[k])continue;if(k===t)return d;const x=k%G.cols,y=(k-x)/G.cols;
     for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=G.cols||ny>=G.rows)continue;const nk=ny*G.cols+nx,tb=G.T[nk],km=G.ckm*(dx&&dy?1.414:1);
       let r=tb==='w'?run[k]+km:0;const lim=o.tunnel?TUNNEL_WATER_MAX:BRIDGE_MAX;if(r>lim&&!o.ferry)continue;
       const water=tb==='w'||G.T[k]==='w',mtn=tb==='m';let c;
       if(o.metric==='time'){const sp=water?(r>lim?SPEED.ferry:SPEED.hwy):mtn?(o.tunnel?SPEED.hwy:MTN_SPEED.hwy):SPEED.hwy;c=km/sp*60}
       else{c=water?km*(r>lim?RATE.ferry+1:BRIDGE_RATE.road):mtn?km*(RATE.road+MTN_EXTRA):tb==='u'?km*(RATE.road+URBAN_EXTRA):km*RATE.road}
-      const nd=d+c;if(nd<dist[nk]){dist[nk]=nd;run[nk]=r;Q.push([nd,nk])}}}return Infinity}
+      const nd=d+c;if(nd<dist[nk]){dist[nk]=nd;run[nk]=r;heapPush(Q,[nd,nk])}}}return Infinity}
 function devMissions(){const p=getPack(DV.reg,DV.si),G=devGrid(p),L=devLevel();if(DV.missions)return DV.missions;
   const T=G.towns.map(t=>Object.assign({},t,{q:p.places[t.i]})).filter(t=>!['park','sight'].includes(t.q.t)&&(L>=5||!t.q.cc||(AHOME[DV.reg]||[]).includes(t.q.cc)));
   const byW=T.slice().sort((a,b)=>(b.q.w-a.q.w)||((b.q.pop||0)-(a.q.pop||0))),far=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)>=5;
@@ -3387,16 +3418,20 @@ function startDevelop(reg,si,saved){const go2=()=>{DV=saved?Object.assign({tool:
     DV.missions=null;DV.mi=0;AT.reg=DV.reg;AT.si=DV.si;S.levels.atlas=DV.si+1;persist();go('develop')};
   if(DV&&DV.dirty&&DV.pieces.length&&(DV.reg!==reg||DV.si!==si||saved)){openModal(`<h3>Start a new map?</h3><p>Your roads on ${esc(getPack(DV.reg,DV.si).title)} aren't saved yet.</p><div class="row"><button class="btn" data-x="no">Keep building</button><button class="btn primary" data-x="yes">Start the new map</button></div>`,{no:()=>{closeModal();go('develop')},yes:()=>{closeModal();go2()}});return}
   if(DV&&DV.reg===reg&&DV.si===si&&!saved){go('develop');return}go2()}
+function setGridCols(n){const old=DV.gcols||40;if(n===old)return;const f=n/old;
+  if(DV.pieces.length){DV.undo.push(JSON.stringify(DV.pieces));DV.pieces=DV.pieces.map(pc=>{const pts=pc.c.map(([x,y])=>[Math.floor((x+.5)*f),Math.floor((y+.5)*f)]);let c=[pts[0]];for(let i=1;i<pts.length;i++){const seg=line2(c[c.length-1],pts[i]).slice(1);c=c.concat(seg)}
+    c=c.filter((q,i)=>!i||q[0]!==c[i-1][0]||q[1]!==c[i-1][1]);return Object.assign({},pc,{c})}).filter(pc=>pc.c.length>1);DV.dirty=true}
+  DV.gcols=n;DV.missions=null;viewDevelop();toast(`${n} squares across. ${n>old?'Smaller squares, more room to build!':'Bigger squares, faster building.'}`,'hiro',null,2200)}
 function viewDevelop(){if(!DV){startDevelop(AT.reg,AT.si);return}const r=regionById(DV.reg),p=getPack(DV.reg,DV.si),L=devLevel(),G=devGrid(p);
   if(!DTOOLS.find(t=>t.k===DV.tool&&t.min<=L))DV.tool='road';
   $('#view').innerHTML=`<div class="pagehead"><div><p class="eyebrow">Developer · Map size ${L}: ${SIZE_NAMES[L].n} · ${esc(r.name)}</p><h2>${esc(DV.name||p.title)}</h2></div>${sizeDialHTML()}</div>
   <div class="atlasgrid dev"><div class="mapcol">
     <div class="maptools"><div class="dtools" role="group" aria-label="Building tools">${DTOOLS.filter(t=>t.min<=L).map(t=>`<button class="tool ${t.k===DV.tool?'on':''}" data-dt="${t.k}" aria-pressed="${t.k===DV.tool}">${devToolIcon(t.k)}${t.n}</button>`).join('')}
-      ${L>=3?`<button class="tool ${DV.tunnel?'on tun':''}" id="tunBtn" aria-pressed="${DV.tunnel}">${devToolIcon('tunnel')}Tunnel ${DV.tunnel?'on':'off'}</button>`:''}</div></div>
+      ${L>=3?`<button class="tool ${DV.tunnel?'on tun':''}" id="tunBtn" aria-pressed="${DV.tunnel}">${devToolIcon('tunnel')}Tunnel ${DV.tunnel?'on':'off'}</button>`:''}</div><span class="spacer"></span><div class="gsize"><span class="tl">Squares across</span><div class="seg" role="group" aria-label="Squares across">${[30,40,60,80].map(n=>`<button data-gc="${n}" class="${(DV.gcols||40)===n?'on':''}">${n}</button>`).join('')}</div></div></div>
     <div class="mapbox dev" id="mapBox"><svg class="amap" id="dMap" viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your road network on a real map"></svg>${compassHTML()}<div id="sbar"></div></div>
     <div class="row mapacts"><div class="zoomer" role="group" aria-label="Zoom"><button id="azOut" aria-label="Zoom out">−</button><button id="azFit">Fit</button><button id="azIn" aria-label="Zoom in">+</button></div>
       <button class="toggle" id="realBtn" aria-pressed="${DV.real}">Show the real roads</button><button class="toggle" id="gridBtn" aria-pressed="${DV.grid}">Grid</button><button class="toggle" id="dPencil" aria-pressed="${!!S.pencil}">Pencil mode</button>
-      <span class="spacer"></span><button class="btn small" id="dUndo">Undo</button><button class="btn small" id="dClear">Clear</button><button class="btn small" id="dGlobe">Globe</button><button class="btn small primary" id="dSave">Save to notebook</button></div></div>
+      ${atlasFocusBtns()}<span class="spacer"></span><button class="btn small" id="dUndo">Undo</button><button class="btn small" id="dClear">Clear</button><button class="btn small" id="dGlobe">Globe</button><button class="btn small primary" id="dSave">Save to notebook</button></div></div>
     <aside class="panel aside" id="dPanel"></aside></div>`;
   wireSizeDial($('#view'),()=>{const n=mapSize()-1;if(n===DV.si)return;if(DV.pieces.length){S.levels.atlas=DV.si+1;persist();
       openModal(`<h3>Switch to a ${SIZE_NAMES[n+1].n.toLowerCase()} map?</h3><p>A different map size is a different map. Save these roads first if you want to keep them.</p><div class="row"><button class="btn" data-x="no">Stay here</button><button class="btn" data-x="save">Save first</button><button class="btn primary" data-x="yes">Switch</button></div>`,
@@ -3405,13 +3440,14 @@ function viewDevelop(){if(!DV){startDevelop(AT.reg,AT.si);return}const r=regionB
   wireDevBoard(svg,p,G,Z);
   $('#view').querySelectorAll('[data-dt]').forEach(b=>b.onclick=()=>{DV.tool=b.dataset.dt;viewDevelopTools()});
   if($('#tunBtn'))$('#tunBtn').onclick=()=>{DV.tunnel=!DV.tunnel;viewDevelopTools()};
+  $('#view').querySelectorAll('[data-gc]').forEach(b=>b.onclick=()=>setGridCols(+b.dataset.gc));
   $('#realBtn').onclick=()=>{DV.real=!DV.real;$('#realBtn').setAttribute('aria-pressed',DV.real);drawDev()};
   $('#gridBtn').onclick=()=>{DV.grid=!DV.grid;$('#gridBtn').setAttribute('aria-pressed',DV.grid);drawDev()};
   $('#dPencil').onclick=()=>{S.pencil=!S.pencil;persist();$('#dPencil').setAttribute('aria-pressed',!!S.pencil)};
   $('#azIn').onclick=()=>{const r2=svg.getBoundingClientRect();Z.zoomAt(1.4,r2.left+r2.width/2,r2.top+r2.height/2)};$('#azOut').onclick=()=>{const r2=svg.getBoundingClientRect();Z.zoomAt(1/1.4,r2.left+r2.width/2,r2.top+r2.height/2)};$('#azFit').onclick=()=>Z.fit();
   $('#dUndo').onclick=()=>{if(!DV.undo.length){toast('Nothing to undo yet.','hiro');return}DV.pieces=JSON.parse(DV.undo.pop());DV.dirty=true;drawDev()};
   $('#dClear').onclick=()=>{if(!DV.pieces.length)return;confirmBox('Clear all your roads on this map?','Clear it',()=>{DV.undo.push(JSON.stringify(DV.pieces));DV.pieces=[];DV.dirty=true;drawDev()})};
-  $('#dGlobe').onclick=()=>{GLOBE.sel=DV.reg;go('roads')};$('#dSave').onclick=devSaveDialog;
+  $('#dGlobe').onclick=()=>{GLOBE.sel=DV.reg;go('roads')};$('#dSave').onclick=devSaveDialog;wireAtlasFocus();
   drawDev()}
 function viewDevelopTools(){$('#view').querySelectorAll('[data-dt]').forEach(b=>{const on=b.dataset.dt===DV.tool;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
   const t=$('#tunBtn');if(t){t.classList.toggle('on',DV.tunnel);t.classList.toggle('tun',DV.tunnel);t.setAttribute('aria-pressed',DV.tunnel);t.innerHTML=devToolIcon('tunnel')+`Tunnel ${DV.tunnel?'on':'off'}`}renderDevPanel(devEval())}
@@ -3479,12 +3515,12 @@ function devPieceSVG(pc,st,G,live){const c=G.cell,ctr=q=>[(q[0]+.5)*c,(q[1]+.5)*
   if(pc.n&&pts.length>1){const m=pts[Math.floor(pts.length/2)];s+=`<g class="lab shield" style="transform:translate(${m[0]}px,${m[1]}px) scale(var(--lz,1))">${shieldSVG(pc.k==='hwy'?'Interstate':pc.k==='road'?'Federal':'State',pc.n)}</g>`}
   return s}
 function drawDev(live){const svg=$('#dMap');if(!svg)return;const p=getPack(DV.reg,DV.si),G=devGrid(p),E=devEval(),M=devMissions(),m=M[DV.mi]||null;
-  let s=mapInner(p,{u:'d',noRoads:!DV.real,noRail:!DV.real,noPlaces:true,layers:{hwy:1,road:1,rail:1,river:1,border:1,names:1}});
+  let s=mapInner(p,{u:'d',lz:DV.Z?DV.Z.lz():1,noRoads:!DV.real,noRail:!DV.real,noPlaces:true,layers:{hwy:1,road:1,rail:1,river:1,border:1,names:1}});
   if(DV.real)s=s.replace(/class="am-(hwy|hwyc|road|roadc|rail|railt)"/g,'class="am-$1 ghost"');
   if(DV.grid){let gd='';for(let x=0;x<=G.cols;x++)gd+=`M${x*G.cell} 0V${G.rows*G.cell}`;for(let y=0;y<=G.rows;y++)gd+=`M0 ${y*G.cell}H${G.cols*G.cell}`;s+=`<path class="dv-grid" d="${gd}"/>`}
   DV.pieces.forEach((pc,i)=>{s+=devPieceSVG(pc,E.steps[i],G)});
   if(live&&live.c){const tmp={k:live.k,c:live.c,t:DV.tunnel&&live.k!=='ferry'?1:0};const saved=DV.pieces;DV.pieces=[...saved,tmp];const E2=devEval();DV.pieces=saved;s+=`<g class="dv-live">${devPieceSVG(tmp,E2.steps[E2.steps.length-1],G)}</g>`}
-  const mt=new Set(m?(m.towns||[]).map(t=>t.i):[]),lz=DV.Z?DV.Z.w/p.w:1,LB=placeLabels(G.towns.map(t=>{const q=p.places[t.i];return {x:(t.x+.5)*G.cell,y:(t.y+.5)*G.cell,r:9,t:q.n,fs:q.w>=4?18:15,pri:q.w*10+(mt.has(t.i)?100:0)}}),lz,[0,0,p.w,p.h]);
+  const mt=new Set(m?(m.towns||[]).map(t=>t.i):[]),lz=DV.Z?DV.Z.lz():1,LB=placeLabels(G.towns.map(t=>{const q=p.places[t.i];return {x:(t.x+.5)*G.cell,y:(t.y+.5)*G.cell,r:9,t:q.n,fs:q.w>=4?20:17,force:q.w>=5||mt.has(t.i),pri:q.w*10+(mt.has(t.i)?100:0)}}),lz,[0,0,p.w,p.h]);
   s+=G.towns.map((t,ti)=>{const q=p.places[t.i],x=(t.x+.5)*G.cell,y=(t.y+.5)*G.cell,on=mt.has(t.i),linked=E.attach('road',t).length>0||E.attach('rail',t).length>0;
     return `<g class="lab place ${on?'hl':''}" style="transform:translate(${x}px,${y}px) scale(var(--lz,1))">${on?'<circle r="17" class="am-pulse"/>':''}${q.t==='air'?`<path d="M0 -9l2 5 7 2-7 2-2 7-2-7-7-2 7-2z" fill="${PICONS.air}" stroke="#fff" stroke-width="1.5"/>`:`<circle r="${q.w>=4?8:6}" fill="${linked?'#62dcb4':'#fff'}" stroke="#1d2a3a" stroke-width="2.4"/>`}${labT(LB[ti],'am-lab'+(q.w>=4?' big':''),q.n)}</g>`}).join('');
   svg.innerHTML=s;if(!live)renderDevPanel(E)}
@@ -3507,11 +3543,11 @@ function devSaveDialog(){if(!DV.pieces.length){toast('Build something first, the
   <div class="row"><button class="btn" data-x="cancel">Cancel</button>${DV.id?'<button class="btn" data-x="copy">Save as a copy</button>':''}<button class="btn primary" data-x="save">Save</button></div>`,
   {cancel:closeModal,save:()=>devSave(false),copy:()=>devSave(true)})}
 function devSave(copy){const name=$('#svName').value.trim()||`Felix's ${getPack(DV.reg,DV.si).title}`;DV.name=name;DV.why=$('#svWhy').value.trim();if(!DV.id||copy)DV.id='a'+Date.now();
-  const rec={kind:'atlas',id:DV.id,name,why:DV.why,reg:DV.reg,si:DV.si,pieces:clone(DV.pieces),updated:Date.now()},i=S.designs.findIndex(x=>x.id===DV.id);if(i>=0)S.designs[i]=rec;else S.designs.unshift(rec);
+  const rec={kind:'atlas',id:DV.id,name,why:DV.why,reg:DV.reg,si:DV.si,gcols:DV.gcols||40,pieces:clone(DV.pieces),updated:Date.now()},i=S.designs.findIndex(x=>x.id===DV.id);if(i>=0)S.designs[i]=rec;else S.designs.unshift(rec);
   DV.dirty=false;persist();closeModal();toast(`Saved "${esc(name)}" to your notebook.`,'hiro');viewDevelop()}
-function atlasThumb(d){const p=getPack(d.reg,d.si),G=devGrid(p);let s=mapInner(p,{u:'t'+d.id,noRoads:true,noRail:true,noPlaces:true,layers:{river:1,border:1}});
-  const saved=DV;DV={reg:d.reg,si:d.si,pieces:d.pieces};const E=devEval();d.pieces.forEach((pc,i)=>{s+=devPieceSVG(pc,E.steps[i],G)});DV=saved;
-  return `<svg class="amap thumb" viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(d.name)}" style="--lz:2">${s}</svg>`}
+function atlasThumb(d){const p=getPack(d.reg,d.si),G=devGrid(p,d.gcols||40);let s=mapInner(p,{u:'t'+d.id,noRoads:true,noRail:true,noPlaces:true,layers:{river:1,border:1}});
+  const saved=DV;DV={reg:d.reg,si:d.si,gcols:d.gcols||40,pieces:d.pieces};const E=devEval();d.pieces.forEach((pc,i)=>{s+=devPieceSVG(pc,E.steps[i],G)});DV=saved;
+  return `<svg class="amap thumb" viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(d.name)}" style="--lz:4.2">${s}</svg>`}
 /* ---- Subway designer ---- */
 const SUBCOL=['#e23b3b','#2f6fd6','#2f9e57','#f2a900','#8e44ad','#f06aa8','#00a3a3','#8a5a2b'];
 const SUBNAMES={nyc:'New York City Subway',london:'London Underground',japan:'Tokyo subway'};
@@ -3541,7 +3577,7 @@ function viewSubway(){if(!SB){startSubway(AT.reg);return}const r=regionById(SB.r
     <div class="maptools"><div class="sublines" id="subLines"></div><span class="spacer"></span><button class="toggle" id="schemBtn" aria-pressed="${SB.schem}">Subway-map view</button></div>
     <div class="mapbox dev" id="mapBox"><svg class="amap" id="sMap" viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your subway map"></svg>${compassHTML()}<div id="sbar"></div></div>
     <div class="row mapacts"><div class="zoomer" role="group" aria-label="Zoom"><button id="azOut" aria-label="Zoom out">−</button><button id="azFit">Fit</button><button id="azIn" aria-label="Zoom in">+</button></div>
-      <span class="spacer"></span><button class="btn small" id="sUndo">Undo</button><button class="btn small" id="sGlobe">Globe</button><button class="btn small primary" id="sSave">Save to notebook</button></div></div>
+      ${atlasFocusBtns()}<span class="spacer"></span><button class="btn small" id="sUndo">Undo</button><button class="btn small" id="sGlobe">Globe</button><button class="btn small primary" id="sSave">Save to notebook</button></div></div>
     <aside class="panel aside" id="sPanel"></aside></div>`;
   wireSizeDial($('#view'),viewSubway);
   const svg=$('#sMap');fitMap(svg,p);const Z=mapZoomer(svg,p,{onChange:()=>{if($('#sbar'))$('#sbar').innerHTML=SB.schem?'':scaleBarHTML(p,Z,svg);debounceLabels(()=>drawSub())}});SB.Z=Z;$('#sbar').innerHTML=SB.schem?'':scaleBarHTML(p,Z,svg);
@@ -3553,7 +3589,7 @@ function viewSubway(){if(!SB){startSubway(AT.reg);return}const r=regionById(SB.r
   $('#schemBtn').onclick=()=>{SB.schem=!SB.schem;$('#schemBtn').setAttribute('aria-pressed',SB.schem);$('#sbar').innerHTML=SB.schem?'':scaleBarHTML(p,Z,svg);drawSub()};
   $('#azIn').onclick=()=>{const r2=svg.getBoundingClientRect();Z.zoomAt(1.4,r2.left+r2.width/2,r2.top+r2.height/2)};$('#azOut').onclick=()=>{const r2=svg.getBoundingClientRect();Z.zoomAt(1/1.4,r2.left+r2.width/2,r2.top+r2.height/2)};$('#azFit').onclick=()=>Z.fit();
   $('#sUndo').onclick=()=>{if(!SB.undo.length){toast('Nothing to undo yet.','hiro');return}const u=JSON.parse(SB.undo.pop());SB.lines=u.lines;SB.cur=Math.min(u.cur,SB.lines.length-1);SB.dirty=true;drawSub()};
-  $('#sGlobe').onclick=()=>{GLOBE.sel=SB.reg;go('roads')};$('#sSave').onclick=subSaveDialog;drawSub()}
+  $('#sGlobe').onclick=()=>{GLOBE.sel=SB.reg;go('roads')};$('#sSave').onclick=subSaveDialog;wireAtlasFocus();drawSub()}
 function subPush(){SB.undo.push(JSON.stringify({lines:SB.lines,cur:SB.cur}));if(SB.undo.length>60)SB.undo.shift();SB.dirty=true}
 function subTap(i,p){const l=SB.lines[SB.cur];if(!l)return;const k=l.st.indexOf(i);
   if(k>=0&&k===l.st.length-1){subPush();l.st.pop();drawSub();return}
@@ -3581,7 +3617,7 @@ function drawSub(){const svg=$('#sMap');if(!svg)return;const p=getPack(SB.reg,0)
   const off=(li,i)=>{const on=[...(S2.st.get(i)||[])],k=on.indexOf(li),n=on.length;return n>1?(k-(n-1)/2)*7:0};
   SB.lines.forEach((l,li)=>{if(l.st.length<2)return;const P=l.st.map(i=>subPos(p,i));let d=`M${P[0][0]} ${P[0][1]}`;for(let k=1;k<P.length;k++)d+=SB.schem?octPath(P[k-1],P[k]):`L${P[k][0]} ${P[k][1]}`;
     s+=`<path class="sb-case" d="${d}"/><path class="sb-line" d="${d}" style="stroke:${l.c};transform:translate(${off(li,l.st[0])*0}px,0)"/>`});
-  const cur=SB.lines[SB.cur],end=cur&&cur.st.length?cur.st[cur.st.length-1]:-1,SS=subStations(p),LB=placeLabels(SS.map(({q,i})=>{const pos=subPos(p,i),n=S2.st.get(i);return {x:pos[0],y:pos[1],r:11,t:q.n,fs:n?18:15,pri:(n?50:0)+q.w*5+(i===end?100:0)}}),SB.Z?SB.Z.w/p.w:1,[0,0,p.w,p.h]);
+  const cur=SB.lines[SB.cur],end=cur&&cur.st.length?cur.st[cur.st.length-1]:-1,SS=subStations(p),LB=placeLabels(SS.map(({q,i})=>{const pos=subPos(p,i),n=S2.st.get(i);return {x:pos[0],y:pos[1],r:11,t:q.n,fs:n?20:17,pri:(n?50:0)+q.w*5+(i===end?100:0)}}),SB.Z?SB.Z.lz():1,[0,0,p.w,p.h]);
   SS.forEach(({q,i},si)=>{const pos=subPos(p,i),lines=S2.st.get(i),n=lines?lines.size:0,isEnd=i===end;
     s+=`<g class="lab stn ${n?'on':''} ${isEnd?'end':''}" data-stn="${i}" style="transform:translate(${pos[0]}px,${pos[1]}px) scale(var(--lz,1))">${isEnd?`<circle r="17" class="am-pulse" style="stroke:${cur.c}"/>`:''}
       ${n>1?'<circle r="10" fill="#fff" stroke="#1d2a3a" stroke-width="3.5"/>':n?`<circle r="7" fill="#fff" stroke="${SB.lines[[...lines][0]].c}" stroke-width="3.5"/>`:`<circle r="6" fill="#fff" stroke="#8a97a8" stroke-width="2" stroke-dasharray="3 2"/>`}
@@ -3611,7 +3647,7 @@ function subSave(copy){const name=$('#svName').value.trim()||'Felix Metro';SB.na
   SB.dirty=false;persist();closeModal();toast(`Saved "${esc(name)}" to your notebook.`,'hiro');viewSubway()}
 function subwayThumb(d){const p=getPack(d.reg,0);let s=mapInner(p,{u:'t'+d.id,noRoads:true,noPlaces:true,layers:{river:1}});
   d.lines.forEach(l=>{if(l.st.length<2)return;s+=`<path class="sb-case" d="${ptsD(l.st.map(i=>[p.places[i].x,p.places[i].y]))}"/><path class="sb-line" style="stroke:${l.c}" d="${ptsD(l.st.map(i=>[p.places[i].x,p.places[i].y]))}"/>`});
-  return `<svg class="amap thumb" viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(d.name)}" style="--lz:2">${s}</svg>`}
+  return `<svg class="amap thumb" viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(d.name)}" style="--lz:4.2">${s}</svg>`}
 
 /* shared with City Builder (from the old street maps) */
 const DIRS={N:[0,-1],E:[1,0],S:[0,1],W:[-1,0]};
@@ -3842,7 +3878,8 @@ function viewBuild(){if(!C)C=makeCity('starter');const L=lvl('city'),m=C.mission
   $('#view').querySelectorAll('[data-cov]').forEach(b=>b.onclick=()=>{cov=b.dataset.cov;cfocus=null;$('#view').querySelectorAll('[data-cov]').forEach(x=>x.setAttribute('aria-pressed',x===b));updateCity()});
   $('#cUndo').onclick=()=>{if(!cundo.length){toast('Nothing to undo yet.','bea');return}C=JSON.parse(cundo.pop());updateCity()};
   $('#cNew').onclick=()=>openModal(`<h3>Start a new city?</h3><div class="row" style="justify-content:flex-start"><button class="btn" data-x="starter">Little starter town</button><button class="btn" data-x="basic">Almost empty</button><button class="btn" data-x="river">River valley</button></div><div class="row"><button class="btn" data-x="cancel">Cancel</button></div>`,{cancel:closeModal,starter:()=>{closeModal();openCity(makeCity('starter'),true)},basic:()=>{closeModal();openCity(makeCity('basic'),true)},river:()=>{closeModal();openCity(makeCity('river'),true)}});
-  $('#cSave').onclick=saveCityDialog;wireCity($('#cboard'));renderCTools();updateCity()}
+  $('#cSave').onclick=saveCityDialog;wireCity($('#cboard'));renderCTools();updateCity();
+  boardKit('cboard',{who:'bea',dims:()=>[C.W,C.H],grow:growCity,after:()=>{renderCTools();updateCity()},undoLen:()=>cundo.length,undo:()=>{C=JSON.parse(cundo.pop())},maxMsg:'Your city is as big as it gets: 40 by 30 squares!',panelName:'City report'})}
 function renderCTools(){const zones=[['R','Homes'],['C','Shops'],['I','Factories'],['P','Park']],svc=['school','fire','hospital','library','solar','water','bus','hall','bakery'];
   const tips={road:'Drag to build roads. Roads over the river become bridges.',doze:'Drag to clear anything: roads, zones, buildings or trees.',R:'Drag to zone land for homes. Homes need a road, power and water.',C:'Drag to zone land for shops. Shops need customers nearby.',I:'Drag to zone land for factories. They make lots of jobs, but they\'re noisy.',P:'Drag to plant a park. Homes within 3 squares get a place to play.'};
   let s=`<div class="tblock"><p class="tl">Build</p><div class="toolrow">${[['road','Road','paint'],['doze','Bulldozer','erase']].map(([k,n,g])=>`<button class="tool ${ctool===k?'on':''}" data-ctool="${k}" aria-pressed="${ctool===k}">${toolGlyph(g)}${n}</button>`).join('')}</div></div>
@@ -3892,6 +3929,59 @@ function saveCityDialog(){const m=C.mission&&CMIS.find(x=>x.id===C.mission);
   <div class="row"><button class="btn" data-x="cancel">Cancel</button>${C.id?'<button class="btn" data-x="copy">Save as a copy</button>':''}<button class="btn primary" data-x="save">Save</button></div>`,{cancel:closeModal,save:()=>doCitySave(false),copy:()=>doCitySave(true)})}
 function doCitySave(copy){const name=$('#svName').value.trim()||'Untitled city';C.name=name;C.why=$('#svWhy').value.trim();if(!C.id||copy)C.id='c'+Date.now();C.updated=Date.now();
   const rec=clone(C),i=S.designs.findIndex(x=>x.id===C.id);if(i>=0)S.designs[i]=rec;else S.designs.unshift(rec);cdirty=false;persist();closeModal();toast(`Saved "${esc(name)}" to your notebook.`,'bea');viewBuild()}
+
+/* ============ Big board kit: grow, zoom, pinch and Big canvas for every workspace ============ */
+let ZB=null;
+function boardKit(boardId,cfg){const el=$('#'+boardId);if(!el)return;const keepZoom=ZB&&ZB.id===boardId&&ZB.keep?ZB.zoom:null;
+  el.classList.remove('sheet');const sheet=document.createElement('div');sheet.className='sheet bigsheet zbsheet';const wrap=document.createElement('div');wrap.className='sheetwrap zbwrap';
+  const bar=document.createElement('div');bar.className='dtop zbbar';
+  bar.innerHTML=`<span class="chip lvl zbdims" id="zbDims"></span><span class="spacer"></span><div class="zoomer" role="group" aria-label="Zoom"><button data-zb="out" aria-label="Zoom out">−</button><button data-zb="fit">Fit</button><button data-zb="in" aria-label="Zoom in">+</button></div>
+    <button class="toggle zbinfo" id="zbInfo" aria-pressed="false">${esc(cfg.panelName||'Checks')}</button><button class="toggle" id="zbFocus" aria-pressed="${document.body.classList.contains('focus')}">${document.body.classList.contains('focus')?'Exit big canvas':'Big canvas'}</button>`;
+  el.parentNode.insertBefore(bar,el);el.parentNode.insertBefore(sheet,el);sheet.appendChild(wrap);wrap.appendChild(el);
+  if(cfg.grow)(cfg.sides||['t','b','l','r']).forEach(s=>{const b=document.createElement('button');b.className='grow g-'+s;b.textContent='+';b.setAttribute('aria-label',`Add squares on the ${{t:'top',b:'bottom',l:'left',r:'right'}[s]}`);
+    b.onclick=()=>{const before=cfg.dims().join('x');if(cfg.grow(s)===false){toast(cfg.maxMsg||'That\'s as big as it gets!',cfg.who);return}cfg.after();ZB.keep=false;zbSize(true);zbDims();if(cfg.dims().join('x')!==before)toast(`More room! Now ${cfg.dims().join(' × ')} squares.`,cfg.who,null,1800)};sheet.appendChild(b)});
+  ZB={id:boardId,el,wrap,cfg,zoom:keepZoom||1,keep:true,ptrs:new Map(),g:null};
+  bar.querySelectorAll('[data-zb]').forEach(b=>b.onclick=()=>{const k=b.dataset.zb;if(k==='fit'){ZB.zoom=1;zbSize()}else zbZoom(ZB.zoom*(k==='in'?1.35:1/1.35))});
+  $('#zbFocus').onclick=()=>setFocus(!document.body.classList.contains('focus'));
+  $('#zbInfo').onclick=()=>{const on=!document.body.classList.contains('panelopen');document.body.classList.toggle('panelopen',on);$('#zbInfo').setAttribute('aria-pressed',on)};
+  /* two fingers pinch and pan; in Pencil mode one finger pans */
+  const cancelStroke=first=>{ZB.synthetic=true;try{el.dispatchEvent(new PointerEvent('pointercancel',{pointerId:first,bubbles:true}))}catch(_){}ZB.synthetic=false;if(cfg.undoLen&&cfg.undoLen()>ZB.u0){cfg.undo();cfg.after()}};
+  wrap.addEventListener('pointerdown',e=>{if(e.target.closest('.grow'))return;ZB.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(ZB.ptrs.size===1){ZB.u0=cfg.undoLen?cfg.undoLen():0;ZB.first=e.pointerId;if((S.pencil&&e.pointerType==='touch')||e.button===1){ZB.g={x:e.clientX,y:e.clientY,d:0};e.stopPropagation();e.preventDefault()}return}
+    if(!ZB.g||!ZB.g.d){if(!ZB.g)cancelStroke(ZB.first);const [a,b2]=[...ZB.ptrs.values()];ZB.g={x:(a.x+b2.x)/2,y:(a.y+b2.y)/2,d:Math.hypot(a.x-b2.x,a.y-b2.y)}}e.stopPropagation();e.preventDefault()},true);
+  wrap.addEventListener('pointermove',e=>{if(ZB.synthetic)return;const q=ZB.ptrs.get(e.pointerId);if(!q)return;q.x=e.clientX;q.y=e.clientY;if(!ZB.g)return;e.stopPropagation();e.preventDefault();
+    const ps=[...ZB.ptrs.values()];if(ps.length>=2){const [a,b2]=ps,cx=(a.x+b2.x)/2,cy=(a.y+b2.y)/2,d=Math.hypot(a.x-b2.x,a.y-b2.y);wrap.scrollLeft-=cx-ZB.g.x;wrap.scrollTop-=cy-ZB.g.y;if(ZB.g.d&&d)zbZoom(ZB.zoom*d/ZB.g.d,cx,cy);ZB.g={x:cx,y:cy,d}}
+    else{wrap.scrollLeft-=e.clientX-ZB.g.x;wrap.scrollTop-=e.clientY-ZB.g.y;ZB.g={x:e.clientX,y:e.clientY,d:0}}},true);
+  const up=e=>{if(ZB.synthetic)return;if(!ZB.ptrs.has(e.pointerId))return;ZB.ptrs.delete(e.pointerId);if(ZB.g){e.stopPropagation();if(!ZB.ptrs.size)ZB.g=null;else{const [a]=[...ZB.ptrs.values()];ZB.g={x:a.x,y:a.y,d:0}}}};
+  wrap.addEventListener('pointerup',up,true);wrap.addEventListener('pointercancel',up,true);
+  wrap.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();zbZoom(ZB.zoom*(e.deltaY<0?1.12:1/1.12),e.clientX,e.clientY)},{passive:false});
+  zbDims();requestAnimationFrame(()=>zbSize(!keepZoom))}
+function zbDims(){const d=$('#zbDims');if(d&&ZB)d.textContent=`${ZB.cfg.dims().join(' × ')} squares`}
+function zbAspect(){const s=ZB.el.querySelector('svg');if(!s)return 1;const v=s.viewBox&&s.viewBox.baseVal;return v&&v.width?v.width/v.height:1}
+function zbSize(auto){if(!ZB||!document.body.contains(ZB.wrap))return;const wrap=ZB.wrap,ih=innerHeight,foc=document.body.classList.contains('focus'),tl=document.querySelector('.tools');
+  const maxH=foc?(innerWidth<=1100?Math.max(280,ih-(tl?tl.offsetHeight:0)-170):ih-120):innerWidth<=620?ih*.62:Math.min(ih*.74,900);
+  const W=wrap.clientWidth-8,a=zbAspect();wrap.style.height=Math.round(Math.max(220,Math.min(maxH,W/a+8)))+'px';const H=wrap.clientHeight-8,base=Math.max(160,Math.min(W,H*a));
+  if(auto){const cols=ZB.cfg.dims()[0],cell=base/cols,want=innerWidth<=620?24:30;ZB.zoom=cell<want?Math.min(4,want/cell):1}
+  ZB.el.style.width=Math.round(base*ZB.zoom)+'px';ZB.el.style.height=Math.round(base*ZB.zoom/a)+'px'}
+function zbZoom(z,cx,cy){if(!ZB)return;const wrap=ZB.wrap,r=ZB.el.getBoundingClientRect(),wr=wrap.getBoundingClientRect();cx=cx==null?wr.left+wr.width/2:cx;cy=cy==null?wr.top+wr.height/2:cy;
+  const fx=(cx-r.left)/r.width,fy=(cy-r.top)/r.height;ZB.zoom=Math.max(1,Math.min(5,z));zbSize();const r2=ZB.el.getBoundingClientRect();wrap.scrollLeft+=r2.left+fx*r2.width-cx;wrap.scrollTop+=r2.top+fy*r2.height-cy}
+addEventListener('resize',()=>zbSize());
+/* growing each kind of board (n squares on one side) */
+function growCity(s,n=4){if((s==='l'||s==='r')&&C.W+n>40||(s==='t'||s==='b')&&C.H+n>30)return false;cPush();
+  const W2=C.W+(s==='l'||s==='r'?n:0),H2=C.H+(s==='t'||s==='b'?n:0),dx=s==='l'?n:0,dy=s==='t'?n:0,t=Array(W2*H2).fill('g');
+  for(let y=0;y<C.H;y++)for(let x=0;x<C.W;x++)t[(y+dy)*W2+x+dx]=C.terrain[y*C.W+x];
+  /* keep rivers flowing to the new edge */
+  if(s==='l'||s==='r')for(let y=0;y<C.H;y++){const ex=s==='l'?0:C.W-1;if(C.terrain[y*C.W+ex]==='w')for(let k=0;k<n;k++)t[(y+dy)*W2+(s==='l'?k:C.W+k)]='w'}
+  if(s==='t'||s==='b')for(let x=0;x<C.W;x++){const ey=s==='t'?0:C.H-1;if(C.terrain[ey*C.W+x]==='w')for(let k=0;k<n;k++)t[(s==='t'?k:C.H+k)*W2+x+dx]='w'}
+  const sh=k=>{const [x,y]=k.split(',').map(Number);return (x+dx)+','+(y+dy)};C.roads=C.roads.map(sh);const z={};Object.entries(C.zones).forEach(([k,v])=>z[sh(k)]=v);C.zones=z;C.bldgs.forEach(b=>{b.x+=dx;b.y+=dy});
+  C.W=W2;C.H=H2;C.terrain=t;return true}
+function growRoom(s,n=2){if((s==='l'||s==='r')&&R.W+n>30||(s==='t'||s==='b')&&R.H+n>24)return false;rPush();const dx=s==='l'?n:0,dy=s==='t'?n:0;
+  R.items.forEach(it=>{it.x+=dx;it.y+=dy});[R.door,...R.windows].forEach(o=>{if((o.side==='N'||o.side==='S')&&dx)o.pos+=dx;if((o.side==='E'||o.side==='W')&&dy)o.pos+=dy});
+  if(s==='l'||s==='r')R.W+=n;else R.H+=n;return true}
+function growBlock(s,n=2){if(B.puzzle)return false;if((s==='l'||s==='r')&&B.W+n>30||s==='t'&&B.H+n>20)return false;uPush();
+  const W2=B.W+(s==='l'||s==='r'?n:0),H2=B.H+(s==='t'?n:0),dx=s==='l'?n:0,dy=s==='t'?n:0,h=Array(W2*H2).fill(0);
+  for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const ox=Math.max(0,Math.min(B.W-1,x-dx)),oy=Math.max(0,Math.min(B.H-1,y-dy));let v=B.h[oy*B.W+ox];if(y<dy)v=Math.min(3,v+(y<dy/2?1:0));h[y*W2+x]=v}
+  B.objects.forEach(o=>{o.x+=dx;o.y+=dy});B.lines.forEach(L=>{L.cells=L.cells.map(([x,y])=>[x+dx,y+dy])});B.W=W2;B.H=H2;B.h=h;return true}
 
 /* ============ boot ============ */
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()});
