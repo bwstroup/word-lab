@@ -163,9 +163,9 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .setup .opchips .chip{font-size:28px;min-width:64px;justify-content:center;font-weight:800}
 
 /* patterns */
-.track{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:center;padding:14px 4px}
+.track{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:center;padding:14px 4px;container-type:inline-size}
 .track::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:6px;margin-top:-3px;background:repeating-linear-gradient(90deg,var(--cyan) 0 14px,transparent 14px 22px);opacity:.7}
-.node{position:relative;justify-self:center;width:min(100%,92px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:4px solid var(--ink);background:var(--yellow);color:var(--ink-text);font-weight:800;box-shadow:4px 4px 0 var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.node{position:relative;justify-self:center;width:min(100%,92px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:4px solid var(--ink);background:var(--yellow);color:var(--ink-text);font-weight:800;box-shadow:3px 3px 0 var(--ink);font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;--k:.42;font-size:calc(var(--k) * 52px);font-size:calc(var(--k) * min(92px, (100cqw - 48px) / 6))}
 .node.q{background:var(--navy);color:var(--cream);border-style:dashed;border-color:var(--cyan);box-shadow:0 0 0 4px var(--ink)}
 .node.q.filled{border-style:solid}
 .node.q.right{background:var(--good);color:var(--ink-text)}
@@ -244,7 +244,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .am-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;border:4px solid var(--ink);border-radius:6px;background:var(--tint);color:var(--ink-text);cursor:pointer;min-width:0}
 .am-cell.active{box-shadow:0 0 0 4px var(--cyan)}
 .am-cell .am-q{font-weight:700;font-size:15px;white-space:nowrap}
-.am-cell .am-v{min-width:3ch;min-height:38px;padding:0 8px;border:3px dashed rgba(20,18,31,.5);border-radius:6px;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;display:grid;place-items:center;background:rgba(255,255,255,.6)}
+.am-cell .am-v{max-width:100%;min-width:3ch;min-height:38px;padding:0 6px;border:3px dashed rgba(20,18,31,.5);border-radius:6px;font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;display:grid;place-items:center;background:rgba(255,255,255,.6);white-space:nowrap}
 .am-cell.done .am-v{border-style:solid;border-color:var(--ink-text);background:#fff}
 .sumline{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
 .share{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:start}
@@ -275,6 +275,55 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .spec{display:flex;flex-wrap:wrap;gap:8px}
 .spec span{padding:4px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--yellow);color:var(--ink-text);font-weight:800;font-size:15px}
 .formula{font-size:15px;color:var(--muted)}
+
+/* ---------- observatory ---------- */
+.planet.wide{grid-column:1/-1;min-height:180px}
+.sky{display:flex;justify-content:center;background:#070A1F;border:3px solid var(--ink);border-radius:8px;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.sky svg{display:block;width:100%;max-width:560px;height:auto;max-height:62vh}
+.sky .cl{stroke:#7FE9FF;stroke-width:3;stroke-linecap:round;opacity:0}
+.sky .cl.on{opacity:.9}
+.sky .cl.ghost:not(.on){opacity:.3;stroke-dasharray:5 6}
+.sky .bad{stroke:#FF6B6B;stroke-width:3;stroke-dasharray:6 5}
+.star .halo{fill:rgba(255,226,122,.18)}
+.star .core{fill:#FFF6D8;stroke:#FFD23F;stroke-width:1.5}
+.star.sel .halo{fill:rgba(127,233,255,.5)}
+.star.sel .core{fill:#7FE9FF}
+.star.found .halo{fill:rgba(91,224,138,.55)}
+.star.miss .halo{fill:rgba(255,107,107,.55)}
+.star.blink .halo,.pstar.ask .halo{animation:blink .9s infinite}
+@keyframes blink{50%{fill:rgba(127,233,255,.75)}}
+.slabel{font:700 13px Lexend,system-ui,sans-serif;fill:#FFD23F;text-anchor:middle;paint-order:stroke;stroke:#070A1F;stroke-width:4px}
+.factbox{padding:12px 16px;border:3px solid var(--ink);border-radius:8px;background:var(--panel-2);font-size:16px;line-height:1.5}
+.factbox b{color:var(--yellow)}
+.plot .gl{stroke:#22305F;stroke-width:1.2}
+.plot .ax{stroke:#C3CBEE;stroke-width:2.5}
+.plot .gx,.plot .gy{font:700 12px Lexend,system-ui,sans-serif;fill:#C3CBEE;dominant-baseline:middle}
+.plot .gx{text-anchor:middle}
+.plot .gy{text-anchor:end}
+.plot .axn{font:800 16px Lexend,system-ui,sans-serif;fill:#7FE9FF}
+.pstar .halo{fill:rgba(255,226,122,.25)}
+.pstar .core{fill:#FFF6D8;stroke:#FFD23F;stroke-width:2}
+.xmark{stroke:#FF6B6B;stroke-width:4;stroke-linecap:round}
+.tlabel{font:700 13px Lexend,system-ui,sans-serif;fill:#FF9E9E;text-anchor:middle}
+.ring{fill:none;stroke:#7FE9FF;stroke-width:3;stroke-dasharray:4 4}
+.ansbox.small{min-width:2.8ch;height:58px;font-size:30px;cursor:pointer}
+.ansbox.act{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(127,233,255,.25)}
+.slicer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:640px){.slicer{grid-template-columns:minmax(0,1fr)}}
+.sv{position:relative;display:flex;flex-direction:column;gap:6px;padding:10px;background:#070A1F;border:3px solid var(--ink);border-radius:8px;min-width:0}
+.cone3d{width:100%;height:300px;touch-action:none;cursor:grab}
+.cone2d{width:100%;height:300px}
+.slice-tag{position:absolute;right:10px;top:8px;padding:2px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--navy);color:var(--muted);font-family:var(--display);font-size:22px;letter-spacing:1px}
+.slice-tag.on{background:var(--yellow);color:var(--ink-text)}
+.slider-row{display:flex;align-items:center;gap:12px}
+.iconbtn.sm{width:52px;height:52px;min-height:52px;font:800 28px/1 var(--body);color:var(--cream)}
+.tilt{flex:1;min-width:0;height:44px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;touch-action:pan-y}
+.tilt::-webkit-slider-runnable-track{height:12px;border-radius:999px;background:var(--panel-2);border:3px solid var(--ink)}
+.tilt::-webkit-slider-thumb{-webkit-appearance:none;width:38px;height:38px;margin-top:-16px;border-radius:50%;background:var(--yellow);border:4px solid var(--ink)}
+.tilt::-moz-range-track{height:12px;border-radius:999px;background:var(--panel-2);border:3px solid var(--ink)}
+.tilt::-moz-range-thumb{width:32px;height:32px;border-radius:50%;background:var(--yellow);border:4px solid var(--ink)}
+.tilt:disabled{opacity:.5}
+.next-row{display:flex;justify-content:flex-end}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -525,6 +574,109 @@ function makeVol(L){
   if(Math.random()<.5){const r=ri(2,6);return {shape:'sphere',r,ans:Math.round(1256*r**3/300),exact:r2(1256*r**3/300)};}
   const r=ri(2,6),h=3*ri(1,4);return {shape:'cone',r,h,ans:r2(314*r*r*(h/3)/100)};
 }
+/* --- Observatory: constellations (approximate J2000 RA hours, Dec degrees, size 1-3) --- */
+const CONS={
+  orion:{name:'Orion',nick:'the Hunter',stars:[['Betelgeuse',5.92,7.41,3],['Bellatrix',5.42,6.35,2],['Meissa',5.59,9.93,1],['Alnitak',5.68,-1.94,2],['Alnilam',5.60,-1.20,2],['Mintaka',5.53,-0.30,2],['Saiph',5.80,-9.67,2],['Rigel',5.24,-8.20,3]],
+    lines:[[0,2],[2,1],[0,3],[1,5],[3,4],[4,5],[3,6],[5,7]],
+    fact:'Red Betelgeuse marks the hunter\'s shoulder and blue-white Rigel his foot. The three belt stars sit in a neat row.'},
+  bigdipper:{name:'Big Dipper',nick:'part of the Great Bear',stars:[['Dubhe',11.06,61.75,3],['Merak',11.03,56.38,2],['Phecda',11.90,53.69,2],['Megrez',12.26,57.03,1],['Alioth',12.90,55.96,3],['Mizar',13.40,54.93,2],['Alkaid',13.79,49.31,2]],
+    lines:[[0,1],[1,2],[2,3],[3,0],[3,4],[4,5],[5,6]],
+    fact:'The Big Dipper is part of Ursa Major, the Great Bear. The two stars at the end of the cup point straight to Polaris, the North Star.'},
+  littledipper:{name:'Little Dipper',nick:'the Little Bear',stars:[['Polaris',2.53,89.26,3],['Yildun',17.54,86.59,1],['Epsilon',16.77,82.04,1],['Zeta',15.73,77.79,1],['Eta',16.29,75.76,1],['Pherkad',15.35,71.83,2],['Kochab',14.85,74.16,3]],
+    lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]],
+    fact:'Polaris, the North Star, is at the tip of the handle. It stays almost still while the rest of the sky turns around it.'},
+  cassiopeia:{name:'Cassiopeia',nick:'the Queen',stars:[['Caph',0.15,59.15,2],['Schedar',0.68,56.54,3],['Navi',0.95,60.72,3],['Ruchbah',1.43,60.24,2],['Segin',1.91,63.67,2]],
+    lines:[[0,1],[1,2],[2,3],[3,4]],
+    fact:'Five bright stars make a W, or an M when it is upside down. It sits on the other side of the North Star from the Big Dipper.'},
+  cygnus:{name:'Cygnus',nick:'the Swan',stars:[['Deneb',20.69,45.28,3],['Sadr',20.37,40.26,2],['Albireo',19.51,27.96,2],['Gienah',20.77,33.97,2],['Fawaris',19.75,45.13,2]],
+    lines:[[0,1],[1,2],[4,1],[1,3]],
+    fact:'Also called the Northern Cross. Deneb, the swan\'s tail, is one corner of the Summer Triangle.'},
+  leo:{name:'Leo',nick:'the Lion',stars:[['Regulus',10.14,11.97,3],['Eta Leonis',10.12,16.76,1],['Algieba',10.33,19.84,2],['Adhafera',10.28,23.42,1],['Rasalas',9.88,26.01,1],['Ras Elased',9.76,23.77,2],['Zosma',11.24,20.52,2],['Denebola',11.82,14.57,2],['Chertan',11.24,15.43,1]],
+    lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[2,6],[6,7],[7,8],[8,0],[6,8]],
+    fact:'A backward question mark makes the lion\'s head and mane. Bright Regulus is the lion\'s heart.'},
+  crux:{name:'Southern Cross',nick:'Crux',stars:[['Acrux',12.44,-63.10,3],['Mimosa',12.80,-59.69,3],['Gacrux',12.52,-57.11,3],['Imai',12.25,-58.75,2]],
+    lines:[[0,2],[1,3]],
+    fact:'The smallest of the 88 constellations. It is best seen from the southern half of Earth, and it is on the flags of Australia and New Zealand.'},
+  lyra:{name:'Lyra',nick:'the Harp',stars:[['Vega',18.62,38.78,3],['Epsilon Lyrae',18.74,39.67,1],['Zeta Lyrae',18.75,37.61,1],['Delta Lyrae',18.91,36.90,1],['Sulafat',18.98,32.69,2],['Sheliak',18.83,33.36,2]],
+    lines:[[0,1],[0,2],[2,3],[3,4],[4,5],[5,2]],
+    fact:'A small constellation with a big star: Vega, one of the brightest stars in the night sky and a corner of the Summer Triangle.'},
+  gemini:{name:'Gemini',nick:'the Twins',stars:[['Castor',7.58,31.89,3],['Pollux',7.76,28.03,3],['Mebsuta',6.73,25.13,2],['Tejat',6.38,22.51,2],['Wasat',7.34,21.98,2],['Alhena',6.63,16.40,3]],
+    lines:[[0,1],[0,2],[2,3],[1,4],[4,5]],
+    fact:'The two bright stars Castor and Pollux are the heads of the twins.'},
+  canismajor:{name:'Canis Major',nick:'the Great Dog',stars:[['Sirius',6.75,-16.72,3],['Mirzam',6.38,-17.96,2],['Wezen',7.14,-26.39,2],['Adhara',6.98,-28.97,3],['Aludra',7.40,-29.30,2],['Furud',6.34,-30.06,1]],
+    lines:[[1,0],[0,2],[2,3],[3,5],[2,4]],
+    fact:'Sirius, the Dog Star, is the brightest star in the whole night sky.'},
+  taurus:{name:'Taurus',nick:'the Bull',stars:[['Aldebaran',4.60,16.51,3],['Theta Tauri',4.48,15.87,1],['Gamma Tauri',4.33,15.63,1],['Delta Tauri',4.38,17.54,1],['Ain',4.48,19.18,2],['Elnath',5.44,28.61,3],['Tianguan',5.63,21.14,2],['Pleiades',3.79,24.11,2]],
+    lines:[[2,1],[1,0],[0,6],[2,3],[3,4],[4,5]],
+    fact:'Orange Aldebaran is the bull\'s eye. The Pleiades star cluster rides on the bull\'s shoulder.'},
+  scorpius:{name:'Scorpius',nick:'the Scorpion',stars:[['Acrab',16.09,-19.81,2],['Dschubba',16.01,-22.62,2],['Pi Scorpii',15.98,-26.11,1],['Sigma Scorpii',16.35,-25.59,1],['Antares',16.49,-26.43,3],['Tau Scorpii',16.60,-28.22,1],['Larawag',16.84,-34.29,2],['Mu Scorpii',16.86,-38.05,1],['Zeta Scorpii',16.91,-42.36,1],['Eta Scorpii',17.20,-43.24,1],['Sargas',17.62,-43.00,2],['Iota Scorpii',17.79,-40.13,1],['Kappa Scorpii',17.71,-39.03,2],['Shaula',17.56,-37.10,3],['Lesath',17.51,-37.30,1]],
+    lines:[[0,1],[1,2],[1,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14]],
+    fact:'Red Antares is the scorpion\'s heart. Its name means "rival of Mars" because it glows reddish like Mars.'},
+};
+const CONS_POOLS=[['orion','bigdipper','littledipper','cassiopeia'],['cygnus','leo','crux'],['lyra','gemini','canismajor'],['taurus','scorpius'],[]];
+function consPool(L){return CONS_POOLS.slice(0,L+1).flat();}
+const BRIGHT=[['orion',0,'Betelgeuse','the red giant at the hunter\'s shoulder'],['orion',7,'Rigel','the blue-white star at the hunter\'s foot'],['littledipper',0,'Polaris','the North Star'],
+  ['cygnus',0,'Deneb','the swan\'s tail'],['lyra',0,'Vega','one of the brightest stars in the sky'],['scorpius',4,'Antares','the scorpion\'s red heart'],['canismajor',0,'Sirius','the brightest star in the night sky'],
+  ['taurus',0,'Aldebaran','the bull\'s orange eye'],['leo',0,'Regulus','the lion\'s heart'],['gemini',0,'Castor','one of the twins'],['gemini',1,'Pollux','the other twin']];
+
+/* gnomonic projection onto the sky around the group's center; east to the left, north up */
+function projectCons(c){
+  const V=c.stars.map(([,ra,de])=>{const a=ra*Math.PI/12,d=de*Math.PI/180;return [Math.cos(d)*Math.cos(a),Math.cos(d)*Math.sin(a),Math.sin(d)];});
+  let m=V.reduce((s,v)=>[s[0]+v[0],s[1]+v[1],s[2]+v[2]],[0,0,0]);const ml=Math.hypot(...m);m=m.map(x=>x/ml);
+  let e=[-m[1],m[0],0];const el_=Math.hypot(...e)||1;e=e.map(x=>x/el_);
+  const n=[m[1]*e[2]-m[2]*e[1],m[2]*e[0]-m[0]*e[2],m[0]*e[1]-m[1]*e[0]];
+  return V.map(v=>{const k=v[0]*m[0]+v[1]*m[1]+v[2]*m[2];const p=v.map(x=>x/k);return [-(p[0]*e[0]+p[1]*e[1]+p[2]*e[2]),p[0]*n[0]+p[1]*n[1]+p[2]*n[2]];});
+}
+function fitBox(P,W,H,m){
+  const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const s=Math.min((W-2*m)/((x1-x0)||1),(H-2*m)/((y1-y0)||1));const ox=(W-(x1-x0)*s)/2,oy=(H-(y1-y0)*s)/2;
+  return P.map(([x,y])=>[ox+(x-x0)*s,H-(oy+(y-y0)*s)]);
+}
+/* fit a constellation onto integer grid points lo..hi; null if two stars would land on one point */
+function gridFit(c,lo,hi){
+  const P=projectCons(c);const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const span=hi-lo;
+  for(const m of [1,0]){
+    const s=Math.min((span-2*m)/((x1-x0)||1),(span-2*m)/((y1-y0)||1));const ox=(span-2*m-(x1-x0)*s)/2,oy=(span-2*m-(y1-y0)*s)/2;
+    const g=P.map(([x,y])=>[lo+m+Math.round((x-x0)*s+ox),lo+m+Math.round((y-y0)*s+oy)]);
+    if(new Set(g.map(p=>p.join(','))).size===g.length&&g.every(p=>p.every(v=>v>=lo&&v<=hi)))return g;
+  }
+  return null;
+}
+const PLOT_LEVELS=[{lo:0,hi:8,mode:'plot'},{lo:0,hi:10,mode:'plot'},{lo:0,hi:10,mode:'read'},{lo:0,hi:10,mode:'mix'},{lo:-6,hi:6,mode:'mix'}];
+function plotPool(L){const R=PLOT_LEVELS[L];return Object.keys(CONS).filter(id=>CONS[id].stars.length<=8&&gridFit(CONS[id],R.lo,R.hi));}
+
+/* --- Cone slicer: double cone x²+z²=y²; the knife pivots on P=(0,y0,-y0) and tilts by deg --- */
+function sliceType(deg){return deg===0?'circle':deg<45?'ellipse':deg===45?'parabola':'hyperbola';}
+function slicePts(deg,y0,cap,N=360){
+  const th=deg*Math.PI/180,tn=deg===45?1:Math.tan(th),co=Math.cos(th);const segs=[];
+  for(const s of [1,-1]){let cur=null;
+    for(let i=0;i<=N;i++){const ph=Math.PI/2+2*Math.PI*i/N;const sn=Math.sin(ph),cs=Math.cos(ph);
+      const den=s===1?1-sn*tn:-(1+sn*tn);let ok=false,t=0;
+      if(den>1e-9){t=y0*(1+tn)/den;ok=cap==null||t<=cap;}
+      if(ok){if(!cur){cur=[];segs.push(cur);}cur.push({p:[t*cs,s*t,t*sn],u:t*cs,v:(t*sn+y0)/co});}else cur=null;
+    }}
+  return segs;
+}
+/* the Sun's spot (a focus) in the knife's own flat coordinates (u across, v along the tilt) */
+function sliceFocus(deg,y0){
+  const type=sliceType(deg),th=deg*Math.PI/180,tn=deg===45?1:Math.tan(th),co=Math.cos(th);
+  if(type==='circle')return {u:0,v:y0};
+  const far=s=>{const den=s===1?1-tn:-(1-tn);return y0*(1+tn)/den;};
+  if(type==='ellipse'){const t2=far(1);const v2=(t2+y0)/co;const a=v2/2;
+    const ph=0;const t=y0*(1+tn)/(1-Math.sin(ph)*tn);const u=t,v=(y0)/co;const b2=u*u/(1-((v-a)*(v-a))/(a*a));
+    return {u:0,v:a-Math.sqrt(a*a-b2),a,b:Math.sqrt(b2)};}
+  if(type==='parabola'){const t=y0*(1+tn);const u=t,v=y0/co;const k=v/(u*u);return {u:0,v:1/(4*k),k};}
+  const t2=y0*(1+tn)/(tn-1);const v2=(-t2+y0)/co;const vc=v2/2,a=-vc;
+  const t=y0*(1+tn);const u=t,v=y0/co;const b2=u*u/(((v-vc)*(v-vc))/(a*a)-1);
+  return {u:0,v:vc+Math.sqrt(a*a+b2),a,b:Math.sqrt(b2),vc};
+}
+const SLICE_INFO={
+  circle:{name:'Circle',fact:'A circle: every point is the same distance from the center. Many moons travel on orbits that are almost perfect circles.'},
+  ellipse:{name:'Ellipse',fact:'An ellipse is a stretched circle. Every planet, Earth included, orbits the Sun on an ellipse, with the Sun at a special point called a focus.'},
+  parabola:{name:'Parabola',fact:'A parabola: the knife is exactly as steep as the cone\'s side. A comet on a parabola swings past the Sun once and never comes back.'},
+  hyperbola:{name:'Hyperbola',fact:'A hyperbola: the knife is steeper than the cone, so it cuts both cones and makes two curves. Visitors from other stars, like comet Borisov, zoom past the Sun on hyperbolas.'},
+};
 /* ===== LOGIC END ===== */
 
 /* ---------- state ---------- */
@@ -559,7 +711,7 @@ const CREW={
   kofi:{name:'Chief Engineer Kofi Asante',bio:'Builds and fixes everything. Measures twice.',
     cheer:['Built solid!','That column checks out!','Tank sealed!'],hint:['Measure twice, answer once.'],enc:['Even rockets get rebuilt.','Let\'s re-check that column.']},
   priya:{name:'Dr. Priya Raman',bio:'Station astronomer, never without her zoom monocle.',
-    cheer:['Stellar!'],hint:['Zoom in. What do you notice?'],enc:['Scientists check twice. Look again.']},
+    cheer:['Stellar!','Bright as a supernova!','Right on target!','Sharp eyes!'],hint:['Zoom in. What do you notice?'],enc:['Scientists check twice. Look again.']},
   qel:{name:'Qel, the navigator',bio:'A friendly navigator from a far-off star. Loves a good pattern.',
     cheer:['The stars agree!','Course plotted!','Bright as a nova!'],hint:['Every pattern has a rule. Find it.'],enc:['Navigators recalculate. So can you.','Look at the jumps between the stars.']},
   pix:{name:'Pix (PX-314)',bio:'The station robot, built to remember. Keeper of the Pi Vault.',
@@ -590,19 +742,19 @@ const ZONES={
     peek:['× crate arrays · ÷ 2-digit numbers by 2 to 5','× 2-digit by 1-digit · ÷ 2-digit numbers by 3 to 9','× 2-digit by 2-digit · ÷ 3-digit numbers by 2 to 6','× 3-digit by 1-digit · ÷ 3-digit numbers by 4 to 9','Challenge: × big 2-digit pairs · ÷ 4-digit numbers']},
   shapes:{name:'Shape Forge',host:'kofi',color:'#7FE9FF',ring:'#F26B1D',blurb:'Name 2-D and 3-D shapes, then measure area and volume.',start:startShapes,
     peek:['Shape names · rectangle area · counting cubes','Triangle and 4-sided shape types · L-shaped areas · box volume','3-D solids · triangles and parallelograms · joined boxes','Faces, edges and vertices · roofs and trapezoids · cylinders with π','Challenge: mixed names · circles with π · spheres and cones']},
+  obs:{name:'Observatory',host:'priya',color:'#9AA3B5',ring:'#1FB5A8',blurb:'Find constellations, plot stars on a coordinate grid, and slice a cone to make the shapes of orbits.',start:startObs,wide:true,
+    peek:['Orion, the Dippers, Cassiopeia · plot stars on a 0–8 grid · slice the cone','Adds Cygnus, Leo, the Southern Cross · plot on a 0–10 grid','Adds Lyra, Gemini, the Great Dog · read a star\'s coordinates','Adds Taurus, Scorpius, and finding bright stars · plot and read · name the slice','Challenge: all 12 constellations · four-quadrant grid with negative numbers · name the slice']},
   pi:{name:'Pi Vault',host:'pix',color:'#FFD23F',ring:'#D6336C',blurb:'Memorize the digits of π, three at a time, then recite from memory.',start:startPi,
     peek:PI_GOALS.map((g,i)=>`Recite goal: ${g} digits of π${i===4?' (challenge)':''}`)},
 };
-const SOON=[
-  {name:'Observatory',host:'priya',color:'#9AA3B5',ring:'#1FB5A8',blurb:'Constellations, and slicing cones into orbits.'},
-];
+const SOON=[];
 let Z=null; // current zone id
 function level(){return S.levels[Z]??0;}
 
 function buildMap(){
   const map=$('#map');map.textContent='';
-  for(const [id,z] of Object.entries(ZONES)){
-    map.append(el('button',{class:'planet',type:'button',style:`--c:${z.color};--ring:${z.ring}`,onclick:()=>{SFX.tap();openZone(id);}},
+  for(const [id,z] of Object.entries(ZONES).sort((p,q)=>(p[1].wide?1:0)-(q[1].wide?1:0))){
+    map.append(el('button',{class:'planet'+(z.wide?' wide':''),type:'button',style:`--c:${z.color};--ring:${z.ring}`,onclick:()=>{SFX.tap();openZone(id);}},
       el('span',{class:'orb','aria-hidden':'true'}),
       el('h2',{},z.name),el('p',{},z.blurb),
       el('div',{class:'host-row'},el('div',{class:'avatar'},el('img',{src:`crew/${z.host}_hero.svg`,alt:''})),
@@ -771,6 +923,8 @@ function runFlash(){
 }
 
 /* =================== PATTERN NEBULA =================== */
+function nodeK(txt){const t=String(txt);const n=t.replace(/[.,]/g,'').length+0.5*(t.length-t.replace(/[.,]/g,'').length);
+  return n<=1?0.5:n<=2?0.42:n<=2.5?0.36:n<=3?0.31:n<=3.5?0.27:n<=4?0.24:n<=5?0.2:0.17;}
 function startPattern(){
   const L=level();const st=$('#stage');st.textContent='';
   const ROUND=8;let n=0,firstTry=0,P,input,tries,stage,box,qNode,jumpsRow,status;
@@ -792,10 +946,8 @@ function startPattern(){
     say('hero',n===0?'Each star follows a rule. What comes next?':pick(['New pattern on the scanner.','Here\'s another one.','Plot the next star.']));
     status.textContent='Pattern: '+P.shown.map(fmtNum).join(', ')+', what comes next?';
   }
-  function node(txt){const len=String(txt).length;const fs=len<=2?34:len===3?28:len===4?23:len===5?19:16;
-    return el('div',{class:'node',style:`font-size:${fs}px`},txt);}
-  function paintQ(){qNode.textContent=input||'?';qNode.classList.toggle('filled',!!input);const len=(input||'?').length;
-    qNode.style.fontSize=(len<=2?34:len===3?28:len===4?23:len===5?19:16)+'px';}
+  function node(txt){return el('div',{class:'node',style:`--k:${nodeK(txt)}`},txt);}
+  function paintQ(){qNode.textContent=input||'?';qNode.classList.toggle('filled',!!input);qNode.style.setProperty('--k',nodeK(input||'?'));}
   function showJumps(){
     jumpsRow.textContent='';P.jumps.forEach((j,i)=>{jumpsRow.append(el('span',{class:'jump',style:`grid-column:${2*i+2}/span 2`},(j>=0?'+':'')+fmtNum(j)));});
   }
@@ -1033,7 +1185,9 @@ function runZone({modes,mode,setMode,round,make,play,finishLines,again,title}){
   st.append(prog,work,padWrap);
   let n=0,clean=0;
   const next=()=>{dots(prog,round,n);work.textContent='';padWrap.textContent='';keyHandler=null;stopSpin();
-    play(make(),work,padWrap,ok=>{if(ok)clean++;n++;later(()=>{if(n>=round)finish();else next();},1500);});};
+    play(make(),work,padWrap,(ok,wait=1500)=>{if(ok)clean++;n++;const go=()=>{if(n>=round)finish();else next();};
+      if(wait==='next'){const b=el('button',{class:'btn teal',type:'button',onclick:()=>{SFX.tap();b.disabled=true;go();}},n>=round?'Finish':'Next mission');work.append(el('div',{class:'next-row'},b));later(()=>b.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
+      else later(go,wait);});};
   const finish=()=>{keyHandler=null;stopSpin();let stars=1;const lines=finishLines(round,clean);if(clean===round){stars++;lines.push('Flawless: bonus star!');}
     showWin({title,lines,stars,again});};
   next();
@@ -1067,7 +1221,7 @@ function mulArray(P,work,padWrap,done){
 }
 function mulArea(P,work,padWrap,done){
   const {a,b,rows,cols,partials}=P;let cur=0,stage='parts',tries=0,hinted=false,s='';
-  const colT=cols.map(c=>`minmax(92px,${Math.max(1,Math.round(c/b*10))}fr)`).join(' ');
+  const colT=cols.map(c=>`minmax(104px,${Math.max(1,Math.round(c/b*10))}fr)`).join(' ');
   const rowT=rows.map(r=>`minmax(84px,${Math.max(1,Math.round(r/a*10))}fr)`).join(' ');
   const gridEl=el('div',{class:'amodel',style:`grid-template-columns:56px ${colT};grid-template-rows:36px ${rowT};height:${rows.length>1?280:150}px`});
   gridEl.append(el('div',{}));cols.forEach(c=>gridEl.append(el('div',{class:'am-h'},withCommas(c))));
@@ -1431,6 +1585,252 @@ function volPlay(V,work,padWrap,done){
   padWrap.append(inp.pad);
   later(()=>spinner(cv,volMesh(V),{yaw:0.6,pitch:0.45}),0);
   say('hero',V.shape==='cubes'?'Spin it to count the layers.':'Measure twice, answer once.');
+}
+
+/* =================== OBSERVATORY (Priya) =================== */
+let OBSMODE='stars';
+const OBS_RECENT=[];
+function startObs(){
+  const L=level();
+  const rounds={stars:6,plot:2,slice:4};
+  const titles={stars:'Sky charted!',plot:'Star map plotted!',slice:'Cone sliced!'};
+  let sliceQueue=null;
+  runZone({modes:[['stars','Constellations'],['plot','Star Plotter'],['slice','Cone Slicer']],mode:OBSMODE,setMode:k=>OBSMODE=k,
+    round:rounds[OBSMODE],title:titles[OBSMODE],
+    make:()=>{
+      if(OBSMODE==='stars')return makeConsTask(L);
+      if(OBSMODE==='plot'){const pool=plotPool(L).filter(id=>!OBS_RECENT.includes(id));const id=pick(pool.length?pool:plotPool(L));remember(id);return {id};}
+      if(!sliceQueue){sliceQueue=shuffle(['circle','ellipse','parabola','hyperbola']);}
+      const target=sliceQueue.shift();
+      if(L>=3&&Math.random()<.5){const deg={circle:0,ellipse:ri(15,35),parabola:45,hyperbola:ri(62,75)}[target];return {kind:'name',deg};}
+      return {kind:'make',target};
+    },
+    play:(T,w,p,d)=>{const d2=ok=>d(ok,'next');return OBSMODE==='stars'?consTask(T,w,p,d2):OBSMODE==='plot'?plotTask(T,w,p,d2):sliceTask(T,w,p,d2);},
+    finishLines:(r,c)=>[OBSMODE==='stars'?`${r} sky missions done.`:OBSMODE==='plot'?`${r} constellations plotted.`:`${r} slices made.`,`${c} of ${r} with no hints.`],
+    again:startObs});
+}
+function remember(id){OBS_RECENT.push(id);while(OBS_RECENT.length>4)OBS_RECENT.shift();}
+function makeConsTask(L){
+  const pool=consPool(L);const types=L>=3?['name','connect','star']:['name','connect'];
+  for(let tries=0;tries<40;tries++){
+    const type=pick(types);
+    if(type==='star'){const opts=BRIGHT.filter(b=>pool.includes(b[0])&&!OBS_RECENT.includes(b[0]));if(!opts.length)continue;const b=pick(opts);remember(b[0]);return {type,id:b[0],star:b[1],sname:b[2],desc:b[3]};}
+    const ok=pool.filter(id=>!OBS_RECENT.includes(id)&&(type!=='connect'||CONS[id].stars.length<=9));if(!ok.length)continue;
+    const id=pick(ok);remember(id);
+    if(type==='name'){const others=shuffle(pool.filter(x=>x!==id)).slice(0,3);return {type,id,options:shuffle([id,...others])};}
+    return {type,id};
+  }
+  return {type:'name',id:'orion',options:shuffle(['orion','bigdipper','littledipper','cassiopeia'])};
+}
+function consLabel(id){const c=CONS[id];return `${c.name} (${c.nick})`;}
+/* sky chart: returns {svg (element), pts (viewBox coords), W, H} */
+function skyChart(id,{lines=true,labels=false}={}){
+  const c=CONS[id];const P=projectCons(c);
+  const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);const asp=(Math.max(...ys)-Math.min(...ys))/((Math.max(...xs)-Math.min(...xs))||1);
+  const W=420,H=Math.round(Math.max(260,Math.min(470,W*asp)));const pts=fitBox(P,W,H,46);
+  let rnd=0;for(const ch of id)rnd=(rnd*31+ch.charCodeAt(0))%9973;const R=()=>{rnd=(rnd*48271)%2147483647||7;return rnd/2147483647;};
+  let bg='';for(let i=0;i<70;i++)bg+=`<circle cx="${(R()*W).toFixed(1)}" cy="${(R()*H).toFixed(1)}" r="${(0.6+R()*1.1).toFixed(2)}" fill="#C9D3FF" opacity="${(0.25+R()*0.45).toFixed(2)}"/>`;
+  const ln=c.lines.map(([a,b])=>`<line x1="${pts[a][0].toFixed(1)}" y1="${pts[a][1].toFixed(1)}" x2="${pts[b][0].toFixed(1)}" y2="${pts[b][1].toFixed(1)}" data-l="${Math.min(a,b)}-${Math.max(a,b)}" class="cl${lines?' on':''}"/>`).join('');
+  const st=c.stars.map(([n,,,sz],i)=>{const r=[0,3.4,4.8,6.6][sz];const [x,y]=pts[i];
+    return `<g class="star" data-i="${i}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle class="halo" r="${r*2.6}"/><circle class="core" r="${r}"/>${labels&&sz===3?`<text y="${-r-8}" class="slabel">${n}</text>`:''}</g>`;}).join('');
+  const box=el('div',{class:'sky'});
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Star chart"><rect width="${W}" height="${H}" fill="#070A1F"/>${bg}<g class="lines">${ln}</g><g class="tmp"></g>${st}</svg>`;
+  return {box,svg:box.firstElementChild,pts,W,H};
+}
+function svgPoint(svg,e){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const m=svg.getScreenCTM();return m?pt.matrixTransform(m.inverse()):{x:0,y:0};}
+function nearestStar(pts,p,max=40){let best=-1,bd=max;pts.forEach(([x,y],i)=>{const d=Math.hypot(x-p.x,y-p.y);if(d<bd){bd=d;best=i;}});return best;}
+function factBox(id){return el('div',{class:'factbox'},el('b',{},consLabel(id)+'. '),CONS[id].fact);}
+function consTask(T,work,padWrap,done){
+  let tries=0;const c=CONS[T.id];
+  if(T.type==='name'){
+    const ch=skyChart(T.id);const opts=el('div',{class:'opts',role:'group','aria-label':'Pick the constellation'});
+    T.options.forEach(id=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
+      if(id===T.id){b.classList.add('right');anim(b,'pop');SFX.ok();opts.querySelectorAll('button').forEach(x=>x.disabled=true);
+        ch.svg.querySelectorAll('.star').forEach((g,i)=>{if(c.stars[i][3]===3){const r=[0,3.4,4.8,6.6][3];g.insertAdjacentHTML('beforeend',`<text y="${-r-8}" class="slabel">${c.stars[i][0]}</text>`);}});
+        work.append(factBox(T.id));sayLine('cheer');done(tries===0);}
+      else{tries++;anim(b,'wiggle');SFX.no();b.disabled=true;say('enc',tries===1?`Not ${CONS[id].name}. Look at the shape the lines make.`:`It's ${c.name}. ${c.fact.split('.')[0]}.`);}
+    }},consLabel(id))));
+    work.append(el('div',{class:'prompt'},'Which constellation is in the telescope?'),ch.box,opts);
+    say('hero','Look at the pattern the lines make. What does it look like?');return;
+  }
+  if(T.type==='star'){
+    const ch=skyChart(T.id);const target=T.star;let over=false;
+    ch.svg.addEventListener('pointerdown',e=>{if(over)return;const i=nearestStar(ch.pts,svgPoint(ch.svg,e));if(i<0)return;
+      const g=ch.svg.querySelector(`.star[data-i="${i}"]`);
+      if(i===target){over=true;SFX.ok();g.classList.add('found');g.insertAdjacentHTML('beforeend',`<text y="-18" class="slabel">${T.sname}</text>`);work.append(factBox(T.id));sayLine('cheer',`That's ${T.sname}!`);done(tries===0);}
+      else{tries++;SFX.no();g.classList.add('miss');later(()=>g.classList.remove('miss'),500);
+        if(tries===1)say('enc',`That's ${c.stars[i][0]}. ${T.sname} is ${T.desc}. Bright stars are drawn bigger.`);
+        else{say('hint',`${T.sname} is blinking now.`);ch.svg.querySelector(`.star[data-i="${target}"]`).classList.add('blink');}}});
+    work.append(el('div',{class:'prompt'},`This is ${consLabel(T.id)}. Tap ${T.sname}, ${T.desc}.`),ch.box);
+    say('hero',`Find ${T.sname}. Tap the star.`);return;
+  }
+  // connect the stars
+  const ch=skyChart(T.id,{lines:false});const need=new Set(c.lines.map(([a,b])=>`${Math.min(a,b)}-${Math.max(a,b)}`));let sel=-1;
+  const left=el('div',{class:'stat'});const upd=()=>{left.innerHTML='';left.append('Lines to draw: ',el('b',{},String(need.size)));};upd();
+  const tmp=ch.svg.querySelector('.tmp');
+  const pick_=i=>{ch.svg.querySelectorAll('.star.sel').forEach(g=>g.classList.remove('sel'));sel=i;if(i>=0)ch.svg.querySelector(`.star[data-i="${i}"]`).classList.add('sel');};
+  ch.svg.addEventListener('pointerdown',e=>{if(!need.size)return;const i=nearestStar(ch.pts,svgPoint(ch.svg,e),44);if(i<0)return;SFX.tap();
+    if(sel<0||sel===i){pick_(sel===i?-1:i);return;}
+    const key=`${Math.min(sel,i)}-${Math.max(sel,i)}`;
+    if(need.has(key)){need.delete(key);ch.svg.querySelector(`line[data-l="${key}"]`).classList.add('on');SFX.ok();upd();pick_(i);
+      if(!need.size){pick_(-1);work.append(factBox(T.id));sayLine('cheer',`You drew ${c.name}!`);done(tries<2);}
+      else if(need.size%3===0)say('cheer',pick(['Good line.','Keep going.','Looking sharp.']));}
+    else{tries++;SFX.no();const [a,b]=[ch.pts[sel],ch.pts[i]];tmp.innerHTML=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="bad"/>`;later(()=>tmp.innerHTML='',600);
+      if(tries===2){ch.svg.querySelectorAll('line.cl').forEach(l=>l.classList.add('ghost'));say('hint','Faint guide lines are on now. Trace over them.');}
+      else say('enc','Those two stars are not joined. Try a nearer star.');pick_(i);}
+  });
+  work.append(el('div',{class:'prompt'},`Connect the stars to draw ${consLabel(T.id)}. Tap one star, then the next.`),ch.box,left);
+  say('hero',`${c.name} has ${c.lines.length} lines. Tap a star, then a star it joins.`);
+}
+
+/* ---------- Star Plotter ---------- */
+function plotTask(T,work,padWrap,done){
+  const L=level();const R=PLOT_LEVELS[L];const c=CONS[T.id];const G=gridFit(c,R.lo,R.hi);const n=G.length;
+  const steps=G.map((p,i)=>({i,p,mode:R.mode==='mix'?(i%2?'read':'plot'):R.mode}));
+  let si=0,tries=0,hinted=false;const placed=new Set();
+  const cs=Math.min(40,Math.floor(440/(R.hi-R.lo))),M=34,span=R.hi-R.lo,W=span*cs+M*2;
+  const X=x=>M+(x-R.lo)*cs,Y=y=>M+(R.hi-y)*cs;
+  let grid='',lab='';for(let v=R.lo;v<=R.hi;v++){const axis=v===0;
+    grid+=`<line x1="${X(v)}" y1="${Y(R.lo)}" x2="${X(v)}" y2="${Y(R.hi)}" class="${axis?'ax':'gl'}"/><line x1="${X(R.lo)}" y1="${Y(v)}" x2="${X(R.hi)}" y2="${Y(v)}" class="${axis?'ax':'gl'}"/>`;
+    const ox=R.lo<0?Y(0):Y(R.lo),oy=R.lo<0?X(0):X(R.lo);
+    if(!(R.lo<0&&v===0))lab+=`<text x="${X(v)}" y="${ox+18}" class="gx">${v<0?'−'+(-v):v}</text><text x="${oy-8}" y="${Y(v)}" class="gy">${v<0?'−'+(-v):v}</text>`;}
+  if(R.lo<0)lab+=`<text x="${X(0)-8}" y="${Y(0)+18}" class="gy">0</text>`;
+  const box=el('div',{class:'sky plot'});
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="Coordinate grid"><rect width="${W}" height="${W}" fill="#070A1F"/>${grid}${lab}<text x="${X(R.hi)+4}" y="${(R.lo<0?Y(0):Y(R.lo))-8}" class="axn">x</text><text x="${(R.lo<0?X(0):X(R.lo))+10}" y="${Y(R.hi)-12}" class="axn">y</text><g class="lines"></g><g class="pts"></g><g class="tmp"></g></svg>`;
+  const svg=box.firstElementChild,gl=svg.querySelector('.lines'),gp=svg.querySelector('.pts'),tmp=svg.querySelector('.tmp');
+  const fmt=v=>v<0?'−'+(-v):String(v);const pair=([x,y])=>`(${fmt(x)}, ${fmt(y)})`;
+  const prompt=el('div',{class:'prompt'});const readRow=el('div',{class:'row',hidden:true});
+  let xs='',ys='',act='x';const bx=el('button',{type:'button',class:'ansbox small',onclick:()=>{act='x';paintR();}}),by=el('button',{type:'button',class:'ansbox small',onclick:()=>{act='y';paintR();}});
+  readRow.append(el('span',{class:'eq'},'('),bx,el('span',{class:'eq'},','),by,el('span',{class:'eq'},')'));
+  const paintR=()=>{bx.textContent=xs||'x';by.textContent=ys||'y';bx.classList.toggle('filled',!!xs);by.classList.toggle('filled',!!ys);bx.classList.toggle('act',act==='x');by.classList.toggle('act',act==='y');};
+  const pad=keypad({minus:R.lo<0,onKey:k=>{const s=steps[si];if(!s||s.mode!=='read')return;
+    if(k==='go'){if(act==='x'&&xs&&!ys){act='y';paintR();return;}if(xs&&ys)checkRead();return;}
+    if(act==='x')xs=editStr(xs,k,2);else ys=editStr(ys,k,2);paintR();}});
+  const padWrap2=el('div',{},pad);
+  function drawStar(i,cls=''){const [x,y]=G[i];const sz=c.stars[i][3];gp.insertAdjacentHTML('beforeend',`<g class="pstar ${cls}" data-i="${i}" transform="translate(${X(x)} ${Y(y)})"><circle class="halo" r="${[0,7,9,12][sz]}"/><circle class="core" r="${[0,4.5,5.5,7][sz]}"/></g>`);}
+  function drawLines(){gl.innerHTML=c.lines.filter(([a,b])=>placed.has(a)&&placed.has(b)).map(([a,b])=>`<line x1="${X(G[a][0])}" y1="${Y(G[a][1])}" x2="${X(G[b][0])}" y2="${Y(G[b][1])}" class="cl on"/>`).join('');}
+  function ask(){const s=steps[si];tries=0;tmp.innerHTML='';
+    if(s.mode==='plot'){readRow.hidden=true;padWrap2.hidden=true;prompt.textContent=`Star ${si+1} of ${n}: plot it at ${pair(s.p)}.`;
+      say('hero',si===0?`Go across to x = ${fmt(s.p[0])}, then up${s.p[1]<0?' (or down)':''} to y = ${fmt(s.p[1])}. Tap that spot.`:pick(['Next star.','Plot the next one.','Steady hands.']));}
+    else{readRow.hidden=false;padWrap2.hidden=false;xs='';ys='';act='x';paintR();drawStar(s.i,'ask');prompt.textContent=`Star ${si+1} of ${n}: the blinking star is on the map. What are its coordinates?`;
+      say('hero','Read across first for x, then up for y.');}
+  }
+  function placedOk(){const s=steps[si];placed.add(s.i);gp.querySelector('.ask')?.remove();drawStar(s.i,'done');drawLines();SFX.ok();
+    si++;if(si>=n){say('cheer',`All ${n} stars plotted. It's ${c.name}!`);work.append(factBox(T.id));readRow.hidden=true;padWrap2.hidden=true;keyHandler=null;done(!hinted);}
+    else{say('cheer',pick(CREW.priya.cheer));later(ask,500);}}
+  svg.addEventListener('pointerdown',e=>{const s=steps[si];if(!s||s.mode!=='plot')return;const q=svgPoint(svg,e);
+    const gx=Math.round((q.x-M)/cs)+R.lo,gy=R.hi-Math.round((q.y-M)/cs);if(gx<R.lo||gx>R.hi||gy<R.lo||gy>R.hi)return;
+    if(gx===s.p[0]&&gy===s.p[1]){placedOk();return;}
+    tries++;hinted=true;SFX.no();tmp.innerHTML=`<g transform="translate(${X(gx)} ${Y(gy)})"><path d="M-8,-8L8,8M8,-8L-8,8" class="xmark"/></g><text x="${X(gx)}" y="${Y(gy)-14}" class="tlabel">${pair([gx,gy])}</text>`;
+    if(tries===1)say('enc',`You tapped ${pair([gx,gy])}. x is how far across, y is how far ${s.p[1]<0?'up or down':'up'}.`);
+    else{say('hint',`Across ${fmt(s.p[0])}, ${s.p[1]<0?'down':'up'} ${Math.abs(s.p[1])}. The spot is circled.`);tmp.insertAdjacentHTML('beforeend',`<circle cx="${X(s.p[0])}" cy="${Y(s.p[1])}" r="13" class="ring"/>`);}
+  });
+  function checkRead(){const s=steps[si];const okx=sameNum(xs,s.p[0]),oky=sameNum(ys,s.p[1]);
+    if(okx&&oky){[bx,by].forEach(b=>anim(b,'pop'));placedOk();return;}
+    tries++;hinted=true;SFX.no();anim(readRow,'wiggle');
+    if(!okx)xs='';if(!oky)ys='';act=okx?'y':'x';paintR();
+    if(tries===1)say('enc',okx?'Your x is right. Now count how far up.':oky?'Your y is right. Count across again for x.':'Start at 0. Count across for x, then up for y.');
+    else say('hint',`It's at ${pair(s.p)}.`);}
+  work.append(prompt,box,readRow);padWrap.append(padWrap2);ask();
+}
+
+/* ---------- Cone Slicer ---------- */
+const CONE_H=3.0,PIVOT=0.9;
+function sliceTask(T,work,padWrap,done){
+  let deg=T.kind==='name'?T.deg:12,yaw=0.55,pitch=0.32,drag=null,revealed=false,tries=0,animI=0;
+  const cv3=el('canvas',{class:'cone3d',role:'img','aria-label':'A double cone with a slicing knife. Drag to turn it.'});
+  const cv2=el('canvas',{class:'cone2d',role:'img','aria-label':'The shape of the slice'});
+  const tag=el('div',{class:'slice-tag'},'?');
+  const readout=el('div',{class:'stat'});
+  const range=el('input',{type:'range',min:'0',max:'75',step:'1',value:String(deg),id:'tilt','aria-label':'Knife tilt in degrees',class:'tilt'});
+  const minus=el('button',{type:'button',class:'iconbtn sm','aria-label':'Tilt 1 degree less'},'−'),plus=el('button',{type:'button',class:'iconbtn sm','aria-label':'Tilt 1 degree more'},'+');
+  const setDeg=v=>{deg=Math.max(0,Math.min(75,v));range.value=String(deg);readout.innerHTML='';readout.append('Knife tilt: ',el('b',{},deg+'°'),'   Cone side: ',el('b',{},'45°'));animI=0;};
+  range.addEventListener('input',()=>setDeg(+range.value));minus.onclick=()=>{SFX.tap();setDeg(deg-1);};plus.onclick=()=>{SFX.tap();setDeg(deg+1);};
+  setDeg(deg);
+  cv3.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];try{cv3.setPointerCapture(e.pointerId);}catch(_){}});
+  cv3.addEventListener('pointermove',e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*0.012;pitch=Math.max(-1.2,Math.min(1.2,pitch+(e.clientY-drag[1])*0.01));drag=[e.clientX,e.clientY];});
+  const up=()=>{drag=null;};cv3.addEventListener('pointerup',up);cv3.addEventListener('pointercancel',up);
+  const controls=el('div',{class:'slider-row'},minus,range,plus);
+  const factEl=el('div',{class:'factbox',hidden:true});
+  const reveal=type=>{revealed=true;tag.textContent=SLICE_INFO[type].name;tag.classList.add('on');factEl.hidden=false;factEl.textContent='';factEl.append(el('b',{},SLICE_INFO[type].name+'. '),SLICE_INFO[type].fact);};
+  const views=el('div',{class:'slicer'},el('div',{class:'sv'},el('div',{class:'label'},'Cone and knife · drag to turn'),cv3),el('div',{class:'sv'},el('div',{class:'label'},'The slice, seen flat'),cv2,tag));
+  if(T.kind==='make'){
+    const lock=el('button',{class:'btn',type:'button',onclick:()=>{if(revealed)return;const type=sliceType(deg);
+      if(type===T.target){SFX.ok();reveal(type);range.disabled=minus.disabled=plus.disabled=true;lock.disabled=true;sayLine('cheer',`A perfect ${SLICE_INFO[type].name.toLowerCase()}!`);done(tries===0);}
+      else{tries++;SFX.no();anim(lock,'wiggle');say(tries===1?'enc':'hint',SLICE_HINT[T.target](deg,tries));}}},'Lock in this slice');
+    work.append(el('div',{class:'prompt'},`Tilt the knife to slice a ${SLICE_INFO[T.target].name.toLowerCase()}.`),views,readout,controls,el('div',{},lock),factEl);
+    say('hero','Slide the tilt. Watch the flat view change shape. When it matches, lock it in.');
+  } else {
+    range.disabled=minus.disabled=plus.disabled=true;const answer=sliceType(T.deg);
+    const opts=el('div',{class:'opts',role:'group','aria-label':'Name the slice'});
+    ['circle','ellipse','parabola','hyperbola'].forEach(k=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
+      if(k===answer){b.classList.add('right');anim(b,'pop');SFX.ok();opts.querySelectorAll('button').forEach(x=>x.disabled=true);reveal(k);sayLine('cheer');done(tries===0);}
+      else{tries++;anim(b,'wiggle');SFX.no();b.disabled=true;say('enc',`Compare the knife (${T.deg}°) with the cone's side (45°). Flat, gentler, the same, or steeper?`);}}},SLICE_INFO[k].name)));
+    work.append(el('div',{class:'prompt'},`The knife is tilted ${T.deg}°. What shape is this slice?`),views,readout,opts,factEl);
+    say('hero','Spin the cone to see where the knife cuts.');
+  }
+  // animation loop
+  stopSpin();const me={raf:0};spin=me;
+  const frame=()=>{if(spin!==me)return;if(!drag&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)yaw+=0.002;
+    drawCone(cv3,yaw,pitch,deg);drawSlice2D(cv2,deg,revealed,animI);animI++;me.raf=requestAnimationFrame(frame);};
+  me.raf=requestAnimationFrame(frame);
+}
+const SLICE_HINT={
+  circle:(d)=>d===0?'':'A circle needs a perfectly flat knife: tilt 0°.',
+  ellipse:(d,t)=>t===1?'An ellipse needs a gentle tilt, less steep than the cone\'s side.':'Try a tilt between 1° and 44°.',
+  parabola:(d,t)=>t===1?'A parabola needs the knife exactly as steep as the cone\'s side.':'The cone\'s side is at 45°. Set the knife to 45°.',
+  hyperbola:(d,t)=>t===1?'A hyperbola needs the knife steeper than the cone\'s side.':'Tilt past 45°. Go past 62° to see the second curve on the bottom cone.',
+};
+function canvasCtx(cv){const dpr=window.devicePixelRatio||1;const W=cv.clientWidth||300,H=cv.clientHeight||260;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);return {ctx,W,H};}
+function drawCone(cv,yaw,pitch,deg){
+  const {ctx,W,H}=canvasCtx(cv);const Hc=CONE_H;const s=Math.min(W,H)*0.43/(Hc*1.08);
+  const pr=p=>{const [x,y,z]=rot3(p,yaw,pitch);const k=s*(1+z/(Hc*8));return [W/2+x*k,H/2-y*k,z];};
+  const N=48;const rim=sgn=>[...Array(N+1)].map((_,i)=>{const a=2*Math.PI*i/N;return pr([Hc*Math.cos(a),sgn*Hc,Hc*Math.sin(a)]);});
+  const apex=pr([0,0,0]);
+  for(const sg of [1,-1]){const r=rim(sg);
+    for(let i=0;i<N;i++){ctx.beginPath();ctx.moveTo(apex[0],apex[1]);ctx.lineTo(r[i][0],r[i][1]);ctx.lineTo(r[i+1][0],r[i+1][1]);ctx.closePath();ctx.fillStyle='rgba(242,107,29,0.075)';ctx.fill();}
+    ctx.strokeStyle='rgba(242,150,90,0.35)';ctx.lineWidth=1;for(let i=0;i<N;i+=4){ctx.beginPath();ctx.moveTo(apex[0],apex[1]);ctx.lineTo(r[i][0],r[i][1]);ctx.stroke();}
+    ctx.strokeStyle='#05060F';ctx.lineWidth=4;ctx.beginPath();r.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
+    ctx.strokeStyle='#F26B1D';ctx.lineWidth=2;ctx.stroke();}
+  // silhouette edges: generators where the surface turns away from the viewer
+  for(const sg of [1,-1]){let prev=null;for(let i=0;i<=360;i++){const a=2*Math.PI*i/360;const g=[Hc*Math.cos(a),sg*Hc,Hc*Math.sin(a)];
+    const n=rot3([Math.cos(a),-sg,Math.sin(a)],yaw,pitch);const side=Math.sign(n[2]);if(prev!==null&&side!==prev){const q=pr(g);ctx.strokeStyle='#05060F';ctx.lineWidth=3.5;ctx.beginPath();ctx.moveTo(apex[0],apex[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();}prev=side;}}
+  // knife
+  const th=deg*Math.PI/180,sn=Math.sin(th),co=Math.cos(th);const lim=Hc+0.5;
+  let vmin=-1.2,vmax=(lim+PIVOT)/Math.max(co,1e-3);if(sn>1e-3){vmin=Math.max(vmin,(-lim-PIVOT)/sn);vmax=Math.min(vmax,(lim-PIVOT)/sn);}
+  const kp=(u,v)=>pr([u,PIVOT+v*sn,-PIVOT+v*co]);const q=[kp(-lim,vmin),kp(lim,vmin),kp(lim,vmax),kp(-lim,vmax)];
+  ctx.beginPath();q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle='rgba(127,233,255,0.16)';ctx.fill();ctx.strokeStyle='rgba(127,233,255,0.8)';ctx.lineWidth=2;ctx.stroke();
+  // the cut
+  slicePts(deg,PIVOT,Hc,240).forEach(seg=>{const P=seg.map(o=>pr(o.p));ctx.lineJoin='round';
+    ctx.strokeStyle='#05060F';ctx.lineWidth=8;ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
+    ctx.strokeStyle='#FFD23F';ctx.lineWidth=4.5;ctx.stroke();});
+  const pv=pr([0,PIVOT,-PIVOT]);ctx.fillStyle='#7FE9FF';ctx.strokeStyle='#05060F';ctx.lineWidth=3;ctx.beginPath();ctx.arc(pv[0],pv[1],6,0,7);ctx.fill();ctx.stroke();
+}
+function drawSlice2D(cv,deg,revealed,frameN){
+  const {ctx,W,H}=canvasCtx(cv);const type=sliceType(deg);
+  const closed=type==='circle'||type==='ellipse';
+  const segs=slicePts(deg,PIVOT,closed?null:CONE_H*1.25,360);
+  const all=segs.flat();if(!all.length)return;
+  let u0=Math.min(...all.map(p=>p.u)),u1=Math.max(...all.map(p=>p.u)),v0=Math.min(...all.map(p=>p.v)),v1=Math.max(...all.map(p=>p.v));
+  const F=sliceFocus(deg,PIVOT);v0=Math.min(v0,F.v);v1=Math.max(v1,F.v);
+  const m=26,s=Math.min((W-2*m)/((u1-u0)||1),(H-2*m)/((v1-v0)||1));
+  const X=u=>W/2+(u-(u0+u1)/2)*s,Y=v=>H/2+(v-(v0+v1)/2)*s; // v increases downward on screen (far end of the knife at the bottom)
+  ctx.strokeStyle='rgba(127,233,255,0.12)';ctx.lineWidth=1;const step=s>40?0.5:1;
+  for(let g=Math.floor(u0);g<=u1;g+=step){ctx.beginPath();ctx.moveTo(X(g),0);ctx.lineTo(X(g),H);ctx.stroke();}
+  for(let g=Math.floor(v0);g<=v1;g+=step){ctx.beginPath();ctx.moveTo(0,Y(g));ctx.lineTo(W,Y(g));ctx.stroke();}
+  segs.forEach(seg=>{ctx.lineJoin='round';ctx.beginPath();seg.forEach((p,i)=>i?ctx.lineTo(X(p.u),Y(p.v)):ctx.moveTo(X(p.u),Y(p.v)));
+    ctx.strokeStyle='#05060F';ctx.lineWidth=8;ctx.stroke();ctx.strokeStyle='#FFD23F';ctx.lineWidth=4.5;ctx.stroke();});
+  if(!revealed)return;
+  // Sun at the focus, and a traveler moving faster near the Sun
+  const sx=X(F.u),sy=Y(F.v);ctx.fillStyle='#FFE27A';ctx.strokeStyle='#05060F';ctx.lineWidth=3;ctx.beginPath();ctx.arc(sx,sy,9,0,7);ctx.fill();ctx.stroke();
+  for(let k=0;k<8;k++){const a=k*Math.PI/4+frameN*0.01;ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*12,sy+Math.sin(a)*12);ctx.lineTo(sx+Math.cos(a)*17,sy+Math.sin(a)*17);ctx.strokeStyle='#FFD23F';ctx.lineWidth=2.5;ctx.stroke();}
+  const path=segs[0];if(!path||path.length<2)return;
+  const st=drawSlice2D.st||(drawSlice2D.st={pos:0,key:''});const key=deg+'';if(st.key!==key){st.key=key;st.pos=0;}
+  const p=path[Math.floor(st.pos)%path.length];const r=Math.hypot(p.u-F.u,p.v-F.v)||0.1;
+  st.pos+=Math.min(3,0.18/(r*r)+0.25);if(!closed&&st.pos>=path.length)st.pos=0;
+  ctx.fillStyle=type==='circle'?'#C3CBEE':type==='ellipse'?'#3FA7F5':'#E8EDF4';ctx.beginPath();ctx.arc(X(p.u),Y(p.v),7,0,7);ctx.fill();ctx.stroke();
 }
 
 /* ---------- boot ---------- */
