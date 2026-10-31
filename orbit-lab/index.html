@@ -324,6 +324,22 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .tilt::-moz-range-thumb{width:32px;height:32px;border-radius:50%;background:var(--yellow);border:4px solid var(--ink)}
 .tilt:disabled{opacity:.5}
 .next-row{display:flex;justify-content:flex-end}
+
+/* ---------- grown-ups ---------- */
+.grown{align-items:stretch;text-align:left;width:min(100%,600px)}
+.grown h2{text-align:center}
+.rs-intro{margin:0;color:var(--muted);font-size:16px}
+.rs-list{display:flex;flex-direction:column;gap:10px}
+.rs{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:3px solid var(--ink);border-radius:8px;background:var(--navy);cursor:pointer}
+.rs input{width:26px;height:26px;margin:2px 0 0;accent-color:var(--yellow);flex:none}
+.rs b{display:block;font-size:18px}
+.rs small{display:block;color:var(--muted);font-size:15px}
+.btn.hold{position:relative;overflow:hidden;align-self:stretch;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;background:var(--pink);color:#fff}
+.btn.hold .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(5,6,15,.38)}
+.btn.hold .txt{position:relative}
+.rs-msg{margin:0;min-height:1.4em;font-weight:700;text-align:center}
+.rs-msg.ok{color:var(--good)}
+.rs-msg.warn{color:var(--yellow)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -337,6 +353,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
         <div class="starpill" aria-label="Stars earned"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z" fill="#14121F"/></svg><span id="starCount">0</span></div>
         <button class="btn alt" id="crewBtn" type="button" style="font-size:22px;min-height:52px">Meet the crew</button>
         <button class="iconbtn" id="soundBtn" type="button" aria-label="Sound on"></button>
+        <button class="iconbtn" id="grownBtn" type="button" aria-label="Grown-ups: reset progress"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
       </div>
     </div>
     <div class="greeter">
@@ -793,6 +810,7 @@ function sound(){
 $('#soundBtn').onclick=()=>{S.sound=!S.sound;save();sound();SFX.tap();};
 $('#homeBtn').onclick=()=>{SFX.tap();showHome();};
 $('#crewBtn').onclick=()=>{SFX.tap();openCrew();};
+$('#grownBtn').onclick=()=>{SFX.tap();openGrownUps();};
 
 /* ---------- keypad ---------- */
 let keyHandler=null;
@@ -838,6 +856,43 @@ function showWin({title='Mission complete!',lines=[],stars=1,again}){
   let i=0;const step=()=>{i++;earned.textContent=`+${i} ★  ·  ${S.stars-stars+i} total`;if(i<stars)later(step,300);};later(step,350);
   box.querySelector('.btn').focus();
 }
+
+/* ---------- grown-ups: reset progress ---------- */
+const RESETS=[
+  {id:'stars',label:'Stars',on:true,note:()=>`${S.stars} earned`,run(){S.stars=0;}},
+  {id:'times',label:'Flashcard best times',on:true,note:()=>{const n=Object.keys(S.best).filter(k=>k.startsWith('flash-')).length;return n?`${n} best time${n===1?'':'s'} saved`:'none saved yet';},
+    run(){for(const k of Object.keys(S.best))if(k.startsWith('flash-'))delete S.best[k];}},
+  {id:'pi',label:'Pi Vault',on:true,note:()=>`${S.pi.groups*3} digits unlocked · best recite ${S.pi.best}`,run(){S.pi={groups:1,best:0};}},
+  {id:'levels',label:'Level picks',on:false,note:()=>{const set=Object.entries(S.levels).filter(([,v])=>v>0);return set.length?`${set.length} zone${set.length===1?'':'s'} above level 4 · resets every zone to 4`:'every zone is on level 4';},run(){S.levels={};}},
+];
+function openGrownUps(){
+  const list=el('div',{class:'rs-list'});
+  RESETS.forEach(r=>list.append(el('label',{class:'rs'},el('input',{type:'checkbox',id:'rs-'+r.id,checked:r.on}),
+    el('span',{},el('b',{},r.label),el('small',{id:'rsn-'+r.id},r.note())))));
+  const fill=el('span',{class:'fill'});
+  const hold=el('button',{class:'btn hold',type:'button',id:'holdBtn'},fill,el('span',{class:'txt'},'Press and hold to reset'));
+  const msg=el('p',{class:'rs-msg','aria-live':'polite'});
+  const box=el('div',{class:'win panel grown',role:'dialog','aria-modal':'true','aria-label':'For grown-ups'},
+    el('h2',{},'For grown-ups'),
+    el('p',{class:'rs-intro'},'Progress is saved only on this device, in this browser. Tick what to clear, then press and hold the button until it fills. The sound setting is always kept.'),
+    list,hold,msg,
+    el('button',{class:'btn alt',type:'button',onclick:()=>{SFX.tap();closeOverlay();buildMap();}},'Done'));
+  const ov=$('#overlay');ov.textContent='';ov.append(box);ov.hidden=false;
+  let start=0,raf=0;
+  const chosen=()=>RESETS.filter(r=>$('#rs-'+r.id).checked);
+  const tick=()=>{const p=Math.min(1,(performance.now()-start)/1600);fill.style.width=(p*100)+'%';if(p>=1)finish();else raf=requestAnimationFrame(tick);};
+  const begin=e=>{e.preventDefault();if(!chosen().length){msg.className='rs-msg warn';msg.textContent='Tick at least one thing to reset.';return;}
+    msg.textContent='';start=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);};
+  const stop=()=>{cancelAnimationFrame(raf);fill.style.width='0%';};
+  function finish(){cancelAnimationFrame(raf);const done=chosen();done.forEach(r=>r.run());save();SFX.win();fill.style.width='0%';
+    msg.className='rs-msg ok';msg.textContent='Reset: '+done.map(r=>r.label.toLowerCase()).join(', ')+'.';
+    RESETS.forEach(r=>{$('#rsn-'+r.id).textContent=r.note();});$('#starCount').textContent=S.stars;}
+  hold.addEventListener('pointerdown',begin);['pointerup','pointerleave','pointercancel'].forEach(ev=>hold.addEventListener(ev,stop));
+  hold.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.repeat)begin(e);});hold.addEventListener('keyup',stop);
+  hold.addEventListener('contextmenu',e=>e.preventDefault());
+  box.querySelector('input').focus();
+}
+
 function openCrew(){
   const box=el('div',{class:'win panel crew-win',role:'dialog','aria-modal':'true','aria-label':'Meet the crew'},
     el('h2',{},'Meet the crew'),
@@ -1835,7 +1890,7 @@ function drawSlice2D(cv,deg,revealed,frameN){
 
 /* ---------- boot ---------- */
 sound();showHome();
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#overlay').hidden&&$('#overlay .crew-win'))closeOverlay();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#overlay').hidden&&$('#overlay .crew-win, #overlay .grown')){closeOverlay();buildMap();}});
 </script>
 
 </body>
