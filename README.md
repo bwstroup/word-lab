@@ -15,3 +15,9 @@ Open it at https://bwstroup.github.io/word-lab/build-lab/
 Space-station math: Flashcard Run, Pattern Nebula, the Fuel Depot (big addition), Number Ops (visual multiplication and division), the Shape Forge (shapes, area, volume), the Pi Vault and the Observatory (constellations, star plotting, cone slicing), with the Orbit Lab crew.
 
 Open it at https://bwstroup.github.io/word-lab/orbit-lab/
+
+# Logic Lab
+
+Riddles, clues and dragons in Mossy Hollow: Sherlock's Clue Grids, the Sphinx's Picture Riddles and Saying Scroll, Watson's Rhyme Riddles, Elowen's Analogies, Brindle's Bridge (spot the flaw in an argument) and Ember's Dragon Games (Last Gem, Potion Code, Tower of Treasure).
+
+Open it at https://bwstroup.github.io/word-lab/logic-lab/
