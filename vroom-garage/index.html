@@ -260,7 +260,15 @@ img{max-width:100%;-webkit-user-drag:none}
 /* rescue hub + who do we call */
 .rtiles{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:clamp(12px,2vmin,20px);max-height:min(560px,100%);align-self:stretch}
 @media (max-aspect-ratio:1/1){.rtiles{grid-template-columns:minmax(0,1fr)}}
+#call .chip{white-space:nowrap}
 .cscene .trouble{transition:opacity .7s}
+.cscene .kb{opacity:0;transition:opacity .4s}.cscene.work .kb{opacity:1}.cscene .kt.ok .kb{opacity:0}
+.cscene.work .kt{cursor:pointer}
+.kt .ka,.kt .kz{transition:opacity .5s}.kt .kz{opacity:0}.kt.ok .kz{opacity:1}.kt.ok:not(.keep) .ka{opacity:0}
+.kt .mv{transition:transform 1s cubic-bezier(.3,.7,.2,1),opacity .4s .55s}.kt.fade.ok .mv{opacity:0}
+.kt:not(.ok) .steam circle{animation:none;opacity:0}
+.cscene.work .ping{display:none}
+#kMov{transition:transform .65s cubic-bezier(.2,.8,.2,1)}
 .cscene .fixed{opacity:0;transition:opacity .7s .35s}
 .cscene.solved .trouble{opacity:0}
 .cscene.solved .fixed{opacity:1}
@@ -426,7 +434,8 @@ img{max-width:100%;-webkit-user-drag:none}
 
 <section id="call" class="screen">
   <div class="bar"><button class="icon-btn press" data-go="rescue" data-ic="back" aria-label="Back to Rescue"></button><div class="title"><span data-ic="phone"></span>Who Do We Call?</div><div class="grow"></div>
-    <div class="starrow" id="kStars"></div></div>
+    <div class="seg" id="kLevels"><button data-l="3">3</button><button data-l="5">5</button><button data-l="8">8</button></div>
+    <div class="chip"><span data-ic="check"></span><span id="kCount">0</span></div><div class="starrow" id="kStars"></div></div>
   <div class="fscene cscene" id="kScene"></div>
   <div class="dispatch" id="kDispatch"></div>
 </section>
@@ -1777,101 +1786,210 @@ function startRescue(){const t=$('#rTiles');if(t.children.length)return;
   RTILES.forEach((r,i)=>{if(r.fix)r.fix(t.children[i].querySelector('.art'))});icons(t)}
 
 /* ---------- who do we call? ---------- */
-const SVC=[{k:'fire',n:3,ic:'flame',snd:'siren',lab:'Fire'},{k:'police',n:1,ic:'shield',snd:'siren',lab:'Police'},{k:'amb',n:4,ic:'heart',snd:'siren',lab:'Ambulance'},{k:'animal',n:58,ic:'paw',snd:'siren',lab:'Animal rescue'}];
-const KPARK={x:900,y:395,w:680,h:510};
+const KPARK={x:900,y:395,w:680,h:510},KAIR={x:1010,y:30,w:520,h:390,air:true};
 const kRoad=()=>`<rect y="720" width="1600" height="28" fill="#d9dcdf"/><rect y="748" width="1600" height="152" fill="#3a4047"/>${[...Array(54)].map((_,i)=>`<rect x="${(i-20)*120+20}" y="822" width="64" height="10" fill="#f4f1e6"/>`).join('')}`;
 const kGrass=(y=560)=>`<rect y="${y}" width="1600" height="${720-y}" fill="#7cc35a"/>`;
-const kFlame=(x,y,s)=>flameSVG({n:0,x,y,s}).replace(/<g class="badge"[\s\S]*?<\/text><\/g>/,'');
+const kFlame=()=>flameSVG({n:0,x:0,y:0,s:1}).replace(/<g class="badge"[\s\S]*?<\/text><\/g>/,'');
+const kSteam=`<g class="steam">${[0,1,2,3].map(i=>`<circle cx="${-30+i*20}" cy="-40" r="${20+i*4}" fill="#fff" style="animation-delay:${i*.12}s"/>`).join('')}</g>`;
 const kTree=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-22" y="-210" width="44" height="214" rx="10" fill="#7a5537"/><circle cx="0" cy="-270" r="120" fill="#2f8a4c"/><circle cx="-80" cy="-210" r="80" fill="#36975a"/><circle cx="85" cy="-215" r="85" fill="#2b7f46"/></g>`;
 const kHeart=`<path d="M0 30C-40 2-52-20-38-36c12-13 30-9 38 6 8-15 26-19 38-6 14 16 2 38-38 66z" fill="#ff4d6d"/>`;
+const kHeartAt=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})">${kHeart}</g>`;
 const SKIN=['#f1c9a5','#c98e62','#8d5a3b','#e8b48c'],HAIR=['#3b2414','#15202a','#7a4a24','#c98a3c'];
-// standing person; y = feet. o: shirt,pants,skin,hair,arms('down'|'up'),face('happy'|'sad'),extra (drawn in the same scaled frame)
+const kSmile=`<path d="M-14 -220q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/>`,kFrown=`<path d="M-13 -212q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/>`;
 function kPerson(x,y,s,o={}){const sk=o.skin||SKIN[0],sh=o.shirt||'#2f6fe4',pa=o.pants||'#2b3a55',hr=o.hair||HAIR[0];
   const arms=o.arms==='up'?`<rect x="-58" y="-330" width="20" height="120" rx="10" fill="${sh}" transform="rotate(-18 -48 -210)"/><rect x="38" y="-330" width="20" height="120" rx="10" fill="${sh}" transform="rotate(18 48 -210)"/><circle cx="-84" cy="-330" r="12" fill="${sk}"/><circle cx="84" cy="-330" r="12" fill="${sk}"/>`
     :`<rect x="-54" y="-196" width="20" height="96" rx="10" fill="${sh}"/><rect x="34" y="-196" width="20" height="96" rx="10" fill="${sh}"/><circle cx="-44" cy="-98" r="12" fill="${sk}"/><circle cx="44" cy="-98" r="12" fill="${sk}"/>`;
-  const face=o.face==='o'?`<ellipse cx="0" cy="-212" rx="9" ry="11" fill="#15202a"/>`:o.face==='sad'?`<path d="M-13 -212q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/>`:o.face==='none'?'':`<path d="M-14 -220q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  const face=o.face==='o'?`<ellipse cx="0" cy="-212" rx="9" ry="11" fill="#15202a"/>`:o.face==='sad'?kFrown:o.face==='none'?'':kSmile;
   return `<g transform="translate(${x},${y}) scale(${s})"><rect x="-24" y="-96" width="20" height="96" rx="10" fill="${pa}"/><rect x="4" y="-96" width="20" height="96" rx="10" fill="${pa}"/>
    <rect x="-26" y="-14" width="26" height="14" rx="7" fill="#15202a"/><rect x="2" y="-14" width="26" height="14" rx="7" fill="#15202a"/>
-   <rect x="-36" y="-204" width="72" height="122" rx="28" fill="${sh}"/>${arms}
-   <circle cx="0" cy="-244" r="44" fill="${sk}"/><path d="M-45 -250a45 45 0 0 1 90 0q-22-20-45-15q-23-5-45 15z" fill="${hr}"/>
+   <rect x="-36" y="-204" width="72" height="122" rx="28" fill="${sh}"/>${o.hat||''}${arms}
+   <circle cx="0" cy="-244" r="44" fill="${sk}"/><path d="M-45 -250a45 45 0 0 1 90 0q-22-20-45-15q-23-5-45 15z" fill="${hr}"/>${o.cap||''}
    <circle cx="-15" cy="-242" r="5.5" fill="#15202a"/><circle cx="15" cy="-242" r="5.5" fill="#15202a"/>${face}${o.extra||''}</g>`}
-// sitting on the ground, legs out to the right; y = ground
+// sitting on the ground, legs out to the right; y = ground. Sad until the scene is solved, then smiling with a bandage.
 function kSitter(x,y,s,o={}){const sk=o.skin||SKIN[0],sh=o.shirt||'#ff7a1a',pa=o.pants||'#2b3a55',hr=o.hair||HAIR[0];
-  return `<g transform="translate(${x},${y}) scale(${s})"><rect x="-10" y="-40" width="150" height="40" rx="20" fill="${pa}"/><rect x="-10" y="-84" width="150" height="40" rx="20" fill="${pa}" opacity="0"/>
+  return `<g transform="translate(${x},${y}) scale(${s})"><rect x="-10" y="-40" width="150" height="40" rx="20" fill="${pa}"/>
    <rect x="128" y="-44" width="22" height="44" rx="9" fill="#15202a"/>
-   <rect x="-40" y="-170" width="76" height="140" rx="30" fill="${sh}"/>
+   <rect x="-40" y="-170" width="76" height="140" rx="30" fill="${sh}"/>${o.scarf||''}
    <rect x="20" y="-150" width="22" height="100" rx="11" fill="${sh}" transform="rotate(-38 31 -150)"/><circle cx="88" cy="-66" r="12" fill="${sk}"/>
-   <circle cx="-2" cy="-212" r="44" fill="${sk}"/><path d="M-47 -218a45 45 0 0 1 90 0q-22-20-45-15q-23-5-45 15z" fill="${hr}"/>
-   <circle cx="10" cy="-210" r="5.5" fill="#15202a"/><circle cx="-18" cy="-210" r="5.5" fill="#15202a"/>${o.extra||''}</g>`}
+   <circle cx="-2" cy="-212" r="44" fill="${sk}"/><path d="M-47 -218a45 45 0 0 1 90 0q-22-20-45-15q-23-5-45 15z" fill="${hr}"/>${o.cap||''}
+   <circle cx="10" cy="-210" r="5.5" fill="#15202a"/><circle cx="-18" cy="-210" r="5.5" fill="#15202a"/>
+   <g class="trouble"><path d="M-17 -186q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+   <g class="fixed"><path d="M-18 -192q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="74" y="-46" width="34" height="52" rx="6" fill="#fff" stroke="#d9dcdf" stroke-width="3"/></g></g>`}
 const kOuch=(x,y)=>`<g class="trouble">${[[0,0,1],[-34,-30,.7],[30,-36,.6]].map(([a,b,k])=>`<polygon transform="translate(${x+a},${y+b}) scale(${k})" points="0,-22 6,-7 22,-6 9,4 13,20 0,11 -13,20 -9,4 -22,-6 -6,-7" fill="#ffc21a" stroke="#15202a" stroke-width="3"/>`).join('')}</g>`;
-const kSadFace=`<g class="trouble"><path d="M-13 -186q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(-2,0)"/></g><g class="fixed"><path d="M-16 -192q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/></g>`;
-const kCar=(x,y,c)=>`<g transform="translate(${x},${y})"><rect x="-90" y="-62" width="180" height="46" rx="18" fill="${c}"/><path d="M-52 -60 -36 -100h70l18 40z" fill="${c}"/><path d="M-42 -64 -30 -92h28v28zM8 -92h24l13 28H8z" fill="#bfe3f7"/><circle cx="-52" cy="-14" r="20" fill="#15202a"/><circle cx="52" cy="-14" r="20" fill="#15202a"/><circle cx="-52" cy="-14" r="8" fill="#c6cbd0"/><circle cx="52" cy="-14" r="8" fill="#c6cbd0"/></g>`;
-const kBird=(x,y,s,wing)=>`<g transform="translate(${x},${y}) scale(${s})"><ellipse cx="0" cy="0" rx="34" ry="26" fill="#3f86d8"/><ellipse cx="2" cy="8" rx="20" ry="14" fill="#ffd9a6"/><circle cx="26" cy="-22" r="18" fill="#3f86d8"/><polygon points="42,-24 58,-18 42,-14" fill="#ff9f1a"/><circle cx="30" cy="-26" r="3.6" fill="#15202a"/><path d="M-30 -4l-22-10 4 18z" fill="#2c6bb3"/>${wing==='down'?`<path d="M-6 0q10 30 34 34q-26 4-40-18z" fill="#2c6bb3"/>`:`<path d="M-10 -6q16-16 34-6q-14 12-34 6z" fill="#2c6bb3"/>`}<path d="M-6 24v12M8 24v12" stroke="#ff9f1a" stroke-width="4"/></g>`;
-const kPup=(x,y,s,body=true)=>`<g transform="translate(${x},${y}) scale(${s})">${body?`<ellipse cx="-60" cy="-40" rx="70" ry="42" fill="#b9773f"/><rect x="-110" y="-20" width="22" height="40" rx="10" fill="#b9773f"/><rect x="-30" y="-20" width="22" height="40" rx="10" fill="#b9773f"/><path class="tail" d="M-126 -60q-34-30-20-60" stroke="#b9773f" stroke-width="14" fill="none" stroke-linecap="round"/>`:''}
-  <circle cx="0" cy="-80" r="46" fill="#c98950"/><ellipse cx="-40" cy="-72" rx="16" ry="34" fill="#7a4a24" transform="rotate(20 -40 -72)"/><ellipse cx="40" cy="-72" rx="16" ry="34" fill="#7a4a24" transform="rotate(-20 40 -72)"/>
-  <ellipse cx="0" cy="-60" rx="22" ry="16" fill="#f1d3b0"/><circle cx="0" cy="-66" r="8" fill="#15202a"/><circle cx="-16" cy="-92" r="6" fill="#15202a"/><circle cx="16" cy="-92" r="6" fill="#15202a"/></g>`;
+const kCar=c=>`<rect x="-90" y="-62" width="180" height="46" rx="18" fill="${c}"/><path d="M-52 -60 -36 -100h70l18 40z" fill="${c}"/><path d="M-42 -64 -30 -92h28v28zM8 -92h24l13 28H8z" fill="#bfe3f7"/><circle cx="-52" cy="-14" r="20" fill="#15202a"/><circle cx="52" cy="-14" r="20" fill="#15202a"/><circle cx="-52" cy="-14" r="8" fill="#c6cbd0"/><circle cx="52" cy="-14" r="8" fill="#c6cbd0"/>`;
+const kBird=(wing)=>`<ellipse cx="0" cy="-26" rx="34" ry="26" fill="#3f86d8"/><ellipse cx="2" cy="-18" rx="20" ry="14" fill="#ffd9a6"/><circle cx="26" cy="-48" r="18" fill="#3f86d8"/><polygon points="42,-50 58,-44 42,-40" fill="#ff9f1a"/><circle cx="30" cy="-52" r="3.6" fill="#15202a"/><path d="M-30 -30l-22-10 4 18z" fill="#2c6bb3"/>${wing==='down'?`<path d="M-6 -26q10 30 34 34q-26 4-40-18z" fill="#2c6bb3"/>`:`<path d="M-10 -32q16-16 34-6q-14 12-34 6z" fill="#2c6bb3"/>`}<path d="M-6 -2v4M8 -2v4" stroke="#ff9f1a" stroke-width="4"/>`;
+const kPupHead=`<circle cx="0" cy="-80" r="46" fill="#c98950"/><ellipse cx="-40" cy="-72" rx="16" ry="34" fill="#7a4a24" transform="rotate(20 -40 -72)"/><ellipse cx="40" cy="-72" rx="16" ry="34" fill="#7a4a24" transform="rotate(-20 40 -72)"/><ellipse cx="0" cy="-60" rx="22" ry="16" fill="#f1d3b0"/><circle cx="0" cy="-66" r="8" fill="#15202a"/><circle cx="-16" cy="-92" r="6" fill="#15202a"/><circle cx="16" cy="-92" r="6" fill="#15202a"/>`;
+const kPup=(c='#b9773f')=>`<ellipse cx="-60" cy="-40" rx="70" ry="42" fill="${c}"/><rect x="-110" y="-20" width="22" height="40" rx="10" fill="${c}"/><rect x="-30" y="-20" width="22" height="40" rx="10" fill="${c}"/><path d="M-126 -60q-34-30-20-60" stroke="${c}" stroke-width="14" fill="none" stroke-linecap="round"/>${kPupHead}`;
+const kKitten=`<g transform="translate(0,-40)"><ellipse cx="0" cy="18" rx="30" ry="22" fill="#e58a2e"/><circle cx="0" cy="-12" r="19" fill="#e58a2e"/><polygon points="-17,-22 -12,-42 -3,-28" fill="#e58a2e"/><polygon points="17,-22 12,-42 3,-28" fill="#e58a2e"/><circle cx="-7" cy="-14" r="4" fill="#15202a"/><circle cx="7" cy="-14" r="4" fill="#15202a"/><path d="M28 26c20-4 22-26 10-34" stroke="#e58a2e" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M-12 4h24M-10 12h20" stroke="#c46a18" stroke-width="3"/></g>`;
+const kDuck=(c='#ffd21f')=>`<ellipse cx="0" cy="-30" rx="40" ry="28" fill="${c}"/><circle cx="26" cy="-66" r="20" fill="${c}"/><polygon points="44,-68 62,-62 44,-56" fill="#ff9f1a"/><circle cx="31" cy="-70" r="3.6" fill="#15202a"/><path d="M-36 -36 -56 -48 -46 -22z" fill="${c}"/><path d="M-6 -4v6M8 -4v6" stroke="#ff9f1a" stroke-width="5"/>`;
+const kBush=`<circle cx="-50" cy="-40" r="50" fill="#3d9a52"/><circle cx="48" cy="-42" r="54" fill="#348a49"/><circle cx="0" cy="-78" r="56" fill="#43a75a"/>`;
+const kTeddy=`<g transform="translate(0,-10)"><circle cx="-24" cy="-74" r="14" fill="#a86b3c"/><circle cx="24" cy="-74" r="14" fill="#a86b3c"/><ellipse cx="0" cy="-8" rx="30" ry="34" fill="#b97a45"/><circle cx="0" cy="-52" r="32" fill="#b97a45"/><ellipse cx="0" cy="-42" rx="12" ry="9" fill="#e8c49a"/><circle cx="0" cy="-45" r="4" fill="#15202a"/><circle cx="-11" cy="-58" r="4" fill="#15202a"/><circle cx="11" cy="-58" r="4" fill="#15202a"/></g>`;
+const kFlag=c=>`<path d="M0 0V-80" stroke="#5a4636" stroke-width="7" stroke-linecap="round"/><path d="M0 -80 46 -66 0 -52z" fill="${c}"/>`;
+const kPaw=(c,o=1)=>`<g fill="${c}" opacity="${o}"><ellipse cx="0" cy="-22" rx="22" ry="18"/><ellipse cx="-24" cy="-48" rx="8" ry="10"/><ellipse cx="-8" cy="-60" rx="8" ry="11"/><ellipse cx="8" cy="-60" rx="8" ry="11"/><ellipse cx="24" cy="-48" rx="8" ry="10"/></g>`;
+const kBucket=`<path d="M-30 -60h60l-8 60h-44z" fill="#ff5a1f"/><path d="M-27 -48h54" stroke="#fff" stroke-width="6"/><path d="M-30 -60q30-44 60 0" stroke="#15202a" stroke-width="4" fill="none"/><ellipse cx="0" cy="-60" rx="28" ry="7" fill="#4fb4ff"/>`;
+const kCone=`<path d="M-30 0 -10 -92h20L30 0z" fill="#ff7a1a"/><rect x="-22" y="-56" width="44" height="13" fill="#fff"/><rect x="-42" y="-8" width="84" height="12" rx="4" fill="#e0601a"/>`;
+const kSpot=`<ellipse cx="0" cy="-4" rx="44" ry="15" fill="none" stroke="#f4f1e6" stroke-width="5" stroke-dasharray="10 8"/>`;
+const AID=[
+ `<g transform="rotate(-20)"><rect x="-48" y="-18" width="96" height="36" rx="18" fill="#e9b98c"/><rect x="-14" y="-12" width="28" height="24" rx="4" fill="#f6dcc0"/></g>`,
+ `<rect x="-40" y="-30" width="80" height="60" rx="14" fill="#6cc4f0"/><path d="M-22 -8h44M-22 8h44" stroke="#fff" stroke-width="5" stroke-linecap="round"/>`,
+ `<polygon points="0,-40 12,-13 40,-12 18,6 26,34 0,18 -26,34 -18,6 -40,-12 -12,-13" fill="#ffc21a" stroke="#c99400" stroke-width="3"/>`,
+ `<g transform="translate(0,-4) scale(.9)">${kHeart}</g>`,
+ `<circle r="34" fill="#fff" stroke="#cfd5da" stroke-width="6"/><circle r="11" fill="#cfd5da"/>`,
+ `<rect x="-17" y="-34" width="34" height="74" rx="12" fill="#4fb4ff"/><rect x="-10" y="-48" width="20" height="16" rx="4" fill="#2f6fe4"/>`,
+ `<rect x="-42" y="-28" width="84" height="56" rx="10" fill="#9b7bd6"/><path d="M-42 -8h84M-42 8h84" stroke="#fff" stroke-width="4" opacity=".7"/>`,
+ `<rect x="-36" y="-26" width="72" height="52" rx="8" fill="#fff" stroke="#e8261b" stroke-width="5"/><path d="M0 -14v28M-14 0h28" stroke="#e8261b" stroke-width="9"/>`];
+const kTray=`<rect x="50" y="186" width="850" height="186" rx="26" fill="#fff" opacity=".92"/><rect x="50" y="186" width="850" height="186" rx="26" fill="none" stroke="#e8261b" stroke-width="6"/><rect x="430" y="168" width="90" height="36" rx="10" fill="#e8261b"/><path d="M475 174v24M463 186h24" stroke="#fff" stroke-width="6"/>`;
+const TRAY=[...Array(8)].map((_,i)=>[110+i*104,258,.95]);
+const kAid=(to)=>({spots:TRAY,a:t=>AID[t.i],go:t=>[to[0]-t.x,to[1]-t.y],fade:true,badge:[0,66],aim:0,hit:58,bs:1});
+const kBranches=sp=>sp.map(([x,y])=>`<path d="M305 ${y+14} L${x} ${y}" stroke="#7a5537" stroke-width="20" stroke-linecap="round"/>`).join('');
+const BR=[[190,665],[420,615],[190,565],[420,515],[190,465],[420,415],[200,365],[410,320]];
+const kBigTree=()=>`<circle cx="305" cy="350" r="175" fill="#2f8a4c"/><circle cx="150" cy="430" r="110" fill="#36975a"/><circle cx="460" cy="430" r="110" fill="#2b7f46"/><rect x="272" y="290" width="66" height="434" rx="14" fill="#7a5537"/>${kBranches(BR)}`;
+const kLeaf={a:()=>`<ellipse cx="0" cy="-6" rx="36" ry="15" fill="#5cb85c"/>`,b:()=>`<ellipse cx="0" cy="-6" rx="36" ry="15" fill="#5cb85c"/><circle cx="0" cy="-10" r="22" fill="#ffe680" opacity=".95"/>`,badge:[0,-70],aim:10,hit:60};
+const CARC=['#ff5a1f','#1faa63','#ffc21a','#8e5bd6','#2f6fe4','#e8261b','#13b5c4','#ff8fb1'];
+const kSky=()=>FSKY;
 const KS=[
- {svc:'fire',ping:[430,420,170],scene:()=>`${FSKY}${kGrass(640)}${kRoad()}<rect x="600" y="180" width="54" height="130" fill="#7a5a4a"/><polygon points="150,345 430,150 710,345" fill="#8c3b2f"/><rect x="190" y="330" width="480" height="390" fill="#efdcbc"/>
-   ${fwin(250,390)}${fwin(500,390)}${fwin(240,570)}${fwin(530,570)}<rect x="395" y="580" width="90" height="140" rx="6" fill="#7a4a2f"/>
-   <g class="trouble">${kFlame(310,500,.75)}${kFlame(560,500,.75)}${kFlame(430,320,.95)}</g><g class="fixed">${kHeart.replace('<path','<path transform="translate(430,300) scale(1.4)"')}</g>`},
- {svc:'fire',ping:[430,350,190],scene:()=>`${FSKY}${kGrass(600)}${kRoad()}${[...Array(9)].map((_,i)=>`<rect x="${40+i*100}" y="640" width="12" height="80" fill="#fff"/>`).join('')}<rect x="40" y="652" width="820" height="10" fill="#fff"/><rect x="40" y="690" width="820" height="10" fill="#fff"/>
+ // ---------- FIRE ----------
+ {svc:'fire',need:3,pick:[3,1,4,22],ping:[430,420,170],heart:[430,300],
+  t:{spots:[[310,500,.7],[560,500,.7],[300,680,.65],[600,680,.65],[430,265,.8],[620,320,.6],[245,335,.6],[440,722,.55]],a:kFlame,b:()=>kSteam,fx:'spray',badge:[58,-128],aim:55},
+  noz:[.5,.24],scene:()=>`${kSky()}${kGrass(640)}${kRoad()}<rect x="600" y="180" width="54" height="130" fill="#7a5a4a"/><polygon points="150,345 430,150 710,345" fill="#8c3b2f"/><rect x="190" y="330" width="480" height="390" fill="#efdcbc"/>
+   ${fwin(250,390)}${fwin(500,390)}${fwin(240,570)}${fwin(530,570)}<rect x="395" y="580" width="90" height="140" rx="6" fill="#7a4a2f"/>`},
+ {svc:'fire',need:3,pick:[3,4,24,13],ping:[430,430,200],heart:[430,280],
+  t:{spots:[[300,330,.7],[540,320,.75],[430,470,.6],[260,560,.6],[600,560,.6],[430,640,.55],[230,440,.55],[630,440,.55]],a:kFlame,b:()=>kSteam,fx:'spray',badge:[58,-128],aim:55},
+  noz:[.5,.24],scene:()=>`${kSky()}${kGrass(600)}${kRoad()}${[...Array(9)].map((_,i)=>`<rect x="${40+i*100}" y="640" width="12" height="80" fill="#fff"/>`).join('')}<rect x="40" y="652" width="820" height="10" fill="#fff"/><rect x="40" y="690" width="820" height="10" fill="#fff"/>
    <polygon points="170,400 290,270 570,270 690,400" fill="#7a2e22"/><rect x="200" y="390" width="460" height="330" fill="#b5452f"/><rect x="350" y="520" width="160" height="200" fill="#8a3324" stroke="#fff" stroke-width="10"/><path d="M350 520 510 720M510 520 350 720" stroke="#fff" stroke-width="10"/>
-   <rect x="390" y="420" width="80" height="70" fill="#6b2a1f" stroke="#fff" stroke-width="8"/>
-   <g class="trouble">${kFlame(320,300,.9)}${kFlame(520,290,1)}${kFlame(430,470,.6)}</g><g class="fixed">${kHeart.replace('<path','<path transform="translate(430,260) scale(1.4)"')}</g>`},
- {svc:'police',ping:[520,330,110],scene:()=>`${FSKY}${kGrass(560)}<rect x="0" y="600" width="1600" height="120" fill="#c9cdd1"/>${kRoad()}
+   <rect x="390" y="420" width="80" height="70" fill="#6b2a1f" stroke="#fff" stroke-width="8"/>`},
+ {svc:'fire',need:28,pick:[28,26,29,3],ping:[380,370,200],heart:[380,250],park:{x:820,y:370,w:740,h:555},
+  t:{spots:[[205,400,.7],[555,400,.7],[380,255,.75],[250,305,.55],[540,305,.55],[380,515,.6],[160,515,.55],[620,515,.55]],a:kFlame,b:()=>kSteam,fx:'spray',badge:[58,-128],aim:55},
+  noz:[.44,.2],scene:()=>MIS[1].scene()},
+ {svc:'fire',need:36,pick:[36,33,34,38],ping:[700,520,260],heart:[760,380],park:KAIR,belly:[.5,.66],
+  t:{spots:()=>TREES.map(([x,y,s])=>[x,y-150*s,s*.7]),a:kFlame,b:()=>kSteam,fx:'drop',badge:[58,-128],aim:55},
+  scene:()=>MIS[2].scene()},
+ {svc:'fire',need:37,pick:[37,19,20,21],ping:[700,640,280],heart:[700,480],park:KAIR,belly:[.5,.66],
+  t:{spots:[[150,650,.65],[350,605,.65],[560,665,.7],[760,615,.65],[960,660,.7],[1160,610,.65],[1350,660,.7],[460,700,.6]],a:kFlame,b:()=>kSteam,fx:'drop',badge:[58,-128],aim:55},
+  scene:()=>`${kSky()}${kGrass(540)}${kRoad()}${[...Array(30)].map((_,i)=>`<path d="M${(i-6)*90} 720v-30M${(i-6)*90+20} 720v-22" stroke="#5aa641" stroke-width="6"/>`).join('')}
+   ${[[1300,560],[200,560]].map(([x,y])=>`<g transform="translate(${x},${y})"><rect x="-60" y="-50" width="120" height="70" rx="16" fill="#e2b552"/><path d="M-60 -25h120M-60 0h120" stroke="#c99a3c" stroke-width="5"/></g>`).join('')}
+   <rect x="600" y="430" width="16" height="130" fill="#7a5537"/><rect x="560" y="420" width="96" height="40" rx="6" fill="#efdcbc"/>`},
+ // ---------- POLICE ----------
+ {svc:'police',need:1,pick:[1,3,24,22],ping:[520,330,110],heart:[520,230],
+  t:{spots:[[110,885,1],[300,885,1],[490,885,1],[680,885,1],[200,800,.8],[390,800,.8],[580,800,.8],[770,800,.8]],keep:true,
+     a:t=>`<g class="honk"><path d="M-30 -120q-12-20 0-40M0 -128v-40M30 -120q12-20 0-40" stroke="#15202a" stroke-width="7" fill="none" stroke-linecap="round"/></g>${kCar(CARC[t.i])}`,go:[1900,0],badge:[0,-210],aim:60},
+  scene:()=>`${kSky()}${kGrass(560)}<rect x="0" y="600" width="1600" height="120" fill="#c9cdd1"/>${kRoad()}
    ${kTree(140,610,.8)}<rect x="512" y="330" width="16" height="400" fill="#4a4f57"/><rect x="478" y="230" width="84" height="210" rx="16" fill="#2a2f35"/>
    <circle cx="520" cy="270" r="26" fill="#555"/><circle cx="520" cy="335" r="26" fill="#555"/><circle cx="520" cy="400" r="26" fill="#555"/>
    <g class="fixed"><circle cx="520" cy="400" r="26" fill="#2ee06a"/><circle cx="520" cy="400" r="40" fill="#2ee06a" opacity=".25"/></g>
-   ${kCar(130,880,'#ff5a1f')}${kCar(340,880,'#1faa63')}${kCar(560,880,'#ffc21a')}${kCar(770,880,'#8e5bd6')}
-   <g class="trouble honk">${[130,340,560,770].map(x=>`<path d="M${x-30} 760q-12-20 0-40M${x} 752v-40M${x+30} 760q12-20 0-40" stroke="#15202a" stroke-width="7" fill="none" stroke-linecap="round"/>`).join('')}<path d="M500 200l14-22 12 16 14-24" stroke="#ffc21a" stroke-width="7" fill="none" stroke-linecap="round"/></g>`},
- {svc:'police',ping:[470,520,150],scene:()=>`${FSKY}${kGrass(560)}${kRoad()}${kTree(160,640,1)}<rect x="620" y="620" width="200" height="16" rx="6" fill="#8a6240"/><rect x="630" y="636" width="12" height="50" fill="#5e432c"/><rect x="800" y="636" width="12" height="50" fill="#5e432c"/><rect x="620" y="580" width="200" height="14" rx="6" fill="#8a6240"/>
-   <path d="M520 410 Q510 500 500 560" stroke="#15202a" stroke-width="3" fill="none"/><ellipse cx="522" cy="370" rx="42" ry="52" fill="#e8261b"/><polygon points="514,420 530,420 522,430" fill="#e8261b"/>
-   ${kPerson(470,700,.68,{shirt:'#ffc21a',skin:SKIN[1],hair:HAIR[1],face:'none',extra:`<g class="trouble"><path d="M-13 -212q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-22 -232q-8 22 0 30q8-8 0-30zM22 -232q-8 22 0 30q8-8 0-30z" fill="#4fb4ff"/></g><g class="fixed"><path d="M-14 -220q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/></g>`})}
-   <g class="fixed">${kPerson(350,700,.95,{shirt:'#1faa63',skin:SKIN[1],hair:HAIR[1]})}${kHeart.replace('<path','<path transform="translate(410,420)"')}</g>`},
- {svc:'amb',ping:[560,620,130],scene:()=>`${FSKY}<rect x="80" y="260" width="700" height="400" fill="#efdcbc"/><polygon points="40,270 430,110 820,270" fill="#5a6470"/>${fwin(160,330)}${fwin(560,330)}${kGrass(640)}${kRoad()}
+   <g class="trouble"><path d="M500 200l14-22 12 16 14-24" stroke="#ffc21a" stroke-width="7" fill="none" stroke-linecap="round"/></g>`},
+ {svc:'police',need:19,pick:[19,20,21,37],ping:[300,520,200],heart:[300,400],park:KAIR,
+  t:{spots:[[140,670,.8],[330,620,.8],[520,675,.8],[710,625,.8],[900,675,.8],[1090,625,.8],[1280,675,.8],[1450,625,.8]],keep:true,
+     a:()=>kBush,b:(t,N)=>`<ellipse cx="0" cy="-60" rx="120" ry="80" fill="#fff6b0" opacity=".5"/>${t.n===N?`<g transform="translate(70,10) scale(1.1)">${kTeddy}</g>`:''}`,fx:'fly',beam:true,off:[0,-330],badge:[0,-170],aim:60,hit:100},
+  scene:()=>`${kSky()}${kGrass(560)}${kRoad()}${kTree(80,600,.7)}${kPerson(260,720,.6,{shirt:'#ff7a1a',skin:SKIN[2],hair:HAIR[1],face:'none',extra:`<g class="trouble">${kFrown}</g><g class="fixed">${kSmile}</g>`})}`},
+ {svc:'police',need:2,pick:[2,3,24,11],ping:[450,600,220],heart:[300,780],
+  t:{spots:[...Array(8)].map((_,i)=>[120+i*95,630,.8]),keep:true,a:()=>kDuck(),go:[0,232],badge:[0,-130],aim:40,hit:60,bs:1},
+  scene:()=>`${kSky()}<rect y="520" width="1600" height="120" fill="#7cc35a"/><rect y="640" width="1600" height="160" fill="#3a4047"/>${[...Array(54)].map((_,i)=>`<rect x="${(i-20)*120+20}" y="716" width="64" height="10" fill="#f4f1e6"/>`).join('')}
+   <rect y="800" width="1600" height="100" fill="#7cc35a"/><ellipse cx="360" cy="880" rx="330" ry="40" fill="#4fa3e0"/><g transform="translate(120,870) scale(1.3)">${kDuck('#fff')}</g>
+   ${kTree(1400,520,.6)}<g transform="translate(760,470)"><rect x="-6" y="0" width="12" height="70" fill="#4a4f57"/><polygon points="0,-50 46,0 0,50 -46,0" fill="#ffc21a" stroke="#15202a" stroke-width="5"/><g transform="translate(-14,8) scale(.6)">${kDuck('#15202a')}</g></g>`},
+ {svc:'police',need:1,pick:[1,16,23,6],ping:[460,780,240],heart:[460,420],
+  t:{spots:[...Array(8)].map((_,i)=>[90+i*110,775,.9]),a:()=>kSpot,b:()=>kCone,badge:[0,-130],aim:30,hit:60,bs:1.1},
+  scene:()=>`${kSky()}${kGrass(560)}${kRoad()}<path d="M40 330 Q450 420 860 330" stroke="#5d6a76" stroke-width="4" fill="none"/>${[...Array(9)].map((_,i)=>{const x=60+i*100,y=338+Math.sin(i/8*Math.PI)*66;return `<polygon points="${x-24},${y} ${x+24},${y} ${x},${y+46}" fill="${CARC[i%8]}"/>`}).join('')}
+   <g class="fixed">${[[280,460,'#e8261b'],[340,430,'#2f6fe4'],[400,470,'#ffc21a'],[560,440,'#1faa63'],[620,470,'#8e5bd6']].map(([x,y,c])=>`<path d="M${x} ${y+60}v110" stroke="#5d6a76" stroke-width="3"/><ellipse cx="${x}" cy="${y}" rx="34" ry="42" fill="${c}"/>`).join('')}</g>
+   ${kPerson(160,720,.62,{shirt:'#e8261b',skin:SKIN[1],hair:HAIR[2]})}${kPerson(750,720,.58,{shirt:'#1faa63',skin:SKIN[3],hair:HAIR[0]})}`},
+ // ---------- AMBULANCE ----------
+ {svc:'amb',need:4,pick:[4,1,3,46],ping:[560,620,130],heart:[500,470],
+  t:kAid([570,640]),
+  scene:()=>`${kSky()}<rect x="80" y="380" width="700" height="280" fill="#efdcbc"/>${fwin(160,440)}${fwin(560,440)}${kGrass(640)}${kRoad()}
    <g transform="translate(140,690) rotate(-8)"><rect x="0" y="-12" width="320" height="10" fill="#c6cbd0"/><rect x="0" y="22" width="320" height="10" fill="#c6cbd0"/>${[...Array(7)].map((_,i)=>`<rect x="${20+i*44}" y="-6" width="9" height="32" fill="#c6cbd0"/>`).join('')}</g>
-   ${kSitter(500,710,.85,{shirt:'#ff7a1a',skin:SKIN[2],hair:HAIR[1],extra:`<g class="trouble"><path d="M-17 -186q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/></g><g class="fixed"><path d="M-18 -192q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="74" y="-46" width="34" height="52" rx="6" fill="#fff" stroke="#d9dcdf" stroke-width="3"/></g>`})}
-   ${kOuch(580,600)}<g class="fixed">${kHeart.replace('<path','<path transform="translate(500,470)"')}</g>`},
- {svc:'amb',ping:[520,620,140],scene:()=>`${FSKY}<rect y="520" width="1600" height="200" fill="#56b04a"/>${[...Array(32)].map((_,i)=>`<rect x="${(i-12)*200}" y="520" width="100" height="200" fill="#4fa443"/>`).join('')}<rect x="0" y="600" width="1600" height="6" fill="#fff" opacity=".8"/>${kRoad()}
-   <g transform="translate(60,600)"><rect x="0" y="-120" width="10" height="120" fill="#fff"/><rect x="140" y="-120" width="10" height="120" fill="#fff"/><rect x="0" y="-124" width="150" height="10" fill="#fff"/><path d="M10 -114 150 0M150 -114 10 0M40 -114v114M80 -114v114M120 -114v114" stroke="#fff" stroke-width="2" opacity=".6"/></g>
-   ${kPerson(290,700,.75,{shirt:'#e8261b',skin:SKIN[0],hair:HAIR[3],arms:'up',face:'o'})}
+   ${kSitter(500,710,.85,{shirt:'#ff7a1a',skin:SKIN[2],hair:HAIR[1]})}${kOuch(580,600)}${kTray}`},
+ {svc:'amb',need:4,pick:[4,24,17,1],ping:[520,620,140],heart:[470,470],
+  t:kAid([540,640]),
+  scene:()=>`${kSky()}<rect y="520" width="1600" height="200" fill="#56b04a"/>${[...Array(32)].map((_,i)=>`<rect x="${(i-12)*200}" y="520" width="100" height="200" fill="#4fa443"/>`).join('')}${kRoad()}
+   <g transform="translate(60,600)"><rect x="0" y="-120" width="10" height="120" fill="#fff"/><rect x="140" y="-120" width="10" height="120" fill="#fff"/><rect x="0" y="-124" width="150" height="10" fill="#fff"/></g>
+   ${kPerson(270,700,.75,{shirt:'#e8261b',skin:SKIN[0],hair:HAIR[3],arms:'up',face:'o'})}
    <g transform="translate(720,686)"><circle r="24" fill="#fff" stroke="#15202a" stroke-width="3"/><polygon points="0,-10 9,-3 6,8 -6,8 -9,-3" fill="#15202a"/></g>
-   ${kSitter(470,710,.85,{shirt:'#2f6fe4',skin:SKIN[3],hair:HAIR[2],extra:`<g class="trouble"><path d="M-17 -186q13-11 26 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/></g><g class="fixed"><path d="M-18 -192q14 13 28 0" stroke="#15202a" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="74" y="-46" width="34" height="52" rx="6" fill="#fff" stroke="#d9dcdf" stroke-width="3"/></g>`})}
-   ${kOuch(550,600)}<g class="fixed">${kHeart.replace('<path','<path transform="translate(470,470)"')}</g>`},
- {svc:'animal',ping:[545,660,120],scene:()=>`${FSKY}${kGrass(560)}${kRoad()}${kTree(300,700,1.25)}<rect x="300" y="360" width="200" height="16" rx="8" fill="#7a5537" transform="rotate(-12 300 368)"/>
-   <path d="M410 356q40 30 80 0" fill="#9b6b3e" stroke="#7a5537" stroke-width="6"/>
-   <g class="trouble">${kBird(540,680,1.7,'down')}<path d="M505 600l-8-18M545 588v-20M585 600l10-18" stroke="#15202a" stroke-width="5" stroke-linecap="round"/></g>
-   <g class="fixed">${kBird(450,318,1.15,'up')}${kHeart.replace('<path','<path transform="translate(560,280)"')}</g>`},
- {svc:'animal',ping:[450,560,120],scene:()=>`${FSKY}${kGrass(540)}${kRoad()}${kTree(1200,600,.7)}
-   ${[...Array(11)].map((_,i)=>`<path d="M${40+i*80} 720V500l28-30 28 30v220z" fill="${i===5?'none':'#d8a86b'}" stroke="${i===5?'none':'#b9854a'}" stroke-width="4"/>`).join('')}<rect x="30" y="540" width="840" height="20" fill="#c99556"/><rect x="30" y="650" width="840" height="20" fill="#c99556"/>
-   <g class="trouble">${kPup(476,650,1.2,false)}<path d="M396 500l-20-14M556 500l20-14M476 476v-24" stroke="#15202a" stroke-width="6" stroke-linecap="round"/></g>
-   <g class="fixed">${kPup(600,712,1.1,true)}${kHeart.replace('<path','<path transform="translate(600,520)"')}</g>`}
+   ${kSitter(470,710,.85,{shirt:'#2f6fe4',skin:SKIN[3],hair:HAIR[2]})}${kOuch(550,600)}${kTray}`},
+ {svc:'amb',need:4,pick:[4,3,49,22],ping:[520,620,140],heart:[470,470],
+  t:kAid([540,640]),
+  scene:()=>`<rect width="1600" height="900" fill="#cfe3f2"/><g fill="#fff">${[[200,250],[700,300],[1200,230],[450,420],[1000,400]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="7"/>`).join('')}</g>
+   <path d="M-2400 720 L-2400 520 Q200 380 900 560 T3900 520 V720z" fill="#f4f8fb"/><rect y="560" width="1600" height="160" fill="#f4f8fb" opacity=".0"/>${kRoad()}
+   <g transform="translate(700,700) rotate(-6)"><rect x="-90" y="-30" width="180" height="24" rx="10" fill="#e8261b"/><path d="M-90 -6 Q-110 -6 -110 -26" stroke="#e8261b" stroke-width="10" fill="none"/></g>
+   ${kSitter(470,710,.85,{shirt:'#13b5c4',skin:SKIN[1],hair:HAIR[0],scarf:'<rect x="-40" y="-176" width="76" height="22" rx="10" fill="#e8261b"/>',cap:'<path d="M-44 -238a44 44 0 0 1 88 0z" fill="#8e5bd6"/><circle cx="0" cy="-286" r="14" fill="#fff"/>'})}${kOuch(550,600)}${kTray}`},
+ {svc:'amb',need:20,pick:[20,19,37,21],ping:[620,300,110],heart:[620,230],park:KAIR,
+  t:{spots:[[180,700,.9],[330,640,.9],[230,565,.9],[400,505,.9],[300,440,.9],[470,390,.9],[390,330,.9],[520,290,.9]],path:true,a:()=>kFlag('#ff5a1f'),b:()=>kFlag('#1faa63'),fx:'fly',off:[230,-150],badge:[-52,-50],aim:40,hit:60},
+  scene:()=>`${kSky()}<polygon points="-400,720 560,170 1400,720" fill="#8a96a3"/><polygon points="560,170 470,262 520,250 560,292 600,247 650,264" fill="#fff"/><polygon points="900,720 1250,330 1700,720" fill="#a3aeb9"/>${kGrass(660)}${kRoad()}
+   <path d="M180 700 L330 640 L230 565 L400 505 L300 440 L470 390 L390 330 L520 290 L610 300" stroke="#e2d3b0" stroke-width="10" stroke-dasharray="18 14" fill="none"/>
+   ${kSitter(600,330,.42,{shirt:'#1faa63',skin:SKIN[0],hair:HAIR[2],cap:'<path d="M-46 -236a46 46 0 0 1 92 0z" fill="#e8261b"/>'})}${kOuch(650,270)}`},
+ // ---------- ANIMAL RESCUE ----------
+ {svc:'animal',need:58,pick:[58,4,1,22],ping:[520,690,100],heart:[420,250],mover:{x:520,y:705,s:1.4,svg:()=>kBird('down')},end:[305,292],
+  t:{spots:BR.map(p=>[...p,.9]),path:true,...kLeaf,fx:'hop',off:[0,0]},
+  scene:()=>`${kSky()}${kGrass(560)}${kRoad()}${kBigTree()}<path d="M255 294q50 40 100 0" fill="#9b6b3e" stroke="#7a5537" stroke-width="8"/><g class="trouble"><path d="M490 620l-8-18M520 608v-20M552 620l10-18" stroke="#15202a" stroke-width="5" stroke-linecap="round"/></g>`},
+ {svc:'animal',need:58,pick:[58,1,4,24],ping:[400,300,90],heart:[600,600],mover:{x:400,y:318,s:1.3,svg:()=>kKitten},end:[560,712],
+  t:{spots:BR.slice().reverse().map(p=>[...p,.9]),path:true,...kLeaf,fx:'hop',off:[0,0]},
+  scene:()=>`${kSky()}${kGrass(560)}${kRoad()}${kBigTree()}<g class="trouble"><path d="M440 250l12-16M400 236v-22M362 250l-12-16" stroke="#15202a" stroke-width="5" stroke-linecap="round"/></g>`},
+ {svc:'animal',need:58,pick:[58,1,4,54],ping:[450,700,260],heart:[1240,500],
+  t:{spots:[[120,650,.62],[300,610,.62],[480,650,.62],[660,610,.62],[200,820,.62],[390,860,.62],[580,820,.62],[780,860,.62]],a:t=>`<g transform="scale(${t.i%2?-1:1},1)">${kPup(['#b9773f','#e6c79c','#5a4636','#d9a066'][t.i%4])}</g>`,go:t=>[1240-t.x,650-t.y],fade:true,badge:[0,-160],aim:60,hit:90},
+  scene:()=>`${kSky()}<rect y="540" width="1600" height="360" fill="#7cc35a"/>${[...Array(26)].map((_,i)=>`<path d="M${(i-6)*80} 540V420l26-28 26 28v120z" fill="#d8a86b" stroke="#b9854a" stroke-width="4"/>`).join('')}<rect x="-2400" y="440" width="6400" height="16" fill="#c99556"/><rect x="-2400" y="500" width="6400" height="16" fill="#c99556"/>
+   <g transform="translate(840,560)"><polygon points="-90,0 0,-80 90,0" fill="#b5452f"/><rect x="-75" y="0" width="150" height="110" fill="#e0b070"/><path d="M-30 110v-60a30 30 0 0 1 60 0v60z" fill="#5a3a22"/></g>`},
+ {svc:'animal',need:58,pick:[58,2,4,23],ping:[780,620,130],heart:[800,430],
+  t:{spots:[[90,850,.85],[210,790,.85],[320,850,.85],[430,780,.85],[540,830,.85],[640,760,.85],[700,680,.8],[760,620,.75]],path:true,a:()=>kPaw('#7a4a24',.35),b:()=>`<circle cx="0" cy="-36" r="40" fill="#ffe680" opacity=".7"/>${kPaw('#7a4a24')}`,badge:[0,-100],aim:30,hit:55},
+  scene:()=>`${kSky()}<rect y="540" width="1600" height="360" fill="#7cc35a"/>${kTree(160,560,.7)}${kTree(1450,560,.6)}
+   <g transform="translate(830,600)"><polygon points="-100,0 0,-90 100,0" fill="#2f6fe4"/><rect x="-82" y="0" width="164" height="120" fill="#f4f1e6"/><path d="M-34 120v-64a34 34 0 0 1 68 0v64z" fill="#3a2a1c"/>
+   <g class="fixed"><g transform="translate(0,124) scale(.75)">${kPupHead}</g></g></g>`},
+ {svc:'animal',need:58,pick:[58,26,28,25],ping:[480,700,170],heart:[480,500],
+  t:{spots:[[110,700,.9],[230,830,.9],[370,880,.9],[610,880,.9],[740,830,.9],[850,700,.9],[720,640,.8],[250,640,.8]],a:()=>kBucket,go:t=>[480-t.x,650-t.y],fade:true,badge:[0,-120],aim:30,hit:60},
+  scene:()=>`${kSky()}<rect y="500" width="1600" height="150" fill="#3f9ae0"/>${[...Array(8)].map((_,i)=>`<path d="M${i*200} ${540+i%3*30} q40 -12 80 0 t80 0" stroke="#fff" stroke-opacity=".5" stroke-width="5" fill="none"/>`).join('')}
+   <rect y="630" width="1600" height="270" fill="#f2d79b"/>
+   <g class="trouble"><g transform="translate(480,740)"><path d="M-130 0 Q-40 -74 86 -34 Q128 -22 138 -2 Q96 8 64 6 Q-20 22 -130 0z" fill="#7aa7c7"/><path d="M-10 -54 10 -96 32 -46z" fill="#6a97b7"/><path d="M-128 -2 -172 -32 -160 6 -176 36z" fill="#6a97b7"/><circle cx="92" cy="-22" r="5" fill="#15202a"/></g></g>
+   <g class="fixed"><g transform="translate(700,560) scale(.8)"><path d="M-130 0 Q-40 -74 86 -34 Q128 -22 138 -2 Q96 8 64 6 Q-20 22 -130 0z" fill="#7aa7c7"/><path d="M-10 -54 10 -96 32 -46z" fill="#6a97b7"/><circle cx="92" cy="-22" r="5" fill="#15202a"/><path d="M100 -6q10 4 20 0" stroke="#15202a" stroke-width="3" fill="none"/></g></g>`}
 ];
-const K={done:0,list:[],i:0,busy:false,last:-1};
-// keep the ground and the problem in view at any screen shape: wide screens show y 180-900 and more sky/ground at the sides; tall screens add sky on top
+const KSND={19:'heli',20:'heli',21:'heli',37:'heli',36:'prop',28:'horn2'};
+const KL={lvl:store.get('vg.klvl',5)};
+const K={done:0,list:[],i:0,busy:false,phase:'',next:1,recent:[]};
+const kBadge=(n,bx,by,k=1)=>`<g class="kb" transform="translate(${bx},${by}) scale(${k})"><circle r="38" fill="#ffc21a" stroke="#15202a" stroke-width="6"/><text y="17" text-anchor="middle" font-family="Saira Condensed,Arial Narrow,sans-serif" font-weight="800" font-size="52" fill="#15202a">${n}</text></g>`;
+// keep the ground and the problem in view at any screen shape: wide screens show y 180-900 and more at the sides; tall screens add sky on top
 function kAspect(){const s=$('#kSvg'),c=$('#kScene');if(!s||!c.clientHeight)return;const r=c.clientWidth/c.clientHeight;let x=0,y,w=1600,h;
   if(r>=1600/720){h=720;w=h*r;x=800-w/2;y=180}else{h=1600/r;y=900-h}s.setAttribute('viewBox',`${x} ${y} ${w} ${h}`)}
 const kWide=t=>t.replace('<rect width="1600" height="900"','<rect x="-2400" y="-1600" width="6400" height="2500"').replace(/<rect (?:x="0" )?y="(\d+)" width="1600"/g,'<rect x="-2400" y="$1" width="6400"');
+function kPick(q,N){const sp=typeof q.t.spots==='function'?q.t.spots():q.t.spots;N=Math.min(N,sp.length);let L;
+  if(q.t.path)L=Array.from({length:N},(_,k)=>{const i=N===1?sp.length-1:Math.round(k*(sp.length-1)/(N-1));return {i,n:k+1}});
+  else{const nums=shuffle(Array.from({length:N},(_,k)=>k+1));L=shuffle(sp.map((_,i)=>i)).slice(0,N).map((i,k)=>({i,n:nums[k]}))}
+  return L.map(o=>({...o,x:sp[o.i][0],y:sp[o.i][1],s:sp[o.i][2]||1}))}
 function kDeal(){const by={};KS.forEach((q,i)=>(by[q.svc]=by[q.svc]||[]).push(i));
-  let L=shuffle([...SVC.map(v=>pick(by[v.k])),pick(KS.map((_,i)=>i))]);if(L[0]===K.last)L.push(L.shift());
-  for(let a=1;a<L.length;a++)if(L[a]===L[a-1]){const b=(a+1)%L.length;[L[a],L[b]]=[L[b],L[a]]}
-  K.list=L;K.i=0;K.done=0;stars('#kStars',0)}
-function startCall(){if(!$('#kDispatch').children.length){$('#kDispatch').innerHTML=SVC.map(v=>`<button class="dbtn svc k-${v.k} press" data-k="${v.k}" aria-label="${v.lab}"><span class="tag">${v.n}</span><span class="ico" data-ic="${v.ic}"></span>${img(v.n)}</button>`).join('');icons($('#kDispatch'))}
-  kDeal();kRound()}
-function kRound(){const q=KS[K.list[K.i]];K.last=K.list[K.i];K.busy=false;K.q=q;const [px,py,pr]=q.ping;
-  $$('#kDispatch .dbtn').forEach(b=>b.classList.remove('dim','sel'));
-  const sc=$('#kScene');sc.classList.remove('solved');sc.style.background='#cfe9fb';
-  sc.innerHTML=`<svg class="fsvg" id="kSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">${FDEFS}${kWide(q.scene())}<circle class="ping" cx="${px}" cy="${py}" r="${pr}"/><g id="kFx"></g><image class="fveh" id="kVeh" x="${KPARK.x}" y="${KPARK.y}" width="${KPARK.w}" height="${KPARK.h}" href="" style="transform:translate(1100px,0px)"/></svg>`;
-  kAspect();setTimeout(()=>{if(cur==='call'&&!K.busy)sfx('alarm')},350)}
-$('#kDispatch').addEventListener('click',async e=>{const b=e.target.closest('.dbtn');if(!b||K.busy)return;const v=SVC.find(s=>s.k===b.dataset.k);
-  if(v.k!==K.q.svc){wiggle(b);sfx('soft');return}
-  K.busy=true;$$('#kDispatch .dbtn').forEach(x=>x.classList.toggle('dim',x!==b));b.classList.add('sel');
-  const im=$('#kVeh');im.setAttribute('href',THUMB[v.n]);void im.getBoundingClientRect();requestAnimationFrame(()=>requestAnimationFrame(()=>{im.style.transform='translate(0px,0px)'}));
-  sfx(v.snd);await wait(reduce?100:1400);if(cur!=='call')return;
-  $('#kScene').classList.add('solved');sfx('good');const [px,py]=K.q.ping;
-  $('#kFx').innerHTML=[[-60,0],[0,-30],[60,0]].map(([dx,dy],i)=>`<g class="hrt" style="animation-delay:${i*.18}s"><g transform="translate(${px+dx},${py+dy}) scale(.8)">${kHeart}</g></g>`).join('');
-  K.done++;stars('#kStars',K.done);popEl($('#kStars'));await wait(reduce?400:1900);if(cur!=='call')return;
-  if(K.done>=K.list.length)win(v.n,()=>{kDeal();kRound()});else{K.i++;kRound()}});
+  const L=shuffle(Object.values(by).map(a=>{const fresh=a.filter(i=>!K.recent.includes(i));return pick(fresh.length?fresh:a)}));
+  K.recent=L;K.list=L;K.i=0;K.done=0;kStars()}
+function kStars(){$('#kStars').innerHTML=K.list.map((_,i)=>`<i class="${i<K.done?'on':''}"></i>`).join('')}
+function startCall(){seg('#kLevels','l',KL.lvl);kDeal();kRound()}
+$('#kLevels').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;KL.lvl=+b.dataset.l;store.set('vg.klvl',KL.lvl);seg('#kLevels','l',KL.lvl);sfx('tap');kRound()});
+function kRound(){const q=K.q=KS[K.list[K.i]],T=K.T=kPick(q,KL.lvl),P=q.park||KPARK,D=q.t;K.phase='dispatch';K.busy=false;K.next=1;
+  const sc=$('#kScene');sc.className='fscene cscene';sc.style.background='#cfe9fb';const [px,py,pr]=q.ping;
+  const tg=T.slice().sort((a,b)=>a.y-b.y).map(t=>`<g class="kt${D.keep?' keep':''}${D.fade?' fade':''}" data-n="${t.n}" transform="translate(${t.x},${t.y}) scale(${t.s})"><circle cx="0" cy="${-(D.aim??50)}" r="${D.hit||85}" fill="#fff" opacity="0"/><g class="mv"><g class="ka">${D.a(t,T.length)}</g><g class="kz">${D.b?D.b(t,T.length):''}</g></g>${kBadge(t.n,...(D.badge||[0,-130]),Math.max(1,(D.bs||1.3)/t.s))}</g>`).join('');
+  const M=q.mover,mov=M?`<g id="kMov" style="transform:translate(${M.x}px,${M.y}px)"><g transform="scale(${M.s||1})">${M.svg()}</g></g>`:'';
+  sc.innerHTML=`<svg class="fsvg" id="kSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">${FDEFS}${kWide(q.scene())}<g id="kT">${tg}</g>${mov}<circle class="ping" cx="${px}" cy="${py}" r="${pr}"/><g id="kFx"></g><image class="fveh" id="kVeh" x="${P.x}" y="${P.y}" width="${P.w}" height="${P.h}" href="" style="transform:translate(1100px,0px)"/></svg>`;
+  kAspect();$('#kCount').textContent='0 / '+T.length;
+  $('#kDispatch').innerHTML=shuffle(q.pick.slice()).map(n=>`<button class="dbtn press" data-n="${n}" aria-label="${byN(n).name}"><span class="tag">${n}</span>${img(n)}</button>`).join('');
+  setTimeout(()=>{if(cur==='call'&&K.phase==='dispatch')sfx('alarm')},350)}
+$('#kDispatch').addEventListener('click',async e=>{const b=e.target.closest('.dbtn');if(!b||K.phase!=='dispatch')return;const n=+b.dataset.n;
+  if(n!==K.q.need){wiggle(b);sfx('soft');return}
+  K.phase='go';const q=K.q;$$('#kDispatch .dbtn').forEach(x=>x.classList.toggle('dim',x!==b));b.classList.add('sel');
+  const im=$('#kVeh');im.setAttribute('href',THUMB[n]);void im.getBoundingClientRect();requestAnimationFrame(()=>requestAnimationFrame(()=>{im.style.transform='translate(0px,0px)'}));
+  sfx(KSND[n]||'siren');await wait(reduce?100:1400);if(cur!=='call'||K.q!==q||K.phase!=='go')return;
+  $('#kScene').classList.add('work');K.phase='work'});
+$('#kScene').addEventListener('click',async e=>{const g=e.target.closest('.kt');if(!g||K.phase!=='work'||K.busy)return;const n=+g.dataset.n;
+  if(n!==K.next){const b=g.querySelector('.kb');b.classList.remove('wiggle');void b.getBoundingClientRect();b.classList.add('wiggle');sfx('soft');return}
+  K.busy=true;K.next++;const q=K.q,D=q.t,t=K.T.find(o=>o.n===n),P=q.park||KPARK,fx=$('#kFx'),ty=t.y-(D.aim??50)*t.s,im=$('#kVeh');
+  const streams=ds=>ds.map(d=>`<path class="stream under" d="${d}"/><path class="stream" d="${d}"/>`).join('');
+  if(D.fx==='spray'){const nx=P.x+P.w*q.noz[0],ny=P.y+P.h*q.noz[1];fx.innerHTML=streams([`M${nx} ${ny} Q${(nx+t.x)/2} ${Math.min(ny,ty)-220} ${t.x} ${ty}`]);sfx('water');await wait(reduce?100:800)}
+  else if(D.fx==='drop'){const bx=P.x+P.w*q.belly[0],by=P.y+P.h*q.belly[1],dx=t.x-bx,dy=Math.max(-P.y,(ty-250)-by);im.classList.add('go');im.style.transform=`translate(${dx}px,${dy}px)`;await wait(reduce?60:950);
+    const y0=by+dy,x=t.x;fx.innerHTML=streams([`M${x-14} ${y0} L${x-34} ${ty}`,`M${x} ${y0} L${x} ${ty+10}`,`M${x+14} ${y0} L${x+34} ${ty}`]);sfx('water');await wait(reduce?100:800)}
+  else if(D.fx==='fly'){const [ox,oy]=D.off||[0,-250],hx=t.x+ox,hy=t.y+oy;im.classList.add('go');im.style.transform=`translate(${hx-(P.x+P.w/2)}px,${hy-(P.y+P.h/2)}px)`;fx.innerHTML='';await wait(reduce?60:950);
+    if(D.beam)fx.innerHTML=`<polygon points="${hx-18},${hy+P.h*.18} ${hx+18},${hy+P.h*.18} ${t.x+125},${t.y-20} ${t.x-125},${t.y-20}" fill="#fff6b0" opacity=".5"/>`}
+  else if(D.fx==='hop'){const [ox,oy]=D.off||[0,0];$('#kMov').style.transform=`translate(${t.x+ox}px,${t.y+oy}px)`;sfx('tap');await wait(reduce?60:650)}
+  g.classList.add('ok');if(D.go){const [dx,dy]=typeof D.go==='function'?D.go(t,q):D.go;g.querySelector('.mv').style.transform=`translate(${dx/t.s}px,${dy/t.s}px)`}
+  sfx('tick',n);$('#kCount').textContent=(K.next-1)+' / '+K.T.length;popEl($('#kCount'));
+  await wait(reduce?150:(D.go?800:450));if(D.fx!=='fly')fx.innerHTML='';K.busy=false;if(K.next>K.T.length)kFinish()});
+async function kFinish(){K.phase='done';const q=K.q,P=q.park||KPARK,sc=$('#kScene'),fx=$('#kFx');fx.innerHTML='';sc.classList.add('solved');sfx('good');
+  if(q.end){const m=$('#kMov');if(m)m.style.transform=`translate(${q.end[0]}px,${q.end[1]}px)`}
+  const [hx,hy]=q.heart;fx.innerHTML=[[-60,0],[0,-30],[60,0]].map(([dx,dy],i)=>`<g class="hrt" style="animation-delay:${i*.18}s"><g transform="translate(${hx+dx},${hy+dy}) scale(.8)">${kHeart}</g></g>`).join('');
+  if(P.air)setTimeout(()=>{const im=$('#kVeh');if(im){im.classList.add('go');im.style.transform='translate(-1700px,-140px)'}},900);
+  K.done++;kStars();popEl($('#kStars'));await wait(reduce?500:2300);if(cur!=='call'||K.q!==q)return;
+  if(K.done>=K.list.length)win(q.need,()=>{kDeal();kRound()});else{K.i++;kRound()}}
 
 /* ---------- fire rescue ---------- */
 const FR={lvl:store.get('vg.flames',5),m:store.get('vg.fmis',0),next:1,phase:'',busy:false};
