@@ -91,7 +91,7 @@ img{-webkit-user-drag:none;user-select:none}
 /* ---------- explore ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(120px,17vmin,170px),1fr));gap:var(--gap);width:100%;padding:0 clamp(12px,2.4vw,28px) 24px}
 .grid .card{aspect-ratio:1}
-.orbit{--k:max(.55px,min(1.1px,calc((100vw - 80px) / 1200)));width:100%;overflow-x:auto;padding:10px clamp(12px,2.4vw,28px) 24px;flex:1;display:flex;align-items:center}
+.orbit{--k:max(.68px,min(1.1px,calc((100vw - 80px) / 1380)));width:100%;overflow-x:auto;padding:10px clamp(12px,2.4vw,28px) 24px;flex:1;display:flex;align-items:center}
 .orbit-inner{display:flex;align-items:flex-start;gap:clamp(6px,1.2vw,14px);min-width:max-content}
 .orbit .col{display:flex;flex-direction:column;align-items:center;gap:10px}
 .orbit .pl{position:relative;display:flex;align-items:center;justify-content:center}
@@ -232,6 +232,46 @@ img{-webkit-user-drag:none;user-select:none}
   .home-hero .juniper{height:70%;right:4px}
   .topchips{top:auto;bottom:10px;left:12px;right:auto}
 }
+
+/* ---------- celebrations ---------- */
+.spark{position:fixed;z-index:80;pointer-events:none;animation:spark .85s ease-out forwards}
+.spark svg{width:100%;height:100%}
+@keyframes spark{0%{transform:translate(0,0) scale(.4) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1) rotate(var(--rot));opacity:0}}
+.shower{position:fixed;inset:0;width:100vw;height:100vh;z-index:70;pointer-events:none}
+.win .crew{display:flex;align-items:flex-end;gap:clamp(6px,2vw,24px)}
+.win .crew .guide{width:min(170px,26vw);animation:hop .9s ease-in-out infinite alternate}
+.win .crew .guide.lead{width:min(250px,36vw)}
+@keyframes hop{0%{transform:translateY(0) rotate(-2deg)}100%{transform:translateY(-18px) rotate(2deg)}}
+.win .milestone{font-family:var(--title);font-weight:600;font-size:clamp(26px,4.4vmin,40px);background:var(--peach);color:var(--indigo);border-radius:999px;padding:6px 22px}
+@media (prefers-reduced-motion:reduce){.win .crew .guide{animation:none}}
+
+/* ---------- more explore ---------- */
+.grouphead{display:flex;align-items:center;gap:12px;padding:6px clamp(12px,2.4vw,28px) 10px;font-family:var(--title);font-size:clamp(20px,3vmin,28px);color:var(--muted)}
+.grouphead .face{width:46px;height:52px;border-radius:12px;overflow:hidden;background:var(--indigo-3)}
+.grouphead .face img{width:100%;height:100%;object-fit:cover;object-position:top}
+.orbit .beltpic{width:100%;height:100%;border-radius:16px;object-fit:cover}
+.orbit .moons .beltpic{border-radius:50%}
+
+/* ---------- line them up modes ---------- */
+.modes{display:flex;gap:10px;justify-content:center;padding:0 16px 6px}
+.mode{width:clamp(84px,12vmin,110px);height:62px;border-radius:16px;background:var(--indigo-3);display:flex;align-items:center;justify-content:center;padding:6px}
+.mode svg{width:100%;height:100%}
+.mode.on{background:var(--deep);box-shadow:inset 0 0 0 3px var(--peach)}
+.sizecue{flex:0 0 auto;width:clamp(56px,8vw,90px);opacity:.7}
+.homes{display:flex;flex-wrap:wrap;gap:var(--gap);justify-content:center;width:100%}
+.home-planet{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border-radius:20px;background:var(--indigo-2);min-width:clamp(110px,15vmin,160px)}
+.home-planet .hp{width:clamp(90px,13vmin,130px);aspect-ratio:1}
+.home-planet .hp img{width:100%;height:100%}
+.moonslots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:150px}
+.mslot{width:clamp(44px,6.4vmin,60px);aspect-ratio:1;border-radius:50%;border:3px dashed var(--lav)}
+.mslot:not(:empty){border-color:transparent}
+.mslot img{width:100%;height:100%}
+.ptile.small{width:clamp(66px,9.6vmin,92px)}
+
+/* ---------- star pictures ---------- */
+.cgames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);padding:0 clamp(12px,2.4vw,28px) var(--gap);max-width:700px}
+.pad .padbg{position:absolute;inset:0;width:100%;height:100%;border-radius:var(--r)}
+.ctarget{width:min(38vmin,300px);aspect-ratio:1}
 </style>
 </head>
 <body>
@@ -431,7 +471,10 @@ const SPACE = (() => {
   P.moon = (ctx, S) => {
     starfield(ctx, S, 51);
     const cr = craters(19, 120, 0.015, 0.16);
-    sphere(ctx, S, S / 2, S / 2, S * 0.32, (x, y, z) => {
+    sphere(ctx, S, S / 2, S / 2, S * 0.32, moonTex(cr), { limb: 0.05, amb: 0.03 });
+  };
+  function moonTex(cr) {
+    return (x, y, z) => {
       const m = fbm(x * 1.6, y * 1.6 + 1, z * 1.6, 4, 4);
       const mare = sstep(0.0, 0.14, m) * (0.3 + 0.7 * sstep(-0.75, -0.4, y));
       let v = 0.72 + fbm(x * 9, y * 9, z * 9, 4, 8) * 0.12 - mare * 0.32 + craterShade(cr, x, y, z) * 0.9;
@@ -439,8 +482,8 @@ const SPACE = (() => {
       const tdx = x - 0.12, tdy = y + 0.72; const td = Math.hypot(tdx, tdy);
       if (td < 0.06) v += 0.16; else if (td < 0.14) v += 0.05;
       return [v, v * 0.98, v * 0.94];
-    }, { limb: 0.05, amb: 0.03 });
-  };
+    };
+  }
   P.mars = (ctx, S) => {
     starfield(ctx, S, 61);
     const cr = craters(23, 25, 0.02, 0.09);
@@ -639,29 +682,31 @@ const SPACE = (() => {
     glow(ctx, hx, hy, S * 0.035, '#ffffff');
     ctx.restore();
   };
-  P.asteroid = (ctx, S) => {
-    starfield(ctx, S, 201);
-    const cx = S / 2, cy = S / 2, R = S * 0.3, cr = craters(51, 50, 0.03, 0.2);
+  P.asteroid = (ctx, S) => { starfield(ctx, S, 201); lumpy(ctx, S, { seed: 51, R: 0.3 }); };
+  function lumpy(ctx, S, o) {
+    const cx = S / 2, cy = S / 2, R = S * o.R, cr = craters(o.seed, o.nCr || 50, 0.03, 0.2), sx = o.sx || 1, sy = o.sy || 1, col = o.col || [0.95, 0.88, 0.8], lump = o.lump ?? 0.16;
+    const big = o.big; // one big crater [x,y,r] in unit coords
     const img = ctx.getImageData(0, 0, S, S), d = img.data;
     const L = [-0.6, 0.45, 0.65];
     for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
-      const dx = (px - cx) / R, dy = -(py - cy) / R, a = Math.atan2(dy, dx);
-      const rad = 1 + 0.16 * vn(Math.cos(a) * 1.4, Math.sin(a) * 1.4, 0, 5) + 0.06 * vn(Math.cos(a) * 4, Math.sin(a) * 4, 0, 6);
+      const dx = (px - cx) / R / sx, dy = -(py - cy) / R / sy, a = Math.atan2(dy, dx);
+      const rad = 1 + lump * vn(Math.cos(a) * 1.4, Math.sin(a) * 1.4, 0, 5 + o.seed) + 0.06 * vn(Math.cos(a) * 4, Math.sin(a) * 4, 0, 6);
       const nx = dx / rad, ny = dy / rad, rr = nx * nx + ny * ny; if (rr >= 1) continue;
       const edge = clamp((1 - Math.sqrt(rr)) * R + 0.3, 0, 1);
       const nz = Math.sqrt(1 - rr);
       const bump = fbm(nx * 4, ny * 4, nz * 4, 4, 7) * 0.5;
       const ex = nx + bump * 0.3, ey = ny + bump * 0.3;
       const dot = (ex * L[0] + ey * L[1] + nz * L[2]);
-      let v = 0.5 + fbm(nx * 8, ny * 8, nz * 8, 3, 3) * 0.12 + craterShade(cr, nx, ny, nz);
+      let v = (o.base ?? 0.5) + fbm(nx * 8, ny * 8, nz * 8, 3, 3) * 0.12 + craterShade(cr, nx, ny, nz);
+      if (big) { const bd = Math.hypot(nx - big[0], ny - big[1]) / big[2]; if (bd < 1) v -= 0.16 * (1 - bd * bd); else if (bd < 1.3) v += 0.1 * Math.sin((bd - 1) / 0.3 * Math.PI); }
       const sh = 0.03 + 0.97 * sstep(-0.1, 0.9, dot);
       const i = (py * S + px) * 4;
-      const r = v * 0.95 * sh, g = v * 0.88 * sh, b = v * 0.8 * sh;
+      const r = v * col[0] * sh, g = v * col[1] * sh, b = v * col[2] * sh;
       d[i] += (r * 255 - d[i]) * edge; d[i + 1] += (g * 255 - d[i + 1]) * edge; d[i + 2] += (b * 255 - d[i + 2]) * edge;
       if (BARE) { const k = Math.max(sh, 0.32 + 0.68 * sh); d[i] = r / sh * k * 255; d[i + 1] = g / sh * k * 255; d[i + 2] = b / sh * k * 255; d[i + 3] = edge * 255; }
     }
     ctx.putImageData(img, 0, 0);
-  };
+  }
   P.meteor = (ctx, S) => {
     // night sky over dark hills
     const g = ctx.createLinearGradient(0, 0, 0, S);
@@ -893,6 +938,220 @@ const SPACE = (() => {
     for (const a of [2.4, 4.1, 5.6]) { ctx.beginPath(); ctx.arc(cx + Math.cos(a) * R * 1.01, cy + Math.sin(a) * R * 1.01, R * 0.05, 0, 6.2832); ctx.fill(); }
   };
 
+
+  // ---------- more moons ----------
+  P.phobos = (ctx, S) => { starfield(ctx, S, 401); lumpy(ctx, S, { seed: 61, R: 0.24, sx: 1.35, sy: 0.95, lump: 0.1, col: [0.92, 0.82, 0.74], base: 0.42, big: [0.45, 0.1, 0.32] }); };
+  P.ganymede = (ctx, S) => {
+    starfield(ctx, S, 411);
+    const cr = craters(71, 60, 0.015, 0.06);
+    sphere(ctx, S, S / 2, S / 2, S * 0.33, (x, y, z) => {
+      const dark = sstep(0.0, 0.15, fbm(x * 1.8, y * 1.8, z * 1.8, 4, 31));
+      const groove = (1 - Math.abs(vn(x * 7, y * 7, z * 7, 13))) > 0.93 ? 0.06 : 0;
+      let v = 0.62 - dark * 0.22 + groove + craterShade(cr, x, y, z) * 0.8;
+      return [v * 0.95, v * 0.88, v * 0.78];
+    }, { limb: 0.15 });
+  };
+  P.callisto = (ctx, S) => {
+    starfield(ctx, S, 421);
+    const cr = craters(81, 160, 0.01, 0.07);
+    sphere(ctx, S, S / 2, S / 2, S * 0.31, (x, y, z) => {
+      let v = 0.3 + fbm(x * 4, y * 4, z * 4, 4, 9) * 0.1;
+      for (const c of cr) { const dt = x * c[0] + y * c[1] + z * c[2]; if (dt > Math.cos(c[3] * 0.5)) v += 0.35; else if (dt > Math.cos(c[3])) v += 0.08; }
+      return [v * 0.9, v * 0.82, v * 0.72];
+    }, { limb: 0.15 });
+  };
+  P.enceladus = (ctx, S) => {
+    starfield(ctx, S, 431);
+    const cr = craters(91, 40, 0.015, 0.05);
+    sphere(ctx, S, S / 2, S * 0.45, S * 0.27, (x, y, z) => {
+      let v = 0.92 + fbm(x * 5, y * 5, z * 5, 3, 3) * 0.06 + (y > -0.3 ? craterShade(cr, x, y, z) * 0.6 : 0);
+      let col = [v * 0.97, v * 0.99, v];
+      if (y < -0.5) { const st = Math.abs(Math.sin((z * 1.0 + x * 0.35) * 16 + fbm(x * 3, y, z * 3, 2, 5) * 2.5)); if (st < 0.14) col = mix(col, [0.5, 0.7, 0.88], sstep(-0.5, -0.65, y) * 0.8); }
+      return col;
+    }, { limb: 0.1, rim: [0.8, 0.9, 1], rimS: 0.4 });
+    // water geysers from the south pole
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 4; k++) { const x = S * (0.44 + k * 0.04); for (let t = 0; t < 30; t++) glow(ctx, x + (k - 1.5) * t * 0.6, S * 0.72 + t * S * 0.006, S * (0.01 + t * 0.0012), 'rgba(200,225,255,1)', 0.05 * (1 - t / 30)); }
+    ctx.restore();
+  };
+  P.triton = (ctx, S) => {
+    starfield(ctx, S, 441);
+    sphere(ctx, S, S / 2, S / 2, S * 0.29, (x, y, z) => {
+      const cant = Math.abs(vn(x * 9, y * 9, z * 9, 7)) < 0.08 ? -0.08 : 0;
+      let col = mix([0.78, 0.7, 0.66], [0.9, 0.84, 0.8], fbm(x * 5, y * 5, z * 5, 4, 3) * 0.5 + 0.5);
+      if (y < -0.25 + fbm(x * 3, 0, z * 3, 3, 9) * 0.15) col = mix(col, [0.96, 0.86, 0.84], 0.8);
+      return [col[0] + cant, col[1] + cant, col[2] + cant];
+    }, { limb: 0.15 });
+  };
+  P.charon = (ctx, S) => {
+    starfield(ctx, S, 451);
+    const cr = craters(101, 50, 0.015, 0.06);
+    sphere(ctx, S, S / 2, S / 2, S * 0.28, (x, y, z) => {
+      let col = mix([0.55, 0.53, 0.52], [0.72, 0.7, 0.68], fbm(x * 4, y * 4, z * 4, 4, 3) * 0.5 + 0.5);
+      const v = craterShade(cr, x, y, z) * 0.6; col = [col[0] + v, col[1] + v, col[2] + v];
+      col = mix(col, [0.45, 0.22, 0.14], sstep(0.5, 0.75, y + fbm(x * 4, 0, z * 4, 3, 7) * 0.12) * 0.8);
+      return col;
+    }, { limb: 0.15 });
+  };
+  // ---------- the Moon in different looks ----------
+  P.crescent = (ctx, S) => { starfield(ctx, S, 461); sphere(ctx, S, S / 2, S / 2, S * 0.32, moonTex(craters(19, 120, 0.015, 0.16)), { limb: 0.05, amb: 0.012, light: [0.72, 0.12, -0.75] }); };
+  P.halfmoon = (ctx, S) => { starfield(ctx, S, 471); sphere(ctx, S, S / 2, S / 2, S * 0.32, moonTex(craters(19, 120, 0.015, 0.16)), { limb: 0.05, amb: 0.012, light: [1, 0.04, 0.02] }); };
+  P.lunareclipse = (ctx, S) => {
+    starfield(ctx, S, 481, 1.3);
+    const t = moonTex(craters(19, 120, 0.015, 0.16));
+    sphere(ctx, S, S / 2, S / 2, S * 0.32, (x, y, z, nx, ny) => { const c = t(x, y, z); const edge = sstep(0.2, 1, nx * 0.7 + ny * 0.4); return [c[0] * (0.62 + edge * 0.3), c[1] * (0.22 + edge * 0.18), c[2] * (0.12 + edge * 0.08)]; }, { emissive: true, limb: 0.3 });
+  };
+  // ---------- more deep sky ----------
+  P.asteroidbelt = (ctx, S) => {
+    starfield(ctx, S, 491, 0.8);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(ctx, S * 0.05, S * 0.95, S * 0.3, 'rgba(255,200,110,0.9)'); glow(ctx, S * 0.05, S * 0.95, S * 0.12, '#fff6dd'); ctx.restore();
+    const r = rng(497);
+    for (let i = 0; i < 170; i++) {
+      const t = r(), off = (r() - 0.5) * 0.32 + (r() - 0.5) * 0.12;
+      const x = S * (0.05 + t * 1.0) + off * S * 0.4, y = S * (0.92 - t * 0.85) + off * S * 0.6;
+      const sz = S * (0.006 + Math.pow(r(), 4) * 0.045);
+      ctx.save(); ctx.translate(x, y); ctx.rotate(r() * 6.28);
+      const g = ctx.createRadialGradient(-sz * 0.4, sz * 0.4, 0, 0, 0, sz * 1.2);
+      const k = 0.5 + r() * 0.4; g.addColorStop(0, `rgb(${200 * k | 0},${180 * k | 0},${150 * k | 0})`); g.addColorStop(1, `rgb(${40 * k | 0},${34 * k | 0},${28 * k | 0})`);
+      ctx.fillStyle = g; ctx.beginPath();
+      for (let a = 0; a < 7; a++) { const rr = sz * (0.7 + r() * 0.5), an = a / 7 * 6.283; a ? ctx.lineTo(Math.cos(an) * rr * 1.3, Math.sin(an) * rr) : ctx.moveTo(Math.cos(an) * rr * 1.3, Math.sin(an) * rr); }
+      ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+  };
+  P.milkyway = (ctx, S) => {
+    const g = ctx.createLinearGradient(0, 0, 0, S); g.addColorStop(0, '#03040f'); g.addColorStop(0.8, '#101a3a'); g.addColorStop(1, '#1d2a52');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data, r = rng(501);
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = px / S, y = py / S, u = (x - y * 0.9 - 0.05), dist = Math.abs(u) / 0.16;
+      const band = Math.exp(-dist * dist) * (0.55 + 0.5 * fbm(x * 6, y * 6, 0, 5, 3));
+      const dust = sstep(0.1, 0.4, fbm(x * 9 + 2, y * 9, 1, 5, 7)) * Math.exp(-Math.pow(u / 0.05, 2));
+      const core = Math.exp(-Math.pow((x - 0.35) / 0.18, 2) - Math.pow((y - 0.35) / 0.18, 2));
+      let I = band * (1 - dust * 0.85) * (0.6 + core * 0.8);
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + I * 200); d[i + 1] = Math.min(255, d[i + 1] + I * 175); d[i + 2] = Math.min(255, d[i + 2] + I * 200);
+      if (r() < 0.004 + band * 0.04) { const b = 120 + r() * 135; d[i] = Math.min(255, d[i] + b); d[i + 1] = Math.min(255, d[i + 1] + b); d[i + 2] = Math.min(255, d[i + 2] + b); }
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.fillStyle = '#070b18'; ctx.beginPath(); ctx.moveTo(0, S);
+    for (let x = 0; x <= S; x += S / 80) ctx.lineTo(x, S * 0.86 - Math.sin(x / S * 3 + 0.5) * S * 0.04 - vn(x / S * 7, 0, 0, 2) * S * 0.02);
+    ctx.lineTo(S, S); ctx.fill();
+  };
+  function spiral(ctx, S, o) {
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    const ang = o.ang, ca = Math.cos(ang), sa = Math.sin(ang);
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x0 = (px - S * o.cx) / S * o.zoom, y0 = (py - S * o.cy) / S * o.zoom;
+      const x = x0 * ca - y0 * sa, y = (x0 * sa + y0 * ca) / o.incl;
+      const r = Math.hypot(x, y), th = Math.atan2(y, x);
+      if (r > 0.8) continue;
+      const ph = 2 * (th - Math.log(r + 0.02) * o.wind);
+      const arm = Math.cos(ph) * 0.5 + 0.5, n = fbm(x * 10, y * 10, 0.5, 4, o.seed) * 0.5 + 0.5;
+      const disk = Math.exp(-r / o.scale) * (0.15 + 1.2 * Math.pow(arm, 3) * (0.6 + n * 0.7));
+      const bulge = Math.exp(-(r * r) / 0.003);
+      const dust = sstep(0.8, 0.97, Math.cos(ph + 0.7) * 0.5 + 0.5) * sstep(0.03, 0.08, r);
+      const pink = Math.pow(arm, 6) * sstep(0.62, 0.8, n) * Math.exp(-r / 0.25);
+      let I = (disk * 1.4 + bulge * 1.5) * (1 - dust * 0.7);
+      const warm = clamp(bulge * 2 + Math.exp(-r / 0.05), 0, 1);
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + (I * (0.72 + 0.28 * warm) + pink * 0.8) * 230);
+      d[i + 1] = Math.min(255, d[i + 1] + (I * (0.78 + 0.12 * warm) + pink * 0.25) * 230);
+      d[i + 2] = Math.min(255, d[i + 2] + (I * (1 - 0.35 * warm) + pink * 0.45) * 230);
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  P.whirlpool = (ctx, S) => {
+    starfield(ctx, S, 511, 1.1);
+    spiral(ctx, S, { ang: 0.3, incl: 0.85, zoom: 0.75, cx: 0.46, cy: 0.5, wind: 3.2, scale: 0.16, seed: 4 });
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, S * 0.76, S * 0.2, S * 0.09, 'rgba(255,220,170,0.6)'); glow(ctx, S * 0.76, S * 0.2, S * 0.035, 'rgba(255,240,210,1)');
+    ctx.restore();
+  };
+  P.sombrero = (ctx, S) => {
+    starfield(ctx, S, 521, 1.1);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data, ang = -0.08, ca = Math.cos(ang), sa = Math.sin(ang);
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x0 = (px - S / 2) / S, y0 = (py - S / 2) / S;
+      const x = x0 * ca - y0 * sa, y = x0 * sa + y0 * ca;
+      const bulge = Math.exp(-(x * x / 0.03 + y * y / 0.012));
+      const disk = Math.exp(-Math.abs(x) / 0.14) * Math.exp(-Math.pow(y / 0.03, 2)) * (Math.abs(x) < 0.42 ? 1 : 0);
+      const lane = Math.exp(-Math.pow((y - 0.012 + x * x * 0.05) / 0.012, 2)) * sstep(0.42, 0.3, Math.abs(x));
+      const rim = Math.exp(-Math.pow((y - 0.03) / 0.008, 2)) * sstep(0.4, 0.2, Math.abs(x)) * 0.35;
+      let I = (bulge * 1.3 + disk * 0.9) * (1 - lane * 0.92) + rim;
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + I * 255); d[i + 1] = Math.min(255, d[i + 1] + I * 235); d[i + 2] = Math.min(255, d[i + 2] + I * 200);
+    }
+    ctx.putImageData(img, 0, 0);
+  };
+  P.ringnebula = (ctx, S) => {
+    starfield(ctx, S, 531, 1.3);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = (px - S / 2) / S / 1.15, y = (py - S / 2) / S, r = Math.hypot(x, y), a = Math.atan2(y, x);
+      const n = fbm(Math.cos(a) * 3, Math.sin(a) * 3, r * 8, 4, 5) * 0.5 + 0.5;
+      const ring = Math.exp(-Math.pow((r - 0.21) / (0.06 + n * 0.02), 2));
+      const outer = Math.exp(-Math.pow((r - 0.27) / 0.035, 2)) * n;
+      const inner = Math.exp(-Math.pow(r / 0.16, 2)) * 0.55;
+      const R = ring * 0.4 + outer * 1.1 + inner * 0.25, G = ring * 0.85 + outer * 0.35 + inner * 0.6, B = ring * 0.7 + inner * 0.95 + outer * 0.2;
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + R * 255); d[i + 1] = Math.min(255, d[i + 1] + G * 255); d[i + 2] = Math.min(255, d[i + 2] + B * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+    brightStar(ctx, S / 2, S / 2, S * 0.006, '#ffffff', 'rgba(200,220,255,1)', false);
+  };
+  P.horsehead = (ctx, S) => {
+    starfield(ctx, S, 541, 1.2);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = px / S, y = py / S;
+      const n = fbm(x * 4, y * 4, 0, 5, 9) * 0.5 + 0.5, streak = fbm(x * 2, y * 8, 1, 4, 3) * 0.5 + 0.5;
+      const glowI = sstep(0.95, 0.35, y) * (0.45 + n * 0.6) * (0.7 + streak * 0.4) * sstep(0.0, 0.35, y + 0.1);
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + glowI * 230); d[i + 1] = Math.min(255, d[i + 1] + glowI * 55); d[i + 2] = Math.min(255, d[i + 2] + glowI * 85);
+    }
+    ctx.putImageData(img, 0, 0);
+    // the dark horse head and neck rising from the dust below
+    ctx.save(); ctx.shadowColor = 'rgba(20,4,8,1)'; ctx.shadowBlur = S * 0.03; ctx.fillStyle = '#12060a';
+    const p = (x, y) => [x * S, y * S];
+    ctx.beginPath();
+    ctx.moveTo(...p(0.36, 1.05));
+    ctx.bezierCurveTo(...p(0.42, 0.86), ...p(0.47, 0.74), ...p(0.46, 0.64));  // front of the neck
+    ctx.bezierCurveTo(...p(0.45, 0.69), ...p(0.38, 0.69), ...p(0.34, 0.66));  // round jaw
+    ctx.bezierCurveTo(...p(0.3, 0.65), ...p(0.27, 0.64), ...p(0.25, 0.62));   // muzzle drooping down
+    ctx.bezierCurveTo(...p(0.22, 0.6), ...p(0.21, 0.55), ...p(0.24, 0.53));   // blunt nose
+    ctx.bezierCurveTo(...p(0.3, 0.48), ...p(0.38, 0.4), ...p(0.43, 0.33));    // face up to the forehead
+    ctx.lineTo(...p(0.45, 0.27)); ctx.lineTo(...p(0.49, 0.31));                 // small ear
+    ctx.bezierCurveTo(...p(0.54, 0.34), ...p(0.57, 0.42), ...p(0.57, 0.52));  // back of the head
+    ctx.bezierCurveTo(...p(0.6, 0.66), ...p(0.7, 0.78), ...p(0.86, 0.83));    // mane down to the shoulder
+    ctx.lineTo(...p(1.05, 0.85)); ctx.lineTo(...p(1.05, 1.05)); ctx.closePath(); ctx.fill();
+    ctx.fillRect(0, S * 0.9, S, S * 0.1);
+    ctx.restore();
+    brightStar(ctx, S * 0.8, S * 0.14, S * 0.012, '#ffffff', 'rgba(190,210,255,1)');
+  };
+  P.quasar = (ctx, S) => {
+    starfield(ctx, S, 551, 1.1);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ctx.translate(S / 2, S / 2); ctx.rotate(-0.5);
+    glow(ctx, 0, 0, S * 0.3, 'rgba(160,140,255,0.25)');
+    for (const dir of [-1, 1]) for (let t = 0; t < 50; t++) glow(ctx, dir * t * S * 0.0015, dir * t * S * 0.009, S * (0.016 + t * 0.0005), 'rgba(110,180,255,1)', 0.45 * (1 - t / 50));
+    ctx.restore();
+    brightStar(ctx, S / 2, S / 2, S * 0.03, '#ffffff', 'rgba(200,210,255,1)');
+  };
+  P.solarflare = (ctx, S) => {
+    const g = ctx.createLinearGradient(0, 0, 0, S); g.addColorStop(0, '#05030a'); g.addColorStop(1, '#170806'); ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(ctx, S * 0.2, S * 1.3, S * 1.05, 'rgba(255,120,30,0.45)'); ctx.restore();
+    sphere(ctx, S, S * 0.2, S * 1.3, S * 0.9, (x, y, z) => mix([1, 0.5, 0.08], [1, 0.85, 0.4], fbm(x * 30, y * 30, z * 30, 3, 3) * 0.5 + 0.5), { emissive: true, limb: 0.45, emi: 1.05 });
+    // glowing loops and a bright flash at the edge
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    const loops = [[0.52, 0.55, 0.16, 0.22], [0.6, 0.6, 0.11, 0.15], [0.44, 0.52, 0.08, 0.1]];
+    for (const [x, y, w, h] of loops) for (const [lw, a] of [[S * 0.09, 0.08], [S * 0.05, 0.16], [S * 0.025, 0.3], [S * 0.01, 0.5]]) {
+      ctx.strokeStyle = `rgba(255,${90 + a * 160 | 0},40,${a})`; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.ellipse(S * x, S * y, S * w, S * h, -0.6, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+    }
+    glow(ctx, S * 0.56, S * 0.5, S * 0.12, 'rgba(255,240,200,0.9)');
+    ctx.restore();
+  };
+
   function draw(kind, size, bare = false) {
     const c = document.createElement('canvas'); c.width = c.height = size;
     const ctx = c.getContext('2d', { willReadFrequently: true });
@@ -900,51 +1159,160 @@ const SPACE = (() => {
     try { P[kind](ctx, size); } finally { BARE = false; }
     return c;
   }
-  return { draw, kinds: Object.keys(P).filter(k => P[k]) };
+  return { draw, kinds: Object.keys(P).filter(k => P[k]), starfield, brightStar, rng };
 })();
 
 // ===== Everett's Observatory: the item set (every game reads this) =====
 // word = what the letter tiles spell; name = proper name shown under the tiles when it differs.
 // fact = one line for a grown-up to read aloud. Checked Nov 2026.
-const ITEMS = [
+const ITEMS_RAW = [
   // The Sun's Family (Pip)
-  { n: 1, id: 'sun', word: 'Sun', name: 'The Sun', group: 'sun', fact: 'Our star: a giant ball of hot, glowing gas.' },
-  { n: 2, id: 'mercury', word: 'Mercury', group: 'sun', planet: 1, fact: 'The planet closest to the Sun.' },
-  { n: 3, id: 'venus', word: 'Venus', group: 'sun', planet: 2, fact: 'The hottest planet, wrapped in thick clouds.' },
-  { n: 4, id: 'earth', word: 'Earth', group: 'sun', planet: 3, fact: 'Our home planet.' },
-  { n: 5, id: 'moon', word: 'Moon', name: 'The Moon', group: 'sun', moonOf: 'earth', fact: 'Earth’s moon. People have walked on it.' },
-  { n: 6, id: 'mars', word: 'Mars', group: 'sun', planet: 4, fact: 'The red planet. Its dust is rusty, which makes it red.' },
-  { n: 7, id: 'jupiter', word: 'Jupiter', group: 'sun', planet: 5, fact: 'The biggest planet. Its Great Red Spot is a giant storm.' },
-  { n: 8, id: 'saturn', word: 'Saturn', group: 'sun', planet: 6, fact: 'Famous for its rings of ice and rock.' },
-  { n: 9, id: 'uranus', word: 'Uranus', group: 'sun', planet: 7, fact: 'It spins tipped over on its side.' },
-  { n: 10, id: 'neptune', word: 'Neptune', group: 'sun', planet: 8, fact: 'The planet farthest from the Sun, with the fastest winds.' },
-  { n: 11, id: 'pluto', word: 'Pluto', group: 'sun', planet: 9, dwarf: true, fact: 'A dwarf planet with a bright, heart-shaped patch of ice.' },
-  { n: 12, id: 'io', word: 'Io', group: 'sun', moonOf: 'jupiter', fact: 'A moon of Jupiter, covered in volcanoes.' },
-  { n: 13, id: 'europa', word: 'Europa', group: 'sun', moonOf: 'jupiter', fact: 'An icy moon of Jupiter. Scientists think an ocean hides under the ice.' },
-  { n: 14, id: 'titan', word: 'Titan', group: 'sun', moonOf: 'saturn', fact: 'Saturn’s biggest moon, wrapped in orange haze.' },
+  { id: 'sun', word: 'Sun', name: 'The Sun', group: 'sun', fact: 'Our star: a giant ball of hot, glowing gas.' },
+  { id: 'mercury', word: 'Mercury', group: 'sun', planet: 1, fact: 'The planet closest to the Sun.' },
+  { id: 'venus', word: 'Venus', group: 'sun', planet: 2, fact: 'The hottest planet, wrapped in thick clouds.' },
+  { id: 'earth', word: 'Earth', group: 'sun', planet: 3, fact: 'Our home planet.' },
+  { id: 'moon', word: 'Moon', name: 'The Moon', group: 'sun', moonOf: 'earth', fact: 'Earth’s moon. People have walked on it.' },
+  { id: 'mars', word: 'Mars', group: 'sun', planet: 4, fact: 'The red planet. Its dust is rusty, which makes it red.' },
+  { id: 'phobos', word: 'Phobos', group: 'sun', moonOf: 'mars', fact: 'The bigger of Mars’s two little moons. It is shaped like a potato.' },
+  { id: 'asteroidbelt', word: 'Asteroid Belt', group: 'sun', fact: 'Millions of rocks circling the Sun between Mars and Jupiter.' },
+  { id: 'jupiter', word: 'Jupiter', group: 'sun', planet: 5, fact: 'The biggest planet. Its Great Red Spot is a giant storm.' },
+  { id: 'io', word: 'Io', group: 'sun', moonOf: 'jupiter', fact: 'A moon of Jupiter, covered in volcanoes.' },
+  { id: 'europa', word: 'Europa', group: 'sun', moonOf: 'jupiter', fact: 'An icy moon of Jupiter. Scientists think an ocean hides under the ice.' },
+  { id: 'ganymede', word: 'Ganymede', group: 'sun', moonOf: 'jupiter', fact: 'The biggest moon of all. It is even bigger than the planet Mercury.' },
+  { id: 'callisto', word: 'Callisto', group: 'sun', moonOf: 'jupiter', fact: 'A moon of Jupiter covered in craters from top to bottom.' },
+  { id: 'saturn', word: 'Saturn', group: 'sun', planet: 6, fact: 'Famous for its rings of ice and rock.' },
+  { id: 'titan', word: 'Titan', group: 'sun', moonOf: 'saturn', fact: 'Saturn’s biggest moon, wrapped in orange haze.' },
+  { id: 'enceladus', word: 'Enceladus', group: 'sun', moonOf: 'saturn', fact: 'A snow-white moon of Saturn that shoots jets of water into space.' },
+  { id: 'uranus', word: 'Uranus', group: 'sun', planet: 7, fact: 'It spins tipped over on its side.' },
+  { id: 'neptune', word: 'Neptune', group: 'sun', planet: 8, fact: 'The planet farthest from the Sun, with the fastest winds.' },
+  { id: 'triton', word: 'Triton', group: 'sun', moonOf: 'neptune', fact: 'Neptune’s biggest moon. It goes around Neptune backward.' },
+  { id: 'pluto', word: 'Pluto', group: 'sun', planet: 9, dwarf: true, fact: 'A dwarf planet with a bright, heart-shaped patch of ice.' },
+  { id: 'charon', word: 'Charon', group: 'sun', moonOf: 'pluto', fact: 'Pluto’s biggest moon, about half as wide as Pluto, with a reddish top.' },
+  { id: 'solarflare', word: 'Flare', name: 'Solar Flare', group: 'sun', fx: 55, fy: 45, fact: 'A sudden, super-bright burst of energy from the Sun.' },
   // Sky Spotter (Juniper)
-  { n: 15, id: 'star', word: 'Star', name: 'Sirius', group: 'sky', fact: 'Sirius is the brightest star in our night sky.' },
-  { n: 16, id: 'comet', word: 'Comet', name: 'Halley’s Comet', group: 'sky', fx: 72, fy: 30, fact: 'Halley’s Comet comes back about every 76 years.' },
-  { n: 17, id: 'asteroid', word: 'Asteroid', name: 'Vesta', group: 'sky', fact: 'Vesta is one of the biggest rocks in the asteroid belt, between Mars and Jupiter.' },
-  { n: 18, id: 'meteor', word: 'Meteor', name: 'Shooting Star', group: 'sky', fx: 62, fy: 40, fact: 'A bit of space rock burning up as it zooms through our air.' },
-  { n: 19, id: 'meteorite', word: 'Meteorite', name: 'Hoba', group: 'sky', fy: 60, fact: 'Hoba, in Namibia, is the biggest meteorite ever found. It is made of iron.' },
-  { n: 20, id: 'nebula', word: 'Nebula', name: 'Orion Nebula', group: 'sky', fact: 'A giant cloud of gas and dust where new stars are born.' },
-  { n: 21, id: 'pulsar', word: 'Pulsar', name: 'Crab Pulsar', group: 'sky', fact: 'A tiny star that spins about 30 times every second, sweeping beams of light.' },
-  { n: 22, id: 'galaxy', word: 'Galaxy', name: 'Andromeda', group: 'sky', fact: 'Andromeda is the nearest big galaxy to our own Milky Way.' },
-  { n: 23, id: 'blackhole', word: 'Black Hole', group: 'sky', fact: 'Its pull is so strong that not even light can get out.' },
-  { n: 24, id: 'cluster', word: 'Cluster', name: 'Pleiades', group: 'sky', fact: 'The Pleiades star cluster is also called the Seven Sisters.' },
-  { n: 25, id: 'supernova', word: 'Supernova', group: 'sky', fact: 'The giant explosion of a star.' },
-  { n: 26, id: 'redgiant', word: 'Red Giant', name: 'Aldebaran', group: 'sky', fact: 'Aldebaran is a red giant star, the bright eye of Taurus the bull.' },
-  { n: 27, id: 'whitedwarf', word: 'White Dwarf', name: 'Sirius B', group: 'sky', fact: 'Sirius B is a tiny, very hot star that circles Sirius.' },
-  { n: 28, id: 'constellation', word: 'Constellation', name: 'Orion', group: 'sky', fact: 'Orion the hunter. Look for the three stars in his belt.' },
-  { n: 29, id: 'rings', word: 'Rings', name: 'Saturn’s Rings', group: 'sky', fx: 62, fy: 62, fact: 'Billions of pieces of ice and rock circling Saturn.' },
-  { n: 30, id: 'aurora', word: 'Aurora', name: 'Northern Lights', group: 'sky', fy: 55, fact: 'Glowing lights near the North Pole, made when bits from the Sun hit our air.' },
-  { n: 31, id: 'eclipse', word: 'Eclipse', name: 'Solar Eclipse', group: 'sky', fact: 'The Moon slides in front of the Sun and hides it.' },
+  { id: 'star', word: 'Star', name: 'Sirius', group: 'sky', fact: 'Sirius is the brightest star in our night sky.' },
+  { id: 'redgiant', word: 'Red Giant', name: 'Aldebaran', group: 'sky', fact: 'Aldebaran is a red giant star, the bright eye of Taurus the bull.' },
+  { id: 'whitedwarf', word: 'White Dwarf', name: 'Sirius B', group: 'sky', fact: 'Sirius B is a tiny, very hot star that circles Sirius.' },
+  { id: 'pulsar', word: 'Pulsar', name: 'Crab Pulsar', group: 'sky', fact: 'A tiny star that spins about 30 times every second, sweeping beams of light.' },
+  { id: 'supernova', word: 'Supernova', group: 'sky', fact: 'The giant explosion of a star.' },
+  { id: 'cluster', word: 'Cluster', name: 'Pleiades', group: 'sky', fact: 'The Pleiades star cluster is also called the Seven Sisters.' },
+  { id: 'constellation', word: 'Constellation', name: 'Orion', group: 'sky', fact: 'Orion the hunter. Look for the three stars in his belt.' },
+  { id: 'comet', word: 'Comet', name: 'Halley’s Comet', group: 'sky', fx: 72, fy: 30, fact: 'Halley’s Comet comes back about every 76 years.' },
+  { id: 'asteroid', word: 'Asteroid', name: 'Vesta', group: 'sky', fact: 'Vesta is one of the biggest rocks in the asteroid belt, between Mars and Jupiter.' },
+  { id: 'meteor', word: 'Meteor', name: 'Shooting Star', group: 'sky', fx: 62, fy: 40, fact: 'A bit of space rock burning up as it zooms through our air.' },
+  { id: 'meteorite', word: 'Meteorite', name: 'Hoba', group: 'sky', fy: 60, fact: 'Hoba, in Namibia, is the biggest meteorite ever found. It is made of iron.' },
+  { id: 'crescent', word: 'Crescent', name: 'Crescent Moon', group: 'sky', fx: 64, fact: 'When the Sun lights just a thin curved slice of the Moon that we can see.' },
+  { id: 'halfmoon', word: 'Half Moon', group: 'sky', fx: 60, fact: 'When we see half of the Moon’s face lit up by the Sun.' },
+  { id: 'eclipse', word: 'Eclipse', name: 'Solar Eclipse', group: 'sky', fact: 'The Moon slides in front of the Sun and hides it.' },
+  { id: 'lunareclipse', word: 'Lunar Eclipse', group: 'sky', fact: 'Earth’s shadow covers the Moon and turns it red.' },
+  { id: 'rings', word: 'Rings', name: 'Saturn’s Rings', group: 'sky', fx: 62, fy: 62, fact: 'Billions of pieces of ice and rock circling Saturn.' },
+  { id: 'aurora', word: 'Aurora', name: 'Northern Lights', group: 'sky', fy: 55, fact: 'Glowing lights near the North Pole, made when bits from the Sun hit our air.' },
+  { id: 'nebula', word: 'Nebula', name: 'Orion Nebula', group: 'sky', fact: 'A giant cloud of gas and dust where new stars are born.' },
+  { id: 'ringnebula', word: 'Ring Nebula', group: 'sky', fact: 'A glowing ring of gas puffed out by a dying star.' },
+  { id: 'horsehead', word: 'Horsehead', name: 'Horsehead Nebula', group: 'sky', fy: 50, fact: 'A dark cloud of dust shaped like a horse’s head, in Orion.' },
+  { id: 'milkyway', word: 'Milky Way', group: 'sky', fact: 'Our home galaxy. On very dark nights it looks like a cloudy band across the sky.' },
+  { id: 'galaxy', word: 'Galaxy', name: 'Andromeda', group: 'sky', fact: 'Andromeda is the nearest big galaxy to our own Milky Way.' },
+  { id: 'whirlpool', word: 'Whirlpool', name: 'Whirlpool Galaxy', group: 'sky', fact: 'A spiral galaxy with a smaller galaxy tugging on one of its arms.' },
+  { id: 'sombrero', word: 'Sombrero', name: 'Sombrero Galaxy', group: 'sky', fact: 'A galaxy shaped like a big hat, with a dark stripe of dust.' },
+  { id: 'blackhole', word: 'Black Hole', group: 'sky', fact: 'Its pull is so strong that not even light can get out.' },
+  { id: 'quasar', word: 'Quasar', name: '3C 273', group: 'sky', fact: 'The super-bright middle of a faraway galaxy, powered by a giant black hole.' },
 ];
+const ITEMS = ITEMS_RAW.map((it, k) => Object.assign({ n: k + 1 }, it));
 const BYID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 // pairs too alike for the easier levels
-const LOOKALIKE = [['saturn', 'rings'], ['star', 'whitedwarf'], ['star', 'cluster'], ['sun', 'redgiant'], ['moon', 'mercury'], ['venus', 'titan'], ['star', 'supernova'], ['meteor', 'comet'], ['whitedwarf', 'pulsar'], ['io', 'venus']];
+const LOOKALIKE = [['saturn', 'rings'], ['star', 'whitedwarf'], ['star', 'cluster'], ['sun', 'redgiant'], ['moon', 'mercury'], ['venus', 'titan'], ['star', 'supernova'], ['meteor', 'comet'], ['whitedwarf', 'pulsar'], ['io', 'venus'],
+  ['star', 'quasar'], ['pulsar', 'quasar'], ['moon', 'callisto'], ['moon', 'ganymede'], ['mercury', 'callisto'], ['crescent', 'halfmoon'], ['moon', 'halfmoon'], ['moon', 'crescent'], ['moon', 'lunareclipse'], ['mars', 'lunareclipse'],
+  ['asteroid', 'phobos'], ['galaxy', 'whirlpool'], ['galaxy', 'sombrero'], ['nebula', 'horsehead'], ['europa', 'triton'], ['charon', 'mercury'], ['sun', 'solarflare'], ['enceladus', 'europa'], ['asteroid', 'asteroidbelt'], ['milkyway', 'galaxy']];
 const LETTERS = [...new Set(ITEMS.map(i => i.word[0].toUpperCase()))].sort();
+
+// ===== Constellations: real star positions (right ascension in hours, declination in degrees, magnitude) =====
+// Positions are J2000, rounded; shapes drawn with a gnomonic projection, north up, east to the left (as seen in the sky).
+const CONSTELLATIONS = [
+  { id: 'orion', word: 'Orion', name: 'The Hunter', fact: 'Orion the hunter. His belt is three bright stars in a row.',
+    stars: { betelgeuse: [5.919, 7.41, 0.5, '#ffb070'], bellatrix: [5.419, 6.35, 1.6], meissa: [5.585, 9.93, 3.4], mintaka: [5.533, -0.30, 2.2], alnilam: [5.604, -1.20, 1.7], alnitak: [5.679, -1.94, 1.8], saiph: [5.796, -9.67, 2.1], rigel: [5.242, -8.20, 0.1, '#bcd2ff'] },
+    lines: [['meissa', 'betelgeuse'], ['meissa', 'bellatrix'], ['betelgeuse', 'alnitak'], ['bellatrix', 'mintaka'], ['mintaka', 'alnilam'], ['alnilam', 'alnitak'], ['alnitak', 'saiph'], ['mintaka', 'rigel']] },
+  { id: 'bigdipper', word: 'Big Dipper', name: 'Part of the Great Bear', fact: 'Seven stars shaped like a giant spoon. They are part of Ursa Major, the Great Bear.',
+    stars: { dubhe: [11.062, 61.75, 1.8, '#ffd9a8'], merak: [11.031, 56.38, 2.4], phecda: [11.897, 53.69, 2.4], megrez: [12.257, 57.03, 3.3], alioth: [12.900, 55.96, 1.8], mizar: [13.399, 54.93, 2.2], alkaid: [13.792, 49.31, 1.9] },
+    lines: [['dubhe', 'merak'], ['merak', 'phecda'], ['phecda', 'megrez'], ['megrez', 'dubhe'], ['megrez', 'alioth'], ['alioth', 'mizar'], ['mizar', 'alkaid']] },
+  { id: 'littledipper', word: 'Little Dipper', name: 'Ursa Minor', fact: 'A small spoon of stars. The end of its handle is Polaris, the North Star.',
+    stars: { polaris: [2.530, 89.26, 2.0, '#fff3d6'], yildun: [17.537, 86.59, 4.4], epsilon: [16.766, 82.04, 4.2], zeta: [15.734, 77.79, 4.3], eta: [16.292, 75.76, 5.0], pherkad: [15.345, 71.83, 3.0], kochab: [14.845, 74.16, 2.1, '#ffc890'] },
+    lines: [['polaris', 'yildun'], ['yildun', 'epsilon'], ['epsilon', 'zeta'], ['zeta', 'eta'], ['eta', 'pherkad'], ['pherkad', 'kochab'], ['kochab', 'zeta']] },
+  { id: 'cassiopeia', word: 'Cassiopeia', name: 'The Queen', fact: 'Five stars shaped like a big W. She is a queen in old Greek stories.',
+    stars: { caph: [0.153, 59.15, 2.3], schedar: [0.675, 56.54, 2.2, '#ffd2a0'], gamma: [0.945, 60.72, 2.4], ruchbah: [1.430, 60.24, 2.7], segin: [1.907, 63.67, 3.4] },
+    lines: [['caph', 'schedar'], ['schedar', 'gamma'], ['gamma', 'ruchbah'], ['ruchbah', 'segin']] },
+  { id: 'cygnus', word: 'Cygnus', name: 'The Swan', fact: 'A swan flying along the Milky Way. People also call it the Northern Cross.',
+    stars: { deneb: [20.690, 45.28, 1.25], sadr: [20.370, 40.26, 2.2], albireo: [19.512, 27.96, 3.1, '#ffd29a'], gienah: [20.770, 33.97, 2.5], delta: [19.750, 45.13, 2.9] },
+    lines: [['deneb', 'sadr'], ['sadr', 'albireo'], ['delta', 'sadr'], ['sadr', 'gienah']] },
+  { id: 'leo', word: 'Leo', name: 'The Lion', fact: 'The lion. The stars of its head look like a backward question mark.',
+    stars: { regulus: [10.140, 11.97, 1.4, '#cfe0ff'], eta: [10.122, 16.76, 3.5], algieba: [10.333, 19.84, 2.0, '#ffd2a0'], adhafera: [10.278, 23.42, 3.4], rasalas: [9.879, 26.01, 3.9], epsilon: [9.764, 23.77, 3.0], zosma: [11.235, 20.52, 2.6], chertan: [11.237, 15.43, 3.3], denebola: [11.818, 14.57, 2.1] },
+    lines: [['regulus', 'eta'], ['eta', 'algieba'], ['algieba', 'adhafera'], ['adhafera', 'rasalas'], ['rasalas', 'epsilon'], ['algieba', 'zosma'], ['zosma', 'denebola'], ['denebola', 'chertan'], ['chertan', 'regulus']] },
+  { id: 'scorpius', word: 'Scorpius', name: 'The Scorpion', fact: 'The scorpion, with the red star Antares at its heart and a curly tail.',
+    stars: { acrab: [16.091, -19.81, 2.6], dschubba: [16.006, -22.62, 2.3], pi: [15.981, -26.11, 2.9], sigma: [16.353, -25.59, 2.9], antares: [16.490, -26.43, 1.0, '#ff7a55'], tau: [16.598, -28.22, 2.8], epsilon: [16.836, -34.29, 2.3], mu: [16.864, -38.05, 3.0], zeta: [16.910, -42.36, 3.6], eta: [17.203, -43.24, 3.3], sargas: [17.622, -43.00, 1.9], iota: [17.793, -40.13, 3.0], kappa: [17.708, -39.03, 2.4], shaula: [17.560, -37.10, 1.6], lesath: [17.513, -37.30, 2.7] },
+    lines: [['acrab', 'dschubba'], ['dschubba', 'pi'], ['dschubba', 'sigma'], ['sigma', 'antares'], ['antares', 'tau'], ['tau', 'epsilon'], ['epsilon', 'mu'], ['mu', 'zeta'], ['zeta', 'eta'], ['eta', 'sargas'], ['sargas', 'iota'], ['iota', 'kappa'], ['kappa', 'shaula'], ['shaula', 'lesath']] },
+  { id: 'taurus', word: 'Taurus', name: 'The Bull', fact: 'The bull. Orange Aldebaran is its eye, and the Pleiades ride on its shoulder.',
+    stars: { aldebaran: [4.599, 16.51, 0.85, '#ffaa66'], elnath: [5.438, 28.61, 1.65], zetatau: [5.627, 21.14, 3.0], theta: [4.478, 15.87, 3.4], gamma: [4.330, 15.63, 3.6], delta: [4.382, 17.54, 3.8], epsilon: [4.477, 19.18, 3.5], lambda: [4.011, 12.49, 3.4], pleiades: [3.791, 24.11, 2.9, '#cfe0ff'] },
+    lines: [['zetatau', 'aldebaran'], ['aldebaran', 'theta'], ['theta', 'gamma'], ['gamma', 'delta'], ['delta', 'epsilon'], ['epsilon', 'elnath'], ['gamma', 'lambda']] },
+  { id: 'gemini', word: 'Gemini', name: 'The Twins', fact: 'The twins. The two bright stars are named Castor and Pollux.',
+    stars: { castor: [7.577, 31.89, 1.6], pollux: [7.755, 28.03, 1.15, '#ffc890'], alhena: [6.629, 16.40, 1.9], mebsuta: [6.732, 25.13, 3.0], tejat: [6.383, 22.51, 2.9], wasat: [7.335, 21.98, 3.5], mekbuda: [7.068, 20.57, 3.8] },
+    lines: [['castor', 'pollux'], ['castor', 'mebsuta'], ['mebsuta', 'tejat'], ['pollux', 'wasat'], ['wasat', 'mekbuda'], ['mekbuda', 'alhena']] },
+  { id: 'crux', word: 'Southern Cross', name: 'Crux', fact: 'The smallest constellation of all. You can see it from the southern half of Earth.',
+    stars: { acrux: [12.443, -63.10, 0.8], mimosa: [12.795, -59.69, 1.25], gacrux: [12.519, -57.11, 1.6, '#ff9a6a'], delta: [12.252, -58.75, 2.8] },
+    lines: [['gacrux', 'acrux'], ['mimosa', 'delta']] },
+  { id: 'lyra', word: 'Lyra', name: 'The Harp', fact: 'A small harp, with Vega, one of the brightest stars in the sky.',
+    stars: { vega: [18.616, 38.78, 0.0, '#d8e6ff'], epsilon: [18.739, 39.67, 4.7], zeta: [18.746, 37.61, 4.3], delta: [18.908, 36.90, 4.3], sulafat: [18.982, 32.69, 3.2], sheliak: [18.835, 33.36, 3.5] },
+    lines: [['vega', 'epsilon'], ['vega', 'zeta'], ['zeta', 'delta'], ['delta', 'sulafat'], ['sulafat', 'sheliak'], ['sheliak', 'zeta']] },
+  { id: 'pegasus', word: 'Pegasus', name: 'The Great Square', fact: 'The flying horse. Four stars make the Great Square of its body.',
+    stars: { markab: [23.079, 15.21, 2.5], scheat: [23.063, 28.08, 2.4, '#ffb070'], algenib: [0.221, 15.18, 2.8], alpheratz: [0.140, 29.09, 2.1] },
+    lines: [['markab', 'scheat'], ['scheat', 'alpheratz'], ['alpheratz', 'algenib'], ['algenib', 'markab']] },
+  { id: 'canismajor', word: 'Canis Major', name: 'The Great Dog', fact: 'The big dog. Sirius, the brightest star in the night sky, is its nose.',
+    stars: { sirius: [6.752, -16.72, -1.46, '#d8e6ff'], mirzam: [6.378, -17.96, 2.0], muliphein: [7.063, -15.63, 4.1], wezen: [7.140, -26.39, 1.8, '#fff0d0'], adhara: [6.977, -28.97, 1.5], aludra: [7.402, -29.30, 2.4] },
+    lines: [['mirzam', 'sirius'], ['sirius', 'muliphein'], ['sirius', 'wezen'], ['wezen', 'adhara'], ['wezen', 'aludra']] },
+  { id: 'triangulum', word: 'Triangulum', name: 'The Triangle', fact: 'Three stars that make a long, thin triangle.',
+    stars: { alpha: [1.885, 29.58, 3.4], beta: [2.159, 34.99, 3.0], gamma: [2.289, 33.85, 4.0] },
+    lines: [['alpha', 'beta'], ['beta', 'gamma'], ['gamma', 'alpha']] },
+];
+const CBYID = Object.fromEntries(CONSTELLATIONS.map(c => [c.id, c]));
+
+// project every constellation into a 0..1 box once
+(function () {
+  const rad = Math.PI / 180;
+  for (const c of CONSTELLATIONS) {
+    const ids = Object.keys(c.stars);
+    // centre: average direction vector
+    let vx = 0, vy = 0, vz = 0;
+    for (const k of ids) { const [ra, de] = c.stars[k]; const a = ra * 15 * rad, d = de * rad; vx += Math.cos(d) * Math.cos(a); vy += Math.cos(d) * Math.sin(a); vz += Math.sin(d); }
+    const a0 = Math.atan2(vy, vx), d0 = Math.atan2(vz, Math.hypot(vx, vy));
+    const pts = {};
+    for (const k of ids) {
+      const [ra, de] = c.stars[k]; const a = ra * 15 * rad, d = de * rad;
+      const cosc = Math.sin(d0) * Math.sin(d) + Math.cos(d0) * Math.cos(d) * Math.cos(a - a0);
+      const x = Math.cos(d) * Math.sin(a - a0) / cosc;
+      const y = (Math.cos(d0) * Math.sin(d) - Math.sin(d0) * Math.cos(d) * Math.cos(a - a0)) / cosc;
+      pts[k] = [-x, -y]; // east to the left, north up (screen y grows downward)
+    }
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (const k of ids) { const [x, y] = pts[k]; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    const s = Math.max(x1 - x0, y1 - y0) || 1, m = 0.16;
+    c.xy = {};
+    for (const k of ids) { const [x, y] = pts[k]; c.xy[k] = [m + (1 - 2 * m) * ((x - (x0 + x1) / 2) / s + 0.5), m + (1 - 2 * m) * ((y - (y0 + y1) / 2) / s + 0.5)]; }
+  }
+})();
+
+function drawConstellation(c, size, opts = {}) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = size;
+  const ctx = cv.getContext('2d');
+  SPACE.starfield(ctx, size, 900 + c.id.length * 31 + c.id.charCodeAt(0), 1.1);
+  if (opts.lines !== false) {
+    ctx.strokeStyle = 'rgba(190,180,245,0.55)'; ctx.lineWidth = Math.max(2, size * 0.007); ctx.lineCap = 'round';
+    for (const [a, b] of c.lines) { const p = c.xy[a], q = c.xy[b]; ctx.beginPath(); ctx.moveTo(p[0] * size, p[1] * size); ctx.lineTo(q[0] * size, q[1] * size); ctx.stroke(); }
+  }
+  for (const k in c.stars) {
+    const [, , mag, col] = c.stars[k], [x, y] = c.xy[k];
+    const r = size * 0.006 * Math.max(0.55, 2.6 - mag * 0.42);
+    SPACE.brightStar(ctx, x * size, y * size, r, '#ffffff', col || '#dfe8ff', mag < 2.6);
+  }
+  return cv;
+}
 
 const CHAR={"juniper": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3CclipPath%20id%3D%22jhead%22%3E%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%3C/clipPath%3E%0A%20%3Cfilter%20id%3D%22jsoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%232F5D50%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M60%2C230%20C70%2C252%2072%2C268%2070%2C280%20M180%2C230%20C170%2C252%20168%2C268%20170%2C280%22%20stroke%3D%22%2324493f%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M78%2C238%20l4.5%2C9%2010%2C1.4%20-7.2%2C7%201.7%2C10%20-9%2C-4.7%20-9%2C4.7%201.7%2C-10%20-7.2%2C-7%2010%2C-1.4%20z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cpath%20d%3D%22M86%2C150%20C84%2C164%2084%2C172%2086%2C180%20L154%2C180%20C156%2C172%20156%2C164%20154%2C150Z%22%20fill%3D%22%238a5a3c%22/%3E%0A%0A%0A%0A%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M163%2C218%20C169%2C217%20174%2C215%20178%2C212%22%20stroke%3D%22%237a6fb5%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M80%2C182%20C92%2C191%20108%2C194%20120%2C194%22%20stroke%3D%22%23e39566%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M84%2C166%20C80%2C174%2082%2C186%2088%2C193%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M100%2C168%20C97%2C176%2098%2C188%20102%2C197%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M140%2C214%20C148%2C216%20154%2C216%20161%2C213%20M141%2C230%20C149%2C232%20155%2C232%20162%2C229%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cellipse%20cx%3D%22151%22%20cy%3D%22200%22%20rx%3D%2213%22%20ry%3D%225%22%20fill%3D%22%23b8643c%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M137%2C191%20C136%2C183%20144%2C178%20152%2C179%20C160%2C180%20166%2C185%20165%2C192%20C164%2C200%20157%2C204%20150%2C204%20C142%2C204%20138%2C198%20137%2C191%20Z%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Cpath%20d%3D%22M143%2C186%20C147%2C191%20147%2C197%20144%2C201%20M157%2C184%20C153%2C190%20154%2C197%20158%2C201%22%20stroke%3D%22%23d98a5e%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%238a5a3c%22%20stroke-width%3D%221.8%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Ccircle%20cx%3D%2271%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23jhead%29%22%3E%3Cellipse%20cx%3D%2262%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3Cellipse%20cx%3D%22178%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3C/g%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22140%22%20rx%3D%2231%22%20ry%3D%2223%22%20fill%3D%22%23ecd2ac%22/%3E%0A%0A%3Cellipse%20cx%3D%2286%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%3Cellipse%20cx%3D%22154%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M89%2C86%20Q98%2C81%20107%2C86%20M133%2C86%20Q142%2C81%20151%2C86%22%20stroke%3D%22%233a2416%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%2299.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22143.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8963e%22%20stroke-width%3D%223%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Cpath%20d%3D%22M113%2C104%20Q120%2C99%20127%2C104%22/%3E%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C96%20l5%2C-4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20opacity%3D%22.7%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M109%2C126%20Q120%2C119%20131%2C126%20Q129%2C136%20120%2C138%20Q111%2C136%20109%2C126Z%22%20fill%3D%22%232b1a12%22/%3E%0A%3Cellipse%20cx%3D%22116%22%20cy%3D%22125%22%20rx%3D%223%22%20ry%3D%221.6%22%20fill%3D%22%23fff%22%20opacity%3D%22.5%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M120%2C138%20L120%2C144%20M110%2C147%20Q115%2C151%20120%2C144%20Q125%2C151%20130%2C147%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E%0A", "juniper_happy": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3CclipPath%20id%3D%22jhead%22%3E%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%3C/clipPath%3E%0A%20%3Cfilter%20id%3D%22jsoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%232F5D50%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M60%2C230%20C70%2C252%2072%2C268%2070%2C280%20M180%2C230%20C170%2C252%20168%2C268%20170%2C280%22%20stroke%3D%22%2324493f%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M78%2C238%20l4.5%2C9%2010%2C1.4%20-7.2%2C7%201.7%2C10%20-9%2C-4.7%20-9%2C4.7%201.7%2C-10%20-7.2%2C-7%2010%2C-1.4%20z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cpath%20d%3D%22M86%2C150%20C84%2C164%2084%2C172%2086%2C180%20L154%2C180%20C156%2C172%20156%2C164%20154%2C150Z%22%20fill%3D%22%238a5a3c%22/%3E%0A%0A%0A%0A%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M163%2C218%20C169%2C217%20174%2C215%20178%2C212%22%20stroke%3D%22%237a6fb5%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M80%2C182%20C92%2C191%20108%2C194%20120%2C194%22%20stroke%3D%22%23e39566%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M84%2C166%20C80%2C174%2082%2C186%2088%2C193%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M100%2C168%20C97%2C176%2098%2C188%20102%2C197%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M140%2C214%20C148%2C216%20154%2C216%20161%2C213%20M141%2C230%20C149%2C232%20155%2C232%20162%2C229%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cellipse%20cx%3D%22151%22%20cy%3D%22200%22%20rx%3D%2213%22%20ry%3D%225%22%20fill%3D%22%23b8643c%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M137%2C191%20C136%2C183%20144%2C178%20152%2C179%20C160%2C180%20166%2C185%20165%2C192%20C164%2C200%20157%2C204%20150%2C204%20C142%2C204%20138%2C198%20137%2C191%20Z%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Cpath%20d%3D%22M143%2C186%20C147%2C191%20147%2C197%20144%2C201%20M157%2C184%20C153%2C190%20154%2C197%20158%2C201%22%20stroke%3D%22%23d98a5e%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%238a5a3c%22%20stroke-width%3D%221.8%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Ccircle%20cx%3D%2271%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23jhead%29%22%3E%3Cellipse%20cx%3D%2262%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3Cellipse%20cx%3D%22178%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3C/g%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22140%22%20rx%3D%2231%22%20ry%3D%2223%22%20fill%3D%22%23ecd2ac%22/%3E%0A%0A%3Cellipse%20cx%3D%2286%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%3Cellipse%20cx%3D%22154%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M89%2C86%20Q98%2C81%20107%2C86%20M133%2C86%20Q142%2C81%20151%2C86%22%20stroke%3D%22%233a2416%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%2299.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22143.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8963e%22%20stroke-width%3D%223%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Cpath%20d%3D%22M113%2C104%20Q120%2C99%20127%2C104%22/%3E%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C96%20l5%2C-4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20opacity%3D%22.7%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M109%2C126%20Q120%2C119%20131%2C126%20Q129%2C136%20120%2C138%20Q111%2C136%20109%2C126Z%22%20fill%3D%22%232b1a12%22/%3E%0A%3Cellipse%20cx%3D%22116%22%20cy%3D%22125%22%20rx%3D%223%22%20ry%3D%221.6%22%20fill%3D%22%23fff%22%20opacity%3D%22.5%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C138%20L120%2C143%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20class%3D%22m%22%20d%3D%22M110%2C143%20Q120%2C145.5%20130%2C143%20Q127.0%2C155%20120%2C155.5%20Q113.0%2C155%20110%2C143Z%22%20fill%3D%22%233a1f18%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M115.0%2C152.5%20Q120%2C148.5%20125.0%2C152.5%20Q120%2C155%20115.0%2C152.5Z%22%20fill%3D%22%23f08a8a%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22hb_juniper%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.5%22/%3E%3C/filter%3E%3C/defs%3E%3Cellipse%20cx%3D%2292%22%20cy%3D%22125.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_juniper%29%22/%3E%3Cellipse%20cx%3D%22148%22%20cy%3D%22125.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_juniper%29%22/%3E%3Cpath%20d%3D%22M48%2C91%20Q49.62%2C98.38%2057%2C100%20Q49.62%2C101.62%2048%2C109%20Q46.38%2C101.62%2039%2C100%20Q46.38%2C98.38%2048%2C91Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M60%2C111%20Q60.9%2C115.1%2065%2C116%20Q60.9%2C116.9%2060%2C121%20Q59.1%2C116.9%2055%2C116%20Q59.1%2C115.1%2060%2C111Z%22%20fill%3D%22%23F4A77A%22/%3E%3Cpath%20d%3D%22M200%2C84%20Q201.44%2C90.56%20208%2C92%20Q201.44%2C93.44%20200%2C100%20Q198.56%2C93.44%20192%2C92%20Q198.56%2C90.56%20200%2C84Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M206%2C105.5%20Q206.81%2C109.19%20210.5%2C110%20Q206.81%2C110.81%20206%2C114.5%20Q205.19%2C110.81%20201.5%2C110%20Q205.19%2C109.19%20206%2C105.5Z%22%20fill%3D%22%23F4A77A%22/%3E%3C/svg%3E%0A", "juniper_thinking": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3CclipPath%20id%3D%22jhead%22%3E%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%3C/clipPath%3E%0A%20%3Cfilter%20id%3D%22jsoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%232F5D50%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M60%2C230%20C70%2C252%2072%2C268%2070%2C280%20M180%2C230%20C170%2C252%20168%2C268%20170%2C280%22%20stroke%3D%22%2324493f%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M78%2C238%20l4.5%2C9%2010%2C1.4%20-7.2%2C7%201.7%2C10%20-9%2C-4.7%20-9%2C4.7%201.7%2C-10%20-7.2%2C-7%2010%2C-1.4%20z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cpath%20d%3D%22M86%2C150%20C84%2C164%2084%2C172%2086%2C180%20L154%2C180%20C156%2C172%20156%2C164%20154%2C150Z%22%20fill%3D%22%238a5a3c%22/%3E%0A%0A%0A%0A%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M163%2C218%20C169%2C217%20174%2C215%20178%2C212%22%20stroke%3D%22%237a6fb5%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M80%2C182%20C92%2C191%20108%2C194%20120%2C194%22%20stroke%3D%22%23e39566%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M84%2C166%20C80%2C174%2082%2C186%2088%2C193%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M100%2C168%20C97%2C176%2098%2C188%20102%2C197%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M140%2C214%20C148%2C216%20154%2C216%20161%2C213%20M141%2C230%20C149%2C232%20155%2C232%20162%2C229%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cellipse%20cx%3D%22151%22%20cy%3D%22200%22%20rx%3D%2213%22%20ry%3D%225%22%20fill%3D%22%23b8643c%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M137%2C191%20C136%2C183%20144%2C178%20152%2C179%20C160%2C180%20166%2C185%20165%2C192%20C164%2C200%20157%2C204%20150%2C204%20C142%2C204%20138%2C198%20137%2C191%20Z%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Cpath%20d%3D%22M143%2C186%20C147%2C191%20147%2C197%20144%2C201%20M157%2C184%20C153%2C190%20154%2C197%20158%2C201%22%20stroke%3D%22%23d98a5e%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%238a5a3c%22%20stroke-width%3D%221.8%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Ccircle%20cx%3D%2271%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23jhead%29%22%3E%3Cellipse%20cx%3D%2262%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3Cellipse%20cx%3D%22178%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3C/g%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22140%22%20rx%3D%2231%22%20ry%3D%2223%22%20fill%3D%22%23ecd2ac%22/%3E%0A%0A%3Cellipse%20cx%3D%2286%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%3Cellipse%20cx%3D%22154%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M89%2C86%20Q98%2C81%20107%2C86%20M133%2C86%20Q142%2C81%20151%2C86%22%20stroke%3D%22%233a2416%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%20transform%3D%22translate%281.6%20-1.8%29%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%2299.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22143.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8963e%22%20stroke-width%3D%223%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Cpath%20d%3D%22M113%2C104%20Q120%2C99%20127%2C104%22/%3E%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C96%20l5%2C-4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20opacity%3D%22.7%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M109%2C126%20Q120%2C119%20131%2C126%20Q129%2C136%20120%2C138%20Q111%2C136%20109%2C126Z%22%20fill%3D%22%232b1a12%22/%3E%0A%3Cellipse%20cx%3D%22116%22%20cy%3D%22125%22%20rx%3D%223%22%20ry%3D%221.6%22%20fill%3D%22%23fff%22%20opacity%3D%22.5%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M116.0%2C146%20Q122.0%2C147.5%20126.0%2C144.5%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22og_juniper%22%20x%3D%22-100%25%22%20y%3D%22-100%25%22%20width%3D%22300%25%22%20height%3D%22300%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%3C/defs%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2252%22%20r%3D%227.0%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_juniper%29%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2252%22%20r%3D%223.5%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22208%22%20cy%3D%2236%22%20r%3D%2210%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_juniper%29%22/%3E%3Ccircle%20cx%3D%22208%22%20cy%3D%2236%22%20r%3D%225%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2216%22%20r%3D%2214%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_juniper%29%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2216%22%20r%3D%227%22%20fill%3D%22%23F6EBD0%22/%3E%3C/svg%3E%0A", "pip": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22psoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3CclipPath%20id%3D%22phead%22%3E%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%3C/clipPath%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M62%2C232%20C72%2C252%2074%2C268%2072%2C280%20M178%2C232%20C168%2C252%20166%2C268%20168%2C280%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C204%20L120%2C280%22%20stroke%3D%22%236a5fa6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M74%2C194%20C96%2C202%20144%2C202%20166%2C194%22%20stroke%3D%22%239a90d2%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M108%2C202%20C107%2C214%20108%2C226%20110%2C236%20M132%2C202%20C133%2C214%20132%2C226%20130%2C236%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%22110%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Ccircle%20cx%3D%22162%22%20cy%3D%22238%22%20r%3D%2211%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.5%22/%3E%0A%3Cellipse%20cx%3D%22162%22%20cy%3D%22238%22%20rx%3D%2217%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%222.5%22%20transform%3D%22rotate%28-18%20162%20238%29%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22178%22%20rx%3D%2240%22%20ry%3D%227%22%20fill%3D%22%231d2b33%22%20opacity%3D%22.3%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%23c9a27a%22%20stroke-width%3D%221.8%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%2266%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%0A%3Cpath%20d%3D%22M54%2C62%20A16%2C16%200%200%201%2066%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M186%2C62%20A16%2C16%200%200%200%20174%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23phead%29%22%3E%0A%20%3Cellipse%20cx%3D%2272%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%20%3Cellipse%20cx%3D%22168%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M108%2C80%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C78%20Z%22%20fill%3D%22%23c9a27a%22/%3E%0A%3Cpath%20d%3D%22M108%2C79%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C77%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22152%22%20rx%3D%2226%22%20ry%3D%2218%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cellipse%20cx%3D%2290%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3Cellipse%20cx%3D%22150%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M94%2C101%20Q101%2C97%20108%2C101%20M132%2C101%20Q139%2C97%20146%2C101%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.6%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22102%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%3Cellipse%20cx%3D%22138%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%22104.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22140.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cpath%20d%3D%22M98%2C150%20L70%2C144%20M98%2C156%20L72%2C160%20M142%2C150%20L170%2C144%20M142%2C156%20L168%2C160%22%20stroke%3D%22%238a6a4e%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22143%22%20rx%3D%226%22%20ry%3D%224.5%22%20fill%3D%22%23e0707a%22/%3E%0A%3Cellipse%20cx%3D%22118%22%20cy%3D%22141.5%22%20rx%3D%222%22%20ry%3D%221.1%22%20fill%3D%22%23fff%22%20opacity%3D%22.6%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M120%2C147.5%20L120%2C152%20M113%2C154%20Q116.5%2C157%20120%2C152%20Q123.5%2C157%20127%2C154%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.2%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E%0A", "pip_happy": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22psoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3CclipPath%20id%3D%22phead%22%3E%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%3C/clipPath%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M62%2C232%20C72%2C252%2074%2C268%2072%2C280%20M178%2C232%20C168%2C252%20166%2C268%20168%2C280%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C204%20L120%2C280%22%20stroke%3D%22%236a5fa6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M74%2C194%20C96%2C202%20144%2C202%20166%2C194%22%20stroke%3D%22%239a90d2%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M108%2C202%20C107%2C214%20108%2C226%20110%2C236%20M132%2C202%20C133%2C214%20132%2C226%20130%2C236%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%22110%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Ccircle%20cx%3D%22162%22%20cy%3D%22238%22%20r%3D%2211%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.5%22/%3E%0A%3Cellipse%20cx%3D%22162%22%20cy%3D%22238%22%20rx%3D%2217%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%222.5%22%20transform%3D%22rotate%28-18%20162%20238%29%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22178%22%20rx%3D%2240%22%20ry%3D%227%22%20fill%3D%22%231d2b33%22%20opacity%3D%22.3%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%23c9a27a%22%20stroke-width%3D%221.8%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%2266%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%0A%3Cpath%20d%3D%22M54%2C62%20A16%2C16%200%200%201%2066%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M186%2C62%20A16%2C16%200%200%200%20174%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23phead%29%22%3E%0A%20%3Cellipse%20cx%3D%2272%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%20%3Cellipse%20cx%3D%22168%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M108%2C80%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C78%20Z%22%20fill%3D%22%23c9a27a%22/%3E%0A%3Cpath%20d%3D%22M108%2C79%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C77%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22152%22%20rx%3D%2226%22%20ry%3D%2218%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cellipse%20cx%3D%2290%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3Cellipse%20cx%3D%22150%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M94%2C101%20Q101%2C97%20108%2C101%20M132%2C101%20Q139%2C97%20146%2C101%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.6%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22102%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%3Cellipse%20cx%3D%22138%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%22104.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22140.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cpath%20d%3D%22M98%2C150%20L70%2C144%20M98%2C156%20L72%2C160%20M142%2C150%20L170%2C144%20M142%2C156%20L168%2C160%22%20stroke%3D%22%238a6a4e%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22143%22%20rx%3D%226%22%20ry%3D%224.5%22%20fill%3D%22%23e0707a%22/%3E%0A%3Cellipse%20cx%3D%22118%22%20cy%3D%22141.5%22%20rx%3D%222%22%20ry%3D%221.1%22%20fill%3D%22%23fff%22%20opacity%3D%22.6%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C147.5%20L120%2C150%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20class%3D%22m%22%20d%3D%22M112%2C150%20Q120%2C152.5%20128%2C150%20Q125.6%2C162%20120%2C162.5%20Q114.4%2C162%20112%2C150Z%22%20fill%3D%22%233a1f18%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M116.0%2C159.5%20Q120%2C155.5%20124.0%2C159.5%20Q120%2C162%20116.0%2C159.5Z%22%20fill%3D%22%23f08a8a%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22hb_pip%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.5%22/%3E%3C/filter%3E%3C/defs%3E%3Cellipse%20cx%3D%2296%22%20cy%3D%22139%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_pip%29%22/%3E%3Cellipse%20cx%3D%22144%22%20cy%3D%22139%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_pip%29%22/%3E%3Cpath%20d%3D%22M36%2C109%20Q37.62%2C116.38%2045%2C118%20Q37.62%2C119.62%2036%2C127%20Q34.38%2C119.62%2027%2C118%20Q34.38%2C116.38%2036%2C109Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M48%2C129%20Q48.9%2C133.1%2053%2C134%20Q48.9%2C134.9%2048%2C139%20Q47.1%2C134.9%2043%2C134%20Q47.1%2C133.1%2048%2C129Z%22%20fill%3D%22%23F4A77A%22/%3E%3Cpath%20d%3D%22M204%2C110%20Q205.44%2C116.56%20212%2C118%20Q205.44%2C119.44%20204%2C126%20Q202.56%2C119.44%20196%2C118%20Q202.56%2C116.56%20204%2C110Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M210%2C131.5%20Q210.81%2C135.19%20214.5%2C136%20Q210.81%2C136.81%20210%2C140.5%20Q209.19%2C136.81%20205.5%2C136%20Q209.19%2C135.19%20210%2C131.5Z%22%20fill%3D%22%23F4A77A%22/%3E%3C/svg%3E%0A", "pip_thinking": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22psoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3CclipPath%20id%3D%22phead%22%3E%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%3C/clipPath%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M62%2C232%20C72%2C252%2074%2C268%2072%2C280%20M178%2C232%20C168%2C252%20166%2C268%20168%2C280%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C204%20L120%2C280%22%20stroke%3D%22%236a5fa6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M74%2C194%20C96%2C202%20144%2C202%20166%2C194%22%20stroke%3D%22%239a90d2%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M108%2C202%20C107%2C214%20108%2C226%20110%2C236%20M132%2C202%20C133%2C214%20132%2C226%20130%2C236%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%22110%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Ccircle%20cx%3D%22162%22%20cy%3D%22238%22%20r%3D%2211%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.5%22/%3E%0A%3Cellipse%20cx%3D%22162%22%20cy%3D%22238%22%20rx%3D%2217%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%222.5%22%20transform%3D%22rotate%28-18%20162%20238%29%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22178%22%20rx%3D%2240%22%20ry%3D%227%22%20fill%3D%22%231d2b33%22%20opacity%3D%22.3%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%23c9a27a%22%20stroke-width%3D%221.8%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%2266%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%0A%3Cpath%20d%3D%22M54%2C62%20A16%2C16%200%200%201%2066%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M186%2C62%20A16%2C16%200%200%200%20174%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23phead%29%22%3E%0A%20%3Cellipse%20cx%3D%2272%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%20%3Cellipse%20cx%3D%22168%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M108%2C80%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C78%20Z%22%20fill%3D%22%23c9a27a%22/%3E%0A%3Cpath%20d%3D%22M108%2C79%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C77%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22152%22%20rx%3D%2226%22%20ry%3D%2218%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cellipse%20cx%3D%2290%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3Cellipse%20cx%3D%22150%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M94%2C101%20Q101%2C97%20108%2C101%20M132%2C101%20Q139%2C97%20146%2C101%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.6%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%20transform%3D%22translate%281.6%20-1.8%29%22%3E%3Cellipse%20cx%3D%22102%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%3Cellipse%20cx%3D%22138%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%22104.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22140.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cpath%20d%3D%22M98%2C150%20L70%2C144%20M98%2C156%20L72%2C160%20M142%2C150%20L170%2C144%20M142%2C156%20L168%2C160%22%20stroke%3D%22%238a6a4e%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22143%22%20rx%3D%226%22%20ry%3D%224.5%22%20fill%3D%22%23e0707a%22/%3E%0A%3Cellipse%20cx%3D%22118%22%20cy%3D%22141.5%22%20rx%3D%222%22%20ry%3D%221.1%22%20fill%3D%22%23fff%22%20opacity%3D%22.6%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M116.8%2C153%20Q121.6%2C154.5%20124.8%2C151.5%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22og_pip%22%20x%3D%22-100%25%22%20y%3D%22-100%25%22%20width%3D%22300%25%22%20height%3D%22300%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%3C/defs%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22150%22%20r%3D%227.0%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_pip%29%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22150%22%20r%3D%223.5%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22196%22%20cy%3D%22134%22%20r%3D%2210%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_pip%29%22/%3E%3Ccircle%20cx%3D%22196%22%20cy%3D%22134%22%20r%3D%225%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22114%22%20r%3D%2214%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_pip%29%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22114%22%20r%3D%227%22%20fill%3D%22%23F6EBD0%22/%3E%3C/svg%3E%0A", "mo": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22msoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3Cfilter%20id%3D%22mglow%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%236f64ad%22%3E%0A%20%3Cpath%20d%3D%22M100%2C212%20C74%2C218%2042%2C232%2030%2C254%20C24%2C270%2048%2C280%2068%2C272%20C88%2C262%20102%2C244%20108%2C226%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M140%2C212%20C166%2C218%20198%2C232%20210%2C254%20C216%2C270%20192%2C280%20172%2C272%20C152%2C262%20138%2C244%20132%2C226%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%238A7FC7%22%3E%0A%20%3Cpath%20d%3D%22M98%2C196%20C84%2C160%2050%2C112%2018%2C96%20C4%2C90%200%2C108%206%2C126%20C16%2C160%2052%2C198%20100%2C216%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M142%2C196%20C156%2C160%20190%2C112%20222%2C96%20C236%2C90%20240%2C108%20234%2C126%20C224%2C160%20188%2C198%20140%2C216%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M14%2C110%20C26%2C142%2054%2C176%2090%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M226%2C110%20C214%2C142%20186%2C176%20150%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M48%2C130%20A12%2C12%200%201%200%2048%2C154%20A16%2C16%200%200%201%2048%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M192%2C130%20A12%2C12%200%201%201%20192%2C154%20A16%2C16%200%200%200%20192%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Ccircle%20cx%3D%2254%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%0A%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%23e9dcc0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M86%2C246%20C104%2C252%20136%2C252%20154%2C246%20M80%2C266%20C100%2C272%20140%2C272%20160%2C266%22%20stroke%3D%22%23d3c3a2%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C192%20C94%2C196%2098%2C198%20102%2C198%20M116%2C200%20C120%2C202%20124%2C202%20128%2C200%20M140%2C196%20C144%2C196%20148%2C194%20150%2C190%22%20stroke%3D%22%23dccfb2%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M104%2C70%20l-10%2C-2%20M99%2C58%20l-10%2C-3%20M93%2C47%20l-10%2C-4%20M86%2C37%20l-9%2C-5%20M79%2C30%20l-8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%20%3Cpath%20d%3D%22M136%2C70%20l10%2C-2%20M141%2C58%20l10%2C-3%20M147%2C47%20l10%2C-4%20M154%2C37%20l9%2C-5%20M161%2C30%20l8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M102%2C84%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C84%20Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M102%2C82%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C82%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22158%22%20rx%3D%2230%22%20ry%3D%226%22%20fill%3D%22%23b9a983%22%20opacity%3D%22.35%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cellipse%20cx%3D%2294%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%3Cellipse%20cx%3D%22146%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%3Cellipse%20cx%3D%22139%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%0A%3Ccircle%20cx%3D%22104.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22142.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%0A%3Ccircle%20cx%3D%2297.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3Ccircle%20cx%3D%22135.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3C/g%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M113%2C143%20Q120%2C148%20127%2C143%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E%0A", "mo_happy": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22msoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3Cfilter%20id%3D%22mglow%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%236f64ad%22%3E%0A%20%3Cpath%20d%3D%22M100%2C212%20C74%2C218%2042%2C232%2030%2C254%20C24%2C270%2048%2C280%2068%2C272%20C88%2C262%20102%2C244%20108%2C226%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M140%2C212%20C166%2C218%20198%2C232%20210%2C254%20C216%2C270%20192%2C280%20172%2C272%20C152%2C262%20138%2C244%20132%2C226%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%238A7FC7%22%3E%0A%20%3Cpath%20d%3D%22M98%2C196%20C84%2C160%2050%2C112%2018%2C96%20C4%2C90%200%2C108%206%2C126%20C16%2C160%2052%2C198%20100%2C216%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M142%2C196%20C156%2C160%20190%2C112%20222%2C96%20C236%2C90%20240%2C108%20234%2C126%20C224%2C160%20188%2C198%20140%2C216%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M14%2C110%20C26%2C142%2054%2C176%2090%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M226%2C110%20C214%2C142%20186%2C176%20150%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M48%2C130%20A12%2C12%200%201%200%2048%2C154%20A16%2C16%200%200%201%2048%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M192%2C130%20A12%2C12%200%201%201%20192%2C154%20A16%2C16%200%200%200%20192%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Ccircle%20cx%3D%2254%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%0A%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%23e9dcc0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M86%2C246%20C104%2C252%20136%2C252%20154%2C246%20M80%2C266%20C100%2C272%20140%2C272%20160%2C266%22%20stroke%3D%22%23d3c3a2%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C192%20C94%2C196%2098%2C198%20102%2C198%20M116%2C200%20C120%2C202%20124%2C202%20128%2C200%20M140%2C196%20C144%2C196%20148%2C194%20150%2C190%22%20stroke%3D%22%23dccfb2%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M104%2C70%20l-10%2C-2%20M99%2C58%20l-10%2C-3%20M93%2C47%20l-10%2C-4%20M86%2C37%20l-9%2C-5%20M79%2C30%20l-8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%20%3Cpath%20d%3D%22M136%2C70%20l10%2C-2%20M141%2C58%20l10%2C-3%20M147%2C47%20l10%2C-4%20M154%2C37%20l9%2C-5%20M161%2C30%20l8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M102%2C84%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C84%20Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M102%2C82%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C82%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22158%22%20rx%3D%2230%22%20ry%3D%226%22%20fill%3D%22%23b9a983%22%20opacity%3D%22.35%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cellipse%20cx%3D%2294%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%3Cellipse%20cx%3D%22146%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%3Cellipse%20cx%3D%22139%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%0A%3Ccircle%20cx%3D%22104.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22142.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%0A%3Ccircle%20cx%3D%2297.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3Ccircle%20cx%3D%22135.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3C/g%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M111%2C141%20Q120%2C143.5%20129%2C141%20Q126.3%2C153%20120%2C153.5%20Q113.7%2C153%20111%2C141Z%22%20fill%3D%22%233a1f18%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M115.5%2C150.5%20Q120%2C146.5%20124.5%2C150.5%20Q120%2C153%20115.5%2C150.5Z%22%20fill%3D%22%23f08a8a%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22hb_mo%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.5%22/%3E%3C/filter%3E%3C/defs%3E%3Cellipse%20cx%3D%2295%22%20cy%3D%22142.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_mo%29%22/%3E%3Cellipse%20cx%3D%22145%22%20cy%3D%22142.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_mo%29%22/%3E%3Cpath%20d%3D%22M58%2C63%20Q59.62%2C70.38%2067%2C72%20Q59.62%2C73.62%2058%2C81%20Q56.38%2C73.62%2049%2C72%20Q56.38%2C70.38%2058%2C63Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M70%2C83%20Q70.9%2C87.1%2075%2C88%20Q70.9%2C88.9%2070%2C93%20Q69.1%2C88.9%2065%2C88%20Q69.1%2C87.1%2070%2C83Z%22%20fill%3D%22%23F4A77A%22/%3E%3Cpath%20d%3D%22M184%2C62%20Q185.44%2C68.56%20192%2C70%20Q185.44%2C71.44%20184%2C78%20Q182.56%2C71.44%20176%2C70%20Q182.56%2C68.56%20184%2C62Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M190%2C83.5%20Q190.81%2C87.19%20194.5%2C88%20Q190.81%2C88.81%20190%2C92.5%20Q189.19%2C88.81%20185.5%2C88%20Q189.19%2C87.19%20190%2C83.5Z%22%20fill%3D%22%23F4A77A%22/%3E%3C/svg%3E%0A", "mo_thinking": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22msoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3Cfilter%20id%3D%22mglow%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%236f64ad%22%3E%0A%20%3Cpath%20d%3D%22M100%2C212%20C74%2C218%2042%2C232%2030%2C254%20C24%2C270%2048%2C280%2068%2C272%20C88%2C262%20102%2C244%20108%2C226%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M140%2C212%20C166%2C218%20198%2C232%20210%2C254%20C216%2C270%20192%2C280%20172%2C272%20C152%2C262%20138%2C244%20132%2C226%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%238A7FC7%22%3E%0A%20%3Cpath%20d%3D%22M98%2C196%20C84%2C160%2050%2C112%2018%2C96%20C4%2C90%200%2C108%206%2C126%20C16%2C160%2052%2C198%20100%2C216%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M142%2C196%20C156%2C160%20190%2C112%20222%2C96%20C236%2C90%20240%2C108%20234%2C126%20C224%2C160%20188%2C198%20140%2C216%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M14%2C110%20C26%2C142%2054%2C176%2090%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M226%2C110%20C214%2C142%20186%2C176%20150%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M48%2C130%20A12%2C12%200%201%200%2048%2C154%20A16%2C16%200%200%201%2048%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M192%2C130%20A12%2C12%200%201%201%20192%2C154%20A16%2C16%200%200%200%20192%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Ccircle%20cx%3D%2254%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%0A%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%23e9dcc0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M86%2C246%20C104%2C252%20136%2C252%20154%2C246%20M80%2C266%20C100%2C272%20140%2C272%20160%2C266%22%20stroke%3D%22%23d3c3a2%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C192%20C94%2C196%2098%2C198%20102%2C198%20M116%2C200%20C120%2C202%20124%2C202%20128%2C200%20M140%2C196%20C144%2C196%20148%2C194%20150%2C190%22%20stroke%3D%22%23dccfb2%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M104%2C70%20l-10%2C-2%20M99%2C58%20l-10%2C-3%20M93%2C47%20l-10%2C-4%20M86%2C37%20l-9%2C-5%20M79%2C30%20l-8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%20%3Cpath%20d%3D%22M136%2C70%20l10%2C-2%20M141%2C58%20l10%2C-3%20M147%2C47%20l10%2C-4%20M154%2C37%20l9%2C-5%20M161%2C30%20l8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M102%2C84%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C84%20Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M102%2C82%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C82%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22158%22%20rx%3D%2230%22%20ry%3D%226%22%20fill%3D%22%23b9a983%22%20opacity%3D%22.35%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cellipse%20cx%3D%2294%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%3Cellipse%20cx%3D%22146%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cg%20class%3D%22p%22%20transform%3D%22translate%281.6%20-1.8%29%22%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%3Cellipse%20cx%3D%22139%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%0A%3Ccircle%20cx%3D%22104.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22142.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%0A%3Ccircle%20cx%3D%2297.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3Ccircle%20cx%3D%22135.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3C/g%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M116.4%2C144%20Q121.8%2C145.5%20125.4%2C142.5%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22og_mo%22%20x%3D%22-100%25%22%20y%3D%22-100%25%22%20width%3D%22300%25%22%20height%3D%22300%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%3C/defs%3E%3Ccircle%20cx%3D%22178%22%20cy%3D%2274%22%20r%3D%227.0%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_mo%29%22/%3E%3Ccircle%20cx%3D%22178%22%20cy%3D%2274%22%20r%3D%223.5%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22188%22%20cy%3D%2258%22%20r%3D%2210%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_mo%29%22/%3E%3Ccircle%20cx%3D%22188%22%20cy%3D%2258%22%20r%3D%225%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22202%22%20cy%3D%2238%22%20r%3D%2214%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_mo%29%22/%3E%3Ccircle%20cx%3D%22202%22%20cy%3D%2238%22%20r%3D%227%22%20fill%3D%22%23F6EBD0%22/%3E%3C/svg%3E%0A"};
 const SCENE="<svg class=\"scene\" viewBox=\"0 40 720 260\" preserveAspectRatio=\"xMidYMid slice\" role=\"img\" aria-label=\"An observatory dome on a hill at dusk under a big moon\" >\n      <defs>\n        <linearGradient id=\"aSky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n          <stop offset=\"0\" stop-color=\"#1f2150\"/><stop offset=\".5\" stop-color=\"#4a4688\"/><stop offset=\".8\" stop-color=\"#a98bc4\"/><stop offset=\"1\" stop-color=\"#f4a77a\"/>\n        </linearGradient>\n        <radialGradient id=\"aGlow\"><stop offset=\"0\" stop-color=\"#F6EBD0\" stop-opacity=\".45\"/><stop offset=\"1\" stop-color=\"#F6EBD0\" stop-opacity=\"0\"/></radialGradient>\n        <radialGradient id=\"aFly\"><stop offset=\"0\" stop-color=\"#ffd9a8\"/><stop offset=\"1\" stop-color=\"#ffd9a8\" stop-opacity=\"0\"/></radialGradient>\n        <linearGradient id=\"aDome\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#e3dbf3\"/><stop offset=\"1\" stop-color=\"#9d93c9\"/></linearGradient>\n      </defs>\n      <rect width=\"720\" height=\"400\" fill=\"url(#aSky)\"/>\n      <g fill=\"#F6EBD0\">\n        <circle cx=\"60\" cy=\"40\" r=\"1.8\"/><circle cx=\"130\" cy=\"78\" r=\"1.4\"/><circle cx=\"210\" cy=\"30\" r=\"2.2\"/><circle cx=\"300\" cy=\"64\" r=\"1.5\"/><circle cx=\"380\" cy=\"24\" r=\"1.8\"/><circle cx=\"440\" cy=\"90\" r=\"1.3\"/><circle cx=\"660\" cy=\"40\" r=\"2\"/><circle cx=\"690\" cy=\"120\" r=\"1.4\"/><circle cx=\"30\" cy=\"120\" r=\"1.3\"/><circle cx=\"250\" cy=\"120\" r=\"1.2\"/><circle cx=\"470\" cy=\"150\" r=\"1.2\"/>\n        <path d=\"M340,110 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z\"/><path d=\"M100,150 l1.6,4 4,1.6 -4,1.6 -1.6,4 -1.6,-4 -4,-1.6 4,-1.6z\"/>\n      </g>\n      <circle cx=\"560\" cy=\"110\" r=\"96\" fill=\"url(#aGlow)\"/>\n      <circle cx=\"560\" cy=\"110\" r=\"46\" fill=\"#F6EBD0\"/>\n      <g fill=\"#e0d2b2\"><circle cx=\"545\" cy=\"98\" r=\"9\"/><circle cx=\"574\" cy=\"122\" r=\"6\"/><circle cx=\"566\" cy=\"92\" r=\"4\"/><circle cx=\"548\" cy=\"128\" r=\"5\"/></g>\n      <path d=\"M0,300 C90,250 180,262 260,280 C350,300 440,240 540,250 C620,258 680,276 720,270 L720,400 L0,400Z\" fill=\"#3b3f7a\"/>\n      <path d=\"M0,330 C120,300 220,312 330,330 C450,350 560,300 720,316 L720,400 L0,400Z\" fill=\"#2c4a58\"/>\n      <path d=\"M-10,400 L-10,300 C60,270 140,246 230,246 C320,246 380,290 460,332 C520,362 600,370 730,372 L730,400Z\" fill=\"#22403a\"/>\n      <path d=\"M232,290 C250,320 300,340 330,372 C346,388 360,396 372,400\" stroke=\"#4f6e57\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/>\n      <g fill=\"#183129\">\n        <path d=\"M70,300 l26,-70 26,70z\"/><path d=\"M76,272 l20,-52 20,52z\"/><path d=\"M110,292 l20,-52 20,52z\"/>\n        <path d=\"M620,372 l24,-64 24,64z\"/><path d=\"M626,346 l18,-46 18,46z\"/><path d=\"M664,374 l20,-52 20,52z\"/>\n      </g>\n      <rect x=\"190\" y=\"210\" width=\"96\" height=\"52\" fill=\"#e9dcc0\"/>\n      <rect x=\"190\" y=\"210\" width=\"96\" height=\"6\" fill=\"#c9b994\"/>\n      <path d=\"M186,212 A52,52 0 0 1 290,212Z\" fill=\"url(#aDome)\"/>\n      <path d=\"M232,162 L244,162 L244,212 L232,212Z\" fill=\"#2B2D5C\"/>\n      <path d=\"M236,182 L276,150 L282,158 L242,190Z\" fill=\"#c8963e\"/>\n      <circle cx=\"279\" cy=\"153\" r=\"5\" fill=\"#8a6326\"/>\n      <rect x=\"203\" y=\"228\" width=\"16\" height=\"16\" rx=\"3\" fill=\"#F4A77A\"/>\n      <rect x=\"257\" y=\"228\" width=\"16\" height=\"16\" rx=\"3\" fill=\"#F4A77A\"/>\n      <path d=\"M228,262 L228,236 A10,10 0 0 1 248,236 L248,262Z\" fill=\"#6b4a33\"/>\n      <circle cx=\"211\" cy=\"236\" r=\"16\" fill=\"url(#aFly)\" opacity=\".7\"/><circle cx=\"265\" cy=\"236\" r=\"16\" fill=\"url(#aFly)\" opacity=\".7\"/>\n      <circle cx=\"420\" cy=\"300\" r=\"10\" fill=\"url(#aFly)\"/><circle cx=\"470\" cy=\"330\" r=\"8\" fill=\"url(#aFly)\"/><circle cx=\"160\" cy=\"310\" r=\"9\" fill=\"url(#aFly)\"/>\n    </svg>";
@@ -952,7 +1320,7 @@ const SCENE="<svg class=\"scene\" viewBox=\"0 40 720 260\" preserveAspectRatio=\
 (() => {
 'use strict';
 const KEY = 'everettObs.v1';
-const PIC_VER = 'pics-v2';
+const PIC_VER = 'pics-v3';
 const PIC_SIZE = 384;
 const $ = (s, r = document) => r.querySelector(s);
 const app = $('#app');
@@ -992,6 +1360,36 @@ const sfx = {
   tick(i = 0) { tone(500 + i * 30, 0.08, 'triangle', 0.08); },
   win() { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.3, 'triangle', 0.1, 0, i * 0.12)); },
 };
+// a little burst of stars from an element (right answers)
+function burst(node, n = 14) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !node) return;
+  const r = node.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  for (let i = 0; i < n; i++) {
+    const s = el('div', 'spark', ICON.star); const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 90, sz = 14 + Math.random() * 20;
+    s.style.cssText = `left:${cx - sz / 2}px;top:${cy - sz / 2}px;width:${sz}px;height:${sz}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px;--rot:${(Math.random() - 0.5) * 360}deg`;
+    document.body.append(s); setTimeout(() => s.remove(), 900);
+  }
+}
+// a sky full of falling and bursting stars (finished games)
+function starShower(ms = 3200) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = el('canvas', 'shower'); document.body.append(cv);
+  const dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight; cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  const cols = ['#F4A77A', '#F6EBD0', '#8A7FC7', '#ffd873', '#7fd6a4'];
+  const parts = [];
+  for (let i = 0; i < 70; i++) parts.push({ x: Math.random() * W, y: -Math.random() * H * 0.8, vx: (Math.random() - 0.5) * 1.2, vy: 2 + Math.random() * 3.5, r: 7 + Math.random() * 13, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.15, c: cols[i % cols.length] });
+  for (let i = 0; i < 40; i++) { const a = Math.random() * 6.283, v = 4 + Math.random() * 9; parts.push({ x: W / 2, y: H * 0.42, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 3, r: 6 + Math.random() * 10, rot: 0, vr: 0.1, c: cols[i % cols.length], g: 0.18 }); }
+  const comets = [{ x: -100, y: H * 0.18, vx: W / 55, vy: H / 260 }];
+  const star = (x, y, r, rot) => { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.beginPath(); for (let k = 0; k < 10; k++) { const rr = k % 2 ? r * 0.45 : r, a = -Math.PI / 2 + k * Math.PI / 5; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); ctx.restore(); };
+  const t0 = performance.now();
+  (function frame(t) {
+    const e = t - t0; ctx.clearRect(0, 0, W, H); ctx.globalAlpha = e > ms - 600 ? Math.max(0, (ms - e) / 600) : 1;
+    for (const p of parts) { p.vy += p.g || 0.03; p.x += p.vx; p.y += p.vy; p.rot += p.vr; ctx.fillStyle = p.c; star(p.x, p.y, p.r, p.rot); }
+    for (const c of comets) { c.x += c.vx; c.y += c.vy; const g = ctx.createLinearGradient(c.x - 160, c.y - 30, c.x, c.y); g.addColorStop(0, 'rgba(246,235,208,0)'); g.addColorStop(1, 'rgba(246,235,208,.9)'); ctx.strokeStyle = g; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(c.x - 160, c.y - 30); ctx.lineTo(c.x, c.y); ctx.stroke(); ctx.fillStyle = '#fff'; star(c.x, c.y, 12, e / 200); }
+    if (e < ms) requestAnimationFrame(frame); else cv.remove();
+  })(t0);
+}
 function wiggle(e) { e.classList.remove('wiggle'); void e.offsetWidth; e.classList.add('wiggle'); sfx.wrong(); }
 function pop(e) { e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop'); }
 
@@ -1014,6 +1412,9 @@ const ICON = {
   lineup: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="6" cy="26" r="14" fill="#F6B33C"/><circle cx="26" cy="26" r="5" fill="#3d7cc9"/><circle cx="42" cy="26" r="7" fill="#c8553d"/><circle cx="58" cy="26" r="5" fill="none" stroke="#8A7FC7" stroke-width="2" stroke-dasharray="3 2"/><text x="26" y="52" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="13" fill="#F6EBD0">1</text><text x="42" y="52" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="13" fill="#F6EBD0">2</text><text x="58" y="52" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="13" fill="#F6EBD0">3</text></svg>',
   count: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 10l2.4 5 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L6.2 15.8l5.4-.8z" fill="#F6EBD0"/><path d="M40 16l2 4 4.4.6-3.2 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.2-3.1 4.4-.6z" fill="#F6EBD0"/><path d="M26 34l2 4 4.4.6-3.2 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.2-3.1 4.4-.6z" fill="#F6EBD0"/><circle cx="50" cy="48" r="11" fill="#F4A77A"/><text x="50" y="54" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="16" fill="#2B2D5C">3</text></svg>',
   draw: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8l6.2 12.6 13.9 2-10 9.8 2.4 13.8L32 39.7l-12.5 6.5 2.4-13.8-10-9.8 13.9-2z" fill="none" stroke="#F6EBD0" stroke-width="3" stroke-dasharray="5 4" stroke-linejoin="round"/><path d="M44 56l12-12 4 4-12 12z" fill="#F4A77A"/><path d="M44 56l-2 6 6-2z" fill="#F6EBD0"/></svg>',
+  constel: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 46L22 20L36 30L52 12M36 30L44 50" stroke="#8A7FC7" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#F6EBD0"><circle cx="10" cy="46" r="4"/><circle cx="22" cy="20" r="5"/><circle cx="36" cy="30" r="4"/><circle cx="52" cy="12" r="5"/><circle cx="44" cy="50" r="4"/></g><circle cx="22" cy="20" r="2.5" fill="#F4A77A"/></svg>',
+  connect: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 48L26 22L40 34" stroke="#F4A77A" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M40 34L54 14" stroke="#F6EBD0" stroke-width="2.5" stroke-dasharray="3 4" fill="none" stroke-linecap="round"/><g fill="#F6EBD0"><circle cx="12" cy="48" r="4.5"/><circle cx="26" cy="22" r="4.5"/><circle cx="40" cy="34" r="4.5"/><circle cx="54" cy="14" r="4.5"/></g><path d="M44 52l10-10 4 4-10 10z" fill="#8A7FC7"/></svg>',
+  cmatch: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="12" width="26" height="36" rx="5" fill="#15162e" stroke="#8A7FC7" stroke-width="2"/><rect x="34" y="12" width="26" height="36" rx="5" fill="#15162e" stroke="#F4A77A" stroke-width="2"/><g fill="#F6EBD0"><circle cx="11" cy="22" r="2.5"/><circle cx="22" cy="28" r="2.5"/><circle cx="14" cy="40" r="2.5"/><circle cx="41" cy="22" r="2.5"/><circle cx="52" cy="28" r="2.5"/><circle cx="44" cy="40" r="2.5"/></g><path d="M41 22L52 28L44 40" stroke="#F4A77A" stroke-width="1.6" fill="none"/></svg>',
   book: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 14c8-4 16-4 24 2v38c-8-6-16-6-24-2z" fill="#F6EBD0"/><path d="M56 14c-8-4-16-4-24 2v38c8-6 16-6 24-2z" fill="#e8dcc0"/><text x="20" y="40" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="18" fill="#2B2D5C">A</text><text x="44" y="40" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="18" fill="#F4A77A">B</text></svg>',
 };
 
@@ -1028,7 +1429,7 @@ async function idbGet(k) { try { const db = await idb(); return await new Promis
 async function idbSet(k, v) { try { const db = await idb(); await new Promise(r => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = r; t.onerror = r; }); } catch (e) { } }
 function checkImg(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i.naturalWidth > 0); i.onerror = () => r(false); i.src = src; }); }
 function drawPic(id) { return SPACE.draw(id, PIC_SIZE).toDataURL('image/jpeg', 0.9); }
-const BARE_IDS = ['sun', 'mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'io', 'europa', 'titan', 'asteroid', 'star', 'comet'];
+const BARE_IDS = ['sun', 'mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'io', 'europa', 'titan', 'asteroid', 'star', 'comet', 'phobos', 'ganymede', 'callisto', 'enceladus', 'triton', 'charon'];
 const BARE = {};
 function drawBare(id) { return SPACE.draw(id, 256, true).toDataURL('image/png'); }
 async function buildPictures(onStep) {
@@ -1054,12 +1455,19 @@ function img(id, cls) {
   i.onerror = () => { PIC[id] = drawPic(id); i.src = PIC[id]; };
   return i;
 }
-const FILL = { sun: .6, mercury: .6, venus: .68, earth: .68, moon: .64, mars: .6, jupiter: .76, saturn: .95, uranus: .6, neptune: .6, pluto: .56, io: .58, europa: .58, titan: .6, asteroid: .66 };
+const FILL = { sun: .6, mercury: .6, venus: .68, earth: .68, moon: .64, mars: .6, jupiter: .76, saturn: .95, uranus: .6, neptune: .6, pluto: .56, io: .58, europa: .58, titan: .6, asteroid: .66, phobos: .68, ganymede: .66, callisto: .62, enceladus: .56, triton: .58, charon: .56 };
 function bodyImg(id, cls) {
   const i = img(id, cls);
   if (BARE[id]) { i.src = BARE[id]; i.onerror = () => { BARE[id] = drawBare(id); i.src = BARE[id]; }; }
   const f = FILL[id]; if (f) i.style.transform = `scale(${(0.94 / f).toFixed(3)})`;
   return i;
+}
+const CPIC = {};
+function consPic(c, lines = true) { const k = c.id + (lines ? '' : '_bare'); if (!CPIC[k]) CPIC[k] = drawConstellation(c, 384, { lines }).toDataURL('image/jpeg', 0.9); return CPIC[k]; }
+function consCard(c, opts = {}) {
+  const k = el(opts.tag || 'div', 'card'); const i = new Image(); i.src = consPic(c, opts.lines !== false); i.alt = c.word; i.draggable = false; k.append(i);
+  if (opts.tag === 'button') k.setAttribute('aria-label', c.word);
+  return k;
 }
 function card(it, opts = {}) {
   const c = el(opts.tag || 'div', 'card'); c.append(img(it.id));
@@ -1147,7 +1555,7 @@ function home() {
   };
   rows.append(row('juniper', 'var(--lav)', [['telescope', 'Sky Spotter', () => explore('sky')], ['spot', 'Spot It', spotIt], ['first', 'First Letter', firstLetter], ['spell', 'Spell It', spellIt]]));
   rows.append(row('pip', 'var(--pine)', [['planets', 'The Sun’s Family', () => explore('sun')], ['lineup', 'Line Them Up', lineUp], [null], [null]]));
-  rows.append(row('mo', '#1f2150', [['count', 'Count', countGame], ['draw', 'Draw It', drawIt], ['book', 'Letter Book', letterBook], [null]]));
+  rows.append(row('mo', '#1f2150', [['count', 'Count', countGame], ['draw', 'Draw It', drawIt], ['book', 'Letter Book', letterBook], ['constel', 'Star Pictures', starPictures]]));
   scr.append(rows);
   show(scr);
 }
@@ -1159,26 +1567,29 @@ function explore(group) {
   const { b } = bar(null, who, { levels: false });
   scr.append(b);
   if (group === 'sky') {
-    const grid = el('div', 'grid');
-    const list = ITEMS.filter(i => i.group === 'sky');
-    list.forEach((it, k) => { const c = card(it, { tag: 'button' }); c.onclick = () => showcase(list, k); grid.append(c); });
-    scr.append(grid);
+    const list = ITEMS;
+    for (const [g, who2, label] of [['sun', 'pip', 'The Sun\u2019s Family'], ['sky', 'juniper', 'Out in Space']]) {
+      const h = el('div', 'grouphead'); const f = el('div', 'face'); f.append(charImg(who2)); h.append(f, el('span', '', label)); scr.append(h);
+      const grid = el('div', 'grid');
+      list.forEach((it, k) => { if (it.group !== g) return; const c = card(it, { tag: 'button' }); c.onclick = () => showcase(list, k); grid.append(c); });
+      scr.append(grid);
+    }
   } else {
     const wrap = el('div', 'orbit'), inner = el('div', 'orbit-inner');
-    const order = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
-    const size = { sun: 200, mercury: 56, venus: 80, earth: 84, mars: 66, jupiter: 150, saturn: 190, uranus: 104, neptune: 100, pluto: 50 };
+    const order = ['sun', 'mercury', 'venus', 'earth', 'mars', 'asteroidbelt', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const size = { sun: 190, mercury: 52, venus: 74, earth: 78, mars: 62, asteroidbelt: 80, jupiter: 140, saturn: 176, uranus: 96, neptune: 92, pluto: 48 };
     const list = ITEMS.filter(i => i.group === 'sun');
     order.forEach(id => {
       const it = BYID[id], col = el('div', 'col');
       const pl = el('button', 'pl' + (id === 'sun' ? ' sun' : '')); pl.setAttribute('aria-label', it.word);
-      pl.style.setProperty('--s', size[id]); pl.append(bodyImg(id));
+      pl.style.setProperty('--s', size[id]); pl.append(id === 'asteroidbelt' ? img(id, 'beltpic') : bodyImg(id));
       pl.onclick = () => showcase(list, list.indexOf(it));
       col.append(pl);
       if (it.planet) col.append(el('div', 'lbl', String(it.planet)));
-      const moons = ITEMS.filter(m => m.moonOf === id);
+      const moons = ITEMS.filter(m => m.moonOf === id || (id === 'sun' && m.id === 'solarflare'));
       if (moons.length) {
         const mm = el('div', 'moons');
-        moons.forEach(m => { const mb = el('button'); mb.setAttribute('aria-label', m.word); mb.append(bodyImg(m.id)); mb.onclick = () => showcase(list, list.indexOf(m)); mm.append(mb); });
+        moons.forEach(m => { const mb = el('button'); mb.setAttribute('aria-label', m.word); mb.append(m.id === 'solarflare' ? img(m.id, 'beltpic') : bodyImg(m.id)); mb.onclick = () => showcase(list, list.indexOf(m)); mm.append(mb); });
         col.append(mm);
       }
       inner.append(col);
@@ -1205,14 +1616,18 @@ function showcase(list, k) {
 function win(who, again) {
   S.stars += 1; save(); sfx.win();
   const w = el('div', 'win');
-  const g = el('div', 'guide'); g.append(charImg('mo', 'happy')); w.append(g);
+  const crew = el('div', 'crew');
+  const order = who === 'mo' ? ['juniper', 'mo', 'pip'] : who === 'pip' ? ['juniper', 'pip', 'mo'] : ['pip', 'juniper', 'mo'];
+  order.forEach((c, i) => { const g = el('div', 'guide' + (c === who ? ' lead' : '')); g.style.animationDelay = (i * 0.15) + 's'; g.append(charImg(c, 'happy')); crew.append(g); });
+  w.append(crew);
   const st = el('div', 'stars', ICON.star + '<span>' + (S.stars - 1) + '</span>'); w.append(st);
-  later(() => { st.querySelector('span').textContent = S.stars; pop(st); }, 500);
+  later(() => { st.querySelector('span').textContent = S.stars; pop(st); burst(st, 18); }, 700);
+  if (S.stars % 5 === 0) w.append(el('div', 'milestone', S.stars + ' stars!'));
   const btns = el('div', 'btns');
   const a = el('button', 'roundbtn peach', ICON.again); a.setAttribute('aria-label', 'Play again'); a.onclick = () => { closeOverlay(); again(); };
   const h = el('button', 'roundbtn', ICON.home); h.setAttribute('aria-label', 'Home'); h.onclick = () => { closeOverlay(); home(); };
   btns.append(a, h); w.append(btns);
-  later(() => openOverlay(w, home), 600);
+  later(() => { openOverlay(w, home); starShower(); }, 500);
 }
 
 // ---------- choosing items ----------
@@ -1261,7 +1676,7 @@ function spotIt() {
       c.onclick = () => {
         if (done) return;
         if (it.id !== target.id) { wiggle(c); guideMood(B.face, 'juniper', 'thinking', 1200); return; }
-        done = true; c.classList.add('right'); pop(c); sfx.right(); markLetter(it);
+        done = true; c.classList.add('right'); pop(c); burst(c); sfx.right(); markLetter(it);
         guideMood(B.face, 'juniper', 'happy', 1400);
         scope.style.transition = 'background-size .8s'; scope.style.backgroundSize = '100%';
         reveal.innerHTML = ''; reveal.append(tiles(it.word, true));
@@ -1300,7 +1715,7 @@ function firstLetter() {
       c.onclick = () => {
         if (done) return;
         if (it.word[0].toUpperCase() !== letter) { wiggle(c); guideMood(B.face, 'juniper', 'thinking', 1200); return; }
-        done = true; c.classList.add('right'); pop(c); sfx.right(); markLetter(it);
+        done = true; c.classList.add('right'); pop(c); burst(c); sfx.right(); markLetter(it);
         guideMood(B.face, 'juniper', 'happy', 1400);
         reveal.innerHTML = ''; reveal.append(tiles(it.word, true));
         round++; B.setProg(round); later(next, 1900);
@@ -1375,7 +1790,7 @@ function spellIt() {
     function fill(s) { s.dataset.f = 1; s.classList.add('filled'); if (s.dataset.i === '0') s.classList.add('first'); s.textContent = s.dataset.ch; pop(s); }
     function check() {
       if (slotEls.every(s => s.dataset.f)) {
-        sfx.right(); markLetter(it); guideMood(B.face, 'juniper', 'happy', 1600); pop(slots);
+        sfx.right(); markLetter(it); guideMood(B.face, 'juniper', 'happy', 1600); pop(slots); burst(slots, 20);
         if (it.name && it.name !== it.word) body.insertBefore(el('div', 'propername', esc(it.name)), tray);
         tray.innerHTML = '';
         round++; B.setProg(round); later(next, 2200);
@@ -1385,23 +1800,33 @@ function spellIt() {
   next();
 }
 
-// ---------- Line Them Up (Pip) ----------
-function lineUp() {
+// ---------- Line Them Up (Pip): order from the Sun, size order, moons home ----------
+const DIAM = { mercury: 4879, venus: 12104, earth: 12742, mars: 6779, jupiter: 139820, saturn: 116460, uranus: 50724, neptune: 49244, pluto: 2377 };
+function lineUp(mode) {
+  mode = mode || S.lineMode || 'sun'; S.lineMode = mode; save();
+  if (mode === 'moons') return moonsHome();
   const L = lvl('lineup');
-  const order = ITEMS.filter(i => i.planet && (L === 3 || !i.dwarf) && (L > 1 || i.planet <= 4)).sort((a, b) => a.planet - b.planet);
-  const scale = { mercury: .55, venus: .8, earth: .82, mars: .66, jupiter: 1, saturn: 1, uranus: .86, neptune: .85, pluto: .48 };
+  let order;
+  if (mode === 'sun') order = ITEMS.filter(i => i.planet && (L === 3 || !i.dwarf) && (L > 1 || i.planet <= 4)).sort((a, b) => a.planet - b.planet);
+  else {
+    const ids = L === 1 ? ['mercury', 'earth', 'neptune', 'jupiter'] : L === 2 ? ['mercury', 'mars', 'earth', 'neptune', 'saturn', 'jupiter'] : ['pluto', 'mercury', 'mars', 'venus', 'earth', 'neptune', 'uranus', 'saturn', 'jupiter'];
+    order = ids.map(id => BYID[id]).sort((a, b) => DIAM[a.id] - DIAM[b.id]);
+  }
+  const scale = mode === 'size' ? Object.fromEntries(order.map(it => [it.id, +(0.32 + 0.68 * Math.pow(DIAM[it.id] / 139820, 0.55)).toFixed(3)])) : { mercury: .55, venus: .8, earth: .82, mars: .66, jupiter: 1, saturn: 1, uranus: .86, neptune: .85, pluto: .48 };
   const scr = el('div', 'screen');
-  const B = bar('lineup', 'pip', { restart: lineUp }); scr.append(B.b);
+  const B = bar('lineup', 'pip', { restart: () => lineUp(mode) }); scr.append(B.b);
+  scr.append(modeChips(mode));
   const body = el('div', 'body'); scr.append(body);
   const wrap = el('div', 'lineup'), lane = el('div', 'lane');
-  const sp = el('div', 'sunpart'); sp.append(bodyImg('sun')); lane.append(sp);
-  const slotEls = order.map(it => {
+  if (mode === 'sun') { const sp = el('div', 'sunpart'); sp.append(bodyImg('sun')); lane.append(sp); }
+  else lane.append(el('div', 'sizecue', '<svg viewBox="0 0 60 40" aria-hidden="true"><circle cx="8" cy="20" r="4" fill="#F6EBD0"/><circle cx="24" cy="20" r="7" fill="#F6EBD0"/><circle cx="46" cy="20" r="12" fill="#F6EBD0"/></svg>'));
+  const slotEls = order.map((it, k) => {
     const s = el('div', 'pslot'), ring = el('div', 'ring');
     if (L < 3) { const g = bodyImg(it.id, 'ghost'); g.style.transform += ` scale(${scale[it.id]})`; ring.append(g); }
-    s.append(ring, el('div', 'n', String(it.planet)));
+    s.append(ring, el('div', 'n', String(mode === 'sun' ? it.planet : k + 1)));
     s.ring = ring; s.it = it; lane.append(s); return s;
   });
-  if (L === 1) for (let k = 0; k < 4; k++) lane.append(el('div', 'pslot'));
+  for (let k = order.length; k < 8; k++) lane.append(el('div', 'pslot'));
   wrap.append(lane);
   const tray = el('div', 'ptray');
   let placed = 0;
@@ -1412,13 +1837,56 @@ function lineUp() {
       const s = slotEls.find(s => !s.done && hit(s.ring, x, y, 24));
       if (!s) return false;
       if (s.it.id !== it.id) { wiggle(s.ring); guideMood(B.face, 'pip', 'thinking', 1200); return false; }
-      s.done = true; s.ring.innerHTML = ''; const pi = bodyImg(it.id); pi.style.transform += ` scale(${scale[it.id]})`; s.ring.append(pi); s.ring.classList.add('done'); pop(s.ring);
+      s.done = true; s.ring.innerHTML = ''; const pi = bodyImg(it.id); pi.style.transform += ` scale(${scale[it.id]})`; s.ring.append(pi); s.ring.classList.add('done'); pop(s.ring); burst(s.ring, 8);
       t.dataset.locked = 1; t.style.visibility = 'hidden'; sfx.right(); guideMood(B.face, 'pip', 'happy', 1200);
-      if (++placed === order.length) later(() => win('pip', lineUp), 900);
+      if (++placed === order.length) later(() => win('pip', () => lineUp(mode)), 900);
       return true;
     });
   });
   wrap.append(tray); body.append(wrap);
+  show(scr);
+}
+function modeChips(mode) {
+  const m = el('div', 'modes');
+  const opts = [['sun', '<svg viewBox="0 0 64 40" aria-hidden="true"><circle cx="2" cy="20" r="16" fill="#F6B33C"/><circle cx="28" cy="20" r="4" fill="#9a8f86"/><circle cx="40" cy="20" r="5" fill="#3d7cc9"/><circle cx="54" cy="20" r="6" fill="#c8553d"/></svg>', 'From the Sun'],
+    ['size', '<svg viewBox="0 0 64 40" aria-hidden="true"><circle cx="8" cy="20" r="4" fill="#9a8f86"/><circle cx="24" cy="20" r="8" fill="#3d7cc9"/><circle cx="48" cy="20" r="14" fill="#d6a878"/></svg>', 'Small to big'],
+    ['moons', '<svg viewBox="0 0 64 40" aria-hidden="true"><circle cx="22" cy="20" r="14" fill="#3d7cc9"/><circle cx="50" cy="12" r="6" fill="#cfcac0"/><path d="M42 26q6 6 14 2" stroke="#F6EBD0" stroke-width="2" fill="none" stroke-dasharray="3 3"/></svg>', 'Moons home']];
+  for (const [id, ico, label] of opts) {
+    const b = el('button', 'mode' + (id === mode ? ' on' : ''), ico); b.setAttribute('aria-label', label);
+    b.onclick = () => lineUp(id); m.append(b);
+  }
+  return m;
+}
+// drag each moon to the planet it goes around
+function moonsHome() {
+  const L = lvl('lineup');
+  const moonIds = L === 1 ? ['moon', 'phobos', 'titan'] : L === 2 ? ['moon', 'phobos', 'io', 'titan', 'triton', 'charon'] : ITEMS.filter(i => i.moonOf).map(i => i.id);
+  const moons = moonIds.map(id => BYID[id]);
+  const planets = [...new Set(moons.map(m => m.moonOf))].map(id => BYID[id]).sort((a, b) => a.planet - b.planet);
+  const scr = el('div', 'screen');
+  const B = bar('lineup', 'pip', { restart: () => lineUp('moons') }); scr.append(B.b);
+  scr.append(modeChips('moons'));
+  const body = el('div', 'body'); scr.append(body);
+  const row = el('div', 'homes');
+  const homes = planets.map(p => {
+    const h = el('div', 'home-planet'); const pic = el('div', 'hp'); pic.append(bodyImg(p.id)); h.append(pic);
+    const slot = el('div', 'moonslots'); moons.filter(m => m.moonOf === p.id).forEach(() => slot.append(el('div', 'mslot'))); h.append(slot);
+    h.p = p; h.slots = [...slot.children]; row.append(h); return h;
+  });
+  body.append(row);
+  const tray = el('div', 'ptray'); let placed = 0;
+  shuffle(moons).forEach(m => {
+    const t = el('div', 'ptile small'); t.append(bodyImg(m.id)); t.setAttribute('aria-label', m.word); tray.append(t);
+    draggable(t, (x, y) => {
+      const h = homes.find(h => hit(h, x, y, 10)); if (!h) return false;
+      if (h.p.id !== m.moonOf) { wiggle(h); guideMood(B.face, 'pip', 'thinking', 1200); return false; }
+      const sl = h.slots.find(s => !s.firstChild); sl.append(bodyImg(m.id)); pop(sl); burst(sl, 8);
+      t.dataset.locked = 1; t.style.visibility = 'hidden'; sfx.right(); guideMood(B.face, 'pip', 'happy', 1200);
+      if (++placed === moons.length) later(() => win('pip', () => lineUp('moons')), 900);
+      return true;
+    });
+  });
+  body.append(tray);
   show(scr);
 }
 
@@ -1426,7 +1894,7 @@ function lineUp() {
 function countGame() {
   const ROUNDS = 4, L = lvl('count');
   const range = [null, [2, 5], [4, 10], [10, 20]][L];
-  const kinds = ['star', 'moon', 'comet', 'asteroid', 'earth', 'saturn', 'mars', 'jupiter', 'neptune', 'sun'];
+  const kinds = ['star', 'moon', 'comet', 'asteroid', 'earth', 'saturn', 'mars', 'jupiter', 'neptune', 'sun', 'phobos', 'ganymede', 'enceladus', 'triton', 'charon', 'io', 'pluto', 'uranus', 'venus', 'mercury'];
   let round = 0, lastKind = '';
   const scr = el('div', 'screen');
   const B = bar('count', 'mo', { rounds: ROUNDS, restart: countGame }); scr.append(B.b);
@@ -1467,7 +1935,7 @@ function countGame() {
         const b = el('button', '', String(v));
         b.onclick = () => {
           if (v !== n) { wiggle(b); return; }
-          sfx.right(); pop(b); b.style.background = 'var(--peach)'; guideMood(B.face, 'mo', 'happy', 1500);
+          sfx.right(); pop(b); burst(b); b.style.background = 'var(--peach)'; guideMood(B.face, 'mo', 'happy', 1500);
           round++; B.setProg(round); later(next, 1500);
         };
         answers.append(b);
@@ -1500,8 +1968,15 @@ const SHAPES = (() => {
     { id: 'crescent', item: 'moon', pts: crescent, dots: 9, closed: true },
     { id: 'star', item: 'star', pts: starPts, dots: 10, closed: true, corners: true },
     { id: 'spiral', item: 'galaxy', pts: P(t => { const a = t * Math.PI * 4.4, r = 0.04 + 0.34 * t; return [0.5 + r * Math.cos(a), 0.5 + r * Math.sin(a)]; }, 90), dots: 10 },
+    { id: 'heart', item: 'pluto', pts: P(t => { const a = Math.PI + t * Math.PI * 2, x = 16 * Math.sin(a) ** 3, y = 13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a); return [0.5 + x * 0.022, 0.47 - y * 0.022]; }, 80), dots: 8, closed: true },
+    { id: 'halfcircle', item: 'halfmoon', pts: P(circ(0.42, 0.5, 0.36, -Math.PI / 2, Math.PI / 2), 40).concat([[0.42, 0.14]]), dots: 7, closed: true },
+    { id: 'triangle', cons: 'triangulum', pts: [[0.5, 0.17], [0.85, 0.8], [0.15, 0.8], [0.5, 0.17]], dots: 3, closed: true, corners: true },
+    { id: 'square', cons: 'pegasus', pts: [[0.2, 0.2], [0.8, 0.2], [0.8, 0.8], [0.2, 0.8], [0.2, 0.2]], dots: 4, closed: true, corners: true },
+    { id: 'w', cons: 'cassiopeia', path: ['caph', 'schedar', 'gamma', 'ruchbah', 'segin'], corners: true },
+    { id: 'dipper', cons: 'bigdipper', path: ['alkaid', 'mizar', 'alioth', 'megrez', 'dubhe', 'merak', 'phecda', 'megrez'], corners: true },
   ];
 })();
+SHAPES.forEach(sh => { if (sh.path) { const c = CBYID[sh.cons]; sh.pts = sh.path.map(k => c.xy[k].slice()); sh.dots = sh.pts.length; } });
 function resample(pts, n) {
   const d = [0]; for (let i = 1; i < pts.length; i++) d.push(d[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
   const L = d[d.length - 1] || 1, out = [];
@@ -1521,12 +1996,14 @@ function normBox(pts) {
 function shapeScore(drawn, shape) {
   // free-copy check: same shape anywhere, any size
   const a = normBox(resample(drawn, 80)), b = normBox(resample(shape.pts, 80));
-  let s1 = 0, s2 = 0; for (const p of a) s1 += nearest(p, b); for (const p of b) s2 += nearest(p, a);
-  return Math.max(s1 / a.length, s2 / b.length);
+  // average fit and the worst-fitting tenth, both ways: corners and bumps count
+  const da = a.map(p => nearest(p, b)).sort((x, y) => x - y), db = b.map(p => nearest(p, a)).sort((x, y) => x - y);
+  const mean = v => v.reduce((t, x) => t + x, 0) / v.length, p90 = v => v[Math.floor(v.length * 0.9)];
+  return (Math.max(mean(da), mean(db)) + Math.max(p90(da), p90(db))) / 2;
 }
 function drawIt() {
   const L = lvl('draw');
-  const pools = [null, ['line', 'circle', 'wave', 'ring'], ['circle', 'wave', 'ring', 'crescent', 'star'], ['ring', 'crescent', 'star', 'spiral', 'circle']];
+  const pools = [null, ['line', 'circle', 'triangle', 'wave', 'square', 'ring', 'halfcircle'], ['circle', 'w', 'crescent', 'star', 'heart', 'triangle', 'wave', 'square', 'ring', 'halfcircle'], ['ring', 'crescent', 'star', 'spiral', 'heart', 'dipper', 'w', 'halfcircle', 'square']];
   const pool = pools[L];
   const ROUNDS = 3; let round = 0;
   const scr = el('div', 'screen');
@@ -1537,20 +2014,21 @@ function drawIt() {
     body.innerHTML = '';
     const want = pool[(S.drawIdx++) % pool.length]; save();
     const shape = SHAPES.find(s => s.id === want);
-    const it = BYID[shape.item];
+    const cons = shape.cons ? CBYID[shape.cons] : null;
+    const it = cons ? { word: cons.word } : BYID[shape.item];
     const wrapD = el('div', 'drawwrap');
     const model = el('div', 'model');
-    const mc = card(it, { num: false }); model.append(mc);
+    const mc = cons ? consCard(cons) : card(it, { num: false }); model.append(mc);
     const msvg = `<svg viewBox="0 0 1 1" aria-hidden="true"><path d="${'M' + shape.pts.map(p => p[0].toFixed(3) + ',' + p[1].toFixed(3)).join('L')}${shape.closed ? 'Z' : ''}" fill="none" stroke="#F6EBD0" stroke-width=".035" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     model.insertAdjacentHTML('beforeend', msvg);
-    const pad = el('div', 'pad'), gC = el('canvas'), iC = el('canvas'), pay = el('div', 'payoff'); pay.append(img(it.id));
+    const pad = el('div', 'pad'), gC = el('canvas'), iC = el('canvas'), pay = el('div', 'payoff'); if (cons) { const pi = new Image(); pi.src = consPic(cons); pay.append(pi); } else pay.append(img(it.id));
     pad.append(gC, pay, iC);
     const tools = el('div', 'drawtools');
     const er = el('button', 'roundbtn', ICON.erase); er.setAttribute('aria-label', 'Start over'); tools.append(er);
     wrapD.append(model, pad, tools); body.append(wrapD);
     let mode = L === 1 ? 'dots' : L === 2 ? 'trace' : 'copy', misses = 0;
     let size = 0, dpr = Math.min(2, window.devicePixelRatio || 1), gx, ix, strokes = [], cur = null, nextDot = 0, finished = false;
-    const dots = (() => { const n = shape.dots; if (shape.corners) return shape.pts.slice(0, 10); const r = resample(shape.pts, shape.closed ? n + 1 : n); return shape.closed ? r.slice(0, n) : r; })();
+    const dots = (() => { const n = shape.dots; if (shape.corners) return shape.pts.slice(0, shape.closed ? shape.pts.length - 1 : shape.pts.length); const r = resample(shape.pts, shape.closed ? n + 1 : n); return shape.closed ? r.slice(0, n) : r; })();
     const guideSamples = resample(shape.pts, 120);
     function layout() {
       const r = wrapD.getBoundingClientRect();
@@ -1573,6 +2051,8 @@ function drawIt() {
       }
       if (mode === 'dots') {
         dots.forEach((p, i) => {
+          const twin = dots.findIndex((q, j) => j < i && Math.hypot(q[0] - p[0], q[1] - p[1]) < 0.01);
+          if (twin >= 0 && nextDot <= twin) return;
           const [x, y] = P(p), on = i < nextDot, isNext = i === nextDot || (shape.closed && nextDot === dots.length && i === 0);
           gx.fillStyle = on ? '#F4A77A' : isNext ? '#7fd6a4' : '#F6EBD0';
           gx.beginPath(); gx.arc(x, y, size * (isNext ? 0.045 : 0.035), 0, 7); gx.fill();
@@ -1618,7 +2098,7 @@ function drawIt() {
       if (mode === 'trace') { if (coverage() > 0.8) success(); return; }
       if (pathLen(all) < pathLen(shape.pts) * 0.5) return;
       // copy mode: join strokes and compare with the model
-      if (shapeScore(all, shape) < 0.07) return success();
+      if (shapeScore(all, shape) < 0.08) return success();
       if (pathLen(all) > pathLen(shape.pts) * 1.3 || strokes.length > 3) {
         misses++; wiggle(pad); guideMood(B.face, 'mo', 'thinking', 1500);
         later(() => { strokes = []; if (misses >= 2) mode = 'trace'; drawGuide(); redrawInk(); }, 600);
@@ -1627,13 +2107,133 @@ function drawIt() {
     function success() {
       if (finished) return; finished = true;
       strokes = [resample(shape.pts, 120)]; redrawInk(); gx.clearRect(0, 0, size, size);
-      sfx.right(); markLetter(it); guideMood(B.face, 'mo', 'happy', 2200);
+      sfx.right(); if (!cons) markLetter(it); guideMood(B.face, 'mo', 'happy', 2200); burst(pad, 22);
       later(() => { pay.classList.add('on'); }, 500);
       later(() => { body.append(tiles(it.word, true)); }, 900);
       round++; B.setProg(round); later(next, 2800);
     }
     requestAnimationFrame(layout);
     window.onresize = () => { if (pad.isConnected) layout(); };
+  }
+  next();
+}
+
+// ---------- Star Pictures: constellations (Mo) ----------
+function starPictures() {
+  const scr = el('div', 'screen');
+  const B = bar(null, 'mo', { levels: false }); scr.append(B.b);
+  const top = el('div', 'cgames');
+  const g1 = el('button', 'gametile', '<div class="ico">' + ICON.connect + '</div><div class="lbl">Connect the Stars</div>'); g1.onclick = connectStars;
+  const g2 = el('button', 'gametile', '<div class="ico">' + ICON.cmatch + '</div><div class="lbl">Match the Stars</div>'); g2.onclick = matchStars;
+  top.append(g1, g2); scr.append(top);
+  const grid = el('div', 'grid');
+  CONSTELLATIONS.forEach((c, k) => { const b = consCard(c, { tag: 'button' }); b.onclick = () => consShowcase(k); grid.append(b); });
+  scr.append(grid); show(scr);
+}
+function consShowcase(k) {
+  const c = CONSTELLATIONS[k], s = el('div', 'show');
+  s.append(consCard(c)); s.append(tiles(c.word)); s.append(el('div', 'propername', esc(c.name))); s.append(el('div', 'fact', esc(c.fact)));
+  const nav = el('div', 'nav');
+  const prev = el('button', 'roundbtn', ICON.left); prev.setAttribute('aria-label', 'Previous'); prev.onclick = () => consShowcase((k - 1 + CONSTELLATIONS.length) % CONSTELLATIONS.length);
+  const next = el('button', 'roundbtn', ICON.right); next.setAttribute('aria-label', 'Next'); next.onclick = () => consShowcase((k + 1) % CONSTELLATIONS.length);
+  nav.append(prev, next); s.append(nav); openOverlay(s);
+}
+function connectStars() {
+  const L = lvl('connect'), ROUNDS = 3;
+  const pools = [null, ['crux', 'triangulum', 'cassiopeia', 'pegasus', 'cygnus', 'bigdipper'], ['bigdipper', 'littledipper', 'orion', 'gemini', 'canismajor', 'lyra', 'cygnus', 'taurus'], ['orion', 'leo', 'scorpius', 'taurus', 'gemini', 'littledipper', 'lyra']];
+  const pool = shuffle(pools[L]); let round = 0;
+  const scr = el('div', 'screen');
+  const B = bar('connect', 'mo', { rounds: ROUNDS, restart: connectStars }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('mo', connectStars);
+    body.innerHTML = '';
+    const c = CBYID[pool[round % pool.length]]; OBS.cur = c;
+    const wrapD = el('div', 'drawwrap'), model = el('div', 'model');
+    model.append(consCard(c));
+    const pad = el('div', 'pad'), bg = new Image(), gC = el('canvas'), iC = el('canvas');
+    bg.src = consPic(c, false); bg.className = 'padbg'; bg.alt = '';
+    pad.append(bg, gC, iC);
+    const tools = el('div', 'drawtools');
+    const er = el('button', 'roundbtn', ICON.erase); er.setAttribute('aria-label', 'Start over'); tools.append(er);
+    wrapD.append(model, pad, tools); body.append(wrapD);
+    const reveal = el('div', 'reveal'); body.append(reveal);
+    if (L === 3) later(() => { model.style.transition = 'opacity .6s'; model.style.opacity = '0'; }, 4000);
+    const keys = Object.keys(c.xy), done = new Set(), segKey = (a, b) => [a, b].sort().join('|');
+    const segs = new Set(c.lines.map(([a, b]) => segKey(a, b)));
+    let size = 0, dpr = Math.min(2, devicePixelRatio || 1), gx, ix, prev = null, finished = false;
+    function layout() {
+      const r = wrapD.getBoundingClientRect(), portrait = innerHeight > innerWidth;
+      size = Math.max(240, Math.floor(Math.min(portrait ? r.width - 20 : r.width - 330, portrait ? innerHeight * 0.5 : innerHeight - 200, 640)));
+      pad.style.width = pad.style.height = size + 'px';
+      for (const cv of [gC, iC]) cv.width = cv.height = size * dpr;
+      gx = gC.getContext('2d'); ix = iC.getContext('2d'); gx.setTransform(dpr, 0, 0, dpr, 0, 0); ix.setTransform(dpr, 0, 0, dpr, 0, 0);
+      paint();
+    }
+    const P = k => [c.xy[k][0] * size, c.xy[k][1] * size];
+    function paint() {
+      gx.clearRect(0, 0, size, size); ix.clearRect(0, 0, size, size);
+      if (L === 1) { gx.setLineDash([3, 10]); gx.strokeStyle = 'rgba(246,235,208,.35)'; gx.lineWidth = 4; gx.lineCap = 'round'; for (const [a, b] of c.lines) { if (done.has(segKey(a, b))) continue; gx.beginPath(); gx.moveTo(...P(a)); gx.lineTo(...P(b)); gx.stroke(); } gx.setLineDash([]); }
+      ix.strokeStyle = finished ? '#F4A77A' : '#F6EBD0'; ix.lineWidth = Math.max(5, size * 0.014); ix.lineCap = 'round';
+      for (const [a, b] of c.lines) if (done.has(segKey(a, b))) { ix.beginPath(); ix.moveTo(...P(a)); ix.lineTo(...P(b)); ix.stroke(); }
+      // ring every star; the one you are on glows
+      for (const k of keys) { const [x, y] = P(k); ix.strokeStyle = k === prev ? '#7fd6a4' : 'rgba(246,235,208,.4)'; ix.lineWidth = k === prev ? 4 : 2; ix.beginPath(); ix.arc(x, y, size * 0.035, 0, 7); ix.stroke(); }
+    }
+    function near(p) { let best = null, bd = 0.065; for (const k of keys) { const d = Math.hypot(p[0] - c.xy[k][0], p[1] - c.xy[k][1]); if (d < bd) { bd = d; best = k; } } return best; }
+    function local(e) { const r = iC.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; }
+    function visit(k) {
+      if (!k || k === prev) return;
+      if (prev && segs.has(segKey(prev, k)) && !done.has(segKey(prev, k))) {
+        done.add(segKey(prev, k)); sfx.tick(done.size);
+        if (done.size === segs.size) return success();
+      }
+      prev = k; paint();
+    }
+    let down = false;
+    iC.addEventListener('pointerdown', e => { if (finished) return; e.preventDefault(); iC.setPointerCapture(e.pointerId); down = true; const k = near(local(e)); if (k) { prev = k; paint(); } });
+    iC.addEventListener('pointermove', e => { if (!down || finished) return; for (const ev of (e.getCoalescedEvents ? e.getCoalescedEvents() : [e])) visit(near(local(ev))); });
+    const up = () => { down = false; };
+    iC.addEventListener('pointerup', up); iC.addEventListener('pointercancel', up);
+    er.onclick = () => { if (finished) return; done.clear(); prev = null; paint(); };
+    function success() {
+      finished = true; prev = null; paint(); sfx.right(); burst(pad, 22); guideMood(B.face, 'mo', 'happy', 2200);
+      model.style.opacity = '1';
+      reveal.append(tiles(c.word, true));
+      round++; B.setProg(round); later(next, 2800);
+    }
+    requestAnimationFrame(layout);
+    window.onresize = () => { if (pad.isConnected) layout(); };
+  }
+  next();
+}
+function matchStars() {
+  const L = lvl('cmatch'), ROUNDS = 5, nChoice = [0, 3, 4, 6][L];
+  let round = 0, used = [];
+  const scr = el('div', 'screen');
+  const B = bar('cmatch', 'mo', { rounds: ROUNDS, restart: matchStars }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('mo', matchStars);
+    body.innerHTML = '';
+    const target = pick(CONSTELLATIONS.filter(c => !used.includes(c.id))); used.push(target.id); OBS.cur = target;
+    const big = consCard(target, { lines: L === 1 }); big.classList.add('ctarget');
+    const reveal = el('div', 'reveal');
+    const top = el('div', 'prompt'); top.append(big, reveal); body.append(top);
+    const opts = shuffle([target, ...shuffle(CONSTELLATIONS.filter(c => c.id !== target.id)).slice(0, nChoice - 1)]);
+    const grid = choiceGrid(opts.length); let done = false;
+    opts.forEach(c => {
+      const b = consCard(c, { tag: 'button' });
+      b.onclick = () => {
+        if (done) return;
+        if (c.id !== target.id) { wiggle(b); guideMood(B.face, 'mo', 'thinking', 1200); return; }
+        done = true; b.classList.add('right'); pop(b); burst(b); sfx.right(); guideMood(B.face, 'mo', 'happy', 1400);
+        big.querySelector('img').src = consPic(target, true);
+        reveal.innerHTML = ''; reveal.append(tiles(target.word, true));
+        round++; B.setProg(round); later(next, 2000);
+      };
+      grid.append(b);
+    });
+    body.append(grid);
   }
   next();
 }
@@ -1689,7 +2289,7 @@ function grownups() {
   openOverlay(p, home);
 }
 
-window.OBS = { S, ITEMS, home, spotIt, firstLetter, spellIt, lineUp, countGame, drawIt, letterBook, explore, SHAPES, shapeScore, resample };
+window.OBS = { S, ITEMS, CONSTELLATIONS, starPictures, connectStars, matchStars, moonsHome, home, spotIt, firstLetter, spellIt, lineUp, countGame, drawIt, letterBook, explore, SHAPES, shapeScore, resample };
 start();
 })();
 </script>
