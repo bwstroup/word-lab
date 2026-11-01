@@ -1,0 +1,1697 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Observatory">
+<meta name="theme-color" content="#2B2D5C">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Everett's Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Andika:wght@400;700&display=swap" rel="stylesheet">
+<style>:root{
+  --indigo:#2B2D5C; --indigo-2:#34376b; --indigo-3:#3c3f78; --night:#1a1b3f; --deep:#15162e;
+  --lav:#8A7FC7; --lav-d:#6f64ad; --cream:#F6EBD0; --peach:#F4A77A; --pine:#2F5D50; --pine-d:#24493f;
+  --muted:#d9cfe9; --good:#7fd6a4; --ink:#1d2b33;
+  --r:22px; --gap:clamp(10px,1.8vmin,18px);
+  --title:'Fredoka','Avenir Next Rounded','Nunito',system-ui,sans-serif;
+  --letter:'Andika','Avenir Next','Helvetica Neue',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--indigo);color:var(--cream);font-family:var(--letter);overscroll-behavior:none}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+img{-webkit-user-drag:none;user-select:none}
+#app{min-height:100%;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.screen{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.hidden{display:none!important}
+
+/* ---------- loading ---------- */
+.loading{align-items:center;justify-content:center;gap:24px;text-align:center;padding:24px}
+.loading .guide{width:min(220px,40vw)}
+.loading .bignum{font-family:var(--title);font-weight:600;font-size:clamp(90px,22vmin,180px);line-height:1;color:var(--peach)}
+.loading .dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:520px}
+.loading .dots i{width:14px;height:14px;border-radius:50%;background:var(--indigo-3)}
+.loading .dots i.on{background:var(--cream)}
+
+/* ---------- home ---------- */
+.home-hero{position:relative;height:clamp(180px,30vh,300px);overflow:hidden}
+.home-hero svg.scene{position:absolute;inset:0;width:100%;height:100%}
+.home-hero .title{position:absolute;left:clamp(16px,3vw,36px);top:clamp(14px,3vh,28px);font-family:var(--title);font-weight:600;font-size:clamp(28px,5.2vmin,52px);line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.home-hero .juniper{position:absolute;right:clamp(8px,4vw,60px);bottom:-6px;height:92%}
+.topchips{position:absolute;right:clamp(12px,2vw,24px);top:clamp(12px,2vh,22px);display:flex;gap:10px;align-items:center}
+.chip{background:rgba(21,22,46,.72);border-radius:999px;padding:8px 16px;font-family:var(--title);font-size:clamp(20px,3vmin,26px);display:flex;gap:8px;align-items:center}
+.chip svg{width:1em;height:1em}
+.iconbtn{width:52px;height:52px;border-radius:16px;background:rgba(21,22,46,.72);display:flex;align-items:center;justify-content:center}
+.iconbtn svg{width:28px;height:28px}
+.rows{display:flex;flex-direction:column;gap:var(--gap);padding:var(--gap) clamp(12px,2.4vw,28px) calc(var(--gap) + 8px)}
+.hostrow{display:flex;gap:var(--gap);align-items:stretch;background:var(--indigo-2);border-radius:var(--r);padding:10px}
+.hostrow .host{flex:0 0 clamp(84px,12vw,130px);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:16px;overflow:hidden}
+.hostrow .host img{width:100%;display:block}
+.tiles-row{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
+.gametile{border-radius:18px;background:var(--indigo-3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 6px;min-height:clamp(92px,14vmin,140px);transition:transform .15s}
+.gametile:active{transform:scale(.96)}
+.gametile .ico{width:clamp(52px,8vmin,78px);height:clamp(52px,8vmin,78px)}
+.gametile .lbl{font-family:var(--title);font-size:clamp(14px,2vmin,19px);color:var(--muted);text-align:center;line-height:1.1}
+.gametile.empty{background:transparent}
+
+/* ---------- top bar in games ---------- */
+.bar{display:flex;align-items:center;gap:12px;padding:12px clamp(12px,2.4vw,28px)}
+.bar .home{width:60px;height:60px;border-radius:18px;background:var(--lav);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.bar .home svg{width:32px;height:32px}
+.bar .face{width:64px;height:74px;border-radius:16px;overflow:hidden;flex:0 0 auto;background:var(--indigo-3)}
+.bar .face img{width:100%;height:100%;object-fit:cover;object-position:top}
+.bar .spacer{flex:1}
+.levels{display:flex;gap:6px;background:var(--deep);border-radius:16px;padding:5px}
+.levels button{min-width:58px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:4px}
+.levels button i{width:10px;height:10px;border-radius:50%;background:var(--muted);opacity:.5}
+.levels button.on{background:var(--peach)}
+.levels button.on i{background:var(--indigo);opacity:1}
+.progress{display:flex;gap:6px}
+.progress i{width:14px;height:14px;border-radius:50%;background:var(--indigo-3)}
+.progress i.on{background:var(--peach)}
+.body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--gap);padding:0 clamp(12px,2.4vw,28px) 20px}
+
+/* ---------- pictures, tiles ---------- */
+.pic{display:block;border-radius:18px;background:#05060f;object-fit:cover}
+.card{position:relative;border-radius:18px;overflow:hidden;background:#05060f;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.card img{width:100%;height:100%;display:block;object-fit:cover}
+.num{position:absolute;left:8px;top:8px;min-width:34px;height:34px;padding:0 8px;border-radius:12px;background:rgba(43,45,92,.85);font-family:var(--title);font-size:20px;display:flex;align-items:center;justify-content:center}
+.tiles{display:flex;gap:clamp(4px,.8vmin,8px);flex-wrap:wrap;justify-content:center}
+.tile{min-width:clamp(40px,7vmin,64px);height:clamp(48px,8.4vmin,76px);padding:0 4px;border-radius:14px;background:var(--cream);color:var(--indigo);font-family:var(--letter);font-weight:700;font-size:clamp(28px,5.4vmin,50px);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.tile.first{background:var(--peach)}
+.tile.gap{background:transparent;box-shadow:none;min-width:16px}
+.tiles.small .tile{min-width:30px;height:36px;font-size:24px;border-radius:9px}
+.propername{font-family:var(--title);font-size:clamp(18px,2.8vmin,26px);color:var(--muted)}
+
+/* ---------- explore ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(120px,17vmin,170px),1fr));gap:var(--gap);width:100%;padding:0 clamp(12px,2.4vw,28px) 24px}
+.grid .card{aspect-ratio:1}
+.orbit{--k:max(.55px,min(1.1px,calc((100vw - 80px) / 1200)));width:100%;overflow-x:auto;padding:10px clamp(12px,2.4vw,28px) 24px;flex:1;display:flex;align-items:center}
+.orbit-inner{display:flex;align-items:flex-start;gap:clamp(6px,1.2vw,14px);min-width:max-content}
+.orbit .col{display:flex;flex-direction:column;align-items:center;gap:10px}
+.orbit .pl{position:relative;display:flex;align-items:center;justify-content:center}
+.orbit .pl{width:calc(var(--k) * var(--s));height:calc(var(--k) * var(--s))}
+.orbit .pl img{width:100%;height:100%}
+.orbit .lbl{font-family:var(--title);font-size:20px;color:var(--muted)}
+.orbit .moons{display:flex;flex-direction:column;gap:8px;align-items:center}
+.orbit .moons button{width:calc(var(--k) * 78);height:calc(var(--k) * 78)}
+.orbit .moons img{width:100%;height:100%}
+.orbit .track{height:3px;background:linear-gradient(90deg,var(--peach),var(--lav));border-radius:2px;opacity:.5;align-self:stretch;margin:0 0 8px}
+
+/* showcase */
+.overlay{position:fixed;inset:0;background:rgba(14,15,34,.92);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.show{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:900px;width:100%}
+.show .card{width:min(62vmin,460px);aspect-ratio:1}
+.show .num{font-size:28px;height:46px;min-width:46px;border-radius:14px}
+.show .fact{font-size:clamp(16px,2.2vmin,20px);color:var(--muted);text-align:center;max-width:560px;line-height:1.35}
+.show .nav{display:flex;gap:16px;align-items:center}
+.roundbtn{width:72px;height:72px;border-radius:50%;background:var(--lav);display:flex;align-items:center;justify-content:center}
+.roundbtn svg{width:36px;height:36px}
+.roundbtn.peach{background:var(--peach)}
+.closebtn{position:fixed;top:calc(14px + env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));width:60px;height:60px;border-radius:18px;background:var(--indigo-3);display:flex;align-items:center;justify-content:center;z-index:60}
+.closebtn svg{width:30px;height:30px}
+
+/* ---------- games ---------- */
+.prompt{display:flex;align-items:center;gap:var(--gap)}
+.scope{position:relative;width:min(38vmin,300px);aspect-ratio:1;border-radius:50%;background-color:#05060f;background-repeat:no-repeat;box-shadow:0 0 0 10px #c8963e,0 0 0 16px #8a6326,0 10px 30px rgba(0,0,0,.4)}
+.scope::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 40px 10px rgba(0,0,0,.65)}
+.choices{display:grid;gap:var(--gap);width:100%;max-width:1000px}
+.choices .card{aspect-ratio:1;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.choices .card:active{transform:scale(.97)}
+.choices .card.right{box-shadow:0 0 0 6px var(--good),0 4px 14px rgba(0,0,0,.25)}
+.bigletter{display:flex;gap:10px;align-items:flex-end}
+.bigletter .tile{width:clamp(96px,17vmin,150px);height:clamp(110px,19vmin,170px);font-size:clamp(70px,13vmin,120px);border-radius:24px}
+.bigletter .lower{background:var(--cream);width:clamp(70px,12vmin,110px);height:clamp(84px,14vmin,124px);font-size:clamp(52px,9vmin,86px)}
+.reveal{min-height:clamp(54px,9vmin,84px);display:flex;align-items:center;justify-content:center}
+
+/* spell */
+.spell-pic{width:min(34vmin,280px);aspect-ratio:1}
+.slots{display:flex;gap:clamp(4px,.9vmin,10px);flex-wrap:wrap;justify-content:center}
+.slot{width:clamp(44px,8vmin,72px);height:clamp(54px,9.4vmin,84px);border-radius:14px;border:3px dashed var(--lav);display:flex;align-items:center;justify-content:center;font-family:var(--letter);font-weight:700;font-size:clamp(30px,5.8vmin,52px);color:rgba(246,235,208,.22)}
+.slot.gapslot{border:0;width:20px}
+.slot.filled{border:0;background:var(--cream);color:var(--indigo);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.slot.filled.first{background:var(--peach)}
+.tray{display:flex;gap:clamp(6px,1.2vmin,12px);flex-wrap:wrap;justify-content:center;min-height:clamp(60px,10vmin,90px)}
+.ltile{width:clamp(50px,8.6vmin,78px);height:clamp(58px,9.6vmin,86px);border-radius:14px;background:var(--cream);color:var(--indigo);font-family:var(--letter);font-weight:700;font-size:clamp(32px,6vmin,54px);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.28);touch-action:none;position:relative}
+.ltile.used{visibility:hidden}
+
+/* line up */
+.lineup{width:100%;display:flex;flex-direction:column;gap:clamp(16px,3vh,30px);align-items:center}
+.lane{position:relative;width:100%;display:flex;align-items:center;gap:clamp(2px,.6vw,8px)}
+.lane .sunpart{flex:0 0 auto;width:clamp(70px,11vw,130px);aspect-ratio:.5;overflow:hidden;position:relative}
+.lane .sunpart{display:flex;align-items:center;justify-content:flex-end}
+.lane .sunpart img{flex:0 0 auto;width:250%;height:auto;margin-right:-25%;transform:none!important}
+.pslot{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pslot .ring{width:100%;max-width:120px;aspect-ratio:1;border-radius:50%;border:3px dashed var(--lav);display:flex;align-items:center;justify-content:center;position:relative;overflow:visible}
+.pslot .ring img{width:100%;height:100%}
+.pslot .ring img.ghost{opacity:.22;filter:grayscale(.6)}
+.pslot .ring.done{border-color:transparent}
+.pslot .n{font-family:var(--title);font-size:clamp(20px,3vmin,30px);color:var(--muted)}
+.ptray{display:flex;flex-wrap:wrap;gap:var(--gap);justify-content:center;min-height:100px}
+.ptile{width:clamp(84px,13vmin,130px);aspect-ratio:1;touch-action:none;position:relative}
+.ptile img{width:100%;height:100%;pointer-events:none}
+
+/* count */
+.sky{position:relative;width:min(100%,980px);flex:1;min-height:min(52vh,520px);border-radius:var(--r);background:radial-gradient(ellipse at 50% 30%,#2a2c66,#15162e 70%);overflow:hidden}
+.sky .thing{position:absolute;border-radius:50%;transition:transform .15s}
+.sky .thing img{width:100%;height:100%;pointer-events:none}
+.sky .thing .badge{position:absolute;right:-6px;top:-6px;min-width:34px;height:34px;border-radius:50%;background:var(--peach);color:var(--indigo);font-family:var(--title);font-weight:600;font-size:20px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.answers{display:flex;gap:var(--gap);min-height:96px}
+.answers button{width:clamp(90px,14vmin,130px);height:clamp(90px,14vmin,130px);border-radius:26px;background:var(--cream);color:var(--indigo);font-family:var(--title);font-weight:600;font-size:clamp(48px,8vmin,72px)}
+
+/* draw */
+.drawwrap{display:flex;gap:var(--gap);align-items:center;justify-content:center;width:100%;flex:1}
+.model{display:flex;flex-direction:column;align-items:center;gap:10px}
+.model .card{width:clamp(110px,20vmin,200px);aspect-ratio:1}
+.model svg{width:clamp(110px,20vmin,200px);height:clamp(110px,20vmin,200px);background:var(--deep);border-radius:18px}
+.pad{position:relative;border-radius:var(--r);background:var(--deep);touch-action:none;box-shadow:inset 0 0 0 3px var(--indigo-3)}
+.pad canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:var(--r)}
+.pad .payoff{position:absolute;inset:12%;border-radius:50%;overflow:hidden;opacity:0;transition:opacity .9s}
+.pad .payoff img{width:100%;height:100%;object-fit:cover}
+.pad .payoff.on{opacity:1}
+.drawtools{display:flex;flex-direction:column;gap:12px}
+
+/* letter book */
+.book{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(96px,14vmin,140px),1fr));gap:var(--gap);width:100%;max-width:1100px;padding:0 clamp(12px,2.4vw,28px) 24px}
+.page{aspect-ratio:.8;border-radius:18px;background:var(--indigo-3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
+.page .L{font-family:var(--letter);font-weight:700;font-size:clamp(46px,8vmin,72px);color:var(--muted);opacity:.45}
+.page.found{background:var(--cream)}
+.page.found .L{color:var(--indigo);opacity:1}
+.page.found img{width:62%;aspect-ratio:1;border-radius:50%;object-fit:cover}
+.bookpage{display:flex;flex-direction:column;align-items:center;gap:16px}
+.bookpage .row{display:flex;flex-wrap:wrap;gap:18px;justify-content:center}
+.bookpage .entry{display:flex;flex-direction:column;align-items:center;gap:8px}
+.bookpage .entry .card{width:clamp(120px,20vmin,190px);aspect-ratio:1}
+
+/* win */
+.win{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.win .guide{width:min(240px,44vw)}
+.win .stars{font-family:var(--title);font-weight:600;font-size:clamp(46px,9vmin,80px);display:flex;align-items:center;gap:12px;color:var(--cream)}
+.win .stars svg{width:1em;height:1em}
+.win .btns{display:flex;gap:18px}
+
+/* grown-ups */
+.panel{background:var(--cream);color:var(--indigo);border-radius:24px;padding:24px;width:min(560px,100%);display:flex;flex-direction:column;gap:14px;font-family:var(--title)}
+.panel h2{margin:0;font-size:28px}
+.panel p{margin:0;font-family:var(--letter);font-size:16px;color:#4a4c7a}
+.panel .rowx{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:20px}
+.switch{width:72px;height:42px;border-radius:999px;background:#c9c3d9;position:relative;transition:background .2s}
+.switch::after{content:'';position:absolute;left:4px;top:4px;width:34px;height:34px;border-radius:50%;background:#fff;transition:transform .2s}
+.switch.on{background:var(--pine)}
+.switch.on::after{transform:translateX(30px)}
+.hold{position:relative;overflow:hidden;border-radius:14px;background:#e8dcc0;padding:12px 16px;font-size:18px;text-align:left}
+.hold .fill{position:absolute;inset:0;width:0;background:var(--peach);opacity:.7}
+.hold span{position:relative}
+
+/* feedback */
+@keyframes wiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.wiggle{animation:wiggle .45s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+.pop{animation:pop .4s}
+.lift{transform:scale(1.12);box-shadow:0 14px 28px rgba(0,0,0,.4);z-index:20}
+@media (prefers-reduced-motion:reduce){.wiggle,.pop{animation:none}*{transition:none!important}}
+@media (orientation:portrait){
+  .tiles-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .drawwrap{flex-direction:column}
+  .model{flex-direction:row}
+  .prompt{flex-direction:column}
+}
+@media (max-width:560px){
+  .hostrow{flex-direction:column}
+  .hostrow .host{flex-basis:auto;width:110px;align-self:center}
+  .bar{flex-wrap:wrap}
+  .levels button{min-width:46px}
+}
+@media (max-width:560px){
+  .home-hero .title{font-size:24px;max-width:55%}
+  .home-hero .juniper{height:70%;right:4px}
+  .topchips{top:auto;bottom:10px;left:12px;right:auto}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>// ===== Everett's Observatory: procedural space pictures (no libraries) =====
+// Every picture is drawn on a square canvas with its own deep-space background.
+const SPACE = (() => {
+  let BARE = false; // transparent background, softer night side (for planets sitting on the app background)
+  // ---------- noise ----------
+  function h3(x, y, z, s) {
+    let n = Math.imul(x, 73856093) ^ Math.imul(y, 19349663) ^ Math.imul(z, 83492791) ^ Math.imul(s, 1640531513);
+    n = (n << 13) ^ n;
+    n = (Math.imul(n, (Math.imul(Math.imul(n, n), 15731) + 789221) | 0) + 1376312589) & 0x7fffffff;
+    return n / 1073741823.5 - 1;
+  }
+  function vn(x, y, z, s) {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    let xf = x - xi, yf = y - yi, zf = z - zi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+    const a = h3(xi, yi, zi, s), b = h3(xi + 1, yi, zi, s), c = h3(xi, yi + 1, zi, s), d = h3(xi + 1, yi + 1, zi, s);
+    const e = h3(xi, yi, zi + 1, s), f = h3(xi + 1, yi, zi + 1, s), g = h3(xi, yi + 1, zi + 1, s), h = h3(xi + 1, yi + 1, zi + 1, s);
+    const x1 = a + (b - a) * u, x2 = c + (d - c) * u, x3 = e + (f - e) * u, x4 = g + (h - g) * u;
+    const y1 = x1 + (x2 - x1) * v, y2 = x3 + (x4 - x3) * v;
+    return y1 + (y2 - y1) * w;
+  }
+  function fbm(x, y, z, oct, s) {
+    let a = 0.5, f = 1, t = 0, n = 0;
+    for (let i = 0; i < oct; i++) { t += a * vn(x * f, y * f, z * f, s + i * 17); n += a; a *= 0.5; f *= 2.03; }
+    return t / n;
+  }
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+
+  // ---------- backgrounds ----------
+  function starfield(ctx, S, seed, dens = 1, tint = null) {
+    if (BARE) return;
+    const g = ctx.createRadialGradient(S * 0.5, S * 0.45, 0, S * 0.5, S * 0.5, S * 0.75);
+    g.addColorStop(0, tint || '#0b0d22'); g.addColorStop(1, '#03040b');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    const r = rng(seed);
+    const n = Math.round(140 * dens * (S / 400) * (S / 400));
+    for (let i = 0; i < n; i++) {
+      const x = r() * S, y = r() * S, b = r(), sz = (b > 0.97 ? 1.5 : b > 0.85 ? 1.0 : 0.6) * S / 400;
+      ctx.globalAlpha = 0.25 + 0.75 * r() * (b > 0.85 ? 1 : 0.6);
+      const c = r(); ctx.fillStyle = c < 0.15 ? '#ffd9b0' : c < 0.3 ? '#b8ccff' : '#ffffff';
+      ctx.beginPath(); ctx.arc(x, y, sz, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function glow(ctx, x, y, r, color, a = 1) {
+    if (BARE) return;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
+  }
+  function spikes(ctx, x, y, len, color, w = 1.2, a = 0.8, ang = 0) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 4; k++) {
+      ctx.rotate(Math.PI / 2);
+      const g = ctx.createLinearGradient(0, 0, len, 0);
+      g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = a; ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(0, -w); ctx.lineTo(len, 0); ctx.lineTo(0, w); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function brightStar(ctx, x, y, r, core, halo, spike = true) {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, x, y, r * 6, halo, 0.35);
+    glow(ctx, x, y, r * 2.4, halo, 0.8);
+    if (spike) spikes(ctx, x, y, r * 9, halo, r * 0.35, 0.7);
+    glow(ctx, x, y, r * 1.1, core, 1);
+    ctx.restore();
+  }
+
+  // ---------- sphere ----------
+  // tex(x,y,z) -> [r,g,b] in 0..1 on the unit sphere (y up)
+  function sphere(ctx, S, cx, cy, r, tex, o = {}) {
+    const L = o.light || [-0.62, 0.5, 0.6]; const ll = Math.hypot(...L); const lx = L[0] / ll, ly = L[1] / ll, lz = L[2] / ll;
+    const tilt = o.tilt || 0, ct = Math.cos(tilt), st = Math.sin(tilt);
+    const spin = o.spin || 0, cs = Math.cos(spin), ss = Math.sin(spin);
+    const amb = BARE ? Math.max(o.amb ?? 0.04, 0.32) : (o.amb ?? 0.04), limb = o.limb ?? 0.15;
+    const x0 = Math.max(0, Math.floor(cx - r - 1)), y0 = Math.max(0, Math.floor(cy - r - 1));
+    const x1 = Math.min(S, Math.ceil(cx + r + 1)), y1 = Math.min(S, Math.ceil(cy + r + 1));
+    const w = x1 - x0, h = y1 - y0; if (w <= 0 || h <= 0) return;
+    const img = ctx.getImageData(x0, y0, w, h), d = img.data;
+    const rim = o.rim, rimS = o.rimS ?? 0.6;
+    for (let py = 0; py < h; py++) for (let px = 0; px < w; px++) {
+      const nx = (x0 + px + 0.5 - cx) / r, ny = -(y0 + py + 0.5 - cy) / r;
+      const rr = nx * nx + ny * ny; if (rr > 1.0 + 2 / r) continue;
+      const dist = Math.sqrt(rr), edge = clamp((1 - dist) * r + 0.5, 0, 1); if (edge <= 0) continue;
+      const nz = Math.sqrt(Math.max(0, 1 - rr));
+      // texture coords: untilt around view z, then spin around y
+      let tx = nx * ct + ny * st, ty = -nx * st + ny * ct, tz = nz;
+      const sx = tx * cs + tz * ss, sz = -tx * ss + tz * cs;
+      let c = tex(sx, ty, sz, nx, ny, nz);
+      let sh;
+      if (o.emissive) sh = (0.3 + 0.7 * Math.pow(nz, limb)) * (o.emi ?? 1);
+      else {
+        const dot = nx * lx + ny * ly + nz * lz;
+        sh = amb + (1 - amb) * sstep(-0.12, 0.85, dot) * Math.pow(Math.max(nz, 0.0001), limb);
+      }
+      let R = c[0] * sh, G = c[1] * sh, B = c[2] * sh;
+      if (rim) {
+        const dot = o.emissive ? 1 : clamp(nx * lx + ny * ly + nz * lz + 0.35, 0, 1);
+        const f = Math.pow(1 - nz, 2.6) * rimS * dot;
+        R += rim[0] * f; G += rim[1] * f; B += rim[2] * f;
+      }
+      const i = (py * w + px) * 4;
+      d[i] = d[i] + (clamp(R, 0, 1) * 255 - d[i]) * edge;
+      d[i + 1] = d[i + 1] + (clamp(G, 0, 1) * 255 - d[i + 1]) * edge;
+      d[i + 2] = d[i + 2] + (clamp(B, 0, 1) * 255 - d[i + 2]) * edge;
+      if (BARE) { if (d[i + 3] < 255) { const a0 = d[i + 3] / 255; d[i] = clamp(R, 0, 1) * 255; d[i + 1] = clamp(G, 0, 1) * 255; d[i + 2] = clamp(B, 0, 1) * 255; } d[i + 3] = Math.max(d[i + 3], edge * 255); }
+    }
+    ctx.putImageData(img, x0, y0);
+  }
+  function craters(seed, n, rmin, rmax) {
+    const r = rng(seed), list = [];
+    for (let i = 0; i < n; i++) {
+      let x = r() * 2 - 1, y = r() * 2 - 1, z = r() * 2 - 1; const l = Math.hypot(x, y, z) || 1;
+      const rad = rmin + (rmax - rmin) * Math.pow(r(), 2.2);
+      list.push([x / l, y / l, z / l, rad, Math.cos(rad), r()]);
+    }
+    return list;
+  }
+  function craterShade(list, x, y, z) {
+    let v = 0;
+    for (const c of list) {
+      const dt = x * c[0] + y * c[1] + z * c[2];
+      if (dt < c[4] - 0.02) continue;
+      const ang = Math.acos(clamp(dt, -1, 1)), t = ang / c[3];
+      if (t < 0.9) v -= 0.13 * (1 - t * t * 0.7);
+      else if (t < 1.25) v += 0.1 * Math.sin((t - 0.9) / 0.35 * Math.PI);
+    }
+    return v;
+  }
+
+  // ---------- planets and moons ----------
+  const P = {};
+  P.sun = (ctx, S) => {
+    starfield(ctx, S, 11, 0.5);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, S / 2, S / 2, S * 0.5, 'rgba(255,170,60,0.9)'); glow(ctx, S / 2, S / 2, S * 0.4, 'rgba(255,220,140,1)'); glow(ctx, S / 2, S / 2, S * 0.34, 'rgba(255,240,200,1)');
+    ctx.restore();
+    const spots = craters(5, 6, 0.03, 0.06);
+    sphere(ctx, S, S / 2, S / 2, S * 0.3, (x, y, z) => {
+      const g = fbm(x * 18, y * 18, z * 18, 3, 3) * 0.5 + 0.5;
+      let c = mix([1, 0.72, 0.22], [1, 0.97, 0.78], g);
+      for (const s of spots) { if (Math.abs(s[1]) > 0.5) continue; const dt = x * s[0] + y * s[1] + z * s[2]; if (dt > Math.cos(s[3])) c = mix(c, [0.35, 0.12, 0.02], 0.85); else if (dt > Math.cos(s[3] * 1.8)) c = mix(c, [0.7, 0.35, 0.05], 0.4); }
+      return c;
+    }, { emissive: true, limb: 0.55, emi: 1.05 });
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(ctx, S / 2, S / 2, S * 0.48, 'rgba(255,190,90,0.45)'); ctx.restore();
+  };
+  P.mercury = (ctx, S) => {
+    starfield(ctx, S, 21);
+    const cr = craters(7, 90, 0.02, 0.22);
+    sphere(ctx, S, S / 2, S / 2, S * 0.3, (x, y, z) => {
+      const n = fbm(x * 4, y * 4, z * 4, 5, 2) * 0.35;
+      const v = 0.52 + n + craterShade(cr, x, y, z);
+      return [v * 1.0, v * 0.95, v * 0.9];
+    }, { limb: 0.25 });
+  };
+  P.venus = (ctx, S) => {
+    starfield(ctx, S, 31);
+    sphere(ctx, S, S / 2, S / 2, S * 0.34, (x, y, z) => {
+      const wx = fbm(x * 2, y * 2, z * 2, 3, 5) * 1.6;
+      const v = fbm(x * 1.4 + wx, y * 5 + wx, z * 1.4, 5, 9) * 0.5 + 0.5;
+      return mix([0.86, 0.72, 0.45], [1, 0.95, 0.8], v);
+    }, { limb: 0.35, rim: [0.5, 0.4, 0.2], rimS: 0.5 });
+  };
+  P.earth = (ctx, S) => {
+    starfield(ctx, S, 41);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(ctx, S / 2, S / 2, S * 0.4, 'rgba(80,140,255,0.35)'); ctx.restore();
+    sphere(ctx, S, S / 2, S / 2, S * 0.34, (x, y, z) => {
+      const c = fbm(x * 1.3 + 3, y * 1.3, z * 1.3, 4, 12) + fbm(x * 6, y * 6, z * 6, 2, 3) * 0.08;
+      const ay = Math.abs(y);
+      let col;
+      if (ay > 0.9 || (ay > 0.82 && c > -0.05)) col = [0.93, 0.95, 0.98];
+      else if (c > 0.04) {
+        const dry = fbm(x * 3, y * 3, z * 3, 4, 40) * 0.5 + 0.5;
+        const desert = sstep(0.2, 0.0, Math.abs(Math.abs(y) - 0.3)) * dry;
+        col = mix([0.16, 0.38, 0.12], [0.45, 0.42, 0.2], dry * 0.7);
+        col = mix(col, [0.82, 0.68, 0.42], clamp(desert * 1.6, 0, 0.9));
+        col = mix(col, [0.35, 0.38, 0.3], sstep(0.62, 0.78, ay) * 0.5);
+      } else {
+        const shallow = sstep(-0.06, 0.04, c);
+        col = mix([0.03, 0.12, 0.38], [0.1, 0.35, 0.6], shallow);
+      }
+      const wq = fbm(x * 3, y * 3, z * 3, 3, 77) * 1.5;
+      const cl = fbm(x * 3.2 + wq, y * 6 + wq, z * 3.2, 5, 60);
+      col = mix(col, [1, 1, 1], sstep(0.12, 0.4, cl) * 0.85);
+      return col;
+    }, { limb: 0.1, rim: [0.35, 0.6, 1], rimS: 0.9, spin: 0.6 });
+  };
+  P.moon = (ctx, S) => {
+    starfield(ctx, S, 51);
+    const cr = craters(19, 120, 0.015, 0.16);
+    sphere(ctx, S, S / 2, S / 2, S * 0.32, (x, y, z) => {
+      const m = fbm(x * 1.6, y * 1.6 + 1, z * 1.6, 4, 4);
+      const mare = sstep(0.0, 0.14, m) * (0.3 + 0.7 * sstep(-0.75, -0.4, y));
+      let v = 0.72 + fbm(x * 9, y * 9, z * 9, 4, 8) * 0.12 - mare * 0.32 + craterShade(cr, x, y, z) * 0.9;
+      // bright rayed crater near the bottom (like Tycho)
+      const tdx = x - 0.12, tdy = y + 0.72; const td = Math.hypot(tdx, tdy);
+      if (td < 0.06) v += 0.16; else if (td < 0.14) v += 0.05;
+      return [v, v * 0.98, v * 0.94];
+    }, { limb: 0.05, amb: 0.03 });
+  };
+  P.mars = (ctx, S) => {
+    starfield(ctx, S, 61);
+    const cr = craters(23, 25, 0.02, 0.09);
+    sphere(ctx, S, S / 2, S / 2, S * 0.3, (x, y, z) => {
+      const d = fbm(x * 2.2, y * 2.2, z * 2.2, 6, 14);
+      let col = mix([0.78, 0.4, 0.2], [0.92, 0.6, 0.38], fbm(x * 6, y * 6, z * 6, 3, 2) * 0.5 + 0.5);
+      col = mix(col, [0.42, 0.2, 0.12], sstep(0.02, 0.2, d) * 0.75);
+      const v = craterShade(cr, x, y, z) * 0.6; col = [col[0] + v, col[1] + v, col[2] + v];
+      if (y > 0.86 + fbm(x * 8, 0, z * 8, 2, 3) * 0.06) col = [0.96, 0.94, 0.92];
+      if (y < -0.92) col = [0.9, 0.86, 0.84];
+      return col;
+    }, { limb: 0.2, rim: [0.9, 0.55, 0.4], rimS: 0.35, spin: 1.2 });
+  };
+  P.jupiter = (ctx, S) => {
+    starfield(ctx, S, 71);
+    sphere(ctx, S, S / 2, S / 2, S * 0.38, (x, y, z) => {
+      const lon = Math.atan2(x, z);
+      const turb = fbm(x * 4, y * 14, z * 4, 4, 30) * 0.9 + fbm(x * 12, y * 30, z * 12, 3, 50) * 0.25;
+      const b = Math.sin(y * 17 + turb * 1.8 + Math.sin(y * 5) * 0.8);
+      let col = mix([0.68, 0.48, 0.32], [0.95, 0.9, 0.8], b * 0.5 + 0.5);
+      if (Math.abs(y) > 0.75) col = mix(col, [0.6, 0.55, 0.5], sstep(0.75, 0.95, Math.abs(y)));
+      // Great Red Spot
+      const gx = (lon - 0.35) / 0.3, gy = (y + 0.36) / 0.085, gd = gx * gx + gy * gy;
+      if (gd < 1.6) {
+        const sw = vn(gx * 3 + gy * 2, gy * 3, 0, 9) * 0.3;
+        col = mix(col, gd < 1 ? [0.78, 0.38, 0.24] : [0.95, 0.85, 0.75], sstep(1.6, 0.6, gd + sw));
+      }
+      return col;
+    }, { limb: 0.5, spin: 0 });
+  };
+  function ringsPass(ctx, S, cx, cy, R, ang, half, alpha = 1) {
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang);
+    ctx.beginPath(); if (half === 'back') ctx.rect(-S * 2, -S * 2, S * 4, S * 2); else ctx.rect(-S * 2, 0, S * 4, S * 2); ctx.clip();
+    const k = 0.2;
+    const bands = [[1.24, 1.5, [0.55, 0.5, 0.42], 0.35], [1.5, 1.92, [0.9, 0.82, 0.66], 0.95], [1.92, 1.99, [0, 0, 0], 0], [1.99, 2.25, [0.78, 0.7, 0.56], 0.8], [2.3, 2.33, [0.75, 0.7, 0.6], 0.4]];
+    for (const [a, b, c, al] of bands) {
+      if (!al) continue;
+      for (let rr = a; rr < b; rr += 0.012) {
+        const wob = 0.82 + 0.18 * Math.sin(rr * 140) * Math.sin(rr * 37);
+        ctx.strokeStyle = `rgba(${c[0] * 255 * wob | 0},${c[1] * 255 * wob | 0},${c[2] * 255 * wob | 0},${al * alpha})`;
+        ctx.lineWidth = R * 0.016;
+        ctx.beginPath(); ctx.ellipse(0, 0, R * rr, R * rr * k, 0, 0, 6.2832); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+  P.saturn = (ctx, S) => {
+    starfield(ctx, S, 81);
+    const R = S * 0.21, cx = S / 2, cy = S / 2, ang = -0.32;
+    ringsPass(ctx, S, cx, cy, R, ang, 'back');
+    sphere(ctx, S, cx, cy, R, (x, y, z) => {
+      const turb = fbm(x * 3, y * 12, z * 3, 3, 5) * 0.6;
+      const b = Math.sin(y * 13 + turb);
+      let col = mix([0.78, 0.64, 0.42], [0.96, 0.88, 0.66], b * 0.5 + 0.5);
+      if (y > 0.78) col = mix(col, [0.6, 0.66, 0.7], sstep(0.78, 0.98, y) * 0.6);
+      // ring shadow band across the planet
+      const ry = y * Math.cos(ang) + x * 0;
+      return col;
+    }, { limb: 0.45, tilt: ang });
+    ringsPass(ctx, S, cx, cy, R, ang, 'front');
+  };
+  P.uranus = (ctx, S) => {
+    starfield(ctx, S, 91);
+    sphere(ctx, S, S / 2, S / 2, S * 0.3, (x, y, z) => {
+      const b = Math.sin(y * 9 + fbm(x * 2, y * 6, z * 2, 2, 3) * 0.6) * 0.03;
+      return [0.62 + b, 0.86 + b, 0.9 + b];
+    }, { limb: 0.55, tilt: 1.45, rim: [0.6, 0.85, 0.9], rimS: 0.25 });
+  };
+  P.neptune = (ctx, S) => {
+    starfield(ctx, S, 101);
+    sphere(ctx, S, S / 2, S / 2, S * 0.3, (x, y, z) => {
+      const lon = Math.atan2(x, z);
+      const t = fbm(x * 3, y * 10, z * 3, 4, 7);
+      let col = mix([0.16, 0.3, 0.75], [0.3, 0.5, 0.95], Math.sin(y * 10 + t * 2) * 0.5 + 0.5);
+      const sx = (lon + 0.25) / 0.22, sy = (y + 0.3) / 0.09, sd = sx * sx + sy * sy;
+      if (sd < 1) col = mix(col, [0.08, 0.12, 0.38], sstep(1, 0.4, sd));
+      const streak = sstep(0.22, 0.4, fbm(x * 2, y * 24, z * 2, 3, 41)) * (Math.abs(y + 0.15) < 0.12 || Math.abs(y - 0.35) < 0.06 ? 1 : 0);
+      col = mix(col, [0.9, 0.95, 1], streak * 0.8);
+      return col;
+    }, { limb: 0.5, rim: [0.3, 0.5, 1], rimS: 0.4 });
+  };
+  P.pluto = (ctx, S) => {
+    starfield(ctx, S, 111);
+    const cr = craters(31, 30, 0.02, 0.07);
+    sphere(ctx, S, S / 2, S / 2, S * 0.28, (x, y, z) => {
+      const lon = Math.atan2(x, z);
+      let col = mix([0.72, 0.6, 0.48], [0.85, 0.76, 0.64], fbm(x * 5, y * 5, z * 5, 4, 3) * 0.5 + 0.5);
+      // dark reddish equatorial belt
+      const belt = sstep(0.0, 0.18, fbm(x * 2.5, y * 2.5, z * 2.5, 4, 9) + 0.15 - Math.abs(y + 0.1) * 1.4);
+      col = mix(col, [0.35, 0.18, 0.12], belt * 0.85);
+      // the bright heart (Tombaugh Regio)
+      const hx = (lon - 0.25) / 0.48, hy = -(y - 0.02) / 0.48 + 0.15;
+      const hv = Math.pow(hx * hx + hy * hy - 1, 3) - hx * hx * hy * hy * hy;
+      if (hv < 0.02) col = mix(col, [0.97, 0.93, 0.86], sstep(0.02, -0.08, hv) * 0.95);
+      const v = craterShade(cr, x, y, z) * 0.4; return [col[0] + v, col[1] + v, col[2] + v];
+    }, { limb: 0.2, spin: 0.15 });
+  };
+  P.io = (ctx, S) => {
+    starfield(ctx, S, 121);
+    const volc = craters(41, 35, 0.015, 0.05);
+    sphere(ctx, S, S / 2, S / 2, S * 0.29, (x, y, z) => {
+      const n = fbm(x * 3, y * 3, z * 3, 5, 17);
+      let col = mix([0.92, 0.85, 0.4], [0.98, 0.95, 0.75], sstep(-0.1, 0.25, n));
+      col = mix(col, [0.85, 0.5, 0.18], sstep(0.15, 0.4, fbm(x * 4, y * 4, z * 4, 4, 23)) * 0.8);
+      for (const c of volc) {
+        const dt = x * c[0] + y * c[1] + z * c[2]; if (dt < Math.cos(c[3] * 3)) continue;
+        const a = Math.acos(clamp(dt, -1, 1)) / c[3];
+        if (a < 1) col = mix(col, [0.12, 0.07, 0.04], 0.9); else if (a < 3) col = mix(col, c[5] > 0.5 ? [0.8, 0.32, 0.1] : [0.95, 0.95, 0.85], 0.5 * (3 - a) / 2);
+      }
+      if (Math.abs(y) > 0.8) col = mix(col, [0.6, 0.5, 0.35], sstep(0.8, 0.98, Math.abs(y)) * 0.6);
+      return col;
+    }, { limb: 0.2 });
+  };
+  P.europa = (ctx, S) => {
+    starfield(ctx, S, 131);
+    sphere(ctx, S, S / 2, S / 2, S * 0.29, (x, y, z) => {
+      let col = mix([0.84, 0.8, 0.72], [0.95, 0.93, 0.88], fbm(x * 4, y * 4, z * 4, 4, 5) * 0.5 + 0.5);
+      col = mix(col, [0.72, 0.6, 0.48], sstep(0.1, 0.35, fbm(x * 2.2, y * 2.2, z * 2.2, 4, 15)) * 0.6);
+      for (let k = 0; k < 3; k++) {
+        const f = [3, 5.5, 9][k];
+        const ln = 1 - Math.abs(vn(x * f + k * 7, y * f, z * f, 50 + k));
+        if (ln > 0.965 - k * 0.01) col = mix(col, [0.55, 0.35, 0.22], 0.75 - k * 0.15);
+      }
+      return col;
+    }, { limb: 0.15 });
+  };
+  P.titan = (ctx, S) => {
+    starfield(ctx, S, 141);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(ctx, S / 2, S / 2, S * 0.36, 'rgba(230,150,60,0.25)'); ctx.restore();
+    sphere(ctx, S, S / 2, S / 2, S * 0.3, (x, y, z) => {
+      const v = fbm(x * 2, y * 4, z * 2, 3, 3) * 0.06;
+      let col = [0.85 + v, 0.58 + v, 0.24 + v * 0.5];
+      if (y > 0.7) col = mix(col, [0.6, 0.45, 0.3], sstep(0.7, 0.95, y) * 0.5);
+      return col;
+    }, { limb: 0.05, rim: [1, 0.75, 0.45], rimS: 0.9 });
+  };
+
+  // ---------- stars and deep sky ----------
+  P.star = (ctx, S) => {
+    starfield(ctx, S, 151, 1.3);
+    brightStar(ctx, S / 2, S / 2, S * 0.035, '#ffffff', 'rgba(170,200,255,1)');
+  };
+  P.reddwarf_unused = null;
+  P.redgiant = (ctx, S) => {
+    starfield(ctx, S, 161);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, S / 2, S / 2, S * 0.52, 'rgba(255,90,30,0.5)'); ctx.restore();
+    sphere(ctx, S, S / 2, S / 2, S * 0.36, (x, y, z) => {
+      const c = fbm(x * 3, y * 3, z * 3, 4, 13) * 0.5 + 0.5;
+      const g = fbm(x * 9, y * 9, z * 9, 2, 21) * 0.5 + 0.5;
+      return mix([0.75, 0.18, 0.05], [1, 0.55, 0.2], c * 0.75 + g * 0.25);
+    }, { emissive: true, limb: 0.9, emi: 1.15 });
+  };
+  P.whitedwarf = (ctx, S) => {
+    starfield(ctx, S, 171, 1.2);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, S / 2, S / 2, S * 0.32, 'rgba(140,180,255,0.45)'); glow(ctx, S / 2, S / 2, S * 0.14, 'rgba(200,220,255,0.9)'); ctx.restore();
+    sphere(ctx, S, S / 2, S / 2, S * 0.07, () => [0.95, 0.97, 1], { emissive: true, limb: 0.15 });
+    // its big bright partner, Sirius A, off in the corner
+    brightStar(ctx, S * 0.86, S * 0.16, S * 0.02, '#ffffff', 'rgba(170,200,255,1)');
+  };
+  P.pulsar = (ctx, S) => {
+    starfield(ctx, S, 181, 1.1);
+    const cx = S / 2, cy = S / 2, ang = -0.5;
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang); ctx.globalCompositeOperation = 'lighter';
+    // magnetic field loops
+    ctx.strokeStyle = 'rgba(140,170,255,0.18)'; ctx.lineWidth = S * 0.004;
+    for (const k of [0.12, 0.2, 0.28]) { ctx.beginPath(); ctx.ellipse(-S * k * 0.6, 0, S * k * 0.6, S * k, 0, 0, 6.2832); ctx.stroke(); ctx.beginPath(); ctx.ellipse(S * k * 0.6, 0, S * k * 0.6, S * k, 0, 0, 6.2832); ctx.stroke(); }
+    // two beams
+    for (const dir of [-1, 1]) {
+      const g = ctx.createLinearGradient(0, 0, 0, dir * S * 0.62);
+      g.addColorStop(0, 'rgba(210,225,255,0.95)'); g.addColorStop(0.6, 'rgba(120,160,255,0.35)'); g.addColorStop(1, 'rgba(90,120,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-S * 0.01, 0); ctx.lineTo(-S * 0.08, dir * S * 0.62); ctx.lineTo(S * 0.08, dir * S * 0.62); ctx.lineTo(S * 0.01, 0); ctx.fill();
+    }
+    ctx.restore();
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, cx, cy, S * 0.12, 'rgba(150,190,255,0.9)'); glow(ctx, cx, cy, S * 0.04, '#ffffff'); ctx.restore();
+  };
+  P.comet = (ctx, S) => {
+    starfield(ctx, S, 191, 1.2);
+    const hx = S * 0.72, hy = S * 0.3;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    // curved dust tail
+    for (let i = 0; i < 120; i++) {
+      const t = i / 120;
+      const x = hx - t * S * 0.72, y = hy + t * S * 0.52 + t * t * S * 0.12;
+      const rr = S * (0.03 + t * 0.12);
+      glow(ctx, x, y, rr, 'rgba(255,240,215,1)', 0.07 * (1 - t) + 0.01);
+    }
+    // straight blue ion tail
+    for (let i = 0; i < 90; i++) {
+      const t = i / 90;
+      glow(ctx, hx - t * S * 0.8, hy + t * S * 0.4, S * (0.015 + t * 0.03), 'rgba(110,170,255,1)', 0.08 * (1 - t));
+    }
+    glow(ctx, hx, hy, S * 0.12, 'rgba(200,255,230,0.6)');
+    glow(ctx, hx, hy, S * 0.035, '#ffffff');
+    ctx.restore();
+  };
+  P.asteroid = (ctx, S) => {
+    starfield(ctx, S, 201);
+    const cx = S / 2, cy = S / 2, R = S * 0.3, cr = craters(51, 50, 0.03, 0.2);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    const L = [-0.6, 0.45, 0.65];
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const dx = (px - cx) / R, dy = -(py - cy) / R, a = Math.atan2(dy, dx);
+      const rad = 1 + 0.16 * vn(Math.cos(a) * 1.4, Math.sin(a) * 1.4, 0, 5) + 0.06 * vn(Math.cos(a) * 4, Math.sin(a) * 4, 0, 6);
+      const nx = dx / rad, ny = dy / rad, rr = nx * nx + ny * ny; if (rr >= 1) continue;
+      const edge = clamp((1 - Math.sqrt(rr)) * R + 0.3, 0, 1);
+      const nz = Math.sqrt(1 - rr);
+      const bump = fbm(nx * 4, ny * 4, nz * 4, 4, 7) * 0.5;
+      const ex = nx + bump * 0.3, ey = ny + bump * 0.3;
+      const dot = (ex * L[0] + ey * L[1] + nz * L[2]);
+      let v = 0.5 + fbm(nx * 8, ny * 8, nz * 8, 3, 3) * 0.12 + craterShade(cr, nx, ny, nz);
+      const sh = 0.03 + 0.97 * sstep(-0.1, 0.9, dot);
+      const i = (py * S + px) * 4;
+      const r = v * 0.95 * sh, g = v * 0.88 * sh, b = v * 0.8 * sh;
+      d[i] += (r * 255 - d[i]) * edge; d[i + 1] += (g * 255 - d[i + 1]) * edge; d[i + 2] += (b * 255 - d[i + 2]) * edge;
+      if (BARE) { const k = Math.max(sh, 0.32 + 0.68 * sh); d[i] = r / sh * k * 255; d[i + 1] = g / sh * k * 255; d[i + 2] = b / sh * k * 255; d[i + 3] = edge * 255; }
+    }
+    ctx.putImageData(img, 0, 0);
+  };
+  P.meteor = (ctx, S) => {
+    // night sky over dark hills
+    const g = ctx.createLinearGradient(0, 0, 0, S);
+    g.addColorStop(0, '#04061a'); g.addColorStop(0.75, '#1a2350'); g.addColorStop(1, '#2b2d5c');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    const r = rng(211);
+    for (let i = 0; i < 160 * (S / 400) ** 2; i++) { ctx.globalAlpha = 0.3 + r() * 0.7; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(r() * S, r() * S * 0.8, (r() > 0.9 ? 1.3 : 0.6) * S / 400, 0, 6.2832); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    // the streak
+    const x0 = S * 0.15, y0 = S * 0.12, x1 = S * 0.78, y1 = S * 0.55;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    for (const [w, a, col] of [[S * 0.05, 0.08, '120,255,190'], [S * 0.022, 0.25, '170,255,220'], [S * 0.008, 0.9, '255,255,255']]) {
+      const lg = ctx.createLinearGradient(x0, y0, x1, y1);
+      lg.addColorStop(0, `rgba(${col},0)`); lg.addColorStop(0.85, `rgba(${col},${a})`); lg.addColorStop(1, `rgba(${col},${a})`);
+      ctx.strokeStyle = lg; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    }
+    glow(ctx, x1, y1, S * 0.05, 'rgba(255,255,240,1)');
+    ctx.restore();
+    // hills and pine trees
+    ctx.fillStyle = '#0d1424';
+    ctx.beginPath(); ctx.moveTo(0, S);
+    for (let x = 0; x <= S; x += S / 80) ctx.lineTo(x, S * 0.82 - Math.sin(x / S * 3.1) * S * 0.06 - vn(x / S * 6, 0, 0, 3) * S * 0.03);
+    ctx.lineTo(S, S); ctx.fill();
+    for (let k = 0; k < 9; k++) { const x = S * (0.05 + k * 0.11 + r() * 0.04), h = S * (0.06 + r() * 0.07), b = S * 0.84 - Math.sin(x / S * 3.1) * S * 0.06; ctx.beginPath(); ctx.moveTo(x, b - h); ctx.lineTo(x - h * 0.3, b); ctx.lineTo(x + h * 0.3, b); ctx.fill(); }
+  };
+  P.meteorite = (ctx, S) => {
+    // the Hoba meteorite: a flat iron slab resting in the ground
+    const g = ctx.createLinearGradient(0, 0, 0, S);
+    g.addColorStop(0, '#7fb1dc'); g.addColorStop(0.55, '#f3d6ae'); g.addColorStop(0.56, '#c9a77c'); g.addColorStop(1, '#a5825a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    // ground texture
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = Math.floor(S * 0.56); py < S; py++) for (let px = 0; px < S; px++) {
+      const v = fbm(px / S * 30, py / S * 30, 0, 3, 5) * 30; const i = (py * S + px) * 4; d[i] += v; d[i + 1] += v; d[i + 2] += v * 0.8;
+    }
+    const cx = S * 0.5, cy = S * 0.62, W = S * 0.34, H = S * 0.2, L = [-0.55, 0.6, 0.6];
+    const ground = S * 0.7;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      if (py > ground + vn(px / S * 9, 0, 0, 2) * S * 0.01) continue;
+      const dx = (px - cx) / W, dy = -(py - cy) / H, a = Math.atan2(dy, dx);
+      const rad = 1 + 0.14 * vn(Math.cos(a) * 1.6, Math.sin(a) * 1.6, 0, 9) + 0.05 * vn(Math.cos(a) * 5, Math.sin(a) * 5, 0, 3);
+      const nx = dx / rad, ny = dy / rad, rr = nx * nx + ny * ny; if (rr >= 1) continue;
+      const nz = Math.sqrt(1 - rr), edge = clamp((1 - Math.sqrt(rr)) * W * 0.6, 0, 1);
+      // thumbprint dimples (regmaglypts) bend the surface
+      const dm = vn(nx * 7, ny * 7, nz * 7, 4), dm2 = vn(nx * 7 + 0.05, ny * 7, nz * 7, 4), dm3 = vn(nx * 7, ny * 7 + 0.05, nz * 7, 4);
+      const ex = nx + (dm2 - dm) * 6, ey = ny + (dm3 - dm) * 6;
+      const dot = (ex * L[0] + ey * L[1] + nz * L[2]) / Math.hypot(ex, ey, nz);
+      const sh = 0.12 + 0.88 * sstep(-0.1, 0.95, dot);
+      const spec = Math.pow(clamp(dot, 0, 1), 18) * 0.35;
+      const rust = sstep(0.05, 0.35, fbm(nx * 4, ny * 4, nz * 4, 4, 11));
+      const base = 0.2 + 0.08 * fbm(nx * 10, ny * 10, nz * 10, 3, 6);
+      const r = (base + rust * 0.2) * sh + spec, g = (base * 0.95 + rust * 0.08) * sh + spec, b = (base * 0.92) * sh + spec * 0.9;
+      const i = (py * S + px) * 4;
+      d[i] += (clamp(r, 0, 1) * 255 - d[i]) * edge; d[i + 1] += (clamp(g, 0, 1) * 255 - d[i + 1]) * edge; d[i + 2] += (clamp(b, 0, 1) * 255 - d[i + 2]) * edge;
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.fillStyle = 'rgba(70,45,20,0.35)'; ctx.beginPath(); ctx.ellipse(cx + S * 0.03, ground + S * 0.005, W * 1.05, S * 0.018, 0, 0, 6.2832); ctx.fill();
+  };
+  P.nebula = (ctx, S) => {
+    starfield(ctx, S, 221, 1.4);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = px / S - 0.5, y = py / S - 0.48;
+      const wx = fbm(x * 3, y * 3, 0.3, 4, 5) * 0.7, wy = fbm(x * 3 + 5, y * 3, 0.7, 4, 7) * 0.7;
+      const n = fbm(x * 4 + wx, y * 4 + wy, 1.3, 6, 9) * 0.5 + 0.5;
+      const r = Math.hypot(x * 1.1, y);
+      const body = clamp(1.25 - r * 2.4, 0, 1);
+      const pink = clamp((n - 0.35) * 2.2, 0, 1) * body;
+      const core = clamp(1 - r * 5.5, 0, 1) * (0.6 + n * 0.6);
+      const dust = sstep(0.55, 0.75, fbm(x * 6 + 2, y * 6, 3, 5, 31) * 0.5 + 0.5) * body;
+      let R = pink * 0.95 + core * 0.55, G = pink * 0.3 + core * 0.85, B = pink * 0.45 + core * 0.8;
+      R *= 1 - dust * 0.85; G *= 1 - dust * 0.85; B *= 1 - dust * 0.85;
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] * (1 - dust * 0.9) + R * 255); d[i + 1] = Math.min(255, d[i + 1] * (1 - dust * 0.9) + G * 255); d[i + 2] = Math.min(255, d[i + 2] * (1 - dust * 0.9) + B * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+    for (const [a, b] of [[0.49, 0.47], [0.52, 0.46], [0.5, 0.5], [0.53, 0.49]]) brightStar(ctx, S * a, S * b, S * 0.007, '#ffffff', 'rgba(200,230,255,1)', false);
+  };
+  P.galaxy = (ctx, S) => {
+    starfield(ctx, S, 231, 1.1);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    const ang = -0.6, ca = Math.cos(ang), sa = Math.sin(ang), incl = 0.36;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x0 = (px - S / 2) / S * 0.62, y0 = (py - S / 2) / S * 0.62;
+      const x = x0 * ca - y0 * sa, y = (x0 * sa + y0 * ca) / incl;
+      const r = Math.hypot(x, y), th = Math.atan2(y, x);
+      if (r > 0.75) continue;
+      const arm = Math.cos(2 * (th - Math.log(r + 0.02) * 2.6)) * 0.5 + 0.5;
+      const n = fbm(x * 9, y * 9, 0.5, 4, 3) * 0.5 + 0.5;
+      const disk = Math.exp(-r / 0.13) * (0.35 + 0.9 * Math.pow(arm, 2) * (0.6 + n * 0.6));
+      const bulge = Math.exp(-(r * r) / 0.0035);
+      const dustLane = sstep(0.75, 0.95, Math.cos(2 * (th - Math.log(r + 0.02) * 2.6) + 0.9) * 0.5 + 0.5) * sstep(0.03, 0.1, r) * Math.exp(-r / 0.3);
+      let I = disk * 1.3 + bulge * 1.4;
+      I *= 1 - dustLane * 0.6;
+      const warm = clamp(bulge * 2 + Math.exp(-r / 0.06), 0, 1);
+      const R = I * (0.75 + 0.25 * warm), G = I * (0.78 + 0.12 * warm), B = I * (0.95 - 0.3 * warm);
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + R * 230); d[i + 1] = Math.min(255, d[i + 1] + G * 230); d[i + 2] = Math.min(255, d[i + 2] + B * 230);
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    glow(ctx, S * 0.62, S * 0.36, S * 0.025, 'rgba(255,240,210,0.8)'); glow(ctx, S * 0.24, S * 0.76, S * 0.04, 'rgba(255,240,210,0.45)');
+    ctx.restore();
+  };
+  P.blackhole = (ctx, S) => {
+    starfield(ctx, S, 241, 1.2);
+    const cx = S / 2, cy = S / 2, rs = S * 0.13;
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = (px - cx) / rs, y = (py - cy) / rs, r = Math.hypot(x, y);
+      let I = 0, hot = 0;
+      // lensed ring of light around the shadow
+      const ring = Math.exp(-Math.pow((r - 1.18) / 0.14, 2)) * (1.0 + 0.4 * (-y / (r || 1)) );
+      I += ring * (0.9 + 0.25 * fbm(Math.atan2(y, x) * 3, r * 4, 0, 3, 5));
+      // the flat disk seen almost edge-on, crossing in front
+      const dy = y / 0.2, dr = Math.hypot(x, dy);
+      if (dr > 1.25 && dr < 3.4 && (y > 0 || r > 1.05)) {
+        const t = (dr - 1.25) / 2.15;
+        const dop = 1 + 0.55 * (-x / dr);
+        I += Math.pow(1 - t, 1.6) * 1.2 * dop * (0.75 + 0.35 * fbm(Math.atan2(dy, x) * 4, dr * 3, 0, 3, 9));
+        hot += (1 - t) * 0.5;
+      }
+      const glowI = Math.exp(-Math.max(0, r - 1) * 1.4) * 0.25;
+      I += glowI;
+      let R = I * 1.0, G = I * (0.6 + hot * 0.3), B = I * (0.22 + hot * 0.2);
+      const i = (py * S + px) * 4;
+      if (r < 1.0 && !(dr > 1.25 && dr < 3.4 && y > 0)) { d[i] = d[i + 1] = d[i + 2] = 0; continue; }
+      d[i] = Math.min(255, d[i] * (r < 1.05 ? 0 : 1) + R * 255); d[i + 1] = Math.min(255, d[i + 1] * (r < 1.05 ? 0 : 1) + G * 255); d[i + 2] = Math.min(255, d[i + 2] * (r < 1.05 ? 0 : 1) + B * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+  };
+  P.cluster = (ctx, S) => {
+    starfield(ctx, S, 251, 1.5);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = px / S, y = py / S;
+      const n = fbm(x * 5, y * 5, 0, 5, 13) * 0.5 + 0.5;
+      const streak = fbm(x * 3 + y * 6, y * 2, 2, 4, 3) * 0.5 + 0.5;
+      const f = clamp(1.1 - Math.hypot(x - 0.5, y - 0.5) * 2.2, 0, 1) * Math.pow(n * 0.6 + streak * 0.4, 2.2) * 0.75;
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + f * 70); d[i + 1] = Math.min(255, d[i + 1] + f * 120); d[i + 2] = Math.min(255, d[i + 2] + f * 230);
+    }
+    ctx.putImageData(img, 0, 0);
+    const stars = [[0.3, 0.38, 1], [0.42, 0.3, 0.8], [0.5, 0.44, 1.2], [0.58, 0.36, 0.9], [0.62, 0.52, 1], [0.7, 0.45, 0.75], [0.4, 0.58, 0.85], [0.52, 0.66, 0.6], [0.76, 0.6, 0.6]];
+    for (const [x, y, k] of stars) brightStar(ctx, S * x, S * y, S * 0.011 * k, '#ffffff', 'rgba(150,190,255,1)');
+  };
+  P.supernova = (ctx, S) => {
+    starfield(ctx, S, 261, 1.2);
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = px / S - 0.5, y = py / S - 0.5, r = Math.hypot(x, y), a = Math.atan2(y, x);
+      const fil = fbm(Math.cos(a) * 3 + r * 12, Math.sin(a) * 3 + r * 12, r * 6, 5, 7) * 0.5 + 0.5;
+      const shell = Math.exp(-Math.pow((r - 0.27 - fil * 0.05) / 0.05, 2));
+      const inner = Math.exp(-Math.pow(r / 0.18, 2));
+      const red = shell * Math.pow(fil, 1.5) * 1.6, blue = inner * (0.5 + fil * 0.6);
+      let R = red * 1.0 + blue * 0.5, G = red * 0.35 + blue * 0.7, B = red * 0.2 + blue * 1.0;
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + R * 255); d[i + 1] = Math.min(255, d[i + 1] + G * 255); d[i + 2] = Math.min(255, d[i + 2] + B * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+    brightStar(ctx, S / 2, S / 2, S * 0.03, '#ffffff', 'rgba(255,240,200,1)');
+  };
+  P.constellation = (ctx, S) => {
+    starfield(ctx, S, 271, 0.8);
+    const st = { bet: [0.3, 0.24, 1.3, '#ffb070'], bel: [0.68, 0.28, 0.95, '#cfe0ff'], mei: [0.5, 0.13, 0.7, '#dfe8ff'], b1: [0.43, 0.52, 0.9, '#dfe8ff'], b2: [0.5, 0.49, 0.9, '#dfe8ff'], b3: [0.57, 0.46, 0.9, '#dfe8ff'], sai: [0.36, 0.83, 0.9, '#dfe8ff'], rig: [0.72, 0.8, 1.3, '#bcd2ff'] };
+    const lines = [['mei', 'bet'], ['mei', 'bel'], ['bet', 'b1'], ['bel', 'b3'], ['b1', 'b2'], ['b2', 'b3'], ['b1', 'sai'], ['b3', 'rig']];
+    ctx.strokeStyle = 'rgba(180,170,240,0.45)'; ctx.lineWidth = S * 0.006; ctx.lineCap = 'round';
+    for (const [a, b] of lines) { ctx.beginPath(); ctx.moveTo(S * st[a][0], S * st[a][1]); ctx.lineTo(S * st[b][0], S * st[b][1]); ctx.stroke(); }
+    for (const k in st) { const [x, y, m, c] = st[k]; brightStar(ctx, S * x, S * y, S * 0.012 * m, '#ffffff', c); }
+  };
+  P.rings = (ctx, S) => {
+    starfield(ctx, S, 281);
+    // close-up: Saturn's edge low on the left, the rings sweeping across
+    const R = S * 0.62, cx = -S * 0.05, cy = S * 1.02, ang = -0.42;
+    ringsPass(ctx, S, cx, cy, R, ang, 'back');
+    sphere(ctx, S, cx, cy, R, (x, y, z) => {
+      const b = Math.sin(y * 13 + fbm(x * 3, y * 12, z * 3, 3, 5) * 0.6);
+      return mix([0.78, 0.64, 0.42], [0.96, 0.88, 0.66], b * 0.5 + 0.5);
+    }, { limb: 0.45, tilt: ang });
+    ringsPass(ctx, S, cx, cy, R, ang, 'front');
+  };
+  P.aurora = (ctx, S) => {
+    const g = ctx.createLinearGradient(0, 0, 0, S);
+    g.addColorStop(0, '#040616'); g.addColorStop(0.7, '#0d1838'); g.addColorStop(1, '#16244a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    const r = rng(291);
+    for (let i = 0; i < 150 * (S / 400) ** 2; i++) { ctx.globalAlpha = 0.3 + r() * 0.7; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(r() * S, r() * S * 0.75, (r() > 0.9 ? 1.2 : 0.6) * S / 400, 0, 6.2832); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let px = 0; px < S; px++) {
+      const x = px / S;
+      const base = 0.6 + 0.05 * Math.sin(x * 4 + 0.6) + 0.07 * fbm(x * 3, 0, 0, 3, 5);
+      const fold = 0.55 + 0.45 * Math.abs(Math.sin(x * 38 + fbm(x * 6, 1, 0, 3, 7) * 6));
+      const strength = (0.6 + 0.4 * fbm(x * 3, 2, 0, 3, 9)) * fold;
+      for (let py = 0; py < S * 0.8; py++) {
+        const y = py / S, above = base - y;
+        if (above < -0.03) continue;
+        const I = (above < 0 ? sstep(-0.03, 0, above) : Math.exp(-above / 0.22)) * strength;
+        const top = sstep(0.12, 0.38, above);
+        const R = I * (0.15 + top * 0.6), G = I * (1 - top * 0.6), B = I * (0.45 + top * 0.35);
+        const i = (py * S + px) * 4;
+        d[i] = Math.min(255, d[i] + R * 200); d[i + 1] = Math.min(255, d[i + 1] + G * 230); d[i + 2] = Math.min(255, d[i + 2] + B * 190);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    // snowy hills and pines
+    ctx.fillStyle = '#0a1122';
+    ctx.beginPath(); ctx.moveTo(0, S);
+    for (let x = 0; x <= S; x += S / 80) ctx.lineTo(x, S * 0.84 - Math.sin(x / S * 2.4 + 1) * S * 0.05);
+    ctx.lineTo(S, S); ctx.fill();
+    for (let k = 0; k < 12; k++) { const x = S * (k / 11), h = S * (0.05 + r() * 0.08), b = S * 0.86 - Math.sin(x / S * 2.4 + 1) * S * 0.05; ctx.beginPath(); ctx.moveTo(x, b - h); ctx.lineTo(x - h * 0.28, b); ctx.lineTo(x + h * 0.28, b); ctx.fill(); }
+  };
+  P.eclipse = (ctx, S) => {
+    starfield(ctx, S, 301, 0.6, '#0b1430');
+    const cx = S / 2, cy = S / 2, R = S * 0.17;
+    const img = ctx.getImageData(0, 0, S, S), d = img.data;
+    for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+      const x = (px - cx) / R, y = (py - cy) / R, r = Math.hypot(x, y), a = Math.atan2(y, x);
+      if (r < 1) continue;
+      const streak = 0.55 + 0.45 * Math.pow(fbm(Math.cos(a) * 3, Math.sin(a) * 3, 0, 4, 5) * 0.5 + 0.5, 1.5) * 2 * (0.7 + 0.3 * Math.abs(Math.cos(a)));
+      const I = Math.exp(-(r - 1) * 2.4) * streak + Math.exp(-(r - 1) * 14) * 0.9;
+      const i = (py * S + px) * 4;
+      d[i] = Math.min(255, d[i] + I * 240); d[i + 1] = Math.min(255, d[i + 1] + I * 240); d[i + 2] = Math.min(255, d[i + 2] + I * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.fillStyle = '#020204'; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.fill();
+    // little pink prominences on the edge
+    ctx.fillStyle = 'rgba(255,90,120,0.9)';
+    for (const a of [2.4, 4.1, 5.6]) { ctx.beginPath(); ctx.arc(cx + Math.cos(a) * R * 1.01, cy + Math.sin(a) * R * 1.01, R * 0.05, 0, 6.2832); ctx.fill(); }
+  };
+
+  function draw(kind, size, bare = false) {
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    BARE = bare;
+    try { P[kind](ctx, size); } finally { BARE = false; }
+    return c;
+  }
+  return { draw, kinds: Object.keys(P).filter(k => P[k]) };
+})();
+
+// ===== Everett's Observatory: the item set (every game reads this) =====
+// word = what the letter tiles spell; name = proper name shown under the tiles when it differs.
+// fact = one line for a grown-up to read aloud. Checked Nov 2026.
+const ITEMS = [
+  // The Sun's Family (Pip)
+  { n: 1, id: 'sun', word: 'Sun', name: 'The Sun', group: 'sun', fact: 'Our star: a giant ball of hot, glowing gas.' },
+  { n: 2, id: 'mercury', word: 'Mercury', group: 'sun', planet: 1, fact: 'The planet closest to the Sun.' },
+  { n: 3, id: 'venus', word: 'Venus', group: 'sun', planet: 2, fact: 'The hottest planet, wrapped in thick clouds.' },
+  { n: 4, id: 'earth', word: 'Earth', group: 'sun', planet: 3, fact: 'Our home planet.' },
+  { n: 5, id: 'moon', word: 'Moon', name: 'The Moon', group: 'sun', moonOf: 'earth', fact: 'Earth’s moon. People have walked on it.' },
+  { n: 6, id: 'mars', word: 'Mars', group: 'sun', planet: 4, fact: 'The red planet. Its dust is rusty, which makes it red.' },
+  { n: 7, id: 'jupiter', word: 'Jupiter', group: 'sun', planet: 5, fact: 'The biggest planet. Its Great Red Spot is a giant storm.' },
+  { n: 8, id: 'saturn', word: 'Saturn', group: 'sun', planet: 6, fact: 'Famous for its rings of ice and rock.' },
+  { n: 9, id: 'uranus', word: 'Uranus', group: 'sun', planet: 7, fact: 'It spins tipped over on its side.' },
+  { n: 10, id: 'neptune', word: 'Neptune', group: 'sun', planet: 8, fact: 'The planet farthest from the Sun, with the fastest winds.' },
+  { n: 11, id: 'pluto', word: 'Pluto', group: 'sun', planet: 9, dwarf: true, fact: 'A dwarf planet with a bright, heart-shaped patch of ice.' },
+  { n: 12, id: 'io', word: 'Io', group: 'sun', moonOf: 'jupiter', fact: 'A moon of Jupiter, covered in volcanoes.' },
+  { n: 13, id: 'europa', word: 'Europa', group: 'sun', moonOf: 'jupiter', fact: 'An icy moon of Jupiter. Scientists think an ocean hides under the ice.' },
+  { n: 14, id: 'titan', word: 'Titan', group: 'sun', moonOf: 'saturn', fact: 'Saturn’s biggest moon, wrapped in orange haze.' },
+  // Sky Spotter (Juniper)
+  { n: 15, id: 'star', word: 'Star', name: 'Sirius', group: 'sky', fact: 'Sirius is the brightest star in our night sky.' },
+  { n: 16, id: 'comet', word: 'Comet', name: 'Halley’s Comet', group: 'sky', fx: 72, fy: 30, fact: 'Halley’s Comet comes back about every 76 years.' },
+  { n: 17, id: 'asteroid', word: 'Asteroid', name: 'Vesta', group: 'sky', fact: 'Vesta is one of the biggest rocks in the asteroid belt, between Mars and Jupiter.' },
+  { n: 18, id: 'meteor', word: 'Meteor', name: 'Shooting Star', group: 'sky', fx: 62, fy: 40, fact: 'A bit of space rock burning up as it zooms through our air.' },
+  { n: 19, id: 'meteorite', word: 'Meteorite', name: 'Hoba', group: 'sky', fy: 60, fact: 'Hoba, in Namibia, is the biggest meteorite ever found. It is made of iron.' },
+  { n: 20, id: 'nebula', word: 'Nebula', name: 'Orion Nebula', group: 'sky', fact: 'A giant cloud of gas and dust where new stars are born.' },
+  { n: 21, id: 'pulsar', word: 'Pulsar', name: 'Crab Pulsar', group: 'sky', fact: 'A tiny star that spins about 30 times every second, sweeping beams of light.' },
+  { n: 22, id: 'galaxy', word: 'Galaxy', name: 'Andromeda', group: 'sky', fact: 'Andromeda is the nearest big galaxy to our own Milky Way.' },
+  { n: 23, id: 'blackhole', word: 'Black Hole', group: 'sky', fact: 'Its pull is so strong that not even light can get out.' },
+  { n: 24, id: 'cluster', word: 'Cluster', name: 'Pleiades', group: 'sky', fact: 'The Pleiades star cluster is also called the Seven Sisters.' },
+  { n: 25, id: 'supernova', word: 'Supernova', group: 'sky', fact: 'The giant explosion of a star.' },
+  { n: 26, id: 'redgiant', word: 'Red Giant', name: 'Aldebaran', group: 'sky', fact: 'Aldebaran is a red giant star, the bright eye of Taurus the bull.' },
+  { n: 27, id: 'whitedwarf', word: 'White Dwarf', name: 'Sirius B', group: 'sky', fact: 'Sirius B is a tiny, very hot star that circles Sirius.' },
+  { n: 28, id: 'constellation', word: 'Constellation', name: 'Orion', group: 'sky', fact: 'Orion the hunter. Look for the three stars in his belt.' },
+  { n: 29, id: 'rings', word: 'Rings', name: 'Saturn’s Rings', group: 'sky', fx: 62, fy: 62, fact: 'Billions of pieces of ice and rock circling Saturn.' },
+  { n: 30, id: 'aurora', word: 'Aurora', name: 'Northern Lights', group: 'sky', fy: 55, fact: 'Glowing lights near the North Pole, made when bits from the Sun hit our air.' },
+  { n: 31, id: 'eclipse', word: 'Eclipse', name: 'Solar Eclipse', group: 'sky', fact: 'The Moon slides in front of the Sun and hides it.' },
+];
+const BYID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+// pairs too alike for the easier levels
+const LOOKALIKE = [['saturn', 'rings'], ['star', 'whitedwarf'], ['star', 'cluster'], ['sun', 'redgiant'], ['moon', 'mercury'], ['venus', 'titan'], ['star', 'supernova'], ['meteor', 'comet'], ['whitedwarf', 'pulsar'], ['io', 'venus']];
+const LETTERS = [...new Set(ITEMS.map(i => i.word[0].toUpperCase()))].sort();
+
+const CHAR={"juniper": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3CclipPath%20id%3D%22jhead%22%3E%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%3C/clipPath%3E%0A%20%3Cfilter%20id%3D%22jsoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%232F5D50%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M60%2C230%20C70%2C252%2072%2C268%2070%2C280%20M180%2C230%20C170%2C252%20168%2C268%20170%2C280%22%20stroke%3D%22%2324493f%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M78%2C238%20l4.5%2C9%2010%2C1.4%20-7.2%2C7%201.7%2C10%20-9%2C-4.7%20-9%2C4.7%201.7%2C-10%20-7.2%2C-7%2010%2C-1.4%20z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cpath%20d%3D%22M86%2C150%20C84%2C164%2084%2C172%2086%2C180%20L154%2C180%20C156%2C172%20156%2C164%20154%2C150Z%22%20fill%3D%22%238a5a3c%22/%3E%0A%0A%0A%0A%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M163%2C218%20C169%2C217%20174%2C215%20178%2C212%22%20stroke%3D%22%237a6fb5%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M80%2C182%20C92%2C191%20108%2C194%20120%2C194%22%20stroke%3D%22%23e39566%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M84%2C166%20C80%2C174%2082%2C186%2088%2C193%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M100%2C168%20C97%2C176%2098%2C188%20102%2C197%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M140%2C214%20C148%2C216%20154%2C216%20161%2C213%20M141%2C230%20C149%2C232%20155%2C232%20162%2C229%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cellipse%20cx%3D%22151%22%20cy%3D%22200%22%20rx%3D%2213%22%20ry%3D%225%22%20fill%3D%22%23b8643c%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M137%2C191%20C136%2C183%20144%2C178%20152%2C179%20C160%2C180%20166%2C185%20165%2C192%20C164%2C200%20157%2C204%20150%2C204%20C142%2C204%20138%2C198%20137%2C191%20Z%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Cpath%20d%3D%22M143%2C186%20C147%2C191%20147%2C197%20144%2C201%20M157%2C184%20C153%2C190%20154%2C197%20158%2C201%22%20stroke%3D%22%23d98a5e%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%238a5a3c%22%20stroke-width%3D%221.8%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Ccircle%20cx%3D%2271%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23jhead%29%22%3E%3Cellipse%20cx%3D%2262%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3Cellipse%20cx%3D%22178%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3C/g%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22140%22%20rx%3D%2231%22%20ry%3D%2223%22%20fill%3D%22%23ecd2ac%22/%3E%0A%0A%3Cellipse%20cx%3D%2286%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%3Cellipse%20cx%3D%22154%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M89%2C86%20Q98%2C81%20107%2C86%20M133%2C86%20Q142%2C81%20151%2C86%22%20stroke%3D%22%233a2416%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%2299.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22143.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8963e%22%20stroke-width%3D%223%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Cpath%20d%3D%22M113%2C104%20Q120%2C99%20127%2C104%22/%3E%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C96%20l5%2C-4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20opacity%3D%22.7%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M109%2C126%20Q120%2C119%20131%2C126%20Q129%2C136%20120%2C138%20Q111%2C136%20109%2C126Z%22%20fill%3D%22%232b1a12%22/%3E%0A%3Cellipse%20cx%3D%22116%22%20cy%3D%22125%22%20rx%3D%223%22%20ry%3D%221.6%22%20fill%3D%22%23fff%22%20opacity%3D%22.5%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M120%2C138%20L120%2C144%20M110%2C147%20Q115%2C151%20120%2C144%20Q125%2C151%20130%2C147%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E%0A", "juniper_happy": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3CclipPath%20id%3D%22jhead%22%3E%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%3C/clipPath%3E%0A%20%3Cfilter%20id%3D%22jsoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%232F5D50%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M60%2C230%20C70%2C252%2072%2C268%2070%2C280%20M180%2C230%20C170%2C252%20168%2C268%20170%2C280%22%20stroke%3D%22%2324493f%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M78%2C238%20l4.5%2C9%2010%2C1.4%20-7.2%2C7%201.7%2C10%20-9%2C-4.7%20-9%2C4.7%201.7%2C-10%20-7.2%2C-7%2010%2C-1.4%20z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cpath%20d%3D%22M86%2C150%20C84%2C164%2084%2C172%2086%2C180%20L154%2C180%20C156%2C172%20156%2C164%20154%2C150Z%22%20fill%3D%22%238a5a3c%22/%3E%0A%0A%0A%0A%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M163%2C218%20C169%2C217%20174%2C215%20178%2C212%22%20stroke%3D%22%237a6fb5%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M80%2C182%20C92%2C191%20108%2C194%20120%2C194%22%20stroke%3D%22%23e39566%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M84%2C166%20C80%2C174%2082%2C186%2088%2C193%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M100%2C168%20C97%2C176%2098%2C188%20102%2C197%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M140%2C214%20C148%2C216%20154%2C216%20161%2C213%20M141%2C230%20C149%2C232%20155%2C232%20162%2C229%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cellipse%20cx%3D%22151%22%20cy%3D%22200%22%20rx%3D%2213%22%20ry%3D%225%22%20fill%3D%22%23b8643c%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M137%2C191%20C136%2C183%20144%2C178%20152%2C179%20C160%2C180%20166%2C185%20165%2C192%20C164%2C200%20157%2C204%20150%2C204%20C142%2C204%20138%2C198%20137%2C191%20Z%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Cpath%20d%3D%22M143%2C186%20C147%2C191%20147%2C197%20144%2C201%20M157%2C184%20C153%2C190%20154%2C197%20158%2C201%22%20stroke%3D%22%23d98a5e%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%238a5a3c%22%20stroke-width%3D%221.8%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Ccircle%20cx%3D%2271%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23jhead%29%22%3E%3Cellipse%20cx%3D%2262%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3Cellipse%20cx%3D%22178%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3C/g%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22140%22%20rx%3D%2231%22%20ry%3D%2223%22%20fill%3D%22%23ecd2ac%22/%3E%0A%0A%3Cellipse%20cx%3D%2286%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%3Cellipse%20cx%3D%22154%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M89%2C86%20Q98%2C81%20107%2C86%20M133%2C86%20Q142%2C81%20151%2C86%22%20stroke%3D%22%233a2416%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%2299.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22143.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8963e%22%20stroke-width%3D%223%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Cpath%20d%3D%22M113%2C104%20Q120%2C99%20127%2C104%22/%3E%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C96%20l5%2C-4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20opacity%3D%22.7%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M109%2C126%20Q120%2C119%20131%2C126%20Q129%2C136%20120%2C138%20Q111%2C136%20109%2C126Z%22%20fill%3D%22%232b1a12%22/%3E%0A%3Cellipse%20cx%3D%22116%22%20cy%3D%22125%22%20rx%3D%223%22%20ry%3D%221.6%22%20fill%3D%22%23fff%22%20opacity%3D%22.5%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C138%20L120%2C143%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20class%3D%22m%22%20d%3D%22M110%2C143%20Q120%2C145.5%20130%2C143%20Q127.0%2C155%20120%2C155.5%20Q113.0%2C155%20110%2C143Z%22%20fill%3D%22%233a1f18%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M115.0%2C152.5%20Q120%2C148.5%20125.0%2C152.5%20Q120%2C155%20115.0%2C152.5Z%22%20fill%3D%22%23f08a8a%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22hb_juniper%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.5%22/%3E%3C/filter%3E%3C/defs%3E%3Cellipse%20cx%3D%2292%22%20cy%3D%22125.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_juniper%29%22/%3E%3Cellipse%20cx%3D%22148%22%20cy%3D%22125.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_juniper%29%22/%3E%3Cpath%20d%3D%22M48%2C91%20Q49.62%2C98.38%2057%2C100%20Q49.62%2C101.62%2048%2C109%20Q46.38%2C101.62%2039%2C100%20Q46.38%2C98.38%2048%2C91Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M60%2C111%20Q60.9%2C115.1%2065%2C116%20Q60.9%2C116.9%2060%2C121%20Q59.1%2C116.9%2055%2C116%20Q59.1%2C115.1%2060%2C111Z%22%20fill%3D%22%23F4A77A%22/%3E%3Cpath%20d%3D%22M200%2C84%20Q201.44%2C90.56%20208%2C92%20Q201.44%2C93.44%20200%2C100%20Q198.56%2C93.44%20192%2C92%20Q198.56%2C90.56%20200%2C84Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M206%2C105.5%20Q206.81%2C109.19%20210.5%2C110%20Q206.81%2C110.81%20206%2C114.5%20Q205.19%2C110.81%20201.5%2C110%20Q205.19%2C109.19%20206%2C105.5Z%22%20fill%3D%22%23F4A77A%22/%3E%3C/svg%3E%0A", "juniper_thinking": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3CclipPath%20id%3D%22jhead%22%3E%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%3C/clipPath%3E%0A%20%3Cfilter%20id%3D%22jsoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M28%2C280%20C28%2C228%2046%2C188%2092%2C176%20L148%2C176%20C194%2C188%20212%2C228%20212%2C280%20Z%22%20fill%3D%22%232F5D50%22%20stroke%3D%22%232F5D50%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M60%2C230%20C70%2C252%2072%2C268%2070%2C280%20M180%2C230%20C170%2C252%20168%2C268%20170%2C280%22%20stroke%3D%22%2324493f%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M78%2C238%20l4.5%2C9%2010%2C1.4%20-7.2%2C7%201.7%2C10%20-9%2C-4.7%20-9%2C4.7%201.7%2C-10%20-7.2%2C-7%2010%2C-1.4%20z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cpath%20d%3D%22M86%2C150%20C84%2C164%2084%2C172%2086%2C180%20L154%2C180%20C156%2C172%20156%2C164%20154%2C150Z%22%20fill%3D%22%238a5a3c%22/%3E%0A%0A%0A%0A%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M156%2C192%20C159%2C210%20163%2C228%20170%2C243%20L187%2C237%20C180%2C223%20174%2C207%20168%2C189%20Z%22%20fill%3D%22%23df8e62%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M163%2C218%20C169%2C217%20174%2C215%20178%2C212%22%20stroke%3D%22%237a6fb5%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M172%2C244%20l2%2C7%20M178%2C242%20l2%2C7%20M184%2C239%20l3%2C6%22%20stroke%3D%22%23df8e62%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M70%2C176%20C70%2C164%2084%2C160%2096%2C163%20C110%2C166%20130%2C166%20144%2C163%20C156%2C160%20170%2C164%20170%2C176%20C170%2C190%20150%2C200%20120%2C200%20C90%2C200%2070%2C190%2070%2C176%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M80%2C182%20C92%2C191%20108%2C194%20120%2C194%22%20stroke%3D%22%23e39566%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M84%2C166%20C80%2C174%2082%2C186%2088%2C193%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M100%2C168%20C97%2C176%2098%2C188%20102%2C197%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M140%2C192%20C138%2C212%20139%2C232%20143%2C250%20L166%2C248%20C162%2C230%20160%2C210%20162%2C190%20Z%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M140%2C214%20C148%2C216%20154%2C216%20161%2C213%20M141%2C230%20C149%2C232%20155%2C232%20162%2C229%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%226%22%20fill%3D%22none%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M146%2C250%20l-1%2C8%20M152%2C250%20l0%2C8%20M158%2C249%20l1%2C8%20M164%2C249%20l1%2C7%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cellipse%20cx%3D%22151%22%20cy%3D%22200%22%20rx%3D%2213%22%20ry%3D%225%22%20fill%3D%22%23b8643c%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M137%2C191%20C136%2C183%20144%2C178%20152%2C179%20C160%2C180%20166%2C185%20165%2C192%20C164%2C200%20157%2C204%20150%2C204%20C142%2C204%20138%2C198%20137%2C191%20Z%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Cpath%20d%3D%22M143%2C186%20C147%2C191%20147%2C197%20144%2C201%20M157%2C184%20C153%2C190%20154%2C197%20158%2C201%22%20stroke%3D%22%23d98a5e%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%238a5a3c%22%20stroke-width%3D%221.8%22%20fill%3D%22%238a5a3c%22%3E%0A%20%3Ccircle%20cx%3D%2270%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2266%22%20r%3D%2223%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22112%22%20rx%3D%2262%22%20ry%3D%2258%22/%3E%0A%3C/g%3E%0A%3Ccircle%20cx%3D%2271%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%2268%22%20r%3D%2212%22%20fill%3D%22%23c98f6a%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23jhead%29%22%3E%3Cellipse%20cx%3D%2262%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3Cellipse%20cx%3D%22178%22%20cy%3D%22126%22%20rx%3D%2212%22%20ry%3D%2230%22%20fill%3D%22%234a2e1d%22%20opacity%3D%220.28%22%20filter%3D%22url%28%23jsoft%29%22/%3E%3C/g%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22140%22%20rx%3D%2231%22%20ry%3D%2223%22%20fill%3D%22%23ecd2ac%22/%3E%0A%0A%3Cellipse%20cx%3D%2286%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%3Cellipse%20cx%3D%22154%22%20cy%3D%22134%22%20rx%3D%229%22%20ry%3D%226%22%20fill%3D%22%23f08a6a%22%20opacity%3D%220.45%22%20filter%3D%22url%28%23jsoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M89%2C86%20Q98%2C81%20107%2C86%20M133%2C86%20Q142%2C81%20151%2C86%22%20stroke%3D%22%233a2416%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%20transform%3D%22translate%281.6%20-1.8%29%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%225.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%2299.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22143.8%22%20cy%3D%22104%22%20r%3D%221.8%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8963e%22%20stroke-width%3D%223%22%3E%3Ccircle%20cx%3D%2298%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Ccircle%20cx%3D%22142%22%20cy%3D%22106%22%20r%3D%2215%22/%3E%3Cpath%20d%3D%22M113%2C104%20Q120%2C99%20127%2C104%22/%3E%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C96%20l5%2C-4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20opacity%3D%22.7%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M109%2C126%20Q120%2C119%20131%2C126%20Q129%2C136%20120%2C138%20Q111%2C136%20109%2C126Z%22%20fill%3D%22%232b1a12%22/%3E%0A%3Cellipse%20cx%3D%22116%22%20cy%3D%22125%22%20rx%3D%223%22%20ry%3D%221.6%22%20fill%3D%22%23fff%22%20opacity%3D%22.5%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M116.0%2C146%20Q122.0%2C147.5%20126.0%2C144.5%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22og_juniper%22%20x%3D%22-100%25%22%20y%3D%22-100%25%22%20width%3D%22300%25%22%20height%3D%22300%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%3C/defs%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2252%22%20r%3D%227.0%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_juniper%29%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2252%22%20r%3D%223.5%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22208%22%20cy%3D%2236%22%20r%3D%2210%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_juniper%29%22/%3E%3Ccircle%20cx%3D%22208%22%20cy%3D%2236%22%20r%3D%225%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2216%22%20r%3D%2214%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_juniper%29%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2216%22%20r%3D%227%22%20fill%3D%22%23F6EBD0%22/%3E%3C/svg%3E%0A", "pip": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22psoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3CclipPath%20id%3D%22phead%22%3E%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%3C/clipPath%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M62%2C232%20C72%2C252%2074%2C268%2072%2C280%20M178%2C232%20C168%2C252%20166%2C268%20168%2C280%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C204%20L120%2C280%22%20stroke%3D%22%236a5fa6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M74%2C194%20C96%2C202%20144%2C202%20166%2C194%22%20stroke%3D%22%239a90d2%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M108%2C202%20C107%2C214%20108%2C226%20110%2C236%20M132%2C202%20C133%2C214%20132%2C226%20130%2C236%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%22110%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Ccircle%20cx%3D%22162%22%20cy%3D%22238%22%20r%3D%2211%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.5%22/%3E%0A%3Cellipse%20cx%3D%22162%22%20cy%3D%22238%22%20rx%3D%2217%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%222.5%22%20transform%3D%22rotate%28-18%20162%20238%29%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22178%22%20rx%3D%2240%22%20ry%3D%227%22%20fill%3D%22%231d2b33%22%20opacity%3D%22.3%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%23c9a27a%22%20stroke-width%3D%221.8%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%2266%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%0A%3Cpath%20d%3D%22M54%2C62%20A16%2C16%200%200%201%2066%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M186%2C62%20A16%2C16%200%200%200%20174%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23phead%29%22%3E%0A%20%3Cellipse%20cx%3D%2272%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%20%3Cellipse%20cx%3D%22168%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M108%2C80%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C78%20Z%22%20fill%3D%22%23c9a27a%22/%3E%0A%3Cpath%20d%3D%22M108%2C79%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C77%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22152%22%20rx%3D%2226%22%20ry%3D%2218%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cellipse%20cx%3D%2290%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3Cellipse%20cx%3D%22150%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M94%2C101%20Q101%2C97%20108%2C101%20M132%2C101%20Q139%2C97%20146%2C101%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.6%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22102%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%3Cellipse%20cx%3D%22138%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%22104.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22140.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cpath%20d%3D%22M98%2C150%20L70%2C144%20M98%2C156%20L72%2C160%20M142%2C150%20L170%2C144%20M142%2C156%20L168%2C160%22%20stroke%3D%22%238a6a4e%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22143%22%20rx%3D%226%22%20ry%3D%224.5%22%20fill%3D%22%23e0707a%22/%3E%0A%3Cellipse%20cx%3D%22118%22%20cy%3D%22141.5%22%20rx%3D%222%22%20ry%3D%221.1%22%20fill%3D%22%23fff%22%20opacity%3D%22.6%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M120%2C147.5%20L120%2C152%20M113%2C154%20Q116.5%2C157%20120%2C152%20Q123.5%2C157%20127%2C154%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.2%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E%0A", "pip_happy": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22psoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3CclipPath%20id%3D%22phead%22%3E%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%3C/clipPath%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M62%2C232%20C72%2C252%2074%2C268%2072%2C280%20M178%2C232%20C168%2C252%20166%2C268%20168%2C280%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C204%20L120%2C280%22%20stroke%3D%22%236a5fa6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M74%2C194%20C96%2C202%20144%2C202%20166%2C194%22%20stroke%3D%22%239a90d2%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M108%2C202%20C107%2C214%20108%2C226%20110%2C236%20M132%2C202%20C133%2C214%20132%2C226%20130%2C236%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%22110%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Ccircle%20cx%3D%22162%22%20cy%3D%22238%22%20r%3D%2211%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.5%22/%3E%0A%3Cellipse%20cx%3D%22162%22%20cy%3D%22238%22%20rx%3D%2217%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%222.5%22%20transform%3D%22rotate%28-18%20162%20238%29%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22178%22%20rx%3D%2240%22%20ry%3D%227%22%20fill%3D%22%231d2b33%22%20opacity%3D%22.3%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%23c9a27a%22%20stroke-width%3D%221.8%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%2266%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%0A%3Cpath%20d%3D%22M54%2C62%20A16%2C16%200%200%201%2066%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M186%2C62%20A16%2C16%200%200%200%20174%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23phead%29%22%3E%0A%20%3Cellipse%20cx%3D%2272%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%20%3Cellipse%20cx%3D%22168%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M108%2C80%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C78%20Z%22%20fill%3D%22%23c9a27a%22/%3E%0A%3Cpath%20d%3D%22M108%2C79%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C77%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22152%22%20rx%3D%2226%22%20ry%3D%2218%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cellipse%20cx%3D%2290%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3Cellipse%20cx%3D%22150%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M94%2C101%20Q101%2C97%20108%2C101%20M132%2C101%20Q139%2C97%20146%2C101%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.6%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22102%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%3Cellipse%20cx%3D%22138%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%22104.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22140.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cpath%20d%3D%22M98%2C150%20L70%2C144%20M98%2C156%20L72%2C160%20M142%2C150%20L170%2C144%20M142%2C156%20L168%2C160%22%20stroke%3D%22%238a6a4e%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22143%22%20rx%3D%226%22%20ry%3D%224.5%22%20fill%3D%22%23e0707a%22/%3E%0A%3Cellipse%20cx%3D%22118%22%20cy%3D%22141.5%22%20rx%3D%222%22%20ry%3D%221.1%22%20fill%3D%22%23fff%22%20opacity%3D%22.6%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C147.5%20L120%2C150%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20class%3D%22m%22%20d%3D%22M112%2C150%20Q120%2C152.5%20128%2C150%20Q125.6%2C162%20120%2C162.5%20Q114.4%2C162%20112%2C150Z%22%20fill%3D%22%233a1f18%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M116.0%2C159.5%20Q120%2C155.5%20124.0%2C159.5%20Q120%2C162%20116.0%2C159.5Z%22%20fill%3D%22%23f08a8a%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22hb_pip%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.5%22/%3E%3C/filter%3E%3C/defs%3E%3Cellipse%20cx%3D%2296%22%20cy%3D%22139%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_pip%29%22/%3E%3Cellipse%20cx%3D%22144%22%20cy%3D%22139%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_pip%29%22/%3E%3Cpath%20d%3D%22M36%2C109%20Q37.62%2C116.38%2045%2C118%20Q37.62%2C119.62%2036%2C127%20Q34.38%2C119.62%2027%2C118%20Q34.38%2C116.38%2036%2C109Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M48%2C129%20Q48.9%2C133.1%2053%2C134%20Q48.9%2C134.9%2048%2C139%20Q47.1%2C134.9%2043%2C134%20Q47.1%2C133.1%2048%2C129Z%22%20fill%3D%22%23F4A77A%22/%3E%3Cpath%20d%3D%22M204%2C110%20Q205.44%2C116.56%20212%2C118%20Q205.44%2C119.44%20204%2C126%20Q202.56%2C119.44%20196%2C118%20Q202.56%2C116.56%20204%2C110Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M210%2C131.5%20Q210.81%2C135.19%20214.5%2C136%20Q210.81%2C136.81%20210%2C140.5%20Q209.19%2C136.81%20205.5%2C136%20Q209.19%2C135.19%20210%2C131.5Z%22%20fill%3D%22%23F4A77A%22/%3E%3C/svg%3E%0A", "pip_thinking": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22psoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3CclipPath%20id%3D%22phead%22%3E%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%3C/clipPath%3E%0A%3C/defs%3E%0A%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M30%2C280%20C32%2C230%2054%2C196%2098%2C188%20L142%2C188%20C186%2C196%20208%2C230%20210%2C280%20Z%22%20fill%3D%22%238A7FC7%22%20stroke%3D%22%238A7FC7%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M62%2C232%20C72%2C252%2074%2C268%2072%2C280%20M178%2C232%20C168%2C252%20166%2C268%20168%2C280%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M120%2C204%20L120%2C280%22%20stroke%3D%22%236a5fa6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M62%2C196%20C66%2C172%2092%2C160%20120%2C160%20C148%2C160%20174%2C172%20178%2C196%20C162%2C210%2078%2C210%2062%2C196%20Z%22%20fill%3D%22%237368b0%22%20stroke%3D%22%237368b0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M74%2C194%20C96%2C202%20144%2C202%20166%2C194%22%20stroke%3D%22%239a90d2%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cpath%20d%3D%22M108%2C202%20C107%2C214%20108%2C226%20110%2C236%20M132%2C202%20C133%2C214%20132%2C226%20130%2C236%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%22110%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22238%22%20r%3D%223.5%22%20fill%3D%22%23F4A77A%22/%3E%0A%0A%3Ccircle%20cx%3D%22162%22%20cy%3D%22238%22%20r%3D%2211%22%20fill%3D%22%23F4A77A%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.5%22/%3E%0A%3Cellipse%20cx%3D%22162%22%20cy%3D%22238%22%20rx%3D%2217%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%222.5%22%20transform%3D%22rotate%28-18%20162%20238%29%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22178%22%20rx%3D%2240%22%20ry%3D%227%22%20fill%3D%22%231d2b33%22%20opacity%3D%22.3%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%3Cg%20stroke%3D%22%23c9a27a%22%20stroke-width%3D%221.8%22%20fill%3D%22%23c9a27a%22%3E%0A%20%3Ccircle%20cx%3D%2268%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%2270%22%20r%3D%2232%22/%3E%0A%20%3Cpath%20d%3D%22M120%2C72%20C152%2C72%20170%2C96%20168%2C124%20C166%2C148%20146%2C170%20120%2C174%20C94%2C170%2074%2C148%2072%2C124%20C70%2C96%2088%2C72%20120%2C72Z%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%2266%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2270%22%20r%3D%2221%22%20fill%3D%22%23f2b7a0%22/%3E%0A%3Cpath%20d%3D%22M54%2C62%20A16%2C16%200%200%201%2066%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M186%2C62%20A16%2C16%200%200%200%20174%2C52%22%20stroke%3D%22%23f9d3c4%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20clip-path%3D%22url%28%23phead%29%22%3E%0A%20%3Cellipse%20cx%3D%2272%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%20%3Cellipse%20cx%3D%22168%22%20cy%3D%22132%22%20rx%3D%2210%22%20ry%3D%2226%22%20fill%3D%22%236e4d33%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M108%2C80%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C78%20Z%22%20fill%3D%22%23c9a27a%22/%3E%0A%3Cpath%20d%3D%22M108%2C79%20C110%2C70%20116%2C66%20120%2C71%20C123%2C63%20131%2C65%20131%2C77%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22152%22%20rx%3D%2226%22%20ry%3D%2218%22%20fill%3D%22%23F6EBD0%22/%3E%0A%0A%3Cellipse%20cx%3D%2290%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%3Cellipse%20cx%3D%22150%22%20cy%3D%22142%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23psoft%29%22/%3E%0A%0A%3Cpath%20d%3D%22M94%2C101%20Q101%2C97%20108%2C101%20M132%2C101%20Q139%2C97%20146%2C101%22%20stroke%3D%22%235a3d26%22%20stroke-width%3D%222.6%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20class%3D%22p%22%20transform%3D%22translate%281.6%20-1.8%29%22%3E%3Cellipse%20cx%3D%22102%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%3Cellipse%20cx%3D%22138%22%20cy%3D%22118%22%20rx%3D%226.5%22%20ry%3D%227.5%22%20fill%3D%22%231d2b33%22/%3E%0A%3Ccircle%20cx%3D%22104.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22140.2%22%20cy%3D%22115.4%22%20r%3D%222.3%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%0A%0A%3Cpath%20d%3D%22M98%2C150%20L70%2C144%20M98%2C156%20L72%2C160%20M142%2C150%20L170%2C144%20M142%2C156%20L168%2C160%22%20stroke%3D%22%238a6a4e%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22143%22%20rx%3D%226%22%20ry%3D%224.5%22%20fill%3D%22%23e0707a%22/%3E%0A%3Cellipse%20cx%3D%22118%22%20cy%3D%22141.5%22%20rx%3D%222%22%20ry%3D%221.1%22%20fill%3D%22%23fff%22%20opacity%3D%22.6%22/%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M116.8%2C153%20Q121.6%2C154.5%20124.8%2C151.5%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22og_pip%22%20x%3D%22-100%25%22%20y%3D%22-100%25%22%20width%3D%22300%25%22%20height%3D%22300%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%3C/defs%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22150%22%20r%3D%227.0%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_pip%29%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22150%22%20r%3D%223.5%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22196%22%20cy%3D%22134%22%20r%3D%2210%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_pip%29%22/%3E%3Ccircle%20cx%3D%22196%22%20cy%3D%22134%22%20r%3D%225%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22114%22%20r%3D%2214%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_pip%29%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22114%22%20r%3D%227%22%20fill%3D%22%23F6EBD0%22/%3E%3C/svg%3E%0A", "mo": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22msoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3Cfilter%20id%3D%22mglow%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%236f64ad%22%3E%0A%20%3Cpath%20d%3D%22M100%2C212%20C74%2C218%2042%2C232%2030%2C254%20C24%2C270%2048%2C280%2068%2C272%20C88%2C262%20102%2C244%20108%2C226%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M140%2C212%20C166%2C218%20198%2C232%20210%2C254%20C216%2C270%20192%2C280%20172%2C272%20C152%2C262%20138%2C244%20132%2C226%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%238A7FC7%22%3E%0A%20%3Cpath%20d%3D%22M98%2C196%20C84%2C160%2050%2C112%2018%2C96%20C4%2C90%200%2C108%206%2C126%20C16%2C160%2052%2C198%20100%2C216%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M142%2C196%20C156%2C160%20190%2C112%20222%2C96%20C236%2C90%20240%2C108%20234%2C126%20C224%2C160%20188%2C198%20140%2C216%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M14%2C110%20C26%2C142%2054%2C176%2090%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M226%2C110%20C214%2C142%20186%2C176%20150%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M48%2C130%20A12%2C12%200%201%200%2048%2C154%20A16%2C16%200%200%201%2048%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M192%2C130%20A12%2C12%200%201%201%20192%2C154%20A16%2C16%200%200%200%20192%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Ccircle%20cx%3D%2254%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%0A%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%23e9dcc0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M86%2C246%20C104%2C252%20136%2C252%20154%2C246%20M80%2C266%20C100%2C272%20140%2C272%20160%2C266%22%20stroke%3D%22%23d3c3a2%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C192%20C94%2C196%2098%2C198%20102%2C198%20M116%2C200%20C120%2C202%20124%2C202%20128%2C200%20M140%2C196%20C144%2C196%20148%2C194%20150%2C190%22%20stroke%3D%22%23dccfb2%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M104%2C70%20l-10%2C-2%20M99%2C58%20l-10%2C-3%20M93%2C47%20l-10%2C-4%20M86%2C37%20l-9%2C-5%20M79%2C30%20l-8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%20%3Cpath%20d%3D%22M136%2C70%20l10%2C-2%20M141%2C58%20l10%2C-3%20M147%2C47%20l10%2C-4%20M154%2C37%20l9%2C-5%20M161%2C30%20l8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M102%2C84%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C84%20Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M102%2C82%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C82%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22158%22%20rx%3D%2230%22%20ry%3D%226%22%20fill%3D%22%23b9a983%22%20opacity%3D%22.35%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cellipse%20cx%3D%2294%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%3Cellipse%20cx%3D%22146%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%3Cellipse%20cx%3D%22139%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%0A%3Ccircle%20cx%3D%22104.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22142.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%0A%3Ccircle%20cx%3D%2297.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3Ccircle%20cx%3D%22135.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3C/g%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M113%2C143%20Q120%2C148%20127%2C143%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E%0A", "mo_happy": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22msoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3Cfilter%20id%3D%22mglow%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%236f64ad%22%3E%0A%20%3Cpath%20d%3D%22M100%2C212%20C74%2C218%2042%2C232%2030%2C254%20C24%2C270%2048%2C280%2068%2C272%20C88%2C262%20102%2C244%20108%2C226%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M140%2C212%20C166%2C218%20198%2C232%20210%2C254%20C216%2C270%20192%2C280%20172%2C272%20C152%2C262%20138%2C244%20132%2C226%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%238A7FC7%22%3E%0A%20%3Cpath%20d%3D%22M98%2C196%20C84%2C160%2050%2C112%2018%2C96%20C4%2C90%200%2C108%206%2C126%20C16%2C160%2052%2C198%20100%2C216%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M142%2C196%20C156%2C160%20190%2C112%20222%2C96%20C236%2C90%20240%2C108%20234%2C126%20C224%2C160%20188%2C198%20140%2C216%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M14%2C110%20C26%2C142%2054%2C176%2090%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M226%2C110%20C214%2C142%20186%2C176%20150%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M48%2C130%20A12%2C12%200%201%200%2048%2C154%20A16%2C16%200%200%201%2048%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M192%2C130%20A12%2C12%200%201%201%20192%2C154%20A16%2C16%200%200%200%20192%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Ccircle%20cx%3D%2254%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%0A%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%23e9dcc0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M86%2C246%20C104%2C252%20136%2C252%20154%2C246%20M80%2C266%20C100%2C272%20140%2C272%20160%2C266%22%20stroke%3D%22%23d3c3a2%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C192%20C94%2C196%2098%2C198%20102%2C198%20M116%2C200%20C120%2C202%20124%2C202%20128%2C200%20M140%2C196%20C144%2C196%20148%2C194%20150%2C190%22%20stroke%3D%22%23dccfb2%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M104%2C70%20l-10%2C-2%20M99%2C58%20l-10%2C-3%20M93%2C47%20l-10%2C-4%20M86%2C37%20l-9%2C-5%20M79%2C30%20l-8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%20%3Cpath%20d%3D%22M136%2C70%20l10%2C-2%20M141%2C58%20l10%2C-3%20M147%2C47%20l10%2C-4%20M154%2C37%20l9%2C-5%20M161%2C30%20l8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M102%2C84%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C84%20Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M102%2C82%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C82%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22158%22%20rx%3D%2230%22%20ry%3D%226%22%20fill%3D%22%23b9a983%22%20opacity%3D%22.35%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cellipse%20cx%3D%2294%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%3Cellipse%20cx%3D%22146%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cg%20class%3D%22p%22%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%3Cellipse%20cx%3D%22139%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%0A%3Ccircle%20cx%3D%22104.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22142.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%0A%3Ccircle%20cx%3D%2297.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3Ccircle%20cx%3D%22135.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3C/g%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M111%2C141%20Q120%2C143.5%20129%2C141%20Q126.3%2C153%20120%2C153.5%20Q113.7%2C153%20111%2C141Z%22%20fill%3D%22%233a1f18%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M115.5%2C150.5%20Q120%2C146.5%20124.5%2C150.5%20Q120%2C153%20115.5%2C150.5Z%22%20fill%3D%22%23f08a8a%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22hb_mo%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.5%22/%3E%3C/filter%3E%3C/defs%3E%3Cellipse%20cx%3D%2295%22%20cy%3D%22142.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_mo%29%22/%3E%3Cellipse%20cx%3D%22145%22%20cy%3D%22142.5%22%20rx%3D%229%22%20ry%3D%225.5%22%20fill%3D%22%23f07a5a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23hb_mo%29%22/%3E%3Cpath%20d%3D%22M58%2C63%20Q59.62%2C70.38%2067%2C72%20Q59.62%2C73.62%2058%2C81%20Q56.38%2C73.62%2049%2C72%20Q56.38%2C70.38%2058%2C63Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M70%2C83%20Q70.9%2C87.1%2075%2C88%20Q70.9%2C88.9%2070%2C93%20Q69.1%2C88.9%2065%2C88%20Q69.1%2C87.1%2070%2C83Z%22%20fill%3D%22%23F4A77A%22/%3E%3Cpath%20d%3D%22M184%2C62%20Q185.44%2C68.56%20192%2C70%20Q185.44%2C71.44%20184%2C78%20Q182.56%2C71.44%20176%2C70%20Q182.56%2C68.56%20184%2C62Z%22%20fill%3D%22%23F6EBD0%22/%3E%3Cpath%20d%3D%22M190%2C83.5%20Q190.81%2C87.19%20194.5%2C88%20Q190.81%2C88.81%20190%2C92.5%20Q189.19%2C88.81%20185.5%2C88%20Q189.19%2C87.19%20190%2C83.5Z%22%20fill%3D%22%23F4A77A%22/%3E%3C/svg%3E%0A", "mo_thinking": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20280%22%3E%0A%0A%3Cdefs%3E%0A%20%3Cfilter%20id%3D%22msoft%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%0A%20%3Cfilter%20id%3D%22mglow%22%20x%3D%22-60%25%22%20y%3D%22-60%25%22%20width%3D%22220%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22/%3E%3C/filter%3E%0A%3C/defs%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%236f64ad%22%3E%0A%20%3Cpath%20d%3D%22M100%2C212%20C74%2C218%2042%2C232%2030%2C254%20C24%2C270%2048%2C280%2068%2C272%20C88%2C262%20102%2C244%20108%2C226%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M140%2C212%20C166%2C218%20198%2C232%20210%2C254%20C216%2C270%20192%2C280%20172%2C272%20C152%2C262%20138%2C244%20132%2C226%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%20fill%3D%22%238A7FC7%22%3E%0A%20%3Cpath%20d%3D%22M98%2C196%20C84%2C160%2050%2C112%2018%2C96%20C4%2C90%200%2C108%206%2C126%20C16%2C160%2052%2C198%20100%2C216%20Z%22/%3E%0A%20%3Cpath%20d%3D%22M142%2C196%20C156%2C160%20190%2C112%20222%2C96%20C236%2C90%20240%2C108%20234%2C126%20C224%2C160%20188%2C198%20140%2C216%20Z%22/%3E%0A%3C/g%3E%0A%0A%3Cpath%20d%3D%22M14%2C110%20C26%2C142%2054%2C176%2090%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M226%2C110%20C214%2C142%20186%2C176%20150%2C200%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22/%3E%0A%3Cpath%20d%3D%22M48%2C130%20A12%2C12%200%201%200%2048%2C154%20A16%2C16%200%200%201%2048%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M192%2C130%20A12%2C12%200%201%201%20192%2C154%20A16%2C16%200%200%200%20192%2C130Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Ccircle%20cx%3D%2254%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22258%22%20r%3D%226%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.85%22/%3E%0A%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M76%2C280%20C76%2C238%2092%2C208%20120%2C206%20C148%2C208%20164%2C238%20164%2C280%20Z%22%20fill%3D%22%23e9dcc0%22%20stroke%3D%22%23e9dcc0%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M86%2C246%20C104%2C252%20136%2C252%20154%2C246%20M80%2C266%20C100%2C272%20140%2C272%20160%2C266%22%20stroke%3D%22%23d3c3a2%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20stroke%3D%22%231d2b33%22%20stroke-width%3D%224.5%22%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23F6EBD0%22%3E%0A%20%3Ccircle%20cx%3D%2282%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22201%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22144%22%20cy%3D%22196%22%20r%3D%2214%22/%3E%3Ccircle%20cx%3D%22158%22%20cy%3D%22184%22%20r%3D%2213%22/%3E%0A%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22176%22%20rx%3D%2244%22%20ry%3D%2220%22/%3E%0A%3C/g%3E%0A%3Cpath%20d%3D%22M90%2C192%20C94%2C196%2098%2C198%20102%2C198%20M116%2C200%20C120%2C202%20124%2C202%20128%2C200%20M140%2C196%20C144%2C196%20148%2C194%20150%2C190%22%20stroke%3D%22%23dccfb2%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%0A%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%226%22/%3E%0A%20%3Cpath%20d%3D%22M108%2C84%20C100%2C58%2088%2C38%2072%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M132%2C84%20C140%2C58%20152%2C38%20168%2C24%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%223%22/%3E%0A%20%3Cpath%20d%3D%22M104%2C70%20l-10%2C-2%20M99%2C58%20l-10%2C-3%20M93%2C47%20l-10%2C-4%20M86%2C37%20l-9%2C-5%20M79%2C30%20l-8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%20%3Cpath%20d%3D%22M136%2C70%20l10%2C-2%20M141%2C58%20l10%2C-3%20M147%2C47%20l10%2C-4%20M154%2C37%20l9%2C-5%20M161%2C30%20l8%2C-5%22%20stroke%3D%22%23F4A77A%22%20stroke-width%3D%223.2%22/%3E%0A%3C/g%3E%0A%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%225%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%2246%22%20fill%3D%22%23F6EBD0%22%20stroke%3D%22%23F6EBD0%22%20stroke-width%3D%221.6%22/%3E%0A%0A%3Cpath%20d%3D%22M102%2C84%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C84%20Z%22%20fill%3D%22%23F6EBD0%22/%3E%0A%3Cpath%20d%3D%22M102%2C82%20C106%2C71%20113%2C72%20116%2C77%20C118%2C67%20125%2C67%20126%2C76%20C129%2C70%20136%2C72%20138%2C82%22%20stroke%3D%22%231d2b33%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%0A%3Cellipse%20cx%3D%22120%22%20cy%3D%22158%22%20rx%3D%2230%22%20ry%3D%226%22%20fill%3D%22%23b9a983%22%20opacity%3D%22.35%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cellipse%20cx%3D%2294%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%3Cellipse%20cx%3D%22146%22%20cy%3D%22140%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f08a6a%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23msoft%29%22/%3E%0A%0A%3Cg%20class%3D%22p%22%20transform%3D%22translate%281.6%20-1.8%29%22%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%3Cellipse%20cx%3D%22139%22%20cy%3D%22118%22%20rx%3D%2210%22%20ry%3D%2211%22%20fill%3D%22%232B2D5C%22/%3E%0A%3Ccircle%20cx%3D%22104.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%22142.5%22%20cy%3D%22113.5%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%0A%3Ccircle%20cx%3D%2297.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3Ccircle%20cx%3D%22135.5%22%20cy%3D%22122.5%22%20r%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22/%3E%3C/g%3E%0A%0A%3Cpath%20class%3D%22m%22%20d%3D%22M116.4%2C144%20Q121.8%2C145.5%20125.4%2C142.5%22%20stroke%3D%22%232b1a12%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cdefs%3E%3Cfilter%20id%3D%22og_mo%22%20x%3D%22-100%25%22%20y%3D%22-100%25%22%20width%3D%22300%25%22%20height%3D%22300%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22/%3E%3C/filter%3E%3C/defs%3E%3Ccircle%20cx%3D%22178%22%20cy%3D%2274%22%20r%3D%227.0%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_mo%29%22/%3E%3Ccircle%20cx%3D%22178%22%20cy%3D%2274%22%20r%3D%223.5%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22188%22%20cy%3D%2258%22%20r%3D%2210%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_mo%29%22/%3E%3Ccircle%20cx%3D%22188%22%20cy%3D%2258%22%20r%3D%225%22%20fill%3D%22%23F6EBD0%22/%3E%3Ccircle%20cx%3D%22202%22%20cy%3D%2238%22%20r%3D%2214%22%20fill%3D%22%23F6EBD0%22%20opacity%3D%22.45%22%20filter%3D%22url%28%23og_mo%29%22/%3E%3Ccircle%20cx%3D%22202%22%20cy%3D%2238%22%20r%3D%227%22%20fill%3D%22%23F6EBD0%22/%3E%3C/svg%3E%0A"};
+const SCENE="<svg class=\"scene\" viewBox=\"0 40 720 260\" preserveAspectRatio=\"xMidYMid slice\" role=\"img\" aria-label=\"An observatory dome on a hill at dusk under a big moon\" >\n      <defs>\n        <linearGradient id=\"aSky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n          <stop offset=\"0\" stop-color=\"#1f2150\"/><stop offset=\".5\" stop-color=\"#4a4688\"/><stop offset=\".8\" stop-color=\"#a98bc4\"/><stop offset=\"1\" stop-color=\"#f4a77a\"/>\n        </linearGradient>\n        <radialGradient id=\"aGlow\"><stop offset=\"0\" stop-color=\"#F6EBD0\" stop-opacity=\".45\"/><stop offset=\"1\" stop-color=\"#F6EBD0\" stop-opacity=\"0\"/></radialGradient>\n        <radialGradient id=\"aFly\"><stop offset=\"0\" stop-color=\"#ffd9a8\"/><stop offset=\"1\" stop-color=\"#ffd9a8\" stop-opacity=\"0\"/></radialGradient>\n        <linearGradient id=\"aDome\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#e3dbf3\"/><stop offset=\"1\" stop-color=\"#9d93c9\"/></linearGradient>\n      </defs>\n      <rect width=\"720\" height=\"400\" fill=\"url(#aSky)\"/>\n      <g fill=\"#F6EBD0\">\n        <circle cx=\"60\" cy=\"40\" r=\"1.8\"/><circle cx=\"130\" cy=\"78\" r=\"1.4\"/><circle cx=\"210\" cy=\"30\" r=\"2.2\"/><circle cx=\"300\" cy=\"64\" r=\"1.5\"/><circle cx=\"380\" cy=\"24\" r=\"1.8\"/><circle cx=\"440\" cy=\"90\" r=\"1.3\"/><circle cx=\"660\" cy=\"40\" r=\"2\"/><circle cx=\"690\" cy=\"120\" r=\"1.4\"/><circle cx=\"30\" cy=\"120\" r=\"1.3\"/><circle cx=\"250\" cy=\"120\" r=\"1.2\"/><circle cx=\"470\" cy=\"150\" r=\"1.2\"/>\n        <path d=\"M340,110 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z\"/><path d=\"M100,150 l1.6,4 4,1.6 -4,1.6 -1.6,4 -1.6,-4 -4,-1.6 4,-1.6z\"/>\n      </g>\n      <circle cx=\"560\" cy=\"110\" r=\"96\" fill=\"url(#aGlow)\"/>\n      <circle cx=\"560\" cy=\"110\" r=\"46\" fill=\"#F6EBD0\"/>\n      <g fill=\"#e0d2b2\"><circle cx=\"545\" cy=\"98\" r=\"9\"/><circle cx=\"574\" cy=\"122\" r=\"6\"/><circle cx=\"566\" cy=\"92\" r=\"4\"/><circle cx=\"548\" cy=\"128\" r=\"5\"/></g>\n      <path d=\"M0,300 C90,250 180,262 260,280 C350,300 440,240 540,250 C620,258 680,276 720,270 L720,400 L0,400Z\" fill=\"#3b3f7a\"/>\n      <path d=\"M0,330 C120,300 220,312 330,330 C450,350 560,300 720,316 L720,400 L0,400Z\" fill=\"#2c4a58\"/>\n      <path d=\"M-10,400 L-10,300 C60,270 140,246 230,246 C320,246 380,290 460,332 C520,362 600,370 730,372 L730,400Z\" fill=\"#22403a\"/>\n      <path d=\"M232,290 C250,320 300,340 330,372 C346,388 360,396 372,400\" stroke=\"#4f6e57\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/>\n      <g fill=\"#183129\">\n        <path d=\"M70,300 l26,-70 26,70z\"/><path d=\"M76,272 l20,-52 20,52z\"/><path d=\"M110,292 l20,-52 20,52z\"/>\n        <path d=\"M620,372 l24,-64 24,64z\"/><path d=\"M626,346 l18,-46 18,46z\"/><path d=\"M664,374 l20,-52 20,52z\"/>\n      </g>\n      <rect x=\"190\" y=\"210\" width=\"96\" height=\"52\" fill=\"#e9dcc0\"/>\n      <rect x=\"190\" y=\"210\" width=\"96\" height=\"6\" fill=\"#c9b994\"/>\n      <path d=\"M186,212 A52,52 0 0 1 290,212Z\" fill=\"url(#aDome)\"/>\n      <path d=\"M232,162 L244,162 L244,212 L232,212Z\" fill=\"#2B2D5C\"/>\n      <path d=\"M236,182 L276,150 L282,158 L242,190Z\" fill=\"#c8963e\"/>\n      <circle cx=\"279\" cy=\"153\" r=\"5\" fill=\"#8a6326\"/>\n      <rect x=\"203\" y=\"228\" width=\"16\" height=\"16\" rx=\"3\" fill=\"#F4A77A\"/>\n      <rect x=\"257\" y=\"228\" width=\"16\" height=\"16\" rx=\"3\" fill=\"#F4A77A\"/>\n      <path d=\"M228,262 L228,236 A10,10 0 0 1 248,236 L248,262Z\" fill=\"#6b4a33\"/>\n      <circle cx=\"211\" cy=\"236\" r=\"16\" fill=\"url(#aFly)\" opacity=\".7\"/><circle cx=\"265\" cy=\"236\" r=\"16\" fill=\"url(#aFly)\" opacity=\".7\"/>\n      <circle cx=\"420\" cy=\"300\" r=\"10\" fill=\"url(#aFly)\"/><circle cx=\"470\" cy=\"330\" r=\"8\" fill=\"url(#aFly)\"/><circle cx=\"160\" cy=\"310\" r=\"9\" fill=\"url(#aFly)\"/>\n    </svg>";
+// ===== Everett's Observatory: app =====
+(() => {
+'use strict';
+const KEY = 'everettObs.v1';
+const PIC_VER = 'pics-v2';
+const PIC_SIZE = 384;
+const $ = (s, r = document) => r.querySelector(s);
+const app = $('#app');
+const rand = n => Math.floor(Math.random() * n);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[rand(a.length)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+// ---------- saved progress ----------
+const DEFAULT = { stars: 0, letters: {}, levels: {}, sound: false, drawIdx: 0 };
+let S = load();
+function load() { try { return Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { return Object.assign({}, DEFAULT); } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
+const lvl = g => S.levels[g] || 1;
+
+// ---------- timers that stop when you leave a screen ----------
+let timers = [];
+const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+// ---------- sound (built in, off unless a grown-up turns it on) ----------
+let ac = null;
+function tone(freq, dur, type = 'sine', vol = 0.12, slide = 0, delay = 0) {
+  if (!S.sound) return;
+  try {
+    if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); try { navigator.audioSession && (navigator.audioSession.type = 'playback'); } catch (e) { } }
+    const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t); if (slide) o.frequency.exponentialRampToValueAtTime(freq * slide, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.05);
+  } catch (e) { }
+}
+const sfx = {
+  right() { tone(660, 0.18, 'triangle'); tone(990, 0.25, 'triangle', 0.1, 0, 0.1); },
+  wrong() { tone(220, 0.22, 'sine', 0.08, 0.8); },
+  tick(i = 0) { tone(500 + i * 30, 0.08, 'triangle', 0.08); },
+  win() { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.3, 'triangle', 0.1, 0, i * 0.12)); },
+};
+function wiggle(e) { e.classList.remove('wiggle'); void e.offsetWidth; e.classList.add('wiggle'); sfx.wrong(); }
+function pop(e) { e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop'); }
+
+// ---------- icons ----------
+const ICON = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="#F6EBD0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
+  star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#F4A77A"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="#F6EBD0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="#F6EBD0" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  left: '<svg viewBox="0 0 24 24" fill="none" stroke="#F6EBD0" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  right: '<svg viewBox="0 0 24 24" fill="none" stroke="#F6EBD0" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  again: '<svg viewBox="0 0 24 24" fill="none" stroke="#2B2D5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>',
+  erase: '<svg viewBox="0 0 24 24" fill="none" stroke="#F6EBD0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H9l-5-5a2 2 0 0 1 0-2.8l8.5-8.5a2 2 0 0 1 2.8 0l5 5a2 2 0 0 1 0 2.8L13 19"/><path d="M8 11l6 6"/></svg>',
+  // game tile icons
+  telescope: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="10" y="24" width="38" height="14" rx="4" transform="rotate(-24 29 31)" fill="#F6EBD0"/><rect x="42" y="12" width="12" height="20" rx="3" transform="rotate(-24 48 22)" fill="#F4A77A"/><path d="M28 38l-10 20M30 38l8 20" stroke="#8A7FC7" stroke-width="4" stroke-linecap="round"/><circle cx="12" cy="12" r="3" fill="#F6EBD0"/><circle cx="24" cy="8" r="2" fill="#F6EBD0"/></svg>',
+  spot: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="28" cy="28" r="18" fill="#15162e" stroke="#c8963e" stroke-width="6"/><circle cx="24" cy="24" r="6" fill="#F4A77A"/><path d="M41 41l14 14" stroke="#c8963e" stroke-width="8" stroke-linecap="round"/></svg>',
+  first: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="10" width="34" height="42" rx="8" fill="#F4A77A"/><text x="25" y="44" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="34" fill="#2B2D5C">J</text><circle cx="50" cy="40" r="10" fill="#d9b48c"/><path d="M41 36h18M40 42h20" stroke="#a8754e" stroke-width="2"/></svg>',
+  spell: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="22" width="17" height="22" rx="4" fill="#F4A77A"/><rect x="23.5" y="22" width="17" height="22" rx="4" fill="#F6EBD0"/><rect x="43" y="22" width="17" height="22" rx="4" fill="none" stroke="#8A7FC7" stroke-width="2.5" stroke-dasharray="4 3"/><text x="12.5" y="39" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="17" fill="#2B2D5C">S</text><text x="32" y="39" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="17" fill="#2B2D5C">u</text></svg>',
+  planets: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="6" cy="32" r="16" fill="#F6B33C"/><circle cx="28" cy="32" r="3" fill="#9a8f86"/><circle cx="37" cy="32" r="4.5" fill="#3d7cc9"/><circle cx="50" cy="32" r="8" fill="#d6a878"/><circle cx="61" cy="32" r="3" fill="#9fd6dc"/></svg>',
+  lineup: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="6" cy="26" r="14" fill="#F6B33C"/><circle cx="26" cy="26" r="5" fill="#3d7cc9"/><circle cx="42" cy="26" r="7" fill="#c8553d"/><circle cx="58" cy="26" r="5" fill="none" stroke="#8A7FC7" stroke-width="2" stroke-dasharray="3 2"/><text x="26" y="52" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="13" fill="#F6EBD0">1</text><text x="42" y="52" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="13" fill="#F6EBD0">2</text><text x="58" y="52" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="13" fill="#F6EBD0">3</text></svg>',
+  count: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 10l2.4 5 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L6.2 15.8l5.4-.8z" fill="#F6EBD0"/><path d="M40 16l2 4 4.4.6-3.2 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.2-3.1 4.4-.6z" fill="#F6EBD0"/><path d="M26 34l2 4 4.4.6-3.2 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.2-3.1 4.4-.6z" fill="#F6EBD0"/><circle cx="50" cy="48" r="11" fill="#F4A77A"/><text x="50" y="54" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="16" fill="#2B2D5C">3</text></svg>',
+  draw: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8l6.2 12.6 13.9 2-10 9.8 2.4 13.8L32 39.7l-12.5 6.5 2.4-13.8-10-9.8 13.9-2z" fill="none" stroke="#F6EBD0" stroke-width="3" stroke-dasharray="5 4" stroke-linejoin="round"/><path d="M44 56l12-12 4 4-12 12z" fill="#F4A77A"/><path d="M44 56l-2 6 6-2z" fill="#F6EBD0"/></svg>',
+  book: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 14c8-4 16-4 24 2v38c-8-6-16-6-24-2z" fill="#F6EBD0"/><path d="M56 14c-8-4-16-4-24 2v38c8-6 16-6 24-2z" fill="#e8dcc0"/><text x="20" y="40" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="18" fill="#2B2D5C">A</text><text x="44" y="40" text-anchor="middle" font-family="Andika,sans-serif" font-weight="700" font-size="18" fill="#F4A77A">B</text></svg>',
+};
+
+// ---------- pictures ----------
+const PIC = {};
+function idb() {
+  return new Promise((res, rej) => {
+    try { const r = indexedDB.open('everettObs', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); }
+  });
+}
+async function idbGet(k) { try { const db = await idb(); return await new Promise(r => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); } catch (e) { return null; } }
+async function idbSet(k, v) { try { const db = await idb(); await new Promise(r => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = r; t.onerror = r; }); } catch (e) { } }
+function checkImg(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i.naturalWidth > 0); i.onerror = () => r(false); i.src = src; }); }
+function drawPic(id) { return SPACE.draw(id, PIC_SIZE).toDataURL('image/jpeg', 0.9); }
+const BARE_IDS = ['sun', 'mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'io', 'europa', 'titan', 'asteroid', 'star', 'comet'];
+const BARE = {};
+function drawBare(id) { return SPACE.draw(id, 256, true).toDataURL('image/png'); }
+async function buildPictures(onStep) {
+  const cached = await idbGet(PIC_VER);
+  let fresh = false;
+  for (let k = 0; k < ITEMS.length; k++) {
+    const id = ITEMS[k].id;
+    let src = cached && cached[id];
+    if (!src || !(await checkImg(src))) { src = drawPic(id); fresh = true; await new Promise(r => setTimeout(r, 30)); }
+    PIC[id] = src;
+    if (BARE_IDS.includes(id)) {
+      let b = cached && cached['bare_' + id];
+      if (!b || !(await checkImg(b))) { b = drawBare(id); fresh = true; }
+      BARE[id] = b;
+    }
+    onStep(k + 1, fresh);
+    if (fresh) await new Promise(r => setTimeout(r, 60));
+  }
+  if (fresh) { const all = Object.assign({}, PIC); for (const k in BARE) all['bare_' + k] = BARE[k]; idbSet(PIC_VER, all); }
+}
+function img(id, cls) {
+  const i = new Image(); i.src = PIC[id]; i.alt = BYID[id].word; i.draggable = false; if (cls) i.className = cls;
+  i.onerror = () => { PIC[id] = drawPic(id); i.src = PIC[id]; };
+  return i;
+}
+const FILL = { sun: .6, mercury: .6, venus: .68, earth: .68, moon: .64, mars: .6, jupiter: .76, saturn: .95, uranus: .6, neptune: .6, pluto: .56, io: .58, europa: .58, titan: .6, asteroid: .66 };
+function bodyImg(id, cls) {
+  const i = img(id, cls);
+  if (BARE[id]) { i.src = BARE[id]; i.onerror = () => { BARE[id] = drawBare(id); i.src = BARE[id]; }; }
+  const f = FILL[id]; if (f) i.style.transform = `scale(${(0.94 / f).toFixed(3)})`;
+  return i;
+}
+function card(it, opts = {}) {
+  const c = el(opts.tag || 'div', 'card'); c.append(img(it.id));
+  if (opts.num !== false) c.append(el('div', 'num', String(it.n)));
+  if (opts.tag === 'button') c.setAttribute('aria-label', it.word);
+  return c;
+}
+function tiles(word, small) {
+  const t = el('div', 'tiles' + (small ? ' small' : ''));
+  [...word].forEach((ch, i) => { if (ch === ' ') { t.append(el('div', 'tile gap')); return; } const d = el('div', 'tile' + (i === 0 ? ' first' : ''), esc(ch)); t.append(d); });
+  return t;
+}
+const charImg = (who, mood = '') => { const i = new Image(); i.src = CHAR[who + (mood ? '_' + mood : '')]; i.alt = ''; i.draggable = false; return i; };
+function guideMood(face, who, mood, ms) { if (!face) return; face.innerHTML = ''; face.append(charImg(who, mood)); if (ms) later(() => { face.innerHTML = ''; face.append(charImg(who, '')); }, ms); }
+
+function markLetter(it) {
+  const L = it.word[0].toUpperCase();
+  if (!S.letters[L]) { S.letters[L] = it.id; save(); }
+}
+
+// ---------- screens ----------
+function show(node) { clearTimers(); closeOverlay(); app.innerHTML = ''; app.append(node); window.scrollTo(0, 0); }
+let overlayNode = null;
+function openOverlay(node, onClose) {
+  closeOverlay();
+  const o = el('div', 'overlay'); o.append(node);
+  const x = el('button', 'closebtn', ICON.close); x.setAttribute('aria-label', 'Close'); x.onclick = () => { closeOverlay(); onClose && onClose(); };
+  o.append(x); document.body.append(o); overlayNode = o;
+}
+function closeOverlay() { if (overlayNode) { overlayNode.remove(); overlayNode = null; } }
+
+function bar(game, who, opts = {}) {
+  const b = el('div', 'bar');
+  const h = el('button', 'home', ICON.home); h.setAttribute('aria-label', 'Home'); h.onclick = home; b.append(h);
+  const face = el('div', 'face'); face.append(charImg(who)); b.append(face);
+  b.append(el('div', 'spacer'));
+  let prog = null;
+  if (opts.rounds) { prog = el('div', 'progress'); for (let i = 0; i < opts.rounds; i++) prog.append(el('i')); b.append(prog); }
+  if (opts.levels !== false && game) {
+    const lv = el('div', 'levels');
+    for (let k = 1; k <= 3; k++) {
+      const btn = el('button', lvl(game) === k ? 'on' : ''); btn.setAttribute('aria-label', 'Level ' + k);
+      for (let d = 0; d < k; d++) btn.append(el('i'));
+      btn.onclick = () => { S.levels[game] = k; save(); opts.restart && opts.restart(); };
+      lv.append(btn);
+    }
+    b.append(lv);
+  }
+  return { b, face, setProg(n) { if (prog) [...prog.children].forEach((d, i) => d.classList.toggle('on', i < n)); } };
+}
+
+// ---------- loading ----------
+async function start() {
+  const scr = el('div', 'screen loading');
+  const g = el('div', 'guide'); g.append(charImg('mo', 'thinking'));
+  const big = el('div', 'bignum', '0'); const dots = el('div', 'dots');
+  ITEMS.forEach(() => dots.append(el('i')));
+  scr.append(g, big, dots); show(scr);
+  await buildPictures((k) => { big.textContent = k; dots.children[k - 1].classList.add('on'); });
+  later(home, 350);
+}
+
+// ---------- home ----------
+function home() {
+  const scr = el('div', 'screen');
+  const hero = el('div', 'home-hero', SCENE);
+  hero.append(el('div', 'title', 'Everett’s Observatory'));
+  const jun = charImg('juniper'); jun.className = 'juniper'; hero.append(jun);
+  const chips = el('div', 'topchips');
+  chips.append(el('div', 'chip', ICON.star + '<span>' + S.stars + '</span>'));
+  const gear = el('button', 'iconbtn', ICON.gear); gear.setAttribute('aria-label', 'Grown-ups');
+  gear.onclick = grownups; chips.append(gear); hero.append(chips);
+  scr.append(hero);
+  const rows = el('div', 'rows');
+  const row = (who, bg, list) => {
+    const r = el('div', 'hostrow');
+    const h = el('div', 'host'); h.style.background = bg; h.append(charImg(who)); r.append(h);
+    const t = el('div', 'tiles-row');
+    list.forEach(([icon, label, fn]) => {
+      if (!icon) { t.append(el('div', 'gametile empty')); return; }
+      const b = el('button', 'gametile', '<div class="ico">' + ICON[icon] + '</div><div class="lbl">' + label + '</div>');
+      b.onclick = fn; t.append(b);
+    });
+    r.append(t); return r;
+  };
+  rows.append(row('juniper', 'var(--lav)', [['telescope', 'Sky Spotter', () => explore('sky')], ['spot', 'Spot It', spotIt], ['first', 'First Letter', firstLetter], ['spell', 'Spell It', spellIt]]));
+  rows.append(row('pip', 'var(--pine)', [['planets', 'The Sun’s Family', () => explore('sun')], ['lineup', 'Line Them Up', lineUp], [null], [null]]));
+  rows.append(row('mo', '#1f2150', [['count', 'Count', countGame], ['draw', 'Draw It', drawIt], ['book', 'Letter Book', letterBook], [null]]));
+  scr.append(rows);
+  show(scr);
+}
+
+// ---------- explore + showcase ----------
+function explore(group) {
+  const who = group === 'sky' ? 'juniper' : 'pip';
+  const scr = el('div', 'screen');
+  const { b } = bar(null, who, { levels: false });
+  scr.append(b);
+  if (group === 'sky') {
+    const grid = el('div', 'grid');
+    const list = ITEMS.filter(i => i.group === 'sky');
+    list.forEach((it, k) => { const c = card(it, { tag: 'button' }); c.onclick = () => showcase(list, k); grid.append(c); });
+    scr.append(grid);
+  } else {
+    const wrap = el('div', 'orbit'), inner = el('div', 'orbit-inner');
+    const order = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const size = { sun: 200, mercury: 56, venus: 80, earth: 84, mars: 66, jupiter: 150, saturn: 190, uranus: 104, neptune: 100, pluto: 50 };
+    const list = ITEMS.filter(i => i.group === 'sun');
+    order.forEach(id => {
+      const it = BYID[id], col = el('div', 'col');
+      const pl = el('button', 'pl' + (id === 'sun' ? ' sun' : '')); pl.setAttribute('aria-label', it.word);
+      pl.style.setProperty('--s', size[id]); pl.append(bodyImg(id));
+      pl.onclick = () => showcase(list, list.indexOf(it));
+      col.append(pl);
+      if (it.planet) col.append(el('div', 'lbl', String(it.planet)));
+      const moons = ITEMS.filter(m => m.moonOf === id);
+      if (moons.length) {
+        const mm = el('div', 'moons');
+        moons.forEach(m => { const mb = el('button'); mb.setAttribute('aria-label', m.word); mb.append(bodyImg(m.id)); mb.onclick = () => showcase(list, list.indexOf(m)); mm.append(mb); });
+        col.append(mm);
+      }
+      inner.append(col);
+    });
+    wrap.append(inner); scr.append(wrap);
+  }
+  show(scr);
+}
+function showcase(list, k) {
+  const it = list[k];
+  const s = el('div', 'show');
+  s.append(card(it));
+  s.append(tiles(it.word));
+  if (it.name && it.name !== it.word) s.append(el('div', 'propername', esc(it.name)));
+  s.append(el('div', 'fact', esc(it.fact)));
+  const nav = el('div', 'nav');
+  const prev = el('button', 'roundbtn', ICON.left); prev.setAttribute('aria-label', 'Previous'); prev.onclick = () => showcase(list, (k - 1 + list.length) % list.length);
+  const next = el('button', 'roundbtn', ICON.right); next.setAttribute('aria-label', 'Next'); next.onclick = () => showcase(list, (k + 1) % list.length);
+  nav.append(prev, next); s.append(nav);
+  openOverlay(s);
+}
+
+// ---------- win ----------
+function win(who, again) {
+  S.stars += 1; save(); sfx.win();
+  const w = el('div', 'win');
+  const g = el('div', 'guide'); g.append(charImg('mo', 'happy')); w.append(g);
+  const st = el('div', 'stars', ICON.star + '<span>' + (S.stars - 1) + '</span>'); w.append(st);
+  later(() => { st.querySelector('span').textContent = S.stars; pop(st); }, 500);
+  const btns = el('div', 'btns');
+  const a = el('button', 'roundbtn peach', ICON.again); a.setAttribute('aria-label', 'Play again'); a.onclick = () => { closeOverlay(); again(); };
+  const h = el('button', 'roundbtn', ICON.home); h.setAttribute('aria-label', 'Home'); h.onclick = () => { closeOverlay(); home(); };
+  btns.append(a, h); w.append(btns);
+  later(() => openOverlay(w, home), 600);
+}
+
+// ---------- choosing items ----------
+function alike(a, b) { return LOOKALIKE.some(([x, y]) => (x === a && y === b) || (x === b && y === a)); }
+function distractors(target, n, pool, ok = () => true) {
+  const out = [];
+  for (const it of shuffle(pool)) {
+    if (out.length >= n) break;
+    if (it.id === target.id || !ok(it)) continue;
+    if (lvl.cur < 3 && (alike(it.id, target.id) || out.some(o => alike(o.id, it.id)))) continue;
+    out.push(it);
+  }
+  return out;
+}
+function choiceGrid(n) {
+  const g = el('div', 'choices');
+  const cols = n <= 3 ? 3 : n === 4 ? 4 : 3;
+  g.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  g.style.maxWidth = n <= 4 ? Math.min(1000, n * 230) + 'px' : '760px';
+  return g;
+}
+
+// ---------- Spot It: find what Juniper sees through the telescope ----------
+function spotIt() {
+  const ROUNDS = 5, L = lvl('spot'); lvl.cur = L;
+  const zoom = [0, 1.9, 2.6, 3.4][L], nChoice = [0, 3, 4, 6][L];
+  let round = 0, used = [];
+  const scr = el('div', 'screen');
+  const B = bar('spot', 'juniper', { rounds: ROUNDS, restart: spotIt }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('juniper', spotIt);
+    body.innerHTML = '';
+    const target = pick(ITEMS.filter(i => !used.includes(i.id))); used.push(target.id);
+    const scope = el('div', 'scope');
+    scope.style.backgroundImage = `url(${PIC[target.id]})`;
+    scope.style.backgroundSize = (zoom * 100) + '%';
+    scope.style.backgroundPosition = `${target.fx ?? 50}% ${target.fy ?? 50}%`;
+    const reveal = el('div', 'reveal');
+    const top = el('div', 'prompt'); top.append(scope, reveal); body.append(top);
+    const opts = shuffle([target, ...distractors(target, nChoice - 1, ITEMS)]);
+    const grid = choiceGrid(opts.length);
+    let done = false;
+    opts.forEach(it => {
+      const c = card(it, { tag: 'button', num: false });
+      c.onclick = () => {
+        if (done) return;
+        if (it.id !== target.id) { wiggle(c); guideMood(B.face, 'juniper', 'thinking', 1200); return; }
+        done = true; c.classList.add('right'); pop(c); sfx.right(); markLetter(it);
+        guideMood(B.face, 'juniper', 'happy', 1400);
+        scope.style.transition = 'background-size .8s'; scope.style.backgroundSize = '100%';
+        reveal.innerHTML = ''; reveal.append(tiles(it.word, true));
+        round++; B.setProg(round); later(next, 1900);
+      };
+      grid.append(c);
+    });
+    body.append(grid);
+  }
+  next();
+}
+
+// ---------- First Letter: which one starts with J? ----------
+function firstLetter() {
+  const ROUNDS = 5, L = lvl('first'); lvl.cur = L;
+  const nChoice = [0, 3, 4, 6][L];
+  let round = 0, last = '';
+  const scr = el('div', 'screen');
+  const B = bar('first', 'juniper', { rounds: ROUNDS, restart: firstLetter }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('juniper', firstLetter);
+    body.innerHTML = '';
+    let letter; do { letter = pick(LETTERS); } while (letter === last && LETTERS.length > 1); last = letter;
+    const target = pick(ITEMS.filter(i => i.word[0].toUpperCase() === letter));
+    const big = el('div', 'bigletter');
+    big.append(el('div', 'tile first', letter), el('div', 'tile lower', letter.toLowerCase()));
+    const reveal = el('div', 'reveal');
+    const top = el('div', 'prompt'); top.append(big, reveal); body.append(top);
+    const seen = new Set([letter]);
+    const others = distractors(target, nChoice - 1, ITEMS, it => { const f = it.word[0].toUpperCase(); if (seen.has(f)) return false; seen.add(f); return true; });
+    const grid = choiceGrid(nChoice);
+    let done = false;
+    shuffle([target, ...others]).forEach(it => {
+      const c = card(it, { tag: 'button', num: false });
+      c.onclick = () => {
+        if (done) return;
+        if (it.word[0].toUpperCase() !== letter) { wiggle(c); guideMood(B.face, 'juniper', 'thinking', 1200); return; }
+        done = true; c.classList.add('right'); pop(c); sfx.right(); markLetter(it);
+        guideMood(B.face, 'juniper', 'happy', 1400);
+        reveal.innerHTML = ''; reveal.append(tiles(it.word, true));
+        round++; B.setProg(round); later(next, 1900);
+      };
+      grid.append(c);
+    });
+    body.append(grid);
+  }
+  next();
+}
+
+// ---------- drag helper ----------
+function draggable(node, onDrop) {
+  node.addEventListener('pointerdown', e => {
+    if (node.dataset.locked) return;
+    e.preventDefault(); node.setPointerCapture(e.pointerId);
+    const sx = e.clientX, sy = e.clientY; let moved = false;
+    node.style.transition = 'none'; node.classList.add('lift');
+    const move = ev => { const dx = ev.clientX - sx, dy = ev.clientY - sy; if (Math.abs(dx) + Math.abs(dy) > 6) moved = true; node.style.transform = `translate(${dx}px,${dy}px) scale(1.12)`; };
+    const up = ev => {
+      node.removeEventListener('pointermove', move); node.removeEventListener('pointerup', up); node.removeEventListener('pointercancel', up);
+      node.classList.remove('lift');
+      const ok = onDrop(ev.clientX, ev.clientY, moved);
+      node.style.transition = 'transform .25s'; node.style.transform = '';
+      if (!ok && moved) wiggle(node);
+    };
+    node.addEventListener('pointermove', move); node.addEventListener('pointerup', up); node.addEventListener('pointercancel', up);
+  });
+}
+const hit = (node, x, y, pad = 18) => { const r = node.getBoundingClientRect(); return x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad; };
+
+// ---------- Spell It ----------
+function spellIt() {
+  const ROUNDS = 3, L = lvl('spell');
+  const len = w => w.replace(/ /g, '').length;
+  const pool = ITEMS.filter(i => L === 1 ? len(i.word) <= 5 && !i.word.includes(' ') : L === 2 ? len(i.word) >= 5 && len(i.word) <= 7 && !i.word.includes(' ') : len(i.word) >= 6);
+  let round = 0, used = [];
+  const scr = el('div', 'screen');
+  const B = bar('spell', 'juniper', { rounds: ROUNDS, restart: spellIt }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('juniper', spellIt);
+    body.innerHTML = '';
+    const it = pick(pool.filter(i => !used.includes(i.id))); used.push(it.id);
+    const pc = card(it, { num: false }); pc.classList.add('spell-pic'); body.append(pc);
+    const slots = el('div', 'slots'), slotEls = [];
+    [...it.word].forEach((ch, i) => {
+      if (ch === ' ') { slots.append(el('div', 'slot gapslot')); return; }
+      const s = el('div', 'slot' + (i === 0 ? ' firstslot' : ''), L < 3 || i === 0 ? esc(ch) : '');
+      s.dataset.ch = ch; s.dataset.i = i; slots.append(s); slotEls.push(s);
+    });
+    body.append(slots);
+    // level 1 starts with the first letter already in place
+    const pre = L === 1 ? [slotEls[0]] : [];
+    pre.forEach(s => fill(s));
+    const letters = slotEls.filter(s => !pre.includes(s)).map(s => s.dataset.ch);
+    if (L === 3) { const extra = 'aeoinrst'.split('').filter(c => !it.word.toLowerCase().includes(c)); letters.push(pick(extra), pick(extra)); }
+    const tray = el('div', 'tray');
+    shuffle(letters).forEach(ch => {
+      const t = el('button', 'ltile', esc(ch)); t.dataset.ch = ch; tray.append(t);
+      draggable(t, (x, y, moved) => {
+        const open = slotEls.filter(s => !s.dataset.f);
+        let target = null;
+        if (!moved) target = open[0] && open[0].dataset.ch === ch ? open[0] : null; // tap = next letter
+        else target = open.find(s => hit(s, x, y) && s.dataset.ch === ch) || null;
+        if (!target) { if (!moved) wiggle(t); return false; }
+        t.dataset.locked = 1; t.classList.add('used'); fill(target); sfx.tick(slotEls.indexOf(target)); check();
+        return true;
+      });
+    });
+    body.append(tray);
+    function fill(s) { s.dataset.f = 1; s.classList.add('filled'); if (s.dataset.i === '0') s.classList.add('first'); s.textContent = s.dataset.ch; pop(s); }
+    function check() {
+      if (slotEls.every(s => s.dataset.f)) {
+        sfx.right(); markLetter(it); guideMood(B.face, 'juniper', 'happy', 1600); pop(slots);
+        if (it.name && it.name !== it.word) body.insertBefore(el('div', 'propername', esc(it.name)), tray);
+        tray.innerHTML = '';
+        round++; B.setProg(round); later(next, 2200);
+      }
+    }
+  }
+  next();
+}
+
+// ---------- Line Them Up (Pip) ----------
+function lineUp() {
+  const L = lvl('lineup');
+  const order = ITEMS.filter(i => i.planet && (L === 3 || !i.dwarf) && (L > 1 || i.planet <= 4)).sort((a, b) => a.planet - b.planet);
+  const scale = { mercury: .55, venus: .8, earth: .82, mars: .66, jupiter: 1, saturn: 1, uranus: .86, neptune: .85, pluto: .48 };
+  const scr = el('div', 'screen');
+  const B = bar('lineup', 'pip', { restart: lineUp }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body);
+  const wrap = el('div', 'lineup'), lane = el('div', 'lane');
+  const sp = el('div', 'sunpart'); sp.append(bodyImg('sun')); lane.append(sp);
+  const slotEls = order.map(it => {
+    const s = el('div', 'pslot'), ring = el('div', 'ring');
+    if (L < 3) { const g = bodyImg(it.id, 'ghost'); g.style.transform += ` scale(${scale[it.id]})`; ring.append(g); }
+    s.append(ring, el('div', 'n', String(it.planet)));
+    s.ring = ring; s.it = it; lane.append(s); return s;
+  });
+  if (L === 1) for (let k = 0; k < 4; k++) lane.append(el('div', 'pslot'));
+  wrap.append(lane);
+  const tray = el('div', 'ptray');
+  let placed = 0;
+  shuffle(order).forEach(it => {
+    const t = el('div', 'ptile'); const im = bodyImg(it.id); im.style.transform += ` scale(${scale[it.id]})`; t.append(im); tray.append(t);
+    t.setAttribute('aria-label', it.word);
+    draggable(t, (x, y) => {
+      const s = slotEls.find(s => !s.done && hit(s.ring, x, y, 24));
+      if (!s) return false;
+      if (s.it.id !== it.id) { wiggle(s.ring); guideMood(B.face, 'pip', 'thinking', 1200); return false; }
+      s.done = true; s.ring.innerHTML = ''; const pi = bodyImg(it.id); pi.style.transform += ` scale(${scale[it.id]})`; s.ring.append(pi); s.ring.classList.add('done'); pop(s.ring);
+      t.dataset.locked = 1; t.style.visibility = 'hidden'; sfx.right(); guideMood(B.face, 'pip', 'happy', 1200);
+      if (++placed === order.length) later(() => win('pip', lineUp), 900);
+      return true;
+    });
+  });
+  wrap.append(tray); body.append(wrap);
+  show(scr);
+}
+
+// ---------- Count (Mo) ----------
+function countGame() {
+  const ROUNDS = 4, L = lvl('count');
+  const range = [null, [2, 5], [4, 10], [10, 20]][L];
+  const kinds = ['star', 'moon', 'comet', 'asteroid', 'earth', 'saturn', 'mars', 'jupiter', 'neptune', 'sun'];
+  let round = 0, lastKind = '';
+  const scr = el('div', 'screen');
+  const B = bar('count', 'mo', { rounds: ROUNDS, restart: countGame }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('mo', countGame);
+    body.innerHTML = '';
+    let kind; do { kind = pick(kinds); } while (kind === lastKind); lastKind = kind;
+    const N = range[0] + rand(range[1] - range[0] + 1);
+    const sky = el('div', 'sky'); body.append(sky);
+    const answers = el('div', 'answers'); body.append(answers);
+    requestAnimationFrame(() => {
+      const W = sky.clientWidth, H = sky.clientHeight;
+      const size = Math.max(54, Math.min(120, Math.sqrt(W * H / (N * 3.2))));
+      const spots = [];
+      for (let k = 0, tries = 0; k < N && tries < 4000; tries++) {
+        const x = 10 + Math.random() * (W - size - 20), y = 10 + Math.random() * (H - size - 20);
+        if (spots.some(([a, b]) => Math.hypot(a - x, b - y) < size * 1.05)) continue;
+        spots.push([x, y]); k++;
+      }
+      let counted = 0;
+      spots.forEach(([x, y]) => {
+        const t = el('button', 'thing'); t.style.left = x + 'px'; t.style.top = y + 'px'; t.style.width = t.style.height = size + 'px';
+        t.setAttribute('aria-label', BYID[kind].word); t.append(bodyImg(kind));
+        t.onclick = () => {
+          if (t.dataset.c) return;
+          counted++; t.dataset.c = counted; t.append(el('div', 'badge', String(counted))); pop(t); sfx.tick(counted);
+          if (counted === spots.length) showAnswers(spots.length);
+        };
+        sky.append(t);
+      });
+    });
+    function showAnswers(n) {
+      const set = new Set([n]);
+      while (set.size < 3) { const d = n + (rand(2) ? 1 : -1) * (1 + rand(2)); if (d >= 1) set.add(d); }
+      guideMood(B.face, 'mo', 'thinking');
+      [...set].sort((a, b) => a - b).forEach(v => {
+        const b = el('button', '', String(v));
+        b.onclick = () => {
+          if (v !== n) { wiggle(b); return; }
+          sfx.right(); pop(b); b.style.background = 'var(--peach)'; guideMood(B.face, 'mo', 'happy', 1500);
+          round++; B.setProg(round); later(next, 1500);
+        };
+        answers.append(b);
+      });
+    }
+  }
+  next();
+}
+
+// ---------- Draw It (Mo) ----------
+// Shapes in a 0..1 box. closed: the drawing goes back to dot 1.
+const SHAPES = (() => {
+  const P = (f, n) => Array.from({ length: n + 1 }, (_, i) => f(i / n));
+  const circ = (cx, cy, r, a0, a1) => t => { const a = a0 + (a1 - a0) * t; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+  const starPts = []; for (let k = 0; k <= 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 0.17 : 0.42; starPts.push([0.5 + r * Math.cos(a), 0.53 + r * Math.sin(a)]); }
+  const crescent = (() => {
+    const out = P(circ(0.5, 0.5, 0.38, Math.PI * 0.28, Math.PI * 1.72), 40);
+    const e1 = out[0], e2 = out[out.length - 1];
+    const cx = 0.72, r = Math.hypot(e1[0] - cx, e1[1] - 0.5);
+    const a1 = Math.atan2(e2[1] - 0.5, e2[0] - cx), a0 = Math.atan2(e1[1] - 0.5, e1[0] - cx);
+    // inner arc runs from the top tip back to the bottom tip around its left side
+    const inner = P(t => { const a = a1 + ((a0 - Math.PI * 2) - a1) * t; return [cx + r * Math.cos(a), 0.5 + r * Math.sin(a)]; }, 30);
+    return out.concat(inner.slice(1));
+  })();
+  return [
+    { id: 'line', item: 'meteor', pts: [[0.15, 0.2], [0.85, 0.8]], dots: 4 },
+    { id: 'circle', item: 'moon', pts: P(circ(0.5, 0.5, 0.36, -Math.PI / 2, Math.PI * 1.5), 64), dots: 8, closed: true },
+    { id: 'wave', item: 'aurora', pts: P(t => [0.1 + 0.8 * t, 0.5 - 0.17 * Math.sin(t * Math.PI * 4)], 64), dots: 9 },
+    { id: 'ring', item: 'saturn', pts: P(t => { const a = t * Math.PI * 2, x = 0.42 * Math.cos(a), y = 0.15 * Math.sin(a), c = Math.cos(-0.25), s = Math.sin(-0.25); return [0.5 + x * c - y * s, 0.5 + x * s + y * c]; }, 64), dots: 8, closed: true },
+    { id: 'crescent', item: 'moon', pts: crescent, dots: 9, closed: true },
+    { id: 'star', item: 'star', pts: starPts, dots: 10, closed: true, corners: true },
+    { id: 'spiral', item: 'galaxy', pts: P(t => { const a = t * Math.PI * 4.4, r = 0.04 + 0.34 * t; return [0.5 + r * Math.cos(a), 0.5 + r * Math.sin(a)]; }, 90), dots: 10 },
+  ];
+})();
+function resample(pts, n) {
+  const d = [0]; for (let i = 1; i < pts.length; i++) d.push(d[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const L = d[d.length - 1] || 1, out = [];
+  for (let k = 0; k < n; k++) {
+    const t = L * k / (n - 1); let i = 1; while (i < d.length - 1 && d[i] < t) i++;
+    const f = (t - d[i - 1]) / ((d[i] - d[i - 1]) || 1); out.push([pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f]);
+  }
+  return out;
+}
+function pathLen(pts) { let s = 0; for (let i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
+function nearest(p, set) { let m = 1e9; for (const q of set) { const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2; if (d < m) m = d; } return Math.sqrt(m); }
+function normBox(pts) {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  const s = Math.max(x1 - x0, y1 - y0) || 1, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  return pts.map(([x, y]) => [(x - cx) / s, (y - cy) / s]);
+}
+function shapeScore(drawn, shape) {
+  // free-copy check: same shape anywhere, any size
+  const a = normBox(resample(drawn, 80)), b = normBox(resample(shape.pts, 80));
+  let s1 = 0, s2 = 0; for (const p of a) s1 += nearest(p, b); for (const p of b) s2 += nearest(p, a);
+  return Math.max(s1 / a.length, s2 / b.length);
+}
+function drawIt() {
+  const L = lvl('draw');
+  const pools = [null, ['line', 'circle', 'wave', 'ring'], ['circle', 'wave', 'ring', 'crescent', 'star'], ['ring', 'crescent', 'star', 'spiral', 'circle']];
+  const pool = pools[L];
+  const ROUNDS = 3; let round = 0;
+  const scr = el('div', 'screen');
+  const B = bar('draw', 'mo', { rounds: ROUNDS, restart: drawIt }); scr.append(B.b);
+  const body = el('div', 'body'); scr.append(body); show(scr);
+  function next() {
+    if (round >= ROUNDS) return win('mo', drawIt);
+    body.innerHTML = '';
+    const want = pool[(S.drawIdx++) % pool.length]; save();
+    const shape = SHAPES.find(s => s.id === want);
+    const it = BYID[shape.item];
+    const wrapD = el('div', 'drawwrap');
+    const model = el('div', 'model');
+    const mc = card(it, { num: false }); model.append(mc);
+    const msvg = `<svg viewBox="0 0 1 1" aria-hidden="true"><path d="${'M' + shape.pts.map(p => p[0].toFixed(3) + ',' + p[1].toFixed(3)).join('L')}${shape.closed ? 'Z' : ''}" fill="none" stroke="#F6EBD0" stroke-width=".035" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    model.insertAdjacentHTML('beforeend', msvg);
+    const pad = el('div', 'pad'), gC = el('canvas'), iC = el('canvas'), pay = el('div', 'payoff'); pay.append(img(it.id));
+    pad.append(gC, pay, iC);
+    const tools = el('div', 'drawtools');
+    const er = el('button', 'roundbtn', ICON.erase); er.setAttribute('aria-label', 'Start over'); tools.append(er);
+    wrapD.append(model, pad, tools); body.append(wrapD);
+    let mode = L === 1 ? 'dots' : L === 2 ? 'trace' : 'copy', misses = 0;
+    let size = 0, dpr = Math.min(2, window.devicePixelRatio || 1), gx, ix, strokes = [], cur = null, nextDot = 0, finished = false;
+    const dots = (() => { const n = shape.dots; if (shape.corners) return shape.pts.slice(0, 10); const r = resample(shape.pts, shape.closed ? n + 1 : n); return shape.closed ? r.slice(0, n) : r; })();
+    const guideSamples = resample(shape.pts, 120);
+    function layout() {
+      const r = wrapD.getBoundingClientRect();
+      const portrait = window.innerHeight > window.innerWidth;
+      size = Math.floor(Math.min(portrait ? r.width - 20 : r.width - 330, (portrait ? window.innerHeight * 0.5 : window.innerHeight - 160), 640));
+      size = Math.max(240, size);
+      pad.style.width = pad.style.height = size + 'px';
+      for (const c of [gC, iC]) { c.width = c.height = size * dpr; }
+      gx = gC.getContext('2d'); ix = iC.getContext('2d'); gx.setTransform(dpr, 0, 0, dpr, 0, 0); ix.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawGuide(); redrawInk();
+    }
+    const P = p => [p[0] * size, p[1] * size];
+    function drawGuide() {
+      gx.clearRect(0, 0, size, size);
+      if (mode === 'trace' || mode === 'dots') {
+        gx.save(); gx.strokeStyle = mode === 'trace' ? 'rgba(246,235,208,.35)' : 'rgba(246,235,208,.12)'; gx.lineWidth = Math.max(14, size * 0.05); gx.lineCap = gx.lineJoin = 'round';
+        if (mode === 'trace') gx.setLineDash([2, size * 0.045]);
+        gx.beginPath(); shape.pts.forEach((p, i) => { const [x, y] = P(p); i ? gx.lineTo(x, y) : gx.moveTo(x, y); }); if (shape.closed) gx.closePath(); gx.stroke(); gx.restore();
+        if (mode === 'trace') { const [x, y] = P(shape.pts[0]); gx.fillStyle = '#7fd6a4'; gx.beginPath(); gx.arc(x, y, size * 0.035, 0, 7); gx.fill(); }
+      }
+      if (mode === 'dots') {
+        dots.forEach((p, i) => {
+          const [x, y] = P(p), on = i < nextDot, isNext = i === nextDot || (shape.closed && nextDot === dots.length && i === 0);
+          gx.fillStyle = on ? '#F4A77A' : isNext ? '#7fd6a4' : '#F6EBD0';
+          gx.beginPath(); gx.arc(x, y, size * (isNext ? 0.045 : 0.035), 0, 7); gx.fill();
+          gx.fillStyle = '#2B2D5C'; gx.font = `600 ${Math.round(size * 0.045)}px Fredoka, sans-serif`; gx.textAlign = 'center'; gx.textBaseline = 'middle';
+          gx.fillText(String(i + 1), x, y + 1);
+        });
+      }
+    }
+    function redrawInk() {
+      ix.clearRect(0, 0, size, size);
+      ix.strokeStyle = finished ? '#F4A77A' : '#F6EBD0'; ix.lineWidth = Math.max(10, size * 0.032); ix.lineCap = ix.lineJoin = 'round';
+      for (const s of strokes) { ix.beginPath(); s.forEach((p, i) => { const [x, y] = P(p); i ? ix.lineTo(x, y) : ix.moveTo(x, y); }); ix.stroke(); }
+    }
+    function local(e) { const r = iC.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; }
+    iC.addEventListener('pointerdown', e => { if (finished) return; e.preventDefault(); iC.setPointerCapture(e.pointerId); cur = [local(e)]; strokes.push(cur); progress(cur[0]); redrawInk(); });
+    iC.addEventListener('pointermove', e => {
+      if (!cur || finished) return;
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      for (const ev of evs) { const p = local(ev); cur.push(p); progress(p); }
+      redrawInk();
+    });
+    const end = () => { if (!cur) return; cur = null; if (!finished && mode !== 'dots') evaluate(); };
+    iC.addEventListener('pointerup', end); iC.addEventListener('pointercancel', end);
+    er.onclick = () => { if (finished) return; strokes = []; nextDot = 0; drawGuide(); redrawInk(); };
+    function progress(p) {
+      if (mode !== 'dots') { if (mode === 'trace' && coverage() > 0.9) success(); return; }
+      const target = nextDot < dots.length ? dots[nextDot] : (shape.closed ? dots[0] : null);
+      if (!target) return;
+      if (Math.hypot(p[0] - target[0], p[1] - target[1]) < 0.075) {
+        nextDot++; sfx.tick(nextDot); drawGuide();
+        if ((nextDot === dots.length && !shape.closed) || nextDot > dots.length) success();
+      }
+    }
+    function coverage() {
+      const all = strokes.flat(); if (all.length < 4) return 0;
+      let c = 0; for (const g of guideSamples) if (nearest(g, all) < 0.07) c++;
+      const cov = c / guideSamples.length;
+      let near = 0; for (const p of all) if (nearest(p, guideSamples) < 0.09) near++;
+      return Math.min(cov, near / all.length + 0.1);
+    }
+    function evaluate() {
+      const all = strokes.flat();
+      if (mode === 'trace') { if (coverage() > 0.8) success(); return; }
+      if (pathLen(all) < pathLen(shape.pts) * 0.5) return;
+      // copy mode: join strokes and compare with the model
+      if (shapeScore(all, shape) < 0.07) return success();
+      if (pathLen(all) > pathLen(shape.pts) * 1.3 || strokes.length > 3) {
+        misses++; wiggle(pad); guideMood(B.face, 'mo', 'thinking', 1500);
+        later(() => { strokes = []; if (misses >= 2) mode = 'trace'; drawGuide(); redrawInk(); }, 600);
+      }
+    }
+    function success() {
+      if (finished) return; finished = true;
+      strokes = [resample(shape.pts, 120)]; redrawInk(); gx.clearRect(0, 0, size, size);
+      sfx.right(); markLetter(it); guideMood(B.face, 'mo', 'happy', 2200);
+      later(() => { pay.classList.add('on'); }, 500);
+      later(() => { body.append(tiles(it.word, true)); }, 900);
+      round++; B.setProg(round); later(next, 2800);
+    }
+    requestAnimationFrame(layout);
+    window.onresize = () => { if (pad.isConnected) layout(); };
+  }
+  next();
+}
+
+// ---------- Letter Book (Mo) ----------
+function letterBook() {
+  const scr = el('div', 'screen');
+  const B = bar(null, 'mo', { levels: false }); scr.append(B.b);
+  const found = Object.keys(S.letters).length;
+  B.b.insertBefore(el('div', 'chip', `<span>${found}</span><span style="opacity:.6">/ ${LETTERS.length}</span>`), B.b.lastChild.nextSibling);
+  const book = el('div', 'book');
+  LETTERS.forEach(Lt => {
+    const id = S.letters[Lt];
+    const p = el('button', 'page' + (id ? ' found' : ''));
+    p.setAttribute('aria-label', 'Letter ' + Lt);
+    p.append(el('div', 'L', Lt + '<span style="font-size:.6em;margin-left:4px">' + Lt.toLowerCase() + '</span>'));
+    if (id) { p.append(img(id)); p.onclick = () => openPage(Lt); }
+    else p.onclick = () => wiggle(p);
+    book.append(p);
+  });
+  scr.append(book); show(scr);
+  function openPage(Lt) {
+    const bp = el('div', 'bookpage');
+    const big = el('div', 'bigletter'); big.append(el('div', 'tile first', Lt), el('div', 'tile lower', Lt.toLowerCase())); bp.append(big);
+    const row = el('div', 'row');
+    ITEMS.filter(i => i.word[0].toUpperCase() === Lt).forEach(it => { const e = el('div', 'entry'); e.append(card(it), tiles(it.word, true)); row.append(e); });
+    bp.append(row); openOverlay(bp);
+  }
+}
+
+// ---------- grown-ups ----------
+function grownups() {
+  const p = el('div', 'panel');
+  p.append(el('h2', '', 'Grown-ups'));
+  const sr = el('div', 'rowx', '<span>Sound</span>');
+  const sw = el('button', 'switch' + (S.sound ? ' on' : '')); sw.setAttribute('aria-label', 'Sound'); sw.setAttribute('role', 'switch'); sw.setAttribute('aria-checked', S.sound);
+  sw.onclick = () => { S.sound = !S.sound; save(); sw.classList.toggle('on', S.sound); sw.setAttribute('aria-checked', S.sound); if (S.sound) sfx.right(); };
+  sr.append(sw); p.append(sr);
+  p.append(el('p', '', 'Hold a button for two seconds to reset it. Progress is saved on this iPad only.'));
+  const hold = (label, fn) => {
+    const b = el('button', 'hold', '<div class="fill"></div><span>' + label + '</span>');
+    let t0 = 0, raf = 0;
+    const tick = () => { const f = Math.min(1, (performance.now() - t0) / 2000); b.firstChild.style.width = f * 100 + '%'; if (f >= 1) { fn(); save(); b.lastChild.textContent = label + ' ✓'; t0 = 0; return; } raf = requestAnimationFrame(tick); };
+    b.onpointerdown = e => { e.preventDefault(); t0 = performance.now(); raf = requestAnimationFrame(tick); };
+    b.onpointerup = b.onpointerleave = b.onpointercancel = () => { cancelAnimationFrame(raf); if (t0) b.firstChild.style.width = '0'; t0 = 0; };
+    return b;
+  };
+  p.append(hold('Reset stars', () => { S.stars = 0; }));
+  p.append(hold('Reset Letter Book', () => { S.letters = {}; }));
+  p.append(hold('Reset game levels', () => { S.levels = {}; }));
+  p.append(hold('Redraw the space pictures', () => { idbSet(PIC_VER, null); }));
+  p.append(hold('Reset everything', () => { const snd = S.sound; S = Object.assign({}, DEFAULT, { sound: snd }); idbSet(PIC_VER, null); }));
+  openOverlay(p, home);
+}
+
+window.OBS = { S, ITEMS, home, spotIt, firstLetter, spellIt, lineUp, countGame, drawIt, letterBook, explore, SHAPES, shapeScore, resample };
+start();
+})();
+</script>
+</body>
+</html>

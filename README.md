@@ -27,3 +27,9 @@ Open it at https://bwstroup.github.io/word-lab/logic-lab/
 57 realistic 3D vehicles, each with its own number, plus number games, Fire Rescue missions and a Letters worksite with a Letter Book.
 
 Open it at https://bwstroup.github.io/word-lab/vroom-garage/
+
+# Everett's Observatory
+
+Everett's space app on Moonberry Hill with Juniper Bear, Pip the Field Mouse and Mo the Moth: 31 realistic space pictures (the Sun's family plus stars, comets, nebulae, galaxies, eclipses and more), with Spot It, First Letter, Spell It, Line Them Up, Count, Draw It and a Letter Book.
+
+Open it at https://bwstroup.github.io/word-lab/everetts-observatory/
