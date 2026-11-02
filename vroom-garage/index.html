@@ -407,7 +407,7 @@ img{max-width:100%;-webkit-user-drag:none}
 
 <section id="park" class="screen">
   <div class="bar"><button class="icon-btn press" data-go="home" data-ic="home" aria-label="Home"></button><div class="title"><span data-ic="park"></span>Park It</div><div class="grow"></div>
-    <div class="seg" id="pRanges"><button data-r="1-12">1–12</button><button data-r="13-24">13–24</button><button data-r="25-36">25–36</button><button data-r="37-48">37–48</button><button data-r="49-58">49–58</button></div></div>
+    <div class="seg" id="pRanges"><button data-r="1-12">1–12</button><button data-r="13-24">13–24</button><button data-r="25-36">25–36</button><button data-r="37-48">37–48</button><button data-r="49-59">49–59</button><button data-r="70-80">70–80</button></div></div>
   <div class="lot asph" id="lot"></div>
   <div class="drive" id="drive"></div>
 </section>
@@ -422,7 +422,7 @@ img{max-width:100%;-webkit-user-drag:none}
 
 <section id="order" class="screen">
   <div class="bar"><button class="icon-btn press" data-go="home" data-ic="home" aria-label="Home"></button><div class="title"><span data-ic="order"></span>In Order</div><div class="grow"></div>
-    <div class="seg" id="oRanges"><button data-r="1-24">1–24</button><button data-r="25-58">25–58</button><button data-r="1-58">1–58</button></div></div>
+    <div class="seg" id="oRanges"><button data-r="1-24">1–24</button><button data-r="25-80">25–80</button><button data-r="1-80">1–80</button></div></div>
   <div class="paddock" id="paddock"></div>
   <div class="grid-row asph" id="gridRow"></div>
 </section>
@@ -1367,6 +1367,157 @@ B.zeppelin=(num)=>{const v=Veh();v.sound='prop';v.kind='engine';const r=v.root,u
   for(const x of [-2.5,1.0])for(const z of [1,-1]){const e=up.child([x,2.3,z*1.75]);P(up,MT.steel,rod([x,2.6,z*1.2],[x,2.3,z*1.65],.04));P(e,sl,sphere(.35,.22,.22,12));const pr=e.child([.38,0,0]);for(let k=0;k<3;k++)box(pr,MT.dark,0,0,0,.03,.7,.09,.01,k*PI/1.5,0,0);e.pr=pr;v.count.push(e)}
   sides(up,tex.num(num,{fg:'#c8102e'}),-2.5,4.2,1.35,1.0,1.0);
   v.update=(t,a)=>{const on=a>=0&&a<8;v.count.forEach(e=>e.pr.r[0]=on?a*14:t*.5);up.p[1]=on?hop(a,.5,3.5,5,7.8)*1.6:0;v.head=1.8};return v};
+/* ---------- motorcycles (59, 70-75) and the Trail Rover (80) ---------- */
+function fender(n,m,x,y,R,a0,a1,w,t=.03){const N=10;for(let k=0;k<N;k++){const a=a0+(a1-a0)*(k+.5)/N,L=R*(a1-a0)/N*1.15;box(n,m,x+Math.cos(a)*R,y+Math.sin(a)*R,0,L,t,w,.01,0,0,a+H)}}
+/* the shared ride: wheels spin, kickstand up, a gentle bounce; dirt bikes pop a wheelie */
+function bikeRide(v,r,bk,stand,o={}){const lean=o.lean??.07;
+  return (t,a)=>{const on=a>=0&&a<5;if(stand)stand.vis=!on;bk.r[0]=on?0:lean;
+    for(const w of v.wheels)w.r[2]=on?-a*a*3.2:0;
+    const wl=on&&o.wheelie?hop(a,1.2,2.0,3.0,3.8)*.22:0;bk.r[2]=wl;bk.p[1]=on?Math.abs(Math.sin(a*7))*.02+Math.sin(wl)*(o.wheelie||0):0;
+    if(o.flash)o.flash(t,a)}}
+function kick(bk,x){const s=bk.child();P(s,MT.steel,rod([x,.42,-.1],[x-.12,.02,-.3],.018));return s}
+function bars(n,m,x,y,half,back=.06){P(n,m,rod([x,y,-half],[x,y,half],.022));for(const s of [1,-1])P(n,MT.matte,cyl(.03,.12,.01),x-back*.2,y,s*(half+.04),H,0,0)}
+function mirror(n,x,y,z){P(n,MT.steel,rod([x,y,z],[x-.04,y+.16,z*1.12],.01));P(n,MT.chrome,sphere(.06,.05,.02,12),x-.04,y+.18,z*1.14)}
+function forks(n,m,top,ax,ay,dz=.08){for(const s of [1,-1])P(n,m,rod([top[0],top[1],s*dz],[ax,ay,s*dz],.028))}
+
+/* dirt bike */
+B.dirtBike=(num)=>{const v=Veh();v.sound='race';const r=v.root,bk=r.child(),or=paint('#ff6a13'),wh=paint('#f4f5f6'),R=.4;
+  wheel(v,bk,.73,R,0,R,.12,{knobs:true,style:'spoke',rim:MT.alu});wheel(v,bk,-.73,R,0,R,.15,{knobs:true,style:'spoke',rim:MT.alu});
+  forks(bk,MT.chrome,[.42,1.14],.73,R);box(bk,MT.dark,.42,1.18,0,.12,.1,.24,.03);bars(bk,MT.dark,.37,1.32,.38);
+  for(const s of [1,-1])P(bk,MT.dark,rod([.42,1.2,s*.05],[.37,1.32,s*.12],.02));
+  P(bk,or,loft([[-.15,.8,1.06,.15,.6,.3],[.18,.84,1.12,.16],[.38,.9,1.1,.12,.6,.3]],{kt:.6,kb:.3}));
+  P(bk,MT.dark,loft([[-.78,.98,1.06,.11,.7,.2],[-.2,.96,1.06,.13],[.12,1.0,1.1,.12,.7,.2]],{kt:.7,kb:.2}));
+  P(bk,wh,loft([[-1.12,1.04,1.08,.06,.6,.6],[-.75,.9,1.0,.11],[-.35,.78,.98,.14]],{kt:.6,kb:.4}));
+  box(bk,wh,.78,.9,0,.6,.035,.17,.015,0,0,-.08);                                         // high front fender
+  box(bk,wh,.5,1.04,0,.06,.3,.3,.04,0,0,-.35);decal(bk,tex.roundel(num,{bg:'#fff',fg:'#111',ring:'#ff6a13'}),.535,1.05,0,.24,.24,H,0); // number plate
+  P(bk,MT.head,sphere(.05,.04,.03,10),.55,.93,0);
+  box(bk,MT.steel,0,.56,0,.42,.38,.24,.06);box(bk,MT.alu,.05,.6,.13,.2,.2,.04,.03);
+  for(const s of [1,-1])P(bk,MT.steel,rod([-.05,.58,s*.1],[-.73,R,s*.1],.03));
+  P(bk,MT.chrome,rod([.12,.48,.12],[-.2,.62,.16],.035));P(bk,MT.chrome,rod([-.2,.62,.16],[-.8,.96,.15],.04));P(bk,MT.dark,cyl(.07,.35,.02),-.72,.92,.15,0,0,H-.5);
+  sides(bk,tex.num(num,{fg:'#111'}),-.5,.88,.142,.24,.24);
+  const st=kick(bk,-.05);v.update=bikeRide(v,r,bk,st,{wheelie:.73});return v};
+
+/* sport bike */
+B.sportBike=(num)=>{const v=Veh();v.sound='race';const r=v.root,bk=r.child(),rd=paint('#d7182a'),wh=paint('#f4f5f6'),R=.31;
+  wheel(v,bk,.7,R,0,R,.12,{style:'race',rim:MT.dark});wheel(v,bk,-.7,R,0,R,.19,{style:'race',rim:MT.dark});
+  forks(bk,MT.alu,[.46,.98],.7,R,.075);fender(bk,rd,.7,R,R+.05,.4,1.7,.13);
+  P(bk,rd,loft([[.05,.42,.9,.21,.4,.5],[.35,.42,.98,.22],[.62,.52,1.0,.18,.6,.4],[.82,.66,.9,.1,.7,.6],[.9,.74,.84,.05,.8,.8]],{kt:.5,kb:.4}));
+  P(bk,wh,loft([[.1,.42,.5,.215,.3,.5],[.5,.44,.52,.2]],{kt:.3,kb:.5}));                 // belly stripe
+  P(bk,MT.glass,loft([[.58,.98,1.02,.13,.8,.2],[.78,.88,.94,.1,.8,.2]],{kt:.8,kb:.2}));    // screen
+  for(const s of [1,-1])P(bk,MT.head,sphere(.05,.035,.06,10),.85,.8,s*.06);
+  P(bk,rd,loft([[-.2,.78,1.0,.17,.6,.3],[.25,.84,1.05,.18,.6,.3]],{kt:.6,kb:.3}));
+  P(bk,MT.dark,loft([[-.55,.94,1.0,.12,.7,.2],[-.18,.9,.98,.14]],{kt:.7,kb:.2}));
+  P(bk,rd,loft([[-.95,.98,1.06,.05,.6,.6],[-.6,.88,1.03,.11],[-.25,.78,.96,.15]],{kt:.6,kb:.4}));
+  P(bk,MT.tail,sphere(.04,.025,.06,10),-.96,1.0,0);
+  for(const s of [1,-1]){P(bk,MT.alu,rod([.42,.98,s*.08],[.34,.96,s*.26],.02));P(bk,MT.matte,cyl(.028,.1,.01),.33,.96,s*.3,H,0,0);
+    P(bk,MT.alu,rod([-.05,.5,s*.11],[-.7,R,s*.11],.035))}
+  box(bk,MT.steel,.05,.4,0,.4,.3,.24,.06);P(bk,MT.chrome,rod([.0,.32,.14],[-.42,.52,.17],.035));P(bk,MT.alu,cyl(.07,.3,.02),-.5,.56,.17,0,0,H-.4);
+  sides(bk,tex.num(num,{fg:'#fff',stroke:'#111'}),.38,.7,.232,.28,.28);decal(bk,tex.roundel(num,{bg:'#fff',fg:'#d7182a'}),.83,.69,0,.12,.12,H,0);
+  const st=kick(bk,-.05);v.update=bikeRide(v,r,bk,st);return v};
+
+/* cruiser (and the base of the sidecar bike) */
+function cruiser(v,bk,num,o){const pc=paint(o.c),R=.34,lth=M({c:o.seat||'#5a3624',rough:.75});
+  wheel(v,bk,.83,R,0,R,.1,{style:'spoke',rim:MT.chrome});wheel(v,bk,-.82,R,0,R,.2,{style:'truck',face:MT.chrome});
+  forks(bk,MT.chrome,[.5,1.06],.83,R,.09);fender(bk,pc,.83,R,R+.05,.15,2.0,.15,.025);fender(bk,pc,-.82,R,R+.06,.5,2.8,.24,.03);
+  P(bk,pc,loft([[-.1,.76,.98,.14,.7,.3],[.15,.78,1.05,.16],[.45,.86,1.04,.12,.7,.3]],{kt:.7,kb:.3}));
+  if(o.flames)for(const s of [1,-1])decal(bk,tex.flames('#ffd21f','#ff4a1a'),.2,.92,s*.165,.5,.2,s<0?PI:0);
+  P(bk,lth,loft([[-.62,.7,.8,.16,.6,.3],[-.28,.66,.74,.18],[-.05,.7,.78,.14]],{kt:.6,kb:.3}));
+  P(bk,lth,loft([[-.7,.74,.92,.12,.7,.3],[-.6,.72,.84,.15]],{kt:.7,kb:.3}));
+  P(bk,MT.dark,loft([[-.5,.45,.62,.13],[0,.4,.6,.13]],{kt:.3,kb:.3}));
+  for(const [x,a] of [[.03,.45],[.3,-.45]]){P(bk,MT.chrome,cyl(.09,.3,.03),x,.56,0,0,0,a);for(let k=0;k<4;k++)P(bk,MT.alu,cyl(.11,.015,.005),x+Math.sin(-a)*(k*.05-.05),.56+Math.cos(a)*(k*.05-.05),0,0,0,a)}
+  box(bk,MT.chrome,.17,.36,0,.32,.22,.24,.08);
+  for(const [z,y] of [[.15,.32],[.17,.42]])P(bk,MT.chrome,loft([[-1.05,y-.035,y+.035,.035,1,1,z],[.15,y-.035,y+.035,.035,1,1,z]],{kt:1,kb:1}));
+  P(bk,MT.chrome,sphere(.13,.12,.13,16),.62,.98,0);P(bk,MT.head,disc(.1),.745,.98,0,0,H,0);
+  for(const s of [1,-1]){P(bk,MT.chrome,rod([.5,1.08,s*.06],[.45,1.24,s*.3],.022));P(bk,MT.chrome,rod([.45,1.24,s*.3],[.32,1.2,s*.44],.022));P(bk,MT.matte,cyl(.032,.12,.01),.3,1.2,s*.48,H,0,0);
+    box(bk,MT.dark,.35,.3,s*.26,.3,.03,.12,.01);P(bk,MT.chrome,rod([-.1,.5,s*.12],[-.82,R,s*.12],.03))}
+  mirror(bk,.42,1.24,.3);mirror(bk,.42,1.24,-.3);P(bk,MT.tail,sphere(.05,.035,.06,10),-1.15,.78,0);
+  P(bk,M({c:'#f4f5f6',rough:.3,coat:1}),cyl(.12,.03,.01),-.3,.55,.14,H,0,0);sides(bk,tex.num(num,{fg:'#111'}),-.3,.55,.157,.2,.2)}
+B.cruiser=(num)=>{const v=Veh();v.sound='engine';const r=v.root,bk=r.child();cruiser(v,bk,num,{c:'#15171a',flames:true});
+  const st=kick(bk,-.1);v.update=bikeRide(v,r,bk,st);return v};
+B.sidecar=(num)=>{const v=Veh();v.sound='engine';const r=v.root,bk=r.child(),gr='#2f6b4a',pc=paint(gr);cruiser(v,bk,num,{c:gr,seat:'#3a2a1e'});
+  const sc=[[-.75,.38,.72,.22,.6,.5,-.88],[-.4,.32,.8,.3,.6,.5,-.88],[.25,.32,.78,.3,.6,.5,-.88],[.6,.38,.7,.22,.7,.6,-.88],[.82,.46,.62,.08,.8,.8,-.88]];
+  P(bk,pc,loft(sc,{kt:.6,kb:.5}));box(bk,MT.dark,-.25,.8,-.88,.6,.04,.5,.08);box(bk,M({c:'#3a2a1e',rough:.75}),-.35,.74,-.88,.42,.1,.44,.05);
+  P(bk,MT.glass,loft([[.15,.8,.98,.22,.8,.2,-.88],[.3,.78,.94,.2,.8,.2,-.88]],{kt:.8,kb:.2}));
+  wheel(v,bk,-.1,.3,-1.14,.3,.12,{style:'spoke',rim:MT.chrome});{const fn=bk.child([0,0,-1.14]);fender(fn,pc,-.1,.3,.35,.3,2.7,.14,.025)};
+  for(const x of [-.6,.5])P(bk,MT.chrome,rod([x,.35,-.1],[x,.35,-.7],.025));
+  decal(bk,tex.roundel(num,{bg:'#f4f5f6',fg:'#2f6b4a'}),-.1,.55,-1.212,.26,.26,PI);
+  v.update=bikeRide(v,r,bk,null,{lean:0});return v};
+
+/* scooter */
+B.scooter=(num)=>{const v=Veh();v.sound='beep';const r=v.root,bk=r.child(),mt=paint('#7fd6c2'),cr=paint('#fff4dc'),R=.2,lth=M({c:'#6a3b25',rough:.7});
+  wheel(v,bk,.66,R,0,R,.11,{style:'disc',face:cr});wheel(v,bk,-.6,R,0,R,.12,{style:'disc',face:cr});
+  fender(bk,mt,.66,R,R+.06,.2,2.6,.15,.03);
+  box(bk,cr,.05,.32,0,.66,.08,.38,.04);box(bk,MT.matte,.05,.37,0,.6,.02,.32,.01);
+  box(bk,mt,.52,.7,0,.08,.78,.46,.06,0,0,.2);box(bk,cr,.46,.72,0,.04,.7,.4,.05,0,0,.2);
+  P(bk,MT.dark,rod([.66,R,0],[.48,1.04,0],.035));box(bk,mt,.48,1.1,0,.24,.16,.42,.07);P(bk,MT.head,disc(.075),.61,1.1,0,0,H,0);P(bk,MT.chrome,cyl(.085,.03,.01),.6,1.1,0,0,0,H);
+  bars(bk,MT.chrome,.44,1.14,.34);mirror(bk,.44,1.18,.26);mirror(bk,.44,1.18,-.26);
+  P(bk,mt,loft([[-.82,.3,.6,.12,.7,.5],[-.6,.22,.72,.22],[-.3,.24,.72,.23],[-.05,.3,.66,.2,.7,.4]],{kt:.7,kb:.4}));
+  P(bk,lth,loft([[-.68,.72,.84,.15,.8,.3],[-.1,.72,.86,.17,.8,.3]],{kt:.8,kb:.3}));
+  for(const s of [1,-1])P(bk,MT.chrome,rod([-.72,.9,s*.12],[-.95,.9,s*.12],.015));P(bk,MT.chrome,rod([-.95,.9,-.12],[-.95,.9,.12],.015));
+  P(bk,MT.tail,sphere(.05,.03,.07,10),-.84,.55,0);P(bk,MT.chrome,cyl(.05,.3,.02),-.45,.18,.2,0,0,H-.15);
+  P(bk,cr,cyl(.12,.03,.01),-.42,.5,.23,H,0,0);sides(bk,tex.num(num,{fg:'#1d6b5c'}),-.42,.5,.248,.2,.2);
+  const st=kick(bk,-.15);v.update=bikeRide(v,r,bk,st,{lean:.05});return v};
+
+/* touring bike, and the police motorcycle built on it */
+function tourer(v,bk,num,o){const pc=paint(o.c),bc=paint(o.bags||o.c),R=.34,lth=M({c:'#1d1f22',rough:.7});
+  wheel(v,bk,.82,R,0,R,.13,{style:'race',rim:MT.alu});wheel(v,bk,-.8,R,0,R,.18,{style:'race',rim:MT.alu});
+  forks(bk,MT.chrome,[.52,1.02],.82,R,.09);fender(bk,pc,.82,R,R+.05,.3,2.2,.16,.03);
+  P(bk,pc,loft([[.35,.7,1.12,.3,.6,.4],[.6,.72,1.2,.36,.6,.4],[.8,.76,1.12,.28,.7,.5],[.92,.82,1.02,.16,.8,.6]],{kt:.6,kb:.4}));
+  P(bk,MT.glass,loft([[.62,1.18,1.48,.26,.8,.2],[.7,1.12,1.4,.24,.8,.2]],{kt:.8,kb:.2}));
+  for(const s of [1,-1])P(bk,MT.head,sphere(.06,.05,.07,12),.92,.9,s*.1);
+  P(bk,pc,loft([[-.15,.78,1.0,.17,.6,.3],[.35,.82,1.06,.18,.6,.3]],{kt:.6,kb:.3}));
+  P(bk,lth,loft([[-.75,.8,.92,.2,.6,.3],[-.15,.76,.88,.2,.6,.3]],{kt:.6,kb:.3}));box(bk,lth,-.78,1.0,0,.1,.32,.34,.06,0,0,.15);
+  for(const s of [1,-1]){box(bk,bc,-.62,.66,s*.3,.6,.38,.22,.08);P(bk,MT.chrome,rod([.3,.45,s*.18],[.42,.62,s*.32],.025));
+    P(bk,MT.alu,rod([-.05,.5,s*.12],[-.8,R,s*.12],.035));P(bk,MT.matte,cyl(.03,.12,.01),.45,1.16,s*.42,H,0,0);P(bk,MT.chrome,rod([.52,1.12,s*.08],[.47,1.16,s*.38],.022))}
+  box(bk,bc,-.98,1.05,0,.42,.32,.44,.08);box(bk,MT.steel,.1,.45,0,.42,.32,.3,.07);
+  for(const s of [1,-1])P(bk,MT.chrome,loft([[-1.05,.32,.4,.04,1,1,s*.2],[.1,.32,.4,.04,1,1,s*.2]],{kt:1,kb:1}));
+  P(bk,MT.tail,sphere(.04,.04,.12,10),-1.2,1.0,0)}
+B.tourer=(num)=>{const v=Veh();v.sound='engine';const r=v.root,bk=r.child();tourer(v,bk,num,{c:'#1f4fb8',bags:'#1f4fb8'});
+  for(const s of [1,-1])decal(bk,tex.roundel(num,{bg:'#fff',fg:'#1f4fb8'}),-.62,.68,s*.412,.24,.24,s<0?PI:0);
+  decal(bk,tex.roundel(num,{bg:'#fff',fg:'#1f4fb8'}),-1.2,1.05,0,.2,.2,-H,0);
+  const st=kick(bk,-.1);v.update=bikeRide(v,r,bk,st);return v};
+B.policeMoto=(num)=>{const v=Veh();v.sound='siren';const r=v.root,bk=r.child();tourer(v,bk,num,{c:'#f4f5f6',bags:'#14233f'});
+  for(const s of [1,-1]){decal(bk,tex.words('POLICE',{fg:'#fff'}),-.62,.72,s*.412,.5,.125,s<0?PI:0);decal(bk,tex.words('POLICE',{fg:'#14233f'}),.62,.95,s*.37,.42,.105,s<0?PI:0)}
+  decal(bk,tex.roundel(num,{bg:'#14233f',fg:'#fff'}),-1.2,1.05,0,.22,.22,-H,0);decal(bk,tex.roundel(num,{bg:'#fff',fg:'#14233f',ring:'#14233f'}),.94,.98,0,.14,.14,H,0);
+  const a=flash(RED[0],RED[1]),b=flash(BLUE[0],BLUE[1]);v.flash.push(a,b);
+  P(bk,MT.dark,rod([-1.0,1.21,0],[-1.0,1.45,0],.015));P(bk,a,sphere(.06,.05,.06,12),-1.0,1.5,-.12);P(bk,b,sphere(.06,.05,.06,12),-1.0,1.5,.12);
+  const c=flash(RED[0],RED[1]),d=flash(BLUE[0],BLUE[1]);v.flash.push(c,d);P(bk,c,sphere(.04,.04,.04,10),.9,.9,-.2);P(bk,d,sphere(.04,.04,.04,10),.9,.9,.2);
+  const st=kick(bk,-.1);v.update=bikeRide(v,r,bk,st,{flash:flasher(v)});return v};
+
+/* Trail Rover: Everett's time car from Dino World. Its counter rolls through the stops: 230, 150, 68, 0 */
+function eraTex(t){return canvasOf(512,256,(x,w,h)=>{x.fillStyle='#1f2a2e';x.beginPath();x.roundRect?x.roundRect(6,6,w-12,h-12,40):x.rect(6,6,w-12,h-12);x.fill();
+  const n=t.length,cw=(w-60)/n;for(let i=0;i<n;i++){const X=30+i*cw;x.fillStyle='#2f3d42';x.beginPath();x.roundRect?x.roundRect(X+6,26,cw-12,h-52,18):x.rect(X+6,26,cw-12,h-52);x.fill();
+    x.strokeStyle='rgba(0,0,0,.45)';x.lineWidth=4;x.beginPath();x.moveTo(X+8,h/2);x.lineTo(X+cw-8,h/2);x.stroke();txt(x,t[i],X+cw/2,h/2+8,cw-20,190,'#ffd25a')}})}
+function clockTex(){return canvasOf(512,512,(x,w)=>{const c=w/2;x.fillStyle='#d9a441';x.beginPath();x.arc(c,c,c-2,0,7);x.fill();x.fillStyle='#fff8e6';x.beginPath();x.arc(c,c,c-34,0,7);x.fill();
+  for(let k=1;k<=12;k++){const a=k/12*PI*2-H;txt(x,String(k),c+Math.cos(a)*(c-92),c+Math.sin(a)*(c-92)+4,90,70,'#2a2a2a')}
+  x.strokeStyle='#2a2a2a';x.lineCap='round';x.lineWidth=18;x.beginPath();x.moveTo(c,c);x.lineTo(c+Math.cos(-H-1)*110,c+Math.sin(-H-1)*110);x.stroke();
+  x.lineWidth=12;x.beginPath();x.moveTo(c,c);x.lineTo(c+Math.cos(-H+.55)*170,c+Math.sin(-H+.55)*170);x.stroke();x.fillStyle='#d9a441';x.beginPath();x.arc(c,c,20,0,7);x.fill()})}
+function trackTex(){return canvasOf(256,256,(x)=>{x.fillStyle='#2f7f7a';x.beginPath();x.arc(128,128,124,0,7);x.fill();x.fillStyle='#f7e7b8';x.beginPath();x.ellipse(128,176,30,26,0,0,7);x.fill();
+  for(const a of [-.62,0,.62]){x.save();x.translate(128,170);x.rotate(a);x.beginPath();x.moveTo(-16,0);x.quadraticCurveTo(-14,-70,0,-100);x.quadraticCurveTo(14,-70,16,0);x.closePath();x.fill();x.restore()}})}
+B.trailRover=(num)=>{const v=Veh();v.sound='engine';const r=v.root,body=paint('#f2b632'),trim=paint('#2f7f7a',{coat:.5}),seat=M({c:'#7a4a32',rough:.7}),R=.44;
+  box(r,body,-.2,.98,0,2.9,.62,1.8,.14);box(r,body,1.55,1.08,0,1.15,.5,1.62,.16);box(r,MT.dark,2.13,1.02,0,.1,.5,1.36,.05);
+  for(let k=-3;k<=3;k++)box(r,MT.chrome,2.19,1.02,k*.17,.04,.36,.07,.02);
+  for(const z of [-.62,.62]){P(r,MT.chrome,cyl(.14,.1,.03),2.17,1.18,z,0,0,H);P(r,MT.head,sphere(.115,.115,.05,18),2.23,1.18,z);box(r,MT.amber,2.17,.94,z*1.22,.05,.1,.16,.03);box(r,MT.tail,-1.67,1.08,z*1.16,.05,.18,.12,.03)}
+  box(r,MT.chrome,2.22,.7,0,.18,.14,1.95,.05);box(r,MT.chrome,-1.7,.7,0,.16,.13,1.9,.05);
+  for(const x of [1.35,-1.25])for(const z of [1,-1]){box(r,trim,x,2*R+.1,z*.9,1.12,.1,.34,.05);wheel(v,r,x,R,z*.92,R,.36,{knobs:true,style:'beadlock',face:body})}
+  for(const z of [-1,1])box(r,trim,.05,.5,z*.97,1.4,.07,.22,.03);box(r,trim,-.2,1.3,0,2.9,.1,1.84,.04);
+  for(const z of [-.8,.8])P(r,trim,rod([1.0,1.33,z],[.86,1.95,z],.045));P(r,trim,rod([.86,1.95,-.82],[.86,1.95,.82],.05));
+  P(r,M({c:'#a8d4e6',rough:.03,coat:1,alpha:.3}),plane(1.6,.6),.93,1.64,0,0,H,-.22);
+  for(const z of [-1,1]){P(r,trim,rod([.98,1.45,z*.82],[1.0,1.52,z],.02));box(r,MT.chrome,1.0,1.56,z*1.04,.05,.14,.2,.04)}
+  box(r,MT.dark,.88,1.38,0,.24,.2,1.56,.06);P(r,MT.dark,rod([.85,1.42,-.42],[.62,1.62,-.42],.025));P(r,MT.dark,cyl(.17,.04,.01),.62,1.62,-.42,0,0,-1.0);
+  box(r,MT.dark,.86,2.17,0,.2,.4,.9,.06);P(r,MT.amber,sphere(.06,.06,.06,12),.86,2.42,0);
+  const ERAS=['230','150','68','0'],ctr=ERAS.map((e,i)=>{const n=r.child();n.vis=i===0;const c=eraTex(e);
+    P(n,M({map:c,unlit:true}),plane(.82,.36),.97,2.17,0,0,H,0);P(n,M({map:c,unlit:true}),plane(.82,.36),.75,2.17,0,0,-H,0);return n});
+  for(const z of [-.8,.8]){P(r,trim,rod([-.75,1.3,z],[-.75,2.0,z],.05));P(r,trim,rod([-.75,2.0,z],[-1.55,1.3,z],.045))}P(r,trim,rod([-.75,2.0,-.82],[-.75,2.0,.82],.05));
+  for(const z of [-.42,.42]){box(r,seat,.2,1.36,z,.5,.14,.58,.06);box(r,seat,-.07,1.62,z,.12,.6,.56,.06,0,0,.12)}
+  box(r,seat,-1.1,1.36,0,.5,.14,1.4,.06);box(r,seat,-1.38,1.58,0,.12,.5,1.38,.06,0,0,.12);
+  P(r,MT.rubber,cyl(.42,.26,.1),-1.84,1.05,0,0,0,H);box(r,MT.dark,-1.72,1.05,0,.1,.24,.14,.03);
+  P(r,M({map:clockTex(),unlit:true}),disc(.3,0,PI*2,40),-1.98,1.05,0,0,-H,0);
+  for(const z of [-1,1]){decal(r,trackTex(),.35,.98,z*.905,.42,.42,z<0?PI:0)}
+  sides(r,tex.num(num,{fg:'#2f7f7a'}),-1.0,.98,.9,.42,.42);roofDecal(r,tex.roundel(num,{bg:'#2f7f7a',fg:'#fff'}),1.55,1.336,.36,.36);
+  v.update=(t,a)=>{const on=a>=0&&a<8;const k=on?Math.min(3,Math.floor(a/1.8)):0;ctr.forEach((n,i)=>n.vis=i===k);
+    r.p[1]=on?Math.abs(Math.sin(a*6))*.03:0;for(const w of v.wheels)w.r[2]=on?-a*a*2:0};return v};
+
 function wh2(){return paint('#f6f7f8')}
 /* ---------- catalog ---------- */
 const CATALOG=[
@@ -1428,6 +1579,14 @@ const CATALOG=[
  {n:56,w:'YACHT',name:'Yacht',g:'abc',b:()=>B.yacht(56)},
  {n:57,w:'ZEPPELIN',name:'Zeppelin',g:'abc',b:()=>B.zeppelin(57)},
  {n:58,w:'ANIMAL RESCUE',name:'Animal Rescue Truck',g:'help',b:()=>B.animalRescue(58)},
+ {n:59,w:'POLICE',name:'Police Motorcycle',g:'help',b:()=>B.policeMoto(59)},
+ {n:70,w:'DIRT BIKE',name:'Dirt Bike',g:'moto',b:()=>B.dirtBike(70)},
+ {n:71,w:'SPORT BIKE',name:'Sport Bike',g:'moto',b:()=>B.sportBike(71)},
+ {n:72,w:'CRUISER',name:'Cruiser',g:'moto',b:()=>B.cruiser(72)},
+ {n:73,w:'SCOOTER',name:'Scooter',g:'moto',b:()=>B.scooter(73)},
+ {n:74,w:'SIDECAR',name:'Sidecar Bike',g:'moto',b:()=>B.sidecar(74)},
+ {n:75,w:'TOURING BIKE',name:'Touring Bike',g:'moto',b:()=>B.tourer(75)},
+ {n:80,w:'TIME CAR',name:'Trail Rover',g:'adventure',b:()=>B.trailRover(80)},
 ];
 function build(entry){if(!MT)mats();const v=entry.b();v.n=entry.n;v.g=entry.g;v.w=entry.w;
   // bounds at rest, before shadows
@@ -1617,7 +1776,7 @@ $('#sndBtn').addEventListener('click',()=>{S.sound=!S.sound;store.set('vg.sound'
 
 /* ---------- garage + showroom ---------- */
 const spotHTML=v=>`<button class="spot asph press ${v.g==='water'||v.g==='air'||v.g==='site'?v.g:''}" data-n="${v.n}" aria-label="${v.name} ${v.n}"><span class="sl"></span><span class="sr"></span>${img(v.n)}<span class="paint">${v.n}</span></button>`;
-const SECS=[{ic:'road',lab:'Road & Rescue',a:1,b:24},{ic:'waves',lab:'Water',a:25,b:32},{ic:'plane',lab:'Sky',a:33,b:40},{ic:'cone',lab:'Worksite',a:41,b:48},{ic:'blocks',lab:'A to Z',a:49,b:57},{ic:'paw',lab:'Rescue Team',a:58,b:69}];
+const SECS=[{ic:'road',lab:'Road & Rescue',a:1,b:24},{ic:'waves',lab:'Water',a:25,b:32},{ic:'plane',lab:'Sky',a:33,b:40},{ic:'cone',lab:'Worksite',a:41,b:48},{ic:'blocks',lab:'A to Z',a:49,b:57},{ic:'paw',lab:'Rescue Team',a:58,b:69},{ic:'wheel',lab:'Motorcycles',a:70,b:79},{ic:'track',lab:'Adventure',a:80,b:89}];
 const gridHTML=()=>SECS.map(c=>`<div class="gsec"><span data-ic="${c.ic}"></span><b>${c.a}–${c.b}</b>${c.lab}</div>`+VEH.filter(v=>v.n>=c.a&&v.n<=c.b).map(spotHTML).join('')).join('');
 function startGarage(){if(!$('#spots').children.length){$('#spots').innerHTML=gridHTML();icons($('#spots'))}}
 $('#spots').addEventListener('click',e=>{const b=e.target.closest('.spot');if(!b)return;sfx('tap');go('show',+b.dataset.n)});
@@ -1683,7 +1842,7 @@ $('#mGrid').addEventListener('click',e=>{const c=e.target.closest('.mc');if(!c||
   else{MA.lock=true;setTimeout(()=>{a.classList.remove('up');c.classList.remove('up');MA.lock=false},1100)}});
 
 /* ---------- park it ---------- */
-try{const r=store.get('vg.prange','');if(r==='49-57')store.set('vg.prange','49-58')}catch(e){}
+try{const r=store.get('vg.prange','');if(r==='49-57'||r==='49-58')store.set('vg.prange','49-59')}catch(e){}
 const PA={r:store.get('vg.prange','1-12'),q:[],cur:null,busy:false};
 function startPark(){seg('#pRanges','r',PA.r);dealPark()}
 $('#pRanges').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;PA.r=b.dataset.r;store.set('vg.prange',PA.r);sfx('tap');startPark()});
@@ -1731,7 +1890,7 @@ $('#cAns').addEventListener('click',e=>{const b=e.target.closest('.ans');if(!b||
   else{wiggle(b);sfx('soft')}});
 
 /* ---------- in order ---------- */
-const OR={r:store.get('vg.orange4','1-24'),next:0,busy:false};
+const OR={r:({'25-58':'25-80','1-58':'1-80'})[store.get('vg.orange4','1-24')]||store.get('vg.orange4','1-24'),next:0,busy:false};
 function startOrder(){seg('#oRanges','r',OR.r);orderRound()}
 $('#oRanges').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;OR.r=b.dataset.r;store.set('vg.orange4',OR.r);sfx('tap');startOrder()});
 function orderRound(){const [a,b]=OR.r.split('-').map(Number),cars=shuffle(VEH.filter(v=>v.n>=a&&v.n<=b)).slice(0,5);OR.sorted=cars.map(c=>c.n).sort((x,y)=>x-y);OR.next=0;OR.busy=false;
