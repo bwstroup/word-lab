@@ -33,3 +33,9 @@ Open it at https://bwstroup.github.io/word-lab/vroom-garage/
 Everett's space app on Moonberry Hill with Juniper Bear, Pip the Field Mouse and Mo the Moth: 31 realistic space pictures (the Sun's family plus stars, comets, nebulae, galaxies, eclipses and more), with Spot It, First Letter, Spell It, Line Them Up, Count, Draw It and a Letter Book.
 
 Open it at https://bwstroup.github.io/word-lab/everetts-observatory/
+
+# Gizmo Lab
+
+Felix's engineering and design lab in the Sprocket family's cutaway house. Batch 1: Ozzie's Simple Machines backyard (Lever Lab, Pulley Hoist, Ramp Test, Wedge and Screw, Wheel and Axle, plus the ruler-and-pencil seesaw paper mission) and Jules's Rube Goldberg Workshop (ring the bell, pop the balloon, water the plant, fill the cat's bowl, and free build). Physics by Matter.js (MIT, see gizmo-lab/MATTER-LICENSE.txt), included in the page so it works offline.
+
+Open it at https://bwstroup.github.io/word-lab/gizmo-lab/
