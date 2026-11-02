@@ -226,6 +226,28 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
 .gchip svg { height: 30px; width: 30px; }
 .gearsvg { max-height: 360px; }
 
+/* fridge rework */
+.frq .q { font-size: 1.05rem; }
+.dialbox { display: inline-flex; align-items: center; gap: 6px; }
+.dialbox .dialval { min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: .05em; }
+.packtray { gap: 8px; }
+.foodchip { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 4px 12px; border-radius: 999px; border: 2px solid var(--line); background: var(--card); font-weight: 700; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.foodchip i { width: 18px; height: 18px; border-radius: 50%; background: var(--fc); border: 2px solid var(--ink2); }
+.foodghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -50%) scale(1.1); filter: drop-shadow(0 6px 6px rgba(0,0,0,.3)); }
+
+/* batch 4: basement */
+.extray { gap: 8px; }
+.exsvg { max-height: 380px; }
+.gadgetgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.gtarget { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 10px; border: 2px dashed var(--line); border-radius: 12px; background: var(--wall); min-height: 120px; }
+.gtarget .gotparts { font-size: .8rem; color: var(--good); font-weight: 700; }
+.partchip i { background: #8C95A0; border-radius: 3px; }
+.mysterycard { display: grid; grid-template-columns: minmax(120px, 200px) 1fr; gap: 14px; align-items: start; }
+@media (max-width: 520px) { .mysterycard { grid-template-columns: 1fr; } .mysvg { max-width: 180px; } }
+.mysvg { width: 100%; height: auto; }
+.clues { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; font-size: 1.05rem; }
+.mystars { color: var(--brass); font-size: 1.2rem; letter-spacing: .1em; }
+
 </style>
 </head>
 <body>
@@ -266,7 +288,8 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
     funnel:  { name: 'Funnel',     base: false, rotate: false, machine: null,     from: 'flush' },
     bumper:  { name: 'Spring bumper', base: false, rotate: false, machine: null,  from: 'locks' },
     paddle:  { name: 'Paddle wheel', base: false, rotate: false, machine: 'wheel',  from: 'gears' },
-    conveyor:{ name: 'Conveyor belt', base: false, rotate: true,  machine: null,     from: 'motor' }
+    conveyor:{ name: 'Conveyor belt', base: false, rotate: true,  machine: null,     from: 'motor' },
+    gate:    { name: 'Swing gate', base: false, rotate: false, machine: null,     from: 'exploded' }
   };
   var MACHINES = { ramp: 'Ramp', lever: 'Lever', pulley: 'Pulley', wedge: 'Wedge', screw: 'Screw', wheel: 'Wheel and axle' };
 
@@ -354,6 +377,12 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
       var pw = Bd.create({ parts: [pa, pb, hub], density: 0.0015, friction: 0.2, frictionAir: 0.02 });
       out.bodies.push(tag(pw, info()));
       out.constraints.push(C.create({ pointA: { x: p.x, y: p.y }, bodyB: pw, pointB: { x: 0, y: 0 }, length: 0, stiffness: 1 }));
+      out.pivot = { x: p.x, y: p.y };
+    } else if (p.type === 'gate') {
+      // a flap hanging from a hinge at its top end: the marble swings it aside, and it can knock into the next part
+      var gl = 96, gb = tag(B.rectangle(p.x, p.y + gl / 2, 12, gl, { density: 0.0007, friction: 0.3, frictionAir: 0.01 }), info());
+      out.bodies.push(gb);
+      out.constraints.push(C.create({ pointA: { x: p.x, y: p.y }, bodyB: gb, pointB: { x: 0, y: -gl / 2 }, length: 0, stiffness: 1 }));
       out.pivot = { x: p.x, y: p.y };
     } else if (p.type === 'conveyor') {
       out.bodies.push(tag(B.rectangle(p.x, p.y, 200, 14, { isStatic: true, angle: a, friction: 0.6 }), info()));
@@ -894,30 +923,34 @@ var C = {
       {
         id: 'fridge', name: 'The Fridge',
         intro: 'A fridge does not make cold. It moves heat. A special liquid soaks up heat inside the fridge as it boils into a gas, and lets it go out the back as it turns back into a liquid.',
-        tip: 'Feel the air near the bottom or back of a fridge (with a grown-up): it is warm. That is the heat from your food leaving.',
+        tip: 'Feel the air near the bottom or back of a fridge (with a grown-up): it is warm. That is the heat from your food leaving. Try all three: ride the loop, keep it cold for a day, and pack it.',
         parts: [
           { id: 'evap', name: 'Evaporator coils', job: 'Cold coils inside. The refrigerant boils here and soaks up heat from the food.' },
           { id: 'comp', name: 'Compressor', job: 'The pump that hums. It squeezes the gas, which makes it hot.' },
           { id: 'cond', name: 'Condenser coils', job: 'Coils on the back or bottom. The hot gas cools off here and turns back into a liquid.' },
           { id: 'valve', name: 'Expansion valve', job: 'A tiny opening. The liquid squirts through, its pressure drops, and it gets very cold.' },
           { id: 'seal', name: 'Door seal', job: 'A rubber strip with a magnet inside that hugs the frame so cold air stays in.' },
-          { id: 'light', name: 'Light switch', job: 'A button the door presses when it closes. Open the door and the button pops out: light on.' }
+          { id: 'light', name: 'Light switch', job: 'A button the door presses when it closes. Open the door and the button pops out: light on.' },
+          { id: 'thermostat', name: 'Thermostat dial', job: 'Turns the compressor on when the fridge gets too warm and off when it is cold enough.' }
         ],
         sets: {
           sketch: [
             { t: 'choice', q: 'A fridge works by…', opts: ['Moving heat out of the box', 'Making cold out of nothing', 'Blowing ice'], a: 0, why: 'Cold is just less heat. The fridge carries heat from inside to outside.' },
             { t: 'choice', q: 'Where does the heat from your food go?', opts: ['Out the coils on the back or bottom', 'Into the freezer', 'It disappears'], a: 0, why: 'The condenser coils let the heat out into the kitchen. That is why they feel warm.' },
             { t: 'choice', q: 'What keeps the cold air in when the door is shut?', opts: ['The rubber door seal with a magnet', 'The light', 'The shelves'], a: 0, why: 'The seal hugs the frame. Its magnet pulls it tight.' },
-            { t: 'choice', q: 'Which part hums?', opts: ['The compressor', 'The door seal', 'The light'], a: 0, why: 'The compressor is the fridge\'s pump. You hear it turn on and off.' }
+            { t: 'choice', q: 'Which part hums?', opts: ['The compressor', 'The door seal', 'The light'], a: 0, why: 'The compressor is the fridge\'s pump. You hear it turn on and off.' },
+            { t: 'choice', q: 'Where does raw chicken go in the fridge?', opts: ['The bottom shelf', 'The top shelf', 'The door'], a: 0, why: 'Down low, its juices can\'t drip onto other food.' }
           ],
           prototype: [
             { t: 'choice', q: 'Food safety experts say the fridge should be at most 40 °F and the freezer 0 °F. How many degrees colder is the freezer?', opts: ['30 degrees', '40 degrees', '50 degrees'], a: 1, why: '40 − 0 = 40 degrees colder.', check: { f: 'sub', args: [40, 0] } },
             { t: 'choice', q: 'Follow the loop in the picture. After the compressor, where does the refrigerant go next?', opts: ['The condenser coils', 'The evaporator coils', 'The door seal'], a: 0, why: 'Compressor → condenser → expansion valve → evaporator → back to the compressor.' },
             { t: 'choice', q: 'How many main stops are on the refrigerant loop: compressor, condenser, expansion valve, evaporator?', opts: ['3', '4', '6'], a: 1, why: 'Four stops, around and around.', check: { f: 'same', args: [4] } },
+            { t: 'choice', q: 'Which spot in the fridge is the warmest?', opts: ['The door', 'The back of the bottom shelf', 'The crisper drawer'], a: 0, why: 'The door swings out into the warm kitchen every time it opens, so milk and eggs keep better on a shelf.' },
             { t: 'choice', q: 'Ice cream left out on the counter melts. Why?', opts: ['Heat from the warm room flows into it', 'Cold leaks out of it', 'It gets bored'], a: 0, why: 'Heat always flows from warmer things to cooler things. The fridge works hard to push it the other way.' }
           ],
           patent: [
             { t: 'choice', q: 'The door is opened 20 times a day for 10 seconds each. How long is it open in all?', opts: ['2 minutes', '3 minutes 20 seconds', '5 minutes'], a: 1, why: '20 × 10 = 200 seconds, which is 3 minutes and 20 seconds.', check: { f: 'mul', args: [20, 10], expect: 200 } },
+            { t: 'choice', q: 'The coils on the back get thick with dust. What happens?', opts: ['The compressor has to run longer to keep the fridge cold', 'The fridge gets colder', 'Nothing changes'], a: 0, why: 'Dust is like a blanket on the coils, so the heat can\'t escape as fast. The compressor runs longer and uses more electricity. A grown-up can unplug the fridge and vacuum them.' },
             { t: 'choice', q: 'When a liquid boils into a gas, it…', opts: ['Soaks up heat', 'Gives off heat', 'Does nothing to heat'], a: 0, why: 'Boiling takes heat. That is why the evaporator coils feel cold: the refrigerant is boiling inside them, taking heat from the food.' },
             { t: 'choice', q: 'When the gas is squeezed and turns back into a liquid, it…', opts: ['Gives off heat', 'Soaks up heat', 'Freezes'], a: 0, why: 'That is the heat you feel at the condenser coils.' },
             { t: 'choice', q: 'Why would leaving the fridge door open NOT cool down the kitchen?', opts: ['The heat it pulls out comes right back out the coils into the same room', 'Fridges only work at night', 'The light makes too much heat'], a: 0, why: 'The fridge only moves heat from inside the box to the coils. With the door open, the heat goes in a circle in the same room, and the motor adds a little more.' }
@@ -1229,6 +1262,167 @@ var C = {
     { id: 'st-gears', name: 'Gear Lab', zone: 'move' }, { id: 'st-bike', name: 'Bike Anatomy', zone: 'move' },
     { id: 'st-engine', name: 'Four-Stroke Engine', zone: 'move' }, { id: 'st-motor', name: 'Electric Motor', zone: 'move' },
     { id: 'st-mission-bike', name: 'Bike gears mission', zone: 'move', photo: true });
+  /* ---------------- Take It Apart (Tansy, basement) — batch 4 ---------------- */
+  C.apart = {
+    hello: "Come down to the basement, dear. The best way to learn how something works is to take it apart carefully, keep the pieces in order, and put it back together. On screen we can open anything; at home, only things with no plug and no battery.",
+    gadgets: {
+      pen: { name: 'Click pen', axis: 'x', parts: [
+        { id: 'front', name: 'Front barrel', job: 'The pointed half of the body. The tip of the refill pokes out of its hole.' },
+        { id: 'spring', name: 'Spring', job: 'Pushes the refill back inside when you click again.' },
+        { id: 'refill', name: 'Ink refill', job: 'A thin tube of ink with a tiny rolling ball at the tip.' },
+        { id: 'back', name: 'Back barrel', job: 'The other half of the body. It screws onto the front barrel.' },
+        { id: 'cam', name: 'Clicker (cam)', job: 'A notched piece that turns a little with each click. It holds the refill out, then lets it go.' },
+        { id: 'button', name: 'Push button', job: 'The part your thumb presses. It pushes the cam.' } ] },
+      sharpener: { name: 'Pencil sharpener', axis: 'y', parts: [
+        { id: 'body', name: 'Body', job: 'A block with a cone-shaped hole that holds the pencil at just the right angle.' },
+        { id: 'blade', name: 'Blade', job: 'A sharp wedge. As you twist the pencil, it shaves off thin curls of wood.' },
+        { id: 'screw', name: 'Screw', job: 'Holds the blade tight. A screw is a ramp wrapped around a pole.' } ] },
+      stapler: { name: 'Stapler', axis: 'y', parts: [
+        { id: 'base', name: 'Base with anvil', job: 'The bottom. The anvil is a metal plate with grooves that bend the staple legs flat.' },
+        { id: 'magazine', name: 'Magazine', job: 'The channel the staples ride in.' },
+        { id: 'staples', name: 'Staple strip', job: 'Staples lightly glued together in a row.' },
+        { id: 'pusher', name: 'Pusher and spring', job: 'Pushes the strip forward so a new staple is always at the front.' },
+        { id: 'top', name: 'Top arm with driver', job: 'Press it and a thin metal blade (the driver) pushes one staple down through the paper.' } ] },
+      tape: { name: 'Tape measure', axis: 'y', parts: [
+        { id: 'backcase', name: 'Back case', job: 'Half of the shell, with the belt clip.' },
+        { id: 'coil', name: 'Coil spring', job: 'A long flat spring wound up tight. Pull the tape out and it winds tighter; let go and it pulls the tape back in.' },
+        { id: 'reel', name: 'Reel with tape', job: 'The drum the metal tape winds around. The tape is curved so it stays stiff when it sticks out.' },
+        { id: 'lock', name: 'Lock button', job: 'Slide it down and it pinches the tape so it can\'t pull back in.' },
+        { id: 'frontcase', name: 'Front case', job: 'The other half of the shell. Screws hold the halves together.' } ] }
+    },
+    stations: [
+      {
+        id: 'exploded', name: 'Exploded View', part: 'gate',
+        intro: 'An exploded view is a drawing of a gadget with every part pulled apart along a line, in order, so you can see what goes where. Engineers draw them so people can build and fix things.',
+        tip: 'Take things apart in order and lay the parts out in a row. Then you can put them back together just by going backwards.',
+        parts: [],
+        sets: {
+          sketch: [
+            { t: 'rebuild', gadget: 'sharpener', text: 'The pencil sharpener is in pieces. Tap the parts in order to build it back up from the bottom.' },
+            { t: 'rebuild', gadget: 'pen', text: 'Now the click pen. Tap the parts in order from the tip end to the button.' },
+            { t: 'choice', q: 'Why do engineers draw exploded views?', opts: ['To show every part and where it goes', 'To show what happens when it breaks', 'To make it look like fireworks'], a: 0, why: 'Exploded means pulled apart, not blown up. The drawing shows the order so people can build or fix it.' },
+            { t: 'choice', q: 'What is the best way to take something apart so you can put it back?', opts: ['Lay the parts out in a row, in order', 'Put all the parts in a pile', 'Hurry'], a: 0, why: 'In order, in a row. Then putting it back together is just going backwards.' }
+          ],
+          prototype: [
+            { t: 'rebuild', gadget: 'stapler', text: 'The stapler is in pieces. Tap the parts in order, from the bottom up.' },
+            { t: 'rebuild', gadget: 'pen', text: 'Rebuild the click pen from the tip end to the button.' },
+            { t: 'choice', q: 'Count the parts in the click pen.', opts: ['4', '6', '8'], a: 1, why: 'Front barrel, spring, ink refill, back barrel, clicker and push button: 6 parts.', check: { f: 'same', args: [6] } },
+            { t: 'choice', q: 'Which simple machine is the sharpener blade?', opts: ['A wedge', 'A pulley', 'A wheel and axle'], a: 0, why: 'Its thin sharp edge pushes into the wood and splits off a curl. That is a wedge.' }
+          ],
+          patent: [
+            { t: 'rebuild', gadget: 'tape', text: 'The tape measure is in pieces. Tap the parts in order, from the back case to the front.' },
+            { t: 'rebuild', gadget: 'stapler', text: 'Rebuild the stapler from the bottom up.' },
+            { t: 'choice', q: 'A tape measure is 25 feet long. How many inches of tape is that?', opts: ['250', '300', '325'], a: 1, why: '25 × 12 = 300 inches.', check: { f: 'mul', args: [25, 12] } },
+            { t: 'choice', q: 'The tape is marked in sixteenths of an inch. How many sixteenths are in 3 inches?', opts: ['16', '32', '48'], a: 2, why: '16 sixteenths in each inch, so 3 × 16 = 48.', check: { f: 'mul', args: [3, 16] } },
+            { t: 'choice', q: 'A box holds 5,000 staples in strips of 200. How many strips?', opts: ['20', '25', '50'], a: 1, why: '5,000 ÷ 200 = 25 strips.', check: { f: 'div', args: [5000, 200] } }
+          ]
+        }
+      },
+      {
+        id: 'drawer', name: 'Parts Drawer',
+        intro: 'Grandma Tansy keeps a drawer of parts from gadgets all over the house. Every part has a job. Can you tell which gadget each one came from?',
+        tip: 'Ask what the part does: does it push back (a spring), bend something (an anvil), let water in or out (a valve), or hold on (a hook or latch)?',
+        parts: [],
+        match: [
+          { part: 'Loose metal hook', gadget: 'tape', why: 'The hook on a tape measure is loose on purpose. It slides by its own thickness, so the reading is right whether you hook it on an edge or push it against a wall.' },
+          { part: 'Clicker (cam)', gadget: 'pen', why: 'The cam turns a little with each click and holds the refill out or lets it go.' },
+          { part: 'Grooved anvil', gadget: 'stapler', why: 'The grooves bend the staple legs flat under the paper.' },
+          { part: 'Rubber flapper', gadget: 'toilet', why: 'It plugs the hole in the bottom of the toilet tank until you flush.' },
+          { part: 'Pin and spring', gadget: 'lock', why: 'Pin stacks with springs block the lock until the right key lines them up.' },
+          { part: 'Chain', gadget: 'bike', why: 'The chain carries your pedaling from the front sprocket to the back wheel.' },
+          { part: 'Float', gadget: 'toilet', why: 'It rides on the water in the tank and shuts the water off when the tank is full.' },
+          { part: 'Coil spring', gadget: 'tape', why: 'It winds up when you pull the tape out and pulls it back in.' },
+          { part: 'Derailleur', gadget: 'bike', why: 'It pushes the chain onto a different rear cog when you shift.' },
+          { part: 'Driver blade', gadget: 'stapler', why: 'It pushes one staple down through the paper.' }
+        ],
+        sets: {
+          sketch: [
+            { t: 'choice', q: 'A spring in a gadget usually…', opts: ['Pushes or pulls something back where it started', 'Makes it light up', 'Keeps it warm'], a: 0, why: 'Springs store a push. Squash or stretch one and it pushes back: pen refills, tape measures, staplers and latches all use them.' },
+            { t: 'choice', q: 'The hook on the end of a tape measure wiggles. Is it broken?', opts: ['No, it is loose on purpose', 'Yes, throw it away', 'Only on Tuesdays'], a: 0, why: 'It slides by its own thickness so measurements are right whether you hook an edge or push against a wall.' },
+            { t: 'choice', q: 'Which part from Pim\'s kitchen and bathroom shuts the water off when the toilet tank is full?', opts: ['The float', 'The chain', 'The anvil'], a: 0, why: 'The float rises with the water and closes the fill valve.' },
+            { t: 'choice', q: 'Which part from Rafa\'s garage carries pedaling to the back wheel?', opts: ['The chain', 'The float', 'The cam'], a: 0, why: 'The chain wraps around the front sprocket and the rear cog.' }
+          ],
+          prototype: [
+            { t: 'choice', q: 'The stapler anvil has two grooves. What do they do?', opts: ['Bend the staple legs inward, flat under the paper', 'Cut the paper', 'Hold the staples in the box'], a: 0, why: 'The legs hit the curved grooves and curl in. (Many anvils can also turn to bend them outward for pinning.)' },
+            { t: 'choice', q: 'How many of these parts have a spring: pen clicker, tape measure reel, stapler pusher, toilet flapper?', opts: ['2', '3', '4'], a: 1, why: 'The pen, the tape measure and the stapler pusher use springs. The flapper just falls shut and the water holds it down.', check: { f: 'same', args: [3] } },
+            { t: 'choice', q: 'Why is the metal tape curved from side to side?', opts: ['The curve makes it stiff, so it can stick straight out', 'To look shiny', 'So it rolls faster'], a: 0, why: 'A flat strip flops over. A curved one stays stiff, like a piece of paper you bend into a gutter shape.' }
+          ],
+          patent: [
+            { t: 'choice', q: 'Why does the loose hook slide by exactly its own thickness?', opts: ['Hooked on an edge, it pulls out; pushed against a wall, it slides in, so the reading starts at the right spot both ways', 'To make a clicking sound', 'It is a mistake from the factory'], a: 0, why: 'Pulling, the inside of the hook is zero. Pushing, the outside of the hook is zero. Sliding by its own thickness makes both right.' },
+            { t: 'choice', q: 'A tape measure spring is wound tighter the more tape you pull out. Where is the pull back the strongest?', opts: ['With lots of tape pulled out', 'With the tape all the way in', 'It is always the same'], a: 0, why: 'More tape out means the coil is wound tighter, so it pulls back harder. That is why a long tape snaps back fast; let it in slowly.' },
+            { t: 'choice', q: 'You find a part that lets water in until something tells it to stop. What kind of part is it?', opts: ['A valve', 'A cam', 'An anvil'], a: 0, why: 'Valves open and close to let liquid or gas through: the toilet fill valve, the sink shutoff valves and the engine valves.' },
+            { t: 'choice', q: 'There are 10 parts in the drawer, and 2 of them come from the bike. What fraction of the parts come from the bike?', opts: ['1/10', '1/5', '1/2'], a: 1, why: '2 of the 10 parts are from the bike: 2/10 = 1/5.', check: { f: 'div', args: [2, 10], expect: 0.2 }, label: true }
+          ]
+        }
+      },
+      {
+        id: 'mystery', name: 'Mystery Gadget',
+        intro: 'Grandma Tansy has some old gadgets with no plug and no battery. Read one clue at a time and guess what each one is. The fewer clues you need, the more stars you get.',
+        tip: 'Look for machines you already know: a crank is a wheel and axle, a blade is a wedge, gears trade speed for force, and a spring stores a push.',
+        parts: [],
+        mysteries: [
+          { id: 'beater', answer: 'Egg beater', clues: ['You hold it by a handle on top and turn a crank on the side.', 'A big gear turns two small gears.', 'Two whisks at the bottom spin very fast.'], opts: ['Egg beater', 'Pencil sharpener', 'Can opener', 'Hand drill'], how: 'The crank turns a big gear, and the big gear spins the two small gears many times for each turn. The small gears turn the whisks.' },
+          { id: 'peeler', answer: 'Apple peeler', clues: ['You push something round onto three sharp prongs.', 'Turning the crank spins it and slides it along a long screw.', 'A blade rides along the outside and takes off a long curly strip.'], opts: ['Apple peeler', 'Egg beater', 'Salad spinner', 'Pencil sharpener'], how: 'The long screw moves the apple sideways a little with each turn, so the blade peels a spiral strip from one end to the other.' },
+          { id: 'timer', answer: 'Wind-up kitchen timer', clues: ['You twist the top to a number.', 'Twisting winds up a spring inside.', 'Gears let the spring unwind slowly, and a bell rings at zero.'], opts: ['Wind-up kitchen timer', 'Door lock', 'Tape measure', 'Doorbell'], how: 'The wound spring wants to unwind fast. A little ticking part lets the gears move one tiny step at a time, so it takes minutes to run down.' },
+          { id: 'canopener', answer: 'Can opener', clues: ['It has two long handles you squeeze together.', 'A sharp little wheel bites into the edge of something.', 'Turning a key spins a toothed wheel that drives it all the way around.'], opts: ['Can opener', 'Stapler', 'Nutcracker', 'Bike brake'], how: 'The handles are levers that press the cutting wheel into the lid. The key turns a gear wheel that walks the opener around the rim.' },
+          { id: 'spinner', answer: 'Salad spinner', clues: ['A basket with holes sits inside a bowl.', 'You turn a knob or pump a button on the lid to make it spin fast.', 'Water flies out of the holes and the leaves stay inside.'], opts: ['Salad spinner', 'Washing machine', 'Egg beater', 'Sieve'], how: 'Just like the washing machine\'s spin: the water keeps going straight and flies out the holes; the leaves are held in by the basket wall.' },
+          { id: 'crank', answer: 'Crank pencil sharpener', clues: ['It is screwed to a wall or a desk.', 'You turn a crank and two spiral cutters spin around a hole.', 'Little curls of wood fall into a drawer underneath.'], opts: ['Crank pencil sharpener', 'Apple peeler', 'Hand drill', 'Pepper grinder'], how: 'The spiral cutters are wedges that wrap around the pencil and shave it into a cone as they spin.' }
+        ],
+        sets: {
+          sketch: [
+            { t: 'choice', q: 'Which gadget uses gears to make two whisks spin fast?', opts: ['An egg beater', 'A tape measure', 'A stapler'], a: 0, why: 'One turn of the big gear spins the small gears and whisks many times.' },
+            { t: 'choice', q: 'What makes a wind-up kitchen timer go?', opts: ['A spring you wind up by twisting', 'A battery', 'Sunlight'], a: 0, why: 'Twisting the top winds a spring. Gears let it unwind slowly.' },
+            { t: 'choice', q: 'The salad spinner works like which machine from Pim\'s kitchen?', opts: ['The washing machine spin', 'The fridge', 'The toilet'], a: 0, why: 'Both spin a basket with holes so the water flies out.' },
+            { t: 'choice', q: 'Why are these mystery gadgets safe to take apart at home with a grown-up?', opts: ['They have no plug and no battery', 'They are old', 'They are small'], a: 0, why: 'That is the house rule: only things with no plug and no battery.' }
+          ],
+          prototype: [
+            { t: 'choice', q: 'The can opener handles squeeze the cutting wheel into the lid. What simple machine are the handles?', opts: ['Levers', 'Pulleys', 'Ramps'], a: 0, why: 'Long handles on a pivot multiply your squeeze, like pliers.' },
+            { t: 'choice', q: 'An egg beater\'s big gear has 40 teeth and each small gear has 10. How many times do the whisks turn for one turn of the crank?', opts: ['2', '4', '10'], a: 1, why: '40 ÷ 10 = 4 turns.', check: { f: 'div', args: [40, 10] } },
+            { t: 'choice', q: 'The apple peeler slides the apple along a long screw. What simple machine is that?', opts: ['A screw', 'A pulley', 'A lever'], a: 0, why: 'A screw is a ramp wrapped around a pole. Each turn moves the apple a little sideways.' }
+          ],
+          patent: [
+            { t: 'choice', q: 'A timer dial goes up to 60 minutes with a mark every 5 minutes. How many marks?', opts: ['10', '12', '15'], a: 1, why: '60 ÷ 5 = 12 marks.', check: { f: 'div', args: [60, 5] } },
+            { t: 'choice', q: 'An apple peeler\'s screw moves the apple 1/8 inch per turn. The apple is 3 inches long. How many turns to peel it?', opts: ['8', '16', '24'], a: 2, why: '3 ÷ 1/8 = 3 × 8 = 24 turns.', check: { f: 'mul', args: [3, 8] } },
+            { t: 'choice', q: 'Why does a wind-up timer need a ticking part at all?', opts: ['Without it, the spring would unwind in a second', 'To make it louder', 'To keep it warm'], a: 0, why: 'The ticking part (called an escapement) lets the gears move one tiny step at a time, so the spring runs down slowly.' },
+            { t: 'choice', q: 'An egg beater crank turns twice a second and the whisks turn 4 times per crank turn. How many whisk turns in 10 seconds?', opts: ['40', '60', '80'], a: 2, why: '2 × 4 = 8 whisk turns a second, × 10 seconds = 80.', check: { f: 'mul3', args: [2, 4, 10] } }
+          ]
+        }
+      }
+    ],
+    mission: {
+      id: 'pen', title: 'Take apart a click pen', time: 'About 20 minutes', where: 'At a table, with a grown-up',
+      supplies: ['A click pen that unscrews in the middle (ask a grown-up which one)', 'A tray or a shallow box (springs like to jump)', 'A sheet of paper', 'A pencil', 'A ruler'],
+      why: 'You rebuilt pens on screen. Now take a real one apart, lay it out in order and draw your own exploded view.',
+      steps: {
+        sketch: [
+          'Work over the tray so the spring can\'t get away.',
+          'Unscrew the pen in the middle. Slide out the ink refill and the spring.',
+          'Lay every part in a row on the paper, in the order they came out.',
+          'Draw each part above where it sits. That is your exploded view!',
+          'Put it back together by going backwards. Click it. Does it work?'
+        ],
+        prototype: [
+          'Work over the tray. Unscrew the pen and take it apart, one part at a time.',
+          'Lay the parts in a row and count them. Is it the same as the pen in the app?',
+          'Draw the exploded view and label every part with its name.',
+          'Rebuild it. How many tries did it take to get the spring in the right spot?'
+        ],
+        patent: [
+          'Work over the tray. Take the pen apart and lay the parts in order.',
+          'Measure each part with the ruler and write the lengths down.',
+          'Measure the spring relaxed, then squeeze it as short as it goes and measure again. How much shorter did it get?',
+          'Draw the exploded view to scale: one inch on the paper for every inch of pen. Label every part.',
+          'Rebuild it and click it 10 times to test.'
+        ]
+      },
+      note: 'Only pens that unscrew easily; never force or cut one open. If ink gets on your hands, wash them. Springs can jump, so keep your face back and work in the tray.',
+      checks: [ { f: 'same', args: [6], expect: 6 } ]
+    }
+  };
+  C.zones.forEach(function (z) { if (z.id === 'apart') { z.ready = true; } });
+  C.stamps.splice(17, 0,
+    { id: 'st-exploded', name: 'Exploded View', zone: 'apart' }, { id: 'st-drawer', name: 'Parts Drawer', zone: 'apart' },
+    { id: 'st-mystery', name: 'Mystery Gadget', zone: 'apart' }, { id: 'st-mission-pen', name: 'Click pen mission', zone: 'apart', photo: true });
 if (typeof module !== 'undefined' && module.exports) module.exports = C; else root.GIZMO_CONTENT = C;
 })(typeof self !== 'undefined' ? self : this);
 
@@ -1332,57 +1526,259 @@ function flush(host, st, H) {
   return { destroy: function () { cancelAnimationFrame(raf); } };
 }
 
-/* ---------- The Fridge: the refrigerant loop ---------- */
+/* ---------- The Fridge (reworked Nov 2): Ride the loop, Keep it cold, Pack the fridge ---------- */
 function fridge(host, st, H) {
-  var lv = H.level(), on = true, open = false, raf = 0, t = 0;
-  var LOOP = 'M330 330 L410 330 L410 60 L380 60 L330 40 L150 40 Q140 40 140 50 L140 60 L320 60 L320 75 L140 75 L140 90 L320 90 L320 105 L300 105 L300 330 Z';
-  host.innerHTML = '<div class="sim"><svg viewBox="0 0 520 380" aria-label="A fridge with its cooling loop"></svg></div>' +
-    '<div class="row"><button type="button" class="chip" data-act="power" aria-pressed="true">Compressor on</button><button type="button" class="chip" data-act="door" aria-pressed="false">Open the door</button></div><div class="readout" id="frOut"></div>';
-  var svg = $('.sim svg', host), out = $('#frOut', host);
-  var base = '<rect x="110" y="20" width="230" height="340" rx="12" fill="#EEF2F5" stroke="var(--ink2)" stroke-width="3"/>' +
-    '<path d="M110 120 H340" stroke="var(--ink2)" stroke-width="3"/>' +
-    '<rect x="130" y="135" width="190" height="200" fill="#F8FBFD"/>' +
-    '<rect x="150" y="270" width="50" height="50" rx="6" fill="#E07A3A"/><rect x="215" y="285" width="60" height="35" rx="4" fill="#D9453B"/><rect x="160" y="210" width="60" height="30" rx="4" fill="#79B465"/>' +
-    '<path d="M130 255 H320 M130 195 H320" stroke="#C9D3DA" stroke-width="4"/>';
-  var parts = hit('cond', '<path d="M410 320 L410 70" stroke="#C46A2E" stroke-width="5"/>' + [90, 130, 170, 210, 250, 290].map(function (y) { return '<path d="M398 ' + y + ' h24" stroke="#C46A2E" stroke-width="3"/>'; }).join('') + '<rect x="392" y="60" width="36" height="270" fill="transparent"/>') +
-    hit('evap', '<path d="M140 60 L320 60 L320 75 L140 75 L140 90 L320 90 L320 105 L300 105" fill="none" stroke="#3E86C6" stroke-width="5"/><rect x="130" y="52" width="200" height="60" fill="transparent"/>') +
-    hit('valve', '<circle cx="355" cy="50" r="24" fill="transparent"/><circle cx="355" cy="50" r="10" fill="#E9A23B" stroke="var(--ink2)" stroke-width="2"/>') +
-    '<path d="M300 330 L300 110" stroke="#8E7CC3" stroke-width="5"/>' + hit('comp', '<rect x="290" y="300" width="64" height="58" fill="transparent"/><rect x="300" y="315" width="44" height="34" rx="10" fill="#5E6878"/>') +
-    '<path d="M344 330 L410 330" stroke="#D9453B" stroke-width="5"/>' +
-    hit('seal', '<rect x="96" y="20" width="22" height="340" fill="transparent"/><rect x="106" y="20" width="8" height="340" fill="#5E6878"/>') +
-    hit('light', '<rect x="300" y="128" width="36" height="40" fill="transparent"/><rect id="frLight" x="314" y="140" width="10" height="16" rx="3" fill="#9AA5AE" stroke="var(--ink2)"/>');
-  host.querySelector('svg').innerHTML = base + parts + '<path id="loop" pointer-events="none" d="' + LOOP + '" fill="none" stroke="transparent"/><g id="frDyn" pointer-events="none"></g>';
-  H.fixVars(host);
-  var loop = $('#loop', host), len = loop.getTotalLength(), dyn = $('#frDyn', host), lightEl = $('#frLight', host);
-  function colorAt(p) {
-    // hot gas leaving the compressor and in the back coils; just past the valve; cold in the coils; warmed gas going home
-    if (p.x >= 395 || (p.y >= 325 && p.x >= 330)) return '#D9453B';
-    if (p.x >= 330 && p.y <= 62) return '#E9A23B';
-    if (p.y <= 110) return '#3E86C6';
-    return '#8E7CC3';
+  var lv = H.level(), nums = lv !== 'sketch', raf = 0, mode = 'loop';
+  host.innerHTML = '<div class="row" role="tablist"><button type="button" class="chip" data-fm="loop">Ride the loop</button><button type="button" class="chip" data-fm="cold">Keep it cold</button><button type="button" class="chip" data-fm="pack">Pack the fridge</button></div><div class="frhost"></div>';
+  var fh = $('.frhost', host);
+  function stop() { cancelAnimationFrame(raf); raf = 0; }
+
+  /* thermometer: sketch shows words and colors only */
+  function thermo(T, x, y, hgt) {
+    var lo = 25, hi = 75, f = Math.max(0, Math.min(1, (T - lo) / (hi - lo))), col = T > 40 ? '#D9453B' : (T < 33 ? '#3E86C6' : '#2E8B57');
+    var s = '<rect x="' + x + '" y="' + y + '" width="22" height="' + hgt + '" rx="11" fill="#FFFFFF" stroke="#5E6878" stroke-width="2"/>' +
+      '<rect x="' + (x + 6) + '" y="' + (y + hgt - 8 - f * (hgt - 16)).toFixed(1) + '" width="10" height="' + (8 + f * (hgt - 16)).toFixed(1) + '" rx="5" fill="' + col + '"/>' +
+      '<circle cx="' + (x + 11) + '" cy="' + (y + hgt + 8) + '" r="14" fill="' + col + '" stroke="#5E6878" stroke-width="2"/>';
+    // the safe band 33-40
+    var yb = function (t) { return y + hgt - 8 - (t - lo) / (hi - lo) * (hgt - 16); };
+    s += '<rect x="' + (x + 24) + '" y="' + yb(40).toFixed(1) + '" width="6" height="' + (yb(33) - yb(40)).toFixed(1) + '" fill="#2E8B57"/>';
+    if (nums) s += '<text x="' + (x + 11) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="16" font-weight="800" fill="#2C2430" font-family="sans-serif">' + Math.round(T) + ' °F</text>';
+    return s;
   }
-  var lastMsg = '';
-  function draw() {
-    var h = '';
-    for (var i = 0; i < 18; i++) {
-      var f = ((t / 600) + i / 18) % 1, p = loop.getPointAtLength(f * len);
-      h += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="5" fill="' + colorAt(p) + '"/>';
+  function zoneWord(T) { return T > 40 ? 'Too warm' : (T < 33 ? 'Too cold' : 'Just right'); }
+
+  /* ---- 1. Ride the loop: Felix steers a blob of refrigerant around the loop ---- */
+  function loopMode() {
+    var STOPS = [
+      { id: 'evap', at: [300, 105], name: 'Evaporator coils (inside)', ask: 'The refrigerant is a cold liquid in the coils inside the fridge. What happens here?',
+        opts: ['It boils into a gas and soaks up heat from the food', 'It freezes into ice', 'It gets squeezed'], a: 0, col: '#8E7CC3', heat: 'in' },
+      { id: 'comp', at: [322, 332], name: 'Compressor', ask: 'Now it is a cool gas at the compressor, the pump that hums. What happens here?',
+        opts: ['It gets squeezed and becomes hot', 'It boils', 'It drips out'], a: 0, col: '#D9453B' },
+      { id: 'cond', at: [410, 200], name: 'Condenser coils (back)', ask: 'The hot gas reaches the coils on the back. What happens here?',
+        opts: ['It gives its heat away to the kitchen and turns back into a liquid', 'It soaks up more heat', 'It turns into ice'], a: 0, col: '#E9A23B', heat: 'out' },
+      { id: 'valve', at: [355, 50], name: 'Expansion valve', ask: 'The warm liquid squirts through a tiny opening. What happens to it?',
+        opts: ['Its pressure drops and it gets very cold', 'It gets hotter', 'It stops moving'], a: 0, col: '#3E86C6' }
+    ];
+    var at = 0, laps = 0, T = 70, busy = false, heatOut = 0, tries = 0;
+    var PATH = ['M300 105 L300 330 L330 332', 'M330 332 L410 330 L410 200', 'M410 200 L410 60 L380 60 L355 50', 'M355 50 L330 40 L150 40 Q140 40 140 50 L140 60 L320 60 L320 75 L140 75 L140 90 L320 90 L320 105 L300 105'];
+    fh.innerHTML = '<div class="sim"><svg viewBox="0 0 520 380" aria-label="A fridge with its cooling loop"><g id="frBase"></g><path id="frPath" d="" fill="none" stroke="none"/><g id="frDyn" pointer-events="none"></g></svg></div>' +
+      '<div class="panel frq" aria-live="polite"></div>';
+    var base = $('#frBase', fh), dyn = $('#frDyn', fh), qbox = $('.frq', fh), pathEl = $('#frPath', fh);
+    function drawBase() {
+      base.innerHTML = '<rect x="110" y="20" width="230" height="340" rx="12" fill="#EEF2F5" stroke="#6A5B60" stroke-width="3"/><path d="M110 120 H340" stroke="#6A5B60" stroke-width="3"/>' +
+        '<rect x="130" y="135" width="190" height="200" fill="#F8FBFD"/><path d="M130 255 H320 M130 195 H320" stroke="#C9D3DA" stroke-width="4"/>' +
+        hit('evap', '<rect x="130" y="52" width="200" height="60" fill="transparent"/><path d="M140 60 L320 60 L320 75 L140 75 L140 90 L320 90 L320 105 L300 105" fill="none" stroke="#3E86C6" stroke-width="5"/>') +
+        hit('valve', '<circle cx="355" cy="50" r="24" fill="transparent"/><circle cx="355" cy="50" r="10" fill="#E9A23B" stroke="#6A5B60" stroke-width="2"/>') +
+        '<path d="M300 330 L300 110" stroke="#8E7CC3" stroke-width="5"/><path d="M330 40 L150 40 Q140 40 140 50 L140 60" fill="none" stroke="#3E86C6" stroke-width="5"/><path d="M380 60 L355 50 M345 46 L330 40" stroke="#E9A23B" stroke-width="5"/>' +
+        hit('cond', '<rect x="392" y="60" width="36" height="270" fill="transparent"/><path d="M410 330 L410 60 L380 60" fill="none" stroke="#C46A2E" stroke-width="5"/>' + [90, 130, 170, 210, 250, 290].map(function (y) { return '<path d="M398 ' + y + ' h24" stroke="#C46A2E" stroke-width="3"/>'; }).join('')) +
+        hit('comp', '<rect x="290" y="300" width="64" height="58" fill="transparent"/><rect x="300" y="315" width="44" height="34" rx="10" fill="#5E6878"/>') +
+        '<path d="M344 330 L410 330" stroke="#D9453B" stroke-width="5"/>' +
+        hit('seal', '<rect x="96" y="20" width="22" height="340" fill="transparent"/><rect x="106" y="20" width="8" height="340" fill="#5E6878"/>');
     }
-    if (on) h += '<path d="M436 120 q14 -10 0 -20 q-14 -10 0 -20 M436 220 q14 -10 0 -20 q-14 -10 0 -20" fill="none" stroke="#D9453B" stroke-width="3" opacity=".7"/>';
-    if (open) h += '<path d="M110 20 L40 50 L40 330 L110 360 Z" fill="#E6EBEF" stroke="#6A5B60" stroke-width="3" opacity=".95"/><circle cx="225" cy="150" r="14" fill="#FFE07A"/><path d="M210 180 q-40 10 -90 0 M210 210 q-40 10 -90 0" stroke="#E07A3A" stroke-width="3" fill="none" opacity=".6"/>';
-    dyn.innerHTML = h;
-    lightEl.setAttribute('fill', open ? '#FFE07A' : '#9AA5AE');
-    var temp = lv === 'sketch' ? '' : (lv === 'prototype' ? ' Fridge set to 37 °F (safe is 40 °F or colder); freezer 0 °F.' : ' Heat in from the food → carried by the loop → let out at the back coils.');
-    var msg = (open ? 'Door open: the light is on and warm kitchen air rolls in.' : (on ? 'Watch the dots: hot (red) at the back, cold (blue) inside.' : 'Compressor off: nothing moves, so the inside slowly warms up.')) + temp;
-    if (msg !== lastMsg) { out.textContent = msg; lastMsg = msg; }
+    function foods(T) {
+      var steam = T > 50 ? '<path d="M175 262 q-6 -10 0 -18 q6 -8 0 -16 M245 278 q-6 -10 0 -18 q6 -8 0 -16" fill="none" stroke="#D9453B" stroke-width="3" opacity=".6"/>' : '';
+      var frost = T < 41 ? '<path d="M150 150 l6 6 m0 -6 l-6 6 M290 160 l6 6 m0 -6 l-6 6 M230 215 l6 6 m0 -6 l-6 6" stroke="#9CC6FF" stroke-width="2"/>' : '';
+      return '<rect x="150" y="270" width="50" height="50" rx="6" fill="#E07A3A"/><rect x="215" y="285" width="60" height="35" rx="4" fill="#D9453B"/><rect x="160" y="210" width="60" height="30" rx="4" fill="#79B465"/>' + steam + frost;
+    }
+    function drawDyn(blob, heatDot) {
+      var s = foods(T) + thermo(T, 460, 120, 150);
+      if (heatDot) s += '<circle cx="' + heatDot[0].toFixed(1) + '" cy="' + heatDot[1].toFixed(1) + '" r="9" fill="#F08A3A" stroke="#D9453B" stroke-width="2"/><text x="' + heatDot[0].toFixed(1) + '" y="' + (heatDot[1] + 4).toFixed(1) + '" text-anchor="middle" font-size="10" font-weight="800" fill="#FFF" font-family="sans-serif">heat</text>';
+      s += '<circle cx="' + blob[0].toFixed(1) + '" cy="' + blob[1].toFixed(1) + '" r="13" fill="' + STOPS[at].col + '" stroke="#2C2430" stroke-width="2"/><circle cx="' + (blob[0] - 4).toFixed(1) + '" cy="' + (blob[1] - 4).toFixed(1) + '" r="3" fill="#FFFFFF" opacity=".7"/>';
+      var p = STOPS[at].at; s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="22" fill="none" stroke="#E2AE38" stroke-width="3" stroke-dasharray="5 5"/>';
+      dyn.innerHTML = s; H.fixVars(fh);
+    }
+    function ask() {
+      var S0 = STOPS[at]; tries = 0;
+      qbox.innerHTML = '<p class="note"><b>Stop ' + (at + 1) + ' of 4: ' + H.esc(S0.name) + '</b>' + (nums ? ' · Laps: ' + laps + ' · Heat packets carried out: ' + heatOut : '') + '</p><p class="q">' + H.esc(S0.ask) + '</p><div class="opts">' +
+        S0.opts.map(function (o, k) { return '<button type="button" class="opt" data-k="' + k + '">' + H.esc(o) + '</button>'; }).join('') + '</div><div class="frfb"></div>';
+      $$('.opt', qbox).forEach(function (b) {
+        b.onclick = function () {
+          if (busy) return;
+          if (+b.dataset.k === S0.a) { b.classList.add('right'); H.SND.right(); advance(); }
+          else { tries++; b.classList.add('wrong', 'wiggle'); H.SND.wrong(); $('.frfb', qbox).innerHTML = '<p class="feedback wiggle">' + (tries > 1 ? 'Hint: follow the color. Cold liquid boils inside, gets squeezed hot, cools at the back, then squirts cold again.' : 'Not quite. Try again!') + '</p>'; }
+        };
+      });
+    }
+    function advance() {
+      busy = true; var S0 = STOPS[at];
+      pathEl.setAttribute('d', PATH[at]);
+      var len = pathEl.getTotalLength(), t0 = performance.now(), dur = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1600;
+      var food = [245, 300];
+      (function f(now) {
+        var k = Math.min(1, (now - t0) / dur), p = pathEl.getPointAtLength(k * len), heat = null;
+        if (S0.heat === 'in' && k < 0.5) heat = [food[0] + (S0.at[0] - food[0]) * k * 2, food[1] + (S0.at[1] - food[1]) * k * 2];
+        if (S0.heat === 'out' && k < 0.6) heat = [410 + k * 150, 200 - k * 40];
+        drawDyn([p.x, p.y], heat);
+        if (k < 1) { raf = requestAnimationFrame(f); return; }
+        if (S0.heat === 'in') { heatOut++; T = Math.max(37, T - (T - 37) * 0.3 - 2); H.SND.click(); }
+        if (S0.heat === 'out') H.SND.whirr();
+        at = (at + 1) % 4; if (at === 0) laps++;
+        busy = false; drawDyn(STOPS[at].at, null);
+        if (T <= 37.5 && at === 0) {
+          qbox.innerHTML = '<div class="feedback pop">' + '<div><b>The fridge is cold!</b> ' + (nums ? 'It took ' + laps + ' laps and ' + heatOut + ' heat packets.' : '') + ' The heat from the food ended up in the kitchen, behind the fridge.</div></div><div class="row"><button type="button" class="go" id="frAgain">Warm it up and ride again</button></div>';
+          H.SND.stamp(); $('#frAgain', qbox).onclick = function () { T = 70; laps = 0; heatOut = 0; at = 0; drawDyn(STOPS[0].at, null); ask(); };
+        } else ask();
+      })(t0);
+    }
+    drawBase(); drawDyn(STOPS[0].at, null); ask();
   }
-  function tick(now) { if (on) t = now; draw(); raf = requestAnimationFrame(tick); }
-  $('[data-act=power]', host).onclick = function () { on = !on; this.setAttribute('aria-pressed', on); this.textContent = on ? 'Compressor on' : 'Compressor off'; H.SND.click(); };
-  $('[data-act=door]', host).onclick = function () { open = !open; this.setAttribute('aria-pressed', open); this.textContent = open ? 'Close the door' : 'Open the door'; H.SND.clack(); };
+
+  /* ---- 2. Keep it cold: a sped-up day ---- */
+  function coldMode() {
+    var SET = { 1: 44, 2: 41, 3: 38, 4: 36, 5: 34 };
+    var G = null;
+    fh.innerHTML = '<div class="sim"><svg viewBox="0 0 520 380" aria-label="The fridge during a busy day"></svg></div>' +
+      '<div class="row"><button type="button" class="go" data-c="start">Start the day</button><button type="button" class="chip" data-c="door">Open the door</button>' +
+      '<span class="dialbox"><b>Dial</b> <button type="button" class="chip" data-c="warmer" aria-label="Warmer">−</button><span class="dialval"></span><button type="button" class="chip" data-c="colder" aria-label="Colder">+</button></span>' +
+      '<button type="button" class="chip" data-c="clean" hidden>Clean the coils</button></div><div class="readout frcold" aria-live="polite"></div>';
+    var svg = $('.sim svg', fh), out = $('.frcold', fh);
+    function fresh() { return { T: 38, dial: 3, door: false, dusty: false, comp: false, t: 0, inZone: 0, ran: 0, running: false, ev: 0, msg: 'Press Start the day. Pim will keep things busy: watch the thermometer and fix whatever goes wrong.' }; }
+    G = fresh();
+    var EVENTS = [
+      { at: 7, msg: 'Snack time! Someone left the door open.', go: function () { G.door = true; } },
+      { at: 19, msg: 'Oops, someone bumped the dial all the way to warm.', go: function () { G.dial = 1; } },
+      { at: 31, msg: 'The coils on the back got dusty. Dusty coils can\'t let the heat out well.', go: function () { G.dusty = true; } },
+      { at: 43, msg: 'Grabbing the milk… and the door is open again.', go: function () { G.door = true; } }
+    ];
+    var DAY = 60;
+    function draw() {
+      var T = G.T, clock = 6 + G.t / DAY * 18, hh = Math.floor(clock), mm = Math.floor((clock - hh) * 60);
+      var s = '<rect x="0" y="0" width="520" height="380" fill="transparent"/>';
+      s += '<rect x="110" y="20" width="230" height="340" rx="12" fill="#EEF2F5" stroke="#6A5B60" stroke-width="3"/><path d="M110 120 H340" stroke="#6A5B60" stroke-width="3"/><rect x="130" y="135" width="190" height="200" fill="' + (T > 40 ? '#FBEDEA' : '#F3F8FC') + '"/>';
+      s += '<rect x="150" y="270" width="50" height="50" rx="6" fill="#E07A3A"/><rect x="215" y="285" width="60" height="35" rx="4" fill="#D9453B"/><rect x="160" y="210" width="60" height="30" rx="4" fill="#79B465"/><rect x="235" y="200" width="22" height="40" rx="4" fill="#FFFFFF" stroke="#9AA5AE"/>';
+      if (G.door) s += '<path d="M110 20 L40 50 L40 330 L110 360 Z" fill="#E6EBEF" stroke="#6A5B60" stroke-width="3"/><path d="M60 140 q30 10 60 0 M60 200 q30 10 60 0 M60 260 q30 10 60 0" stroke="#E07A3A" stroke-width="3" fill="none" opacity=".7"/>';
+      // compressor and coils
+      s += '<rect x="300" y="315" width="44" height="34" rx="10" fill="' + (G.comp ? '#2E8B57' : '#5E6878') + '"/><text x="322" y="337" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="sans-serif">' + (G.comp ? 'ON' : 'off') + '</text>';
+      s += '<path d="M410 330 L410 60" stroke="#C46A2E" stroke-width="5"/>' + [90, 130, 170, 210, 250, 290].map(function (y) { return '<path d="M398 ' + y + ' h24" stroke="#C46A2E" stroke-width="3"/>'; }).join('');
+      if (G.dusty) s += '<rect x="390" y="70" width="40" height="250" fill="#9C8C74" opacity=".55"/><text x="410" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#3B2A20" font-family="sans-serif" transform="rotate(-90 410 200)">dust</text>';
+      if (G.comp) s += '<path d="M436 120 q14 -10 0 -20 q-14 -10 0 -20 M436 240 q14 -10 0 -20 q-14 -10 0 -20" fill="none" stroke="#D9453B" stroke-width="3" opacity=".7"/>';
+      // dial on the inside wall
+      s += '<circle cx="300" cy="150" r="14" fill="#FFFFFF" stroke="#5E6878" stroke-width="2"/><path d="M300 150 L' + (300 + Math.cos(Math.PI * (0.8 + G.dial * 0.28)) * 11).toFixed(1) + ' ' + (150 + Math.sin(Math.PI * (0.8 + G.dial * 0.28)) * 11).toFixed(1) + '" stroke="#C46A2E" stroke-width="3"/>';
+      s += thermo(T, 462, 110, 170);
+      s += '<text x="20" y="30" font-size="15" font-weight="700" fill="#6A5B60" font-family="sans-serif">' + (G.running || G.t > 0 ? hh + ':' + ('0' + mm).slice(-2) : '') + '</text>';
+      svg.innerHTML = s; H.fixVars(fh);
+      $('.dialval', fh).textContent = nums ? G.dial + ' of 5' : ['', '●○○○○', '●●○○○', '●●●○○', '●●●●○', '●●●●●'][G.dial];
+      var db = $('[data-c=door]', fh); db.textContent = G.door ? 'Close the door' : 'Open the door'; db.setAttribute('aria-pressed', G.door);
+      $('[data-c=clean]', fh).hidden = !G.dusty;
+      var zone = zoneWord(T), pct = G.t ? Math.round(G.inZone / G.t * 100) : 0, duty = G.t ? Math.round(G.ran / G.t * 100) : 0;
+      var line = G.msg + '  Fridge: ' + (nums ? Math.round(T) + ' °F, ' : '') + zone.toLowerCase() + '.';
+      if (lv === 'prototype' && G.t) line += '  Time in the safe zone: ' + pct + '%.';
+      if (lv === 'patent' && G.t) line += '  Safe-zone time: ' + pct + '%. Compressor ran ' + duty + '% of the day.';
+      out.textContent = line;
+    }
+    function step(dt) {
+      var set = SET[G.dial], cool = G.dusty ? 0.45 : 1.0;
+      if (G.T > set + 1.2) G.comp = true; else if (G.T < set - 1.2) G.comp = false;
+      var dT = 0.012 * (70 - G.T) + (G.door ? 0.08 * (70 - G.T) : 0) - (G.comp ? cool : 0);
+      G.T += dT * dt; G.t += dt;
+      if (G.T >= 33 && G.T <= 40) G.inZone += dt;
+      if (G.comp) G.ran += dt;
+      while (G.ev < EVENTS.length && G.t >= EVENTS[G.ev].at) { EVENTS[G.ev].go(); G.msg = EVENTS[G.ev].msg; G.ev++; H.SND.wrong(); }
+    }
+    var last = 0;
+    function loop(now) {
+      var dt = Math.min(0.1, (now - last) / 1000); last = now; step(dt); draw();
+      if (G.t >= DAY) { G.running = false; finish(); return; }
+      raf = requestAnimationFrame(loop);
+    }
+    function finish() {
+      var pct = Math.round(G.inZone / G.t * 100), stars = pct >= 90 ? 3 : pct >= 75 ? 2 : 1;
+      out.innerHTML = '<b>End of the day!</b> ' + '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars) + ' ' + (nums ? 'The fridge was in the safe zone ' + pct + '% of the day.' : (stars === 3 ? 'The fridge stayed just right almost all day.' : 'It got too warm or too cold for part of the day. Try again!')) +
+        ' Tip: the door is the biggest leak, and dusty coils make the compressor work much harder.';
+      H.SND[stars === 3 ? 'stamp' : 'right']();
+      $('[data-c=start]', fh).textContent = 'Play the day again';
+    }
+    $('[data-c=start]', fh).onclick = function () { stop(); G = fresh(); G.running = true; G.msg = 'Morning. Everything is fine… for now.'; last = performance.now(); this.textContent = 'Restart the day'; H.SND.tap(); raf = requestAnimationFrame(loop); };
+    $('[data-c=door]', fh).onclick = function () { G.door = !G.door; H.SND.clack(); if (!G.door && G.running) G.msg = 'Door shut. The compressor will catch up.'; draw(); };
+    $('[data-c=warmer]', fh).onclick = function () { G.dial = Math.max(1, G.dial - 1); H.SND.click(); if (G.dial === 1) G.msg = 'Warmest setting: food can spoil.'; draw(); };
+    $('[data-c=colder]', fh).onclick = function () { G.dial = Math.min(5, G.dial + 1); H.SND.click(); if (G.dial === 5) G.msg = 'Coldest setting: careful, the lettuce could freeze.'; else if (G.running) G.msg = 'Dial set to ' + (nums ? G.dial : 'a new spot') + '.'; draw(); };
+    $('[data-c=clean]', fh).onclick = function () { G.dusty = false; H.SND.whirr(); G.msg = 'A grown-up vacuumed the coils (unplugged first). Heat gets out easily again.'; draw(); };
+    draw();
+  }
+
+  /* ---- 3. Pack the fridge ---- */
+  function packMode() {
+    var ZONES = [
+      { id: 'freezer', name: 'Freezer', box: [130, 30, 190, 80] },
+      { id: 'top', name: 'Top shelf', box: [130, 135, 190, 58] },
+      { id: 'bottom', name: 'Bottom shelf', box: [130, 197, 190, 58] },
+      { id: 'crisper', name: 'Crisper drawer', box: [130, 259, 190, 74] },
+      { id: 'door', name: 'Door', box: [20, 130, 86, 210] },
+      { id: 'counter', name: 'Counter', box: [360, 260, 150, 80] }
+    ];
+    var FOOD = [
+      { id: 'icecream', name: 'Ice cream', col: '#F4C9C2', ok: ['freezer'], why: 'Ice cream has to stay frozen, so it goes in the freezer.' },
+      { id: 'peas', name: 'Frozen peas', col: '#79B465', ok: ['freezer'], why: 'Frozen food stays in the freezer.' },
+      { id: 'milk', name: 'Milk', col: '#FFFFFF', ok: ['top', 'bottom'], why: 'The door is the warmest spot because it swings out into the kitchen. Milk keeps longer on a shelf.' },
+      { id: 'eggs', name: 'Eggs', col: '#F2E3C6', ok: ['top', 'bottom'], why: 'Food safety experts say to keep eggs in their carton on a shelf, not in the door, where it is warmer.' },
+      { id: 'chicken', name: 'Raw chicken', col: '#F0B8A8', ok: ['bottom'], why: 'Raw meat goes on the bottom shelf so its juices can\'t drip onto other food.' },
+      { id: 'leftovers', name: 'Leftovers', col: '#E07A3A', ok: ['top'], why: 'Ready-to-eat food goes up high, above anything raw.' },
+      { id: 'lettuce', name: 'Lettuce', col: '#A8D58E', ok: ['crisper'], why: 'The crisper drawer keeps vegetables from drying out.' },
+      { id: 'carrots', name: 'Carrots', col: '#F08A3A', ok: ['crisper'], why: 'Vegetables go in the crisper drawer.' },
+      { id: 'ketchup', name: 'Ketchup', col: '#D9453B', ok: ['door', 'top'], why: 'Sauces like ketchup are fine in the door.' },
+      { id: 'juice', name: 'Orange juice', col: '#F2C230', ok: ['door', 'top', 'bottom'], why: 'Juice is fine in the door or on a shelf.' },
+      { id: 'bananas', name: 'Bananas', col: '#F7D65C', ok: ['counter'], why: 'Cold turns banana peels brown, so bananas stay on the counter.' },
+      { id: 'bread', name: 'Bread', col: '#D7A86E', ok: ['counter'], why: 'Bread goes stale faster in the fridge, so it stays on the counter.' }
+    ];
+    var count = { sketch: 8, prototype: 10, patent: 12 }[lv];
+    var pick = ['icecream', 'milk', 'chicken', 'lettuce', 'ketchup', 'bananas', 'leftovers', 'bread', 'eggs', 'carrots', 'peas', 'juice'].slice(0, count);
+    var items = FOOD.filter(function (f) { return pick.indexOf(f.id) >= 0; }), placed = {};
+    fh.innerHTML = '<div class="sim packsim"><svg viewBox="0 0 520 360" aria-label="An open fridge to pack"></svg></div><div class="tray packtray" aria-label="Food to put away"></div><div class="readout frpack" aria-live="polite">Drag each food to where it belongs.</div>';
+    var svg = $('.packsim svg', fh), tray = $('.packtray', fh), out = $('.frpack', fh);
+    function chipFor(f) { return '<span class="foodchip" data-food="' + f.id + '" style="--fc:' + f.col + '"><i></i>' + H.esc(f.name) + '</span>'; }
+    function draw() {
+      var s = '<rect x="110" y="20" width="230" height="330" rx="12" fill="#EEF2F5" stroke="#6A5B60" stroke-width="3"/><path d="M110 120 H340" stroke="#6A5B60" stroke-width="3"/>' +
+        '<path d="M110 20 L20 50 L20 330 L110 350 Z" fill="#E6EBEF" stroke="#6A5B60" stroke-width="3"/><rect x="350" y="250" width="170" height="100" fill="#D7A86E" opacity=".35"/>';
+      ZONES.forEach(function (z) {
+        var b = z.box, here = Object.keys(placed).filter(function (k) { return placed[k] === z.id; });
+        s += '<rect class="dropzone" data-zone="' + z.id + '" x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="6" fill="#FFFFFF" fill-opacity=".55" stroke="#9AA5AE" stroke-dasharray="6 5" stroke-width="2"/>' +
+          '<text x="' + (b[0] + 6) + '" y="' + (b[1] + 16) + '" font-size="12" font-weight="700" fill="#6A5B60" font-family="sans-serif">' + z.name + '</text>';
+        here.forEach(function (k, i) {
+          var f = FOOD.filter(function (q) { return q.id === k; })[0], many = here.length > 4, cols = z.id === 'door' ? 1 : (many ? 3 : 2), w = z.id === 'door' ? 76 : (many ? 59 : 88), fs = many ? 10 : 12.5;
+          var x = b[0] + 4 + (i % cols) * (w + 3), y = b[1] + 18 + Math.floor(i / cols) * 20;
+          s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="18" rx="9" fill="' + f.col + '" stroke="#6A5B60"/><text x="' + (x + w / 2) + '" y="' + (y + 13) + '" text-anchor="middle" font-size="' + fs + '" font-weight="700" fill="#2C2430" font-family="sans-serif">' + H.esc(f.name) + '</text>';
+        });
+      });
+      if (lv === 'patent') s += '<text x="225" y="128" text-anchor="middle" font-size="11" fill="#6A5B60" font-family="sans-serif">fridge 37 °F · freezer 0 °F · door is the warmest spot</text>';
+      svg.innerHTML = s; H.fixVars(fh);
+      tray.innerHTML = items.filter(function (f) { return !placed[f.id]; }).map(chipFor).join('') || '<span class="note">All put away!</span>';
+    }
+    var drag = null;
+    tray.addEventListener('pointerdown', function (e) {
+      var c = e.target.closest('[data-food]'); if (!c) return; e.preventDefault();
+      var f = FOOD.filter(function (q) { return q.id === c.dataset.food; })[0];
+      var g = document.createElement('div'); g.className = 'foodghost'; g.innerHTML = chipFor(f); document.body.appendChild(g);
+      drag = { f: f, g: g }; mv(e); H.SND.tap();
+    });
+    function mv(e) { if (!drag) return; drag.g.style.left = e.clientX + 'px'; drag.g.style.top = e.clientY + 'px'; }
+    function up(e) {
+      if (!drag) return; var f = drag.f; drag.g.remove(); drag = null;
+      var p = H.svgPoint(svg, e.clientX, e.clientY), z = ZONES.filter(function (q) { var b = q.box; return p.x >= b[0] && p.x <= b[0] + b[2] && p.y >= b[1] && p.y <= b[1] + b[3]; })[0];
+      if (!z) return;
+      if (f.ok.indexOf(z.id) >= 0) {
+        placed[f.id] = z.id; H.SND.right(); out.textContent = f.name + ': yes! ' + f.why;
+        draw();
+        if (items.every(function (q) { return placed[q.id]; })) { H.SND.stamp(); out.innerHTML = '<b>Fridge packed!</b> Everything is where it stays fresh and safe. <button type="button" class="ghost" id="packAgain">Unpack and try again</button>'; $('#packAgain', fh).onclick = function () { placed = {}; draw(); out.textContent = 'Drag each food to where it belongs.'; }; }
+      } else {
+        H.SND.wrong(); out.textContent = f.name + ' doesn\'t go in the ' + z.name.toLowerCase() + '. ' + (f.ok[0] === 'counter' ? 'Hint: not everything belongs in the fridge.' : 'Hint: ' + f.why.split('.')[0] + '.');
+        var c = tray.querySelector('[data-food="' + f.id + '"]'); if (c) { c.classList.remove('wiggle'); void c.offsetWidth; c.classList.add('wiggle'); }
+      }
+    }
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+    cleanups.push(function () { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); });
+    draw();
+  }
+
+  var cleanups = [];
+  function setMode(m) {
+    stop(); cleanups.forEach(function (f) { f(); }); cleanups = []; mode = m;
+    $$('[data-fm]', host).forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.fm === m); });
+    if (m === 'loop') loopMode(); else if (m === 'cold') coldMode(); else packMode();
+  }
+  $$('[data-fm]', host).forEach(function (b) { b.onclick = function () { H.SND.click(); setMode(b.dataset.fm); }; });
   partCards(host, st, H);
-  var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (still) { t = 0; draw(); } else raf = requestAnimationFrame(tick);
-  return { destroy: function () { cancelAnimationFrame(raf); } };
+  setMode('loop');
+  return { destroy: function () { stop(); cleanups.forEach(function (f) { f(); }); } };
 }
 
 /* ---------- Under the Sink ---------- */
@@ -1937,6 +2333,215 @@ window.GizmoMoveSims = { gears: gears, bike: bike, engine: engine, motor: motor 
 
 </script>
 <script>
+/* Gizmo Lab batch 4: Take It Apart sims (Tansy's basement). Uses GizmoSimKit from homesims.js. */
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var KIT = window.GizmoSimKit, hit = KIT.hit;
+var still = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
+function zig(x1, x2, y, n, amp) { var d = 'M' + x1 + ' ' + y; for (var i = 1; i <= n; i++) d += ' L' + (x1 + (x2 - x1) * i / n).toFixed(1) + ' ' + (y + (i % 2 ? -amp : amp)); return d; }
+
+/* drawings in assembled position (viewBox 520 x 320) plus how far each part moves when pulled apart */
+var ART = {
+  pen: {
+    front: { ex: [0, -112], svg: '<path d="M60 160 L104 146 L232 146 L232 174 L104 174 Z" fill="#2F64B0" fill-opacity=".8" stroke="#1E3F73" stroke-width="2"/>' },
+    spring: { ex: [0, -72], svg: '<path d="' + zig(112, 170, 160, 12, 7) + '" fill="none" stroke="#5E6878" stroke-width="2.5"/>' },
+    refill: { ex: [0, -26], svg: '<rect x="76" y="156" width="330" height="8" rx="3" fill="#E8ECEF" stroke="#9AA5AE" stroke-width="1.5"/><path d="M64 160 L78 155 L78 165 Z" fill="#5E6878"/><rect x="200" y="157" width="200" height="6" fill="#3E86C6" opacity=".55"/>' },
+    back: { ex: [0, 26], svg: '<rect x="228" y="146" width="178" height="28" rx="4" fill="#2F64B0" fill-opacity=".8" stroke="#1E3F73" stroke-width="2"/><path d="M300 146 L300 136 L398 136 L398 146" fill="none" stroke="#B8C2CC" stroke-width="5"/>' },
+    cam: { ex: [0, 72], svg: '<rect x="398" y="150" width="34" height="20" rx="3" fill="#E2AE38" stroke="#8A6A1E" stroke-width="2"/><path d="M404 150 l5 -6 l5 6 l5 -6 l5 6 l5 -6" fill="none" stroke="#8A6A1E" stroke-width="2"/>' },
+    button: { ex: [0, 116], svg: '<rect x="428" y="148" width="40" height="24" rx="10" fill="#D9453B" stroke="#7A2A1E" stroke-width="2"/>' }
+  },
+  sharpener: {
+    body: { ex: [0, 40], svg: '<rect x="180" y="150" width="160" height="90" rx="10" fill="#C46A2E" stroke="#7A3E16" stroke-width="3"/><path d="M180 195 L250 180 L250 210 Z" fill="#7A3E16" opacity=".55"/><circle cx="180" cy="195" r="16" fill="#3B2A20"/>' },
+    blade: { ex: [0, -40], svg: '<path d="M200 146 L320 140 L322 152 L200 156 Z" fill="#B8C2CC" stroke="#5E6878" stroke-width="2"/><path d="M200 156 L320 152" stroke="#FFFFFF" stroke-width="1.5"/>' },
+    screw: { ex: [0, -110], svg: '<rect x="290" y="126" width="22" height="8" rx="2" fill="#8C95A0" stroke="#5E6878"/><path d="M296 134 L296 150 L301 156 L306 150 L306 134 Z" fill="#B8C2CC" stroke="#5E6878"/><path d="M296 139 L306 141 M296 145 L306 147" stroke="#5E6878" stroke-width="1.5"/>' }
+  },
+  stapler: {
+    base: { ex: [0, 70], svg: '<rect x="70" y="232" width="380" height="22" rx="10" fill="#3B2A20"/><rect x="380" y="226" width="40" height="8" rx="2" fill="#B8C2CC" stroke="#5E6878"/><path d="M388 230 h8 M404 230 h8" stroke="#5E6878" stroke-width="2"/>' },
+    magazine: { ex: [0, 35], svg: '<path d="M100 200 L420 200 L420 222 L100 222" fill="#B8C2CC" stroke="#5E6878" stroke-width="2"/>' },
+    staples: { ex: [0, 0], svg: '<rect x="200" y="203" width="210" height="12" fill="#E8ECEF" stroke="#8C95A0"/><path d="' + (function () { var d = ''; for (var x = 206; x < 408; x += 6) d += 'M' + x + ' 203 V215 '; return d; })() + '" stroke="#9AA5AE" stroke-width="1"/>' },
+    pusher: { ex: [0, -36], svg: '<rect x="176" y="202" width="22" height="16" rx="3" fill="#E2AE38" stroke="#8A6A1E"/><path d="' + zig(104, 176, 210, 12, 5) + '" fill="none" stroke="#5E6878" stroke-width="2"/>' },
+    top: { ex: [0, -82], svg: '<path d="M80 176 Q90 166 120 166 L440 166 Q452 168 452 182 L452 196 L80 196 Z" fill="#D9453B" stroke="#7A2A1E" stroke-width="2"/><rect x="396" y="190" width="10" height="20" fill="#8C95A0" stroke="#5E6878"/>' }
+  },
+  tape: {
+    backcase: { ex: [-150, 26], svg: '<circle cx="250" cy="165" r="78" fill="#2C2430"/><rect x="236" y="70" width="28" height="70" rx="6" fill="#5E6878"/>' },
+    coil: { ex: [-75, 13], svg: '<path d="' + (function () { var d = 'M250 165'; for (var a = 0; a < 6 * Math.PI * 2; a += 0.3) { var r = 4 + a * 0.95; d += ' L' + (250 + Math.cos(a) * r).toFixed(1) + ' ' + (165 + Math.sin(a) * r).toFixed(1); } return d; })() + '" fill="none" stroke="#8C95A0" stroke-width="2"/>' },
+    reel: { ex: [0, 0], svg: '<circle cx="250" cy="165" r="62" fill="#F2C230" stroke="#B8862A" stroke-width="2"/><circle cx="250" cy="165" r="44" fill="none" stroke="#B8862A" stroke-width="1.5"/><path d="M250 227 L360 227 L360 213 L350 213 L350 221 L250 221" fill="#F2C230" stroke="#B8862A" stroke-width="1.5"/><rect x="358" y="209" width="5" height="22" fill="#8C95A0"/>' },
+    lock: { ex: [40, -84], svg: '<rect x="290" y="88" width="20" height="30" rx="5" fill="#D9453B" stroke="#7A2A1E" stroke-width="2"/>' },
+    frontcase: { ex: [150, -26], svg: '<circle cx="250" cy="165" r="78" fill="#F2C230" fill-opacity=".92" stroke="#2C2430" stroke-width="6"/><circle cx="250" cy="165" r="16" fill="#8C95A0"/><circle cx="210" cy="125" r="4" fill="#5E6878"/><circle cx="290" cy="205" r="4" fill="#5E6878"/>' }
+  }
+};
+
+/* ---------- Exploded View ---------- */
+function exploded(host, st, H, opts) {
+  var lv = H.level(), G = H.content.apart.gadgets, gid = 'pen', t = 1, puzzle = null, built = [], raf = 0, freeBuild = false;
+  var allParts = []; Object.keys(G).forEach(function (k) { allParts = allParts.concat(G[k].parts); });
+  host.innerHTML = '<div class="row" id="exG"></div><div class="sim"><svg viewBox="0 0 520 330" class="exsvg" aria-label="Exploded view"></svg></div>' +
+    '<div id="exCtl"></div><div class="tray extray" hidden></div><div class="readout" id="exOut"></div>';
+  var svg = $('.exsvg', host), out = $('#exOut', host), tray = $('.extray', host), ctl = $('#exCtl', host);
+  function gadgetChips() {
+    var el = $('#exG', host);
+    if (puzzle) { el.innerHTML = '<b class="rowlbl">' + H.esc(G[gid].name) + '</b>'; return; }
+    el.innerHTML = Object.keys(G).map(function (k) { return '<button type="button" class="chip" data-g="' + k + '" aria-pressed="' + (k === gid) + '">' + H.esc(G[k].name) + '</button>'; }).join('');
+    $$('[data-g]', el).forEach(function (b) { b.onclick = function () { gid = b.dataset.g; t = 1; freeBuild = false; built = []; H.SND.click(); render(); }; });
+  }
+  function draw() {
+    var g = G[gid], building = puzzle || freeBuild, s = '';
+    g.parts.forEach(function (p, i) {
+      var a = ART[gid][p.id], k = building ? 0 : t, placed = built.indexOf(p.id) >= 0;
+      if (building && !placed) {
+        if (lv === 'sketch') s += '<g opacity=".14" transform="translate(' + a.ex[0] + ' ' + a.ex[1] + ')">' + a.svg + '</g>';
+        return;
+      }
+      s += '<g transform="translate(' + (a.ex[0] * k).toFixed(1) + ' ' + (a.ex[1] * k).toFixed(1) + ')">' + hit(p.id, a.svg) + '</g>';
+      if (!building && t > 0.85 && (lv !== 'sketch' || true)) {
+        var lx = 12, ly = 0;
+        // label next to each pulled-apart part
+        var bb = labelSpot(gid, p.id); s += '<text x="' + (bb[0] + a.ex[0]) + '" y="' + (bb[1] + a.ex[1]) + '" text-anchor="' + (bb[2] || 'start') + '" font-size="13" font-weight="700" fill="#2C2430" font-family="sans-serif" paint-order="stroke" stroke="#FFFBF2" stroke-width="4" pointer-events="none">' + (lv === 'sketch' ? '' : (i + 1) + '. ') + H.esc(p.name) + '</text>';
+      }
+    });
+    svg.innerHTML = s; H.fixVars(host);
+  }
+  function labelSpot(g, id) {
+    var L = { pen: { front: [240, 166], spring: [180, 165], refill: [412, 165], back: [412, 166], cam: [392, 166, 'end'], button: [420, 166, 'end'] },
+      sharpener: { body: [348, 200], blade: [330, 150], screw: [318, 136] },
+      stapler: { base: [80, 228], magazine: [430, 214], staples: [90, 213], pusher: [210, 210], top: [90, 160] },
+      tape: { backcase: [250, 262, 'middle'], coil: [250, 112, 'middle'], reel: [250, 250, 'middle'], lock: [318, 108], frontcase: [250, 262, 'middle'] } };
+    return L[g][id];
+  }
+  function render() {
+    gadgetChips();
+    var building = puzzle || freeBuild, g = G[gid];
+    if (building) {
+      ctl.innerHTML = '<p class="note">Tap the parts in order' + (g.axis === 'x' ? '' : '') + '. ' + (lv === 'sketch' ? 'Faint shapes show where they go.' : '') + '</p>';
+      tray.hidden = false;
+      var left = g.parts.filter(function (p) { return built.indexOf(p.id) < 0; });
+      var order = shuffled(left);
+      tray.innerHTML = order.map(function (p) { return '<button type="button" class="chip" data-p="' + p.id + '">' + H.esc(p.name) + '</button>'; }).join('') || '<span class="note">All together!</span>';
+      $$('[data-p]', tray).forEach(function (b) { b.onclick = function () { place(b.dataset.p, b); }; });
+      out.textContent = built.length ? 'In so far: ' + built.map(function (id) { return g.parts.filter(function (p) { return p.id === id; })[0].name; }).join(', ') + '.' : 'Which part goes first?';
+    } else {
+      ctl.innerHTML = '<label for="exSlider"><b>Pull it apart</b></label><input id="exSlider" class="slider" type="range" min="0" max="1" step="0.01" value="' + t + '"><div class="row"><button type="button" class="go" data-act="build">Rebuild it in order</button></div>';
+      tray.hidden = true;
+      $('#exSlider', host).oninput = function () { t = +this.value; draw(); };
+      $('[data-act=build]', host).onclick = function () { freeBuild = true; built = []; H.SND.tap(); render(); };
+      out.textContent = 'Slide to pull the ' + g.name.toLowerCase() + ' apart and push it back together. Tap any part to learn its job.';
+    }
+    draw();
+  }
+  var seed = 1;
+  function shuffled(a) { var b = a.slice(); for (var i = b.length - 1; i > 0; i--) { seed = (seed * 9301 + 49297) % 233280; var j = Math.floor(seed / 233280 * (i + 1)); var tmp = b[i]; b[i] = b[j]; b[j] = tmp; } return b; }
+  function place(id, btn) {
+    var g = G[gid], next = g.parts[built.length];
+    if (id === next.id) {
+      built.push(id); H.SND.clack(); render();
+      if (built.length === g.parts.length) {
+        H.SND.right(); out.textContent = 'All ' + (lv === 'sketch' ? 'the parts are' : g.parts.length + ' parts') + ' back together: the ' + g.name.toLowerCase() + ' is rebuilt!';
+        if (puzzle && opts && opts.onSolved) opts.onSolved(true);
+        else if (freeBuild) { setTimeout(function () { freeBuild = false; built = []; t = 0; render(); }, 1400); }
+      }
+    } else {
+      H.SND.wrong(); btn.classList.remove('wiggle'); void btn.offsetWidth; btn.classList.add('wiggle');
+      var later = g.parts.map(function (p) { return p.id; }).indexOf(id) > built.length;
+      var msg = lv === 'patent' ? 'Not yet.' : (later ? 'Not yet: the ' + g.parts.filter(function (p) { return p.id === id; })[0].name.toLowerCase() + ' goes in later.' : 'Not that one.');
+      out.textContent = msg;
+      if (puzzle && opts && opts.onSolved) opts.onSolved(false, msg + ' Think about what has to go in before it.');
+    }
+  }
+  KIT.partCards(host, { parts: allParts }, H);
+  render();
+  return {
+    setPuzzle: function (q) { puzzle = q && q.t === 'rebuild' ? q : null; built = []; freeBuild = false; if (puzzle) { gid = q.gadget; seed = q.gadget.length * 7 + 3; } t = 1; render(); },
+    destroy: function () { cancelAnimationFrame(raf); }
+  };
+}
+
+/* ---------- Parts Drawer: drag each part to the gadget it came from ---------- */
+var GADGET_ART = {
+  tape: '<circle cx="32" cy="22" r="16" fill="#F2C230" stroke="#2C2430" stroke-width="3"/><path d="M40 36 H60 V30" fill="none" stroke="#B8862A" stroke-width="4"/>',
+  pen: '<path d="M6 30 L14 26 L54 26 L54 34 L14 34 Z" fill="#2F64B0"/><rect x="54" y="27" width="8" height="6" rx="2" fill="#D9453B"/>',
+  stapler: '<rect x="6" y="30" width="54" height="7" rx="3" fill="#3B2A20"/><path d="M8 26 Q10 18 20 18 L58 18 L58 26 Z" fill="#D9453B"/>',
+  toilet: '<rect x="18" y="4" width="30" height="16" rx="3" fill="#F4F2EE" stroke="#5E6878" stroke-width="2"/><path d="M14 22 H52 Q52 36 33 38 Q14 36 14 22 Z" fill="#F4F2EE" stroke="#5E6878" stroke-width="2"/>',
+  lock: '<rect x="14" y="16" width="36" height="24" rx="4" fill="#C9B07A" stroke="#6E4423" stroke-width="2"/><path d="M22 16 V10 Q32 0 42 10 V16" fill="none" stroke="#8C95A0" stroke-width="4"/><circle cx="32" cy="28" r="4" fill="#3B2A20"/>',
+  bike: '<circle cx="14" cy="28" r="10" fill="none" stroke="#2C2430" stroke-width="3"/><circle cx="50" cy="28" r="10" fill="none" stroke="#2C2430" stroke-width="3"/><path d="M14 28 L28 28 L24 12 L44 12 L50 28 M28 28 L44 12" fill="none" stroke="#2F64B0" stroke-width="3"/>'
+};
+var GADGET_NAME = { tape: 'Tape measure', pen: 'Click pen', stapler: 'Stapler', toilet: 'Toilet tank (Pim)', lock: 'Door lock (Pim)', bike: 'Bike (Rafa)' };
+function drawer(host, st, H) {
+  var lv = H.level(), done = {}, list = st.match.slice(0, lv === 'sketch' ? 6 : lv === 'prototype' ? 8 : 10);
+  var gadgets = []; list.forEach(function (m) { if (gadgets.indexOf(m.gadget) < 0) gadgets.push(m.gadget); });
+  host.innerHTML = '<div class="gadgetgrid">' + gadgets.map(function (g) { return '<div class="gtarget" data-gt="' + g + '"><svg viewBox="0 0 64 44" width="64" height="44">' + GADGET_ART[g] + '</svg><b>' + GADGET_NAME[g] + '</b><span class="gotparts"></span></div>'; }).join('') + '</div>' +
+    '<div class="tray drawertray" aria-label="Parts in the drawer"></div><div class="readout" id="drOut" aria-live="polite">Drag each part from the drawer to the gadget it came from.</div>';
+  var tray = $('.drawertray', host), out = $('#drOut', host);
+  function draw() {
+    tray.innerHTML = list.filter(function (m, i) { return !done[i]; }).map(function (m) { var i = list.indexOf(m); return '<span class="foodchip partchip" data-m="' + i + '"><i></i>' + H.esc(m.part) + '</span>'; }).join('') || '<span class="note">The drawer is empty!</span>';
+    $$('.gtarget', host).forEach(function (el) { el.querySelector('.gotparts').textContent = list.filter(function (m, i) { return done[i] && m.gadget === el.dataset.gt; }).map(function (m) { return m.part; }).join(', '); });
+  }
+  var drag = null;
+  tray.addEventListener('pointerdown', function (e) {
+    var c = e.target.closest('[data-m]'); if (!c) return; e.preventDefault();
+    var g = document.createElement('div'); g.className = 'foodghost'; g.innerHTML = c.outerHTML; document.body.appendChild(g);
+    drag = { i: +c.dataset.m, g: g }; mv(e); H.SND.tap();
+  });
+  function mv(e) { if (!drag) return; drag.g.style.left = e.clientX + 'px'; drag.g.style.top = e.clientY + 'px'; }
+  function up(e) {
+    if (!drag) return; var i = drag.i; drag.g.remove(); drag = null;
+    var el = document.elementFromPoint(e.clientX, e.clientY), tgt = el && el.closest('.gtarget'); if (!tgt) return;
+    var m = list[i];
+    if (tgt.dataset.gt === m.gadget) {
+      done[i] = true; H.SND.right(); tgt.classList.remove('pop'); void tgt.offsetWidth; tgt.classList.add('pop');
+      out.textContent = m.part + ': yes, from the ' + GADGET_NAME[m.gadget].replace(/ \(.*\)/, '').toLowerCase() + '. ' + m.why;
+      draw();
+      if (list.every(function (q, k) { return done[k]; })) { H.SND.stamp(); out.innerHTML = '<b>Drawer sorted!</b> Every part is back with its gadget. <button type="button" class="ghost" id="drAgain">Mix them up again</button>'; $('#drAgain', host).onclick = function () { done = {}; draw(); out.textContent = 'Drag each part from the drawer to the gadget it came from.'; }; }
+    } else {
+      H.SND.wrong(); tgt.classList.remove('wiggle'); void tgt.offsetWidth; tgt.classList.add('wiggle');
+      out.textContent = 'Not from the ' + GADGET_NAME[tgt.dataset.gt].replace(/ \(.*\)/, '').toLowerCase() + '. Ask yourself what the ' + m.part.toLowerCase() + ' does.';
+    }
+  }
+  window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  draw();
+  return { destroy: function () { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); } };
+}
+
+/* ---------- Mystery Gadget: guess from clues ---------- */
+var MYSTERY_ART = {
+  beater: '<rect x="70" y="20" width="18" height="60" rx="8" fill="#C46A2E"/><circle cx="110" cy="80" r="34" fill="none" stroke="#8C95A0" stroke-width="6"/><path d="M110 80 L150 66" stroke="#5E6878" stroke-width="6"/><circle cx="152" cy="66" r="8" fill="#C46A2E"/><path d="M79 80 V150 M95 80 V150" stroke="#8C95A0" stroke-width="5"/><ellipse cx="79" cy="170" rx="12" ry="24" fill="none" stroke="#8C95A0" stroke-width="3"/><ellipse cx="95" cy="170" rx="12" ry="24" fill="none" stroke="#8C95A0" stroke-width="3"/>',
+  peeler: '<rect x="20" y="150" width="160" height="12" rx="4" fill="#5E6878"/><path d="M30 110 L170 110" stroke="#8C95A0" stroke-width="6" stroke-dasharray="4 4"/><circle cx="100" cy="110" r="30" fill="#D9453B"/><path d="M100 80 q8 -12 16 -8" stroke="#79B465" stroke-width="5" fill="none"/><path d="M170 110 L190 110 L190 70" stroke="#5E6878" stroke-width="6" fill="none"/><circle cx="190" cy="66" r="8" fill="#C46A2E"/><path d="M118 140 L132 118" stroke="#B8C2CC" stroke-width="5"/>',
+  timer: '<circle cx="100" cy="100" r="62" fill="#FFFBF2" stroke="#D9453B" stroke-width="10"/>' + (function () { var s = ''; for (var i = 0; i < 12; i++) { var a = i * Math.PI / 6; s += '<path d="M' + (100 + Math.cos(a) * 50).toFixed(1) + ' ' + (100 + Math.sin(a) * 50).toFixed(1) + ' L' + (100 + Math.cos(a) * 42).toFixed(1) + ' ' + (100 + Math.sin(a) * 42).toFixed(1) + '" stroke="#2C2430" stroke-width="3"/>'; } return s; })() + '<path d="M100 100 L100 58" stroke="#2C2430" stroke-width="4"/><circle cx="100" cy="100" r="6" fill="#2C2430"/>',
+  canopener: '<path d="M60 40 L140 170" stroke="#5E6878" stroke-width="12" stroke-linecap="round"/><path d="M80 40 L160 170" stroke="#8C95A0" stroke-width="12" stroke-linecap="round"/><circle cx="70" cy="44" r="16" fill="#B8C2CC" stroke="#5E6878" stroke-width="3"/><path d="M54 44 h-24" stroke="#C46A2E" stroke-width="8" stroke-linecap="round"/>',
+  spinner: '<path d="M30 80 L170 80 L156 170 L44 170 Z" fill="#9CC6FF" opacity=".6" stroke="#3E86C6" stroke-width="3"/><path d="M44 90 L156 90 L146 160 L54 160 Z" fill="#FFFFFF" stroke="#79B465" stroke-width="3"/><path d="M60 110 h80 M64 130 h72 M68 150 h64" stroke="#79B465" stroke-width="3" stroke-dasharray="4 6"/><ellipse cx="100" cy="76" rx="74" ry="10" fill="#E2AE38"/><rect x="92" y="54" width="16" height="20" rx="4" fill="#C46A2E"/>',
+  crank: '<rect x="50" y="60" width="90" height="70" rx="10" fill="#8C95A0" stroke="#5E6878" stroke-width="3"/><circle cx="66" cy="95" r="10" fill="#3B2A20"/><rect x="60" y="130" width="70" height="30" rx="4" fill="#B8C2CC" stroke="#5E6878" stroke-width="2"/><path d="M140 95 L176 95 L176 60" stroke="#5E6878" stroke-width="6" fill="none"/><circle cx="176" cy="56" r="9" fill="#C46A2E"/>'
+};
+function mystery(host, st, H) {
+  var lv = H.level(), list = st.mysteries, idx = 0, shown = 1, solved = false, stars = 0, total = 0;
+  host.innerHTML = '<div class="mystery"></div>';
+  var box = $('.mystery', host);
+  function render() {
+    var m = list[idx];
+    box.innerHTML = '<p class="note"><b>Mystery gadget ' + (lv === 'sketch' ? '' : (idx + 1) + ' of ' + list.length) + '</b>' + (total ? ' · Stars so far: ' + '★'.repeat(stars) : '') + '</p>' +
+      '<div class="mysterycard"><svg viewBox="0 0 200 200" class="mysvg" aria-label="' + (solved ? H.esc(m.answer) : 'A hidden gadget') + '">' + (solved ? MYSTERY_ART[m.id] : '<rect x="20" y="20" width="160" height="160" rx="16" fill="#EBDDC1" stroke="#A8703F" stroke-width="3" stroke-dasharray="8 6"/><text x="100" y="118" text-anchor="middle" font-size="64" font-weight="800" fill="#A8703F" font-family="sans-serif">?</text>') + '</svg>' +
+      '<ol class="clues">' + m.clues.slice(0, shown).map(function (c) { return '<li>' + H.esc(c) + '</li>'; }).join('') + '</ol></div>' +
+      (solved ? '<p class="readout"><b>' + H.esc(m.answer) + '!</b> ' + H.esc(m.how) + '</p><div class="row"><button type="button" class="go" data-act="next">' + (idx + 1 < list.length ? 'Next mystery' : 'Start over') + '</button></div>' :
+        '<div class="opts">' + m.opts.map(function (o, k) { return '<button type="button" class="opt" data-o="' + k + '">' + H.esc(o) + '</button>'; }).join('') + '</div><div class="row"><button type="button" class="ghost" data-act="clue"' + (shown >= m.clues.length ? ' disabled' : '') + '>Read another clue</button></div><div class="myfb"></div>');
+    H.fixVars(box);
+    if (solved) { $('[data-act=next]', box).onclick = function () { idx = (idx + 1) % list.length; if (idx === 0) { stars = 0; total = 0; } shown = 1; solved = false; H.SND.tap(); render(); }; return; }
+    $('[data-act=clue]', box).onclick = function () { shown = Math.min(m.clues.length, shown + 1); H.SND.click(); render(); };
+    $$('[data-o]', box).forEach(function (b) {
+      b.onclick = function () {
+        if (m.opts[+b.dataset.o] === m.answer) { var got = Math.max(1, 4 - shown); stars += got; total++; solved = true; H.SND.right(); render(); $('.readout', box).insertAdjacentHTML('afterbegin', '<span class="mystars">' + '★'.repeat(got) + '</span> '); }
+        else { H.SND.wrong(); b.classList.add('wrong', 'wiggle'); $('.myfb', box).innerHTML = '<p class="feedback wiggle">Not that one. ' + (shown < m.clues.length ? 'Read another clue?' : 'Look at all three clues again.') + '</p>'; }
+      };
+    });
+  }
+  render();
+  return {};
+}
+
+window.GizmoApartSims = { exploded: exploded, drawer: drawer, mystery: mystery };
+})();
+
+</script>
+<script>
 /* Gizmo Lab app (batch 1): home, Simple Machines, Rube Goldberg Workshop, Patent Book, grown-ups. */
 (function () {
 'use strict';
@@ -2064,9 +2669,14 @@ var ICON = {
   bikemission: '<svg viewBox="0 0 64 40"><rect x="8" y="4" width="48" height="32" rx="3" fill="#FFFBF2" stroke="#B5452F" stroke-width="3"/><circle cx="26" cy="22" r="9" fill="none" stroke="#2C2430" stroke-width="3"/><circle cx="26" cy="13" r="3" fill="#F2C230"/><path d="M40 12 V30 M36 30 H46" stroke="#B5452F" stroke-width="3"/></svg>',
   paddle: '<svg viewBox="0 0 64 40"><g transform="rotate(20 32 20)"><rect x="12" y="17" width="40" height="6" fill="#2A8A6F"/><rect x="29" y="0" width="6" height="40" fill="#2A8A6F"/></g><circle cx="32" cy="20" r="5" fill="#3B2A20"/></svg>',
   conveyor: '<svg viewBox="0 0 64 40"><rect x="4" y="16" width="56" height="12" rx="6" fill="#3B2A20"/><circle cx="10" cy="22" r="4" fill="#B8C2CC"/><circle cx="54" cy="22" r="4" fill="#B8C2CC"/><path d="M22 10 L32 10 M28 6 L32 10 L28 14" stroke="#E2AE38" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+  exploded: '<svg viewBox="0 0 64 40"><path d="M4 8 L10 5 L26 5 L26 11 L10 11 Z" fill="#2F64B0"/><path d="M14 20 l3 -3 l3 3 l3 -3 l3 3 l3 -3" fill="none" stroke="#5E6878" stroke-width="2"/><rect x="18" y="28" width="30" height="5" rx="2" fill="#B8C2CC"/><rect x="40" y="34" width="20" height="5" rx="2" fill="#D9453B"/></svg>',
+  drawer: '<svg viewBox="0 0 64 40"><rect x="6" y="10" width="52" height="26" rx="3" fill="#A8703F" stroke="#6E4423" stroke-width="2"/><rect x="24" y="20" width="16" height="5" rx="2" fill="#E2AE38"/><path d="M14 6 l4 -4 M22 6 l2 -5 M44 6 l-2 -5" stroke="#5E6878" stroke-width="2"/></svg>',
+  mystery: '<svg viewBox="0 0 64 40"><rect x="14" y="4" width="36" height="32" rx="6" fill="#EBDDC1" stroke="#7A4E8E" stroke-width="2" stroke-dasharray="4 3"/><text x="32" y="30" text-anchor="middle" font-size="24" font-weight="800" fill="#7A4E8E" font-family="sans-serif">?</text></svg>',
+  penmission: '<svg viewBox="0 0 64 40"><rect x="8" y="4" width="48" height="32" rx="3" fill="#FFFBF2" stroke="#7A4E8E" stroke-width="3"/><path d="M14 12 h16 M18 20 l3 -3 l3 3 l3 -3 l3 3 M14 28 h30" stroke="#2F64B0" stroke-width="3" fill="none"/></svg>',
+  gate: '<svg viewBox="0 0 64 40"><circle cx="32" cy="6" r="4" fill="#3B2A20"/><rect x="28" y="6" width="8" height="32" rx="2" fill="#7A4E8E" transform="rotate(-18 32 6)"/></svg>',
   sandbox: '<svg viewBox="0 0 64 40"><rect x="6" y="26" width="52" height="8" fill="#A8703F"/><rect x="12" y="12" width="12" height="14" fill="#5C7FA8"/><rect x="30" y="6" width="6" height="20" fill="#F4EEDD" stroke="#2C2430"/><circle cx="48" cy="20" r="6" fill="#3E86C6"/></svg>'
 };
-var STAMPICON = { 'st-lever': 'lever', 'st-pulley': 'pulley', 'st-ramp': 'ramp', 'st-wedge': 'wedge', 'st-wheel': 'wheel', 'st-mission-seesaw': 'mission', 'st-bell': 'bell', 'st-balloon': 'balloon', 'st-plant': 'plant', 'st-bowl': 'bowl', 'st-spot': 'spot', 'st-patent': 'patent', 'st-flush': 'flush', 'st-fridge': 'fridge', 'st-sink': 'sink', 'st-locks': 'locks', 'st-inside': 'inside', 'st-mission-tank': 'tank', 'st-gears': 'gears', 'st-bike': 'bike', 'st-engine': 'engine', 'st-motor': 'motor', 'st-mission-bike': 'bikemission' };
+var STAMPICON = { 'st-lever': 'lever', 'st-pulley': 'pulley', 'st-ramp': 'ramp', 'st-wedge': 'wedge', 'st-wheel': 'wheel', 'st-mission-seesaw': 'mission', 'st-bell': 'bell', 'st-balloon': 'balloon', 'st-plant': 'plant', 'st-bowl': 'bowl', 'st-spot': 'spot', 'st-patent': 'patent', 'st-flush': 'flush', 'st-fridge': 'fridge', 'st-sink': 'sink', 'st-locks': 'locks', 'st-inside': 'inside', 'st-mission-tank': 'tank', 'st-gears': 'gears', 'st-bike': 'bike', 'st-engine': 'engine', 'st-motor': 'motor', 'st-mission-bike': 'bikemission', 'st-exploded': 'exploded', 'st-drawer': 'drawer', 'st-mystery': 'mystery', 'st-mission-pen': 'penmission' };
 var ICO_HOME = '<svg viewBox="0 0 28 28"><path d="M4 14 L14 5 L24 14 M7 12 V23 H21 V12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="14" cy="17" r="2.6" fill="#C46A2E"/></svg>';
 var ICO_BOOK = '<svg viewBox="0 0 24 24"><path d="M4 4 H18 a2 2 0 0 1 2 2 V20 H6 a2 2 0 0 1 -2 -2 Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="3.5" fill="#E2AE38"/></svg>';
 var ICO_BIN = '<svg viewBox="0 0 24 24"><path d="M3 9 H21 L19 20 H5 Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 9 L9 4 M17 9 L15 4" stroke="currentColor" stroke-width="2"/></svg>';
@@ -2157,7 +2767,7 @@ function houseSVG() {
       img('rafa', 'hero', 900, 500, 64) + plaque(716, 412, 'Garage', 'On the Move', true)) +
     room('apart', 'M260 610 L980 610 L980 712 L260 712 Z', 'color-mix(in srgb, var(--wall) 70%, var(--wood-dk))',
       '<rect x="820" y="630" width="140" height="8" fill="var(--wood)"/><rect x="830" y="606" width="30" height="24" fill="var(--soft)"/><rect x="880" y="612" width="40" height="18" fill="var(--soft)"/>' +
-      img('tansy', 'hero', 720, 616, 66) + plaque(276, 620, 'Basement', 'Take It Apart · soon', false)) +
+      img('tansy', 'hero', 720, 616, 66) + plaque(276, 620, 'Basement', 'Take It Apart', true)) +
     // marble run through every room
     '<path d="' + run + '" fill="none" stroke="var(--copper)" stroke-width="9" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>' +
     '<path d="' + run + '" fill="none" stroke="#FFE3C4" stroke-width="2" stroke-dasharray="2 14" stroke-linejoin="round" opacity=".8"/>' +
@@ -2195,9 +2805,10 @@ SCREENS.home = function () {
 /* ---------------- station zones (backyard, kitchen and bathroom) ---------------- */
 var ZONES = { simple: { key: 'simple', guide: 'ozzie', place: 'Backyard · Simple Machines', back: 'Back to the backyard' },
               home: { key: 'homemach', guide: 'pim', place: 'Kitchen and bathroom · Home Machines', back: 'Back to the kitchen' },
-              move: { key: 'onmove', guide: 'rafa', place: 'Garage · On the Move', back: 'Back to the garage' } };
+              move: { key: 'onmove', guide: 'rafa', place: 'Garage · On the Move', back: 'Back to the garage' },
+              apart: { key: 'apart', guide: 'tansy', place: 'Basement · Take It Apart', back: 'Back to the basement' } };
 function zoneOf(stationId) { for (var z in ZONES) if (K[ZONES[z].key].stations.some(function (s) { return s.id === stationId; })) return z; return 'simple'; }
-function allStations() { return K.simple.stations.concat(K.homemach.stations, K.onmove.stations); }
+function allStations() { return K.simple.stations.concat(K.homemach.stations, K.onmove.stations, K.apart.stations); }
 function stationById(id) { return allStations().filter(function (s) { return s.id === id; })[0]; }
 SCREENS.simple = function () { return SCREENS.zone('simple'); };
 SCREENS.zone = function (zid) {
@@ -2209,7 +2820,7 @@ SCREENS.zone = function (zid) {
       '<div class="dots">' + dots + '<span>Sketch · Prototype · Patent</span></div><div class="reward">' + (reward ? 'Earns for the workshop: <b>' + esc(reward) + '</b>' : 'Earns a stamp') + '</div></button>';
   }).join('');
   var mis = ZC.mission;
-  cards += '<button type="button" class="card mission" data-mission="1"><span class="ico">' + ICON[{ seesaw: 'mission', tank: 'tank', bike: 'bikemission' }[mis.id] || 'mission'] + '</span><h3>Paper mission: ' + esc(mis.title) + '</h3><p>' + esc(mis.time + ' · ' + mis.where) + '</p>' +
+  cards += '<button type="button" class="card mission" data-mission="1"><span class="ico">' + ICON[{ seesaw: 'mission', tank: 'tank', bike: 'bikemission', pen: 'penmission' }[mis.id] || 'mission'] + '</span><h3>Paper mission: ' + esc(mis.title) + '</h3><p>' + esc(mis.time + ' · ' + mis.where) + '</p>' +
     '<div class="reward">' + (S.stamps['st-mission-' + mis.id] ? '<b>Done!</b> Stamp in your Patent Book.' : 'Earns a photo stamp') + '</div></button>';
   return {
     place: Z.place,
@@ -2542,10 +3153,11 @@ SCREENS.station = function (id) {
       if (id === 'ramp') sim = rampSim(simHost, st);
       if (id === 'wedge') sim = wedgeSim(simHost, st);
       if (id === 'wheel') sim = wheelSim(simHost, st);
-      var HS = window.GizmoHomeSims, HH = { level: function () { return S.level; }, SND: SND, esc: esc, fixVars: fixVars, svgPoint: svgPoint };
+      var HS = window.GizmoHomeSims, HH = { level: function () { return S.level; }, SND: SND, esc: esc, fixVars: fixVars, svgPoint: svgPoint, content: K };
       var MS2 = window.GizmoMoveSims, solved = { onSolved: function (ok, hint) { answer(ok, hint); } };
       if (HS[id]) sim = HS[id](simHost, st, HH, solved);
       if (MS2[id]) sim = MS2[id](simHost, st, HH, solved);
+      if (window.GizmoApartSims[id]) sim = window.GizmoApartSims[id](simHost, st, HH, solved);
       current.cleanup = function () { if (sim && sim.destroy) sim.destroy(); };
       var chal = $('#chal'), i = -1, tries = 0, answered = false;
       function head() {
@@ -2559,10 +3171,11 @@ SCREENS.station = function (id) {
       }
       function ask() {
         var q = set[i]; tries = 0; answered = false;
-        if (sim && sim.setPuzzle) sim.setPuzzle(q.t === 'balance' || q.t === 'key' || q.t === 'gear' ? q : null);
+        if (sim && sim.setPuzzle) sim.setPuzzle(q.t === 'balance' || q.t === 'key' || q.t === 'gear' || q.t === 'rebuild' ? q : null);
         var body = '';
         if (q.t === 'balance') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the seesaw on this page. Drag from the tray onto a peg, then press Check balance.</p>';
         if (q.t === 'key') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the lock on this page. Drag a key step, or use the arrows under it.</p>';
+        if (q.t === 'rebuild') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the parts tray on this page: tap the parts one at a time, in order.</p>';
         if (q.t === 'gear') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the gears on this page: pick an output gear, add the helper gear if you need it, turn the crank to test, then press Check.</p>';
         if (q.t === 'choice') body = '<p class="q">' + esc(q.q) + '</p><div class="opts">' + q.opts.map(function (o, k) { return '<button type="button" class="opt" data-k="' + k + '">' + esc(o) + '</button>'; }).join('') + '</div>';
         if (q.t === 'screwcount') body = '<p class="q">' + esc(q.text) + '</p><div style="max-width:150px">' + screwSVG(q.threads, 0, false) + '</div><div class="opts">' + q.opts.map(function (o, k) { return '<button type="button" class="opt" data-k="' + k + '">' + o + ' turns</button>'; }).join('') + '</div>';
@@ -2570,19 +3183,19 @@ SCREENS.station = function (id) {
         Array.prototype.forEach.call(chal.querySelectorAll('.opt'), function (b) {
           b.onclick = function () { if (answered) return; var ok = +b.dataset.k === q.a; if (ok) b.classList.add('right'); else b.classList.add('wrong', 'wiggle'); answer(ok); };
         });
-        if ((q.t === 'balance' || q.t === 'key' || q.t === 'gear') && window.innerWidth < 900) simHost.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if ((q.t === 'balance' || q.t === 'key' || q.t === 'gear' || q.t === 'rebuild') && window.innerWidth < 900) simHost.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       function answer(ok, hint) {
         var q = set[i]; if (i < 0 || answered) return;
         var fb = $('#fb');
         if (ok) {
           answered = true; SND.right();
-          fb.innerHTML = '<div class="feedback pop">' + mouseImg(gd, 'cheer') + '<div><b>Yes!</b> ' + esc(q.why || (q.t === 'key' ? 'Every gap sits on the shear line, so the plug turns.' : q.t === 'gear' ? 'That gear train does exactly what was asked.' : 'Balanced! Both sides push the same.')) + '</div></div><div class="row" style="margin-top:10px"><button type="button" class="go" id="nextQ">' + (i + 1 < set.length ? 'Next' : 'Finish') + '</button></div>';
+          fb.innerHTML = '<div class="feedback pop">' + mouseImg(gd, 'cheer') + '<div><b>Yes!</b> ' + esc(q.why || (q.t === 'key' ? 'Every gap sits on the shear line, so the plug turns.' : q.t === 'gear' ? 'That gear train does exactly what was asked.' : q.t === 'rebuild' ? 'Every part went back in the right order.' : 'Balanced! Both sides push the same.')) + '</div></div><div class="row" style="margin-top:10px"><button type="button" class="go" id="nextQ">' + (i + 1 < set.length ? 'Next' : 'Finish') + '</button></div>';
           $('#nextQ').onclick = function () { SND.tap(); i++; if (i < set.length) ask(); else finish(); };
         } else {
           tries++; SND.wrong();
           var pose = tries > 1 ? 'think' : 'encourage';
-          var msg = hint || (tries > 1 && q.t !== 'balance' && q.t !== 'key' && q.t !== 'gear' ? 'Hint: ' + (q.why ? q.why.split('.')[0] + '.' : 'Look at the machine again.') : 'Not quite. Try again!');
+          var msg = hint || (tries > 1 && q.t !== 'balance' && q.t !== 'key' && q.t !== 'gear' && q.t !== 'rebuild' ? 'Hint: ' + (q.why ? q.why.split('.')[0] + '.' : 'Look at the machine again.') : 'Not quite. Try again!');
           if (q.t === 'balance' && !hint) msg = 'Not balanced yet. Try another peg.';
           fb.innerHTML = '<div class="feedback wiggle">' + mouseImg(gd, pose) + '<div>' + esc(msg) + '</div></div>';
         }
@@ -2610,7 +3223,7 @@ SCREENS.mission = function (zid) {
     html: '<div class="station"><section class="panel"><h2>' + esc(m.title) + '</h2><p class="intro">' + esc(m.time + ' · ' + m.where) + '</p><p>' + esc(m.why) + '</p>' +
       '<h3>Supplies</h3><ul class="checklist">' + m.supplies.map(function (s, k) { return '<li><label><input type="checkbox" id="sup' + k + '" data-k="' + k + '"' + (MS.checked.indexOf(k) >= 0 ? ' checked' : '') + '> ' + esc(s) + '</label></li>'; }).join('') + '</ul>' +
       '<h3>' + K.levels[lv].name + ' steps</h3><ol class="steps">' + m.steps[lv].map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol><p class="tip">' + esc(m.note) + '</p></section>' +
-      '<section class="panel">' + guide(Z.guide, 'hero', K.cast[Z.guide].name, { simple: 'When your seesaw works, take a photo of it. It becomes a stamp in your Patent Book.', home: 'Take a photo of your drawing or of the U-bend you found. It becomes a stamp in your Patent Book.', move: 'Take a photo of your chalk marks or your tooth count. It becomes a stamp in your Patent Book.' }[zid]) +
+      '<section class="panel">' + guide(Z.guide, 'hero', K.cast[Z.guide].name, { simple: 'When your seesaw works, take a photo of it. It becomes a stamp in your Patent Book.', home: 'Take a photo of your drawing or of the U-bend you found. It becomes a stamp in your Patent Book.', move: 'Take a photo of your chalk marks or your tooth count. It becomes a stamp in your Patent Book.', apart: 'Take a photo of your exploded-view drawing next to the real parts. It becomes a stamp in your Patent Book.' }[zid]) +
       '<div id="photoBox"></div><div class="row"><span class="filebtn go"><span>Add a photo</span><input type="file" id="photoIn" accept="image/*" aria-label="Add a photo"></span>' +
       '<button type="button" class="ghost" id="markDone">' + (MS.done ? 'Mission done ✓' : 'Mark mission done') + '</button></div><p class="note" id="photoNote"></p></section></div>',
     after: function () {
@@ -2906,6 +3519,10 @@ function workshop(scene, g, lv, rules) {
         drawBody(pt.bodies[0], '#D9453B', stroke || '#7A2A1E', lw);
         [1, 2].forEach(function (k) { var wb = pt.bodies[k]; ctx.fillStyle = '#2C2430'; ctx.beginPath(); ctx.arc(wb.position.x, wb.position.y, 15, 0, 7); ctx.fill(); ctx.strokeStyle = '#B8C2CC'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(wb.position.x, wb.position.y); ctx.lineTo(wb.position.x + Math.cos(wb.angle) * 12, wb.position.y + Math.sin(wb.angle) * 12); ctx.stroke(); });
       }
+      if (pt.type === 'gate') {
+        drawBody(pt.bodies[0], '#7A4E8E', stroke || '#4E2E5E', lw);
+        ctx.fillStyle = '#3B2A20'; ctx.beginPath(); ctx.arc(pt.pivot.x, pt.pivot.y, 7, 0, 7); ctx.fill(); ctx.fillStyle = '#E2AE38'; ctx.beginPath(); ctx.arc(pt.pivot.x, pt.pivot.y, 3, 0, 7); ctx.fill();
+      }
       if (pt.type === 'paddle') {
         var pb = pt.bodies[0]; pb.parts.slice(1, 3).forEach(function (q) { drawBody(q, '#2A8A6F', stroke || '#1D6550', lw); });
         ctx.fillStyle = '#3B2A20'; ctx.beginPath(); ctx.arc(pt.pivot.x, pt.pivot.y, 10, 0, 7); ctx.fill(); ctx.fillStyle = '#E2AE38'; ctx.beginPath(); ctx.arc(pt.pivot.x, pt.pivot.y, 4, 0, 7); ctx.fill();
@@ -2949,7 +3566,7 @@ SCREENS.book = function (focus) {
   };
 };
 function stampSVG(s, on) {
-  var col = { simple: '#2A8A6F', home: '#237D8C', move: '#B5452F' }[s.zone] || '#C98A1E';
+  var col = { simple: '#2A8A6F', home: '#237D8C', move: '#B5452F', apart: '#7A4E8E' }[s.zone] || '#C98A1E';
   return '<svg viewBox="0 0 112 112" role="img" aria-label="' + esc(s.name) + '"><circle cx="56" cy="56" r="52" fill="var(--card)" stroke="' + col + '" stroke-width="5"/><circle cx="56" cy="56" r="44" fill="none" stroke="' + col + '" stroke-width="1.5" stroke-dasharray="3 4"/>' +
     '<g transform="translate(24 30)">' + ICON[STAMPICON[s.id]].replace('<svg viewBox="0 0 64 40">', '<svg viewBox="0 0 64 40" width="64" height="40">') + '</g>' +
     '<text x="56" y="88" text-anchor="middle" font-size="10" font-weight="700" fill="' + col + '" font-family="sans-serif" letter-spacing="1">' + (on ? 'PATENTED' : '') + '</text></svg>';
@@ -2966,9 +3583,9 @@ function holdButton(el, ms, done) {
 SCREENS.grownups = function () {
   return {
     place: 'Grown-ups',
-    html: '<section class="panel"><h2>For grown-ups</h2><p>Gizmo Lab is Felix\'s engineering and design lab. So far it has the backyard (Simple Machines), the kitchen and bathroom (Home Machines) and the garage (On the Move), each with its stations at three levels and a paper mission, and the living-room Rube Goldberg Workshop (four jobs plus free build). The basement and attic are coming.</p>' +
+    html: '<section class="panel"><h2>For grown-ups</h2><p>Gizmo Lab is Felix\'s engineering and design lab. So far it has the backyard (Simple Machines), the kitchen and bathroom (Home Machines), the garage (On the Move) and the basement (Take It Apart), each with its stations at three levels and a paper mission, and the living-room Rube Goldberg Workshop (four jobs plus free build). The attic is coming.</p>' +
       '<p class="note">Progress, builds and photos stay on this device only. Nothing is sent anywhere. No timers, no ads, no voice, no Claude features.</p>' +
-      '<p class="note">Paper mission safety: the ruler seesaw uses coins and school supplies only. The tank-and-trap mission needs a grown-up to lift the heavy tank lid and to open the sink cabinet; Felix looks but does not touch anything stored under the sink. In the bike mission a grown-up turns the pedals while Felix walks the bike; no riding, and fingers stay away from the chain and spokes. Missions never open anything that plugs in or has a battery.</p>' +
+      '<p class="note">Paper mission safety: the ruler seesaw uses coins and school supplies only. The tank-and-trap mission needs a grown-up to lift the heavy tank lid and to open the sink cabinet; Felix looks but does not touch anything stored under the sink. In the bike mission a grown-up turns the pedals while Felix walks the bike; no riding, and fingers stay away from the chain and spokes. The click-pen mission uses a pen that unscrews easily, over a tray so the spring cannot fly off. Missions never open anything that plugs in or has a battery.</p>' +
       '<div class="row"><button type="button" class="ghost" id="sndBtn">Sound: ' + (S.sound ? 'on' : 'off') + '</button></div>' +
       '<h3>Hold to fill the Parts Bin</h3><p class="note">Unlocks every workshop part (2 of each) so you can try the workshop before Felix earns them.</p><div class="row"><button type="button" class="go" id="fillBtn">Hold 2 seconds</button></div>' +
       '<h3>Hold to reset progress</h3><p class="note">Clears stamps, parts, saved builds, the mission photo and finished levels.</p><div class="row"><button type="button" class="go" id="resetAll" style="background:#B03A2E">Hold 3 seconds to reset</button></div><p id="gNote" class="note" aria-live="polite"></p>' +
