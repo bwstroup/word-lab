@@ -220,6 +220,12 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
 .stepsrow { flex-wrap: nowrap; }
 .stepbtns .chip { min-width: 44px; padding: 0; }
 
+/* batch 3: garage sims */
+.rowlbl { font-size: .85rem; color: var(--ink2); min-width: 86px; }
+.gchip { flex-direction: column; gap: 0; padding: 4px 8px; font-size: .8rem; min-width: 56px; }
+.gchip svg { height: 30px; width: 30px; }
+.gearsvg { max-height: 360px; }
+
 </style>
 </head>
 <body>
@@ -258,7 +264,9 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
     screw:   { name: 'Screw lift', base: false, rotate: false, machine: 'screw',  from: 'wedge' },
     cart:    { name: 'Cart',       base: false, rotate: false, machine: 'wheel',  from: 'wheel' },
     funnel:  { name: 'Funnel',     base: false, rotate: false, machine: null,     from: 'flush' },
-    bumper:  { name: 'Spring bumper', base: false, rotate: false, machine: null,  from: 'locks' }
+    bumper:  { name: 'Spring bumper', base: false, rotate: false, machine: null,  from: 'locks' },
+    paddle:  { name: 'Paddle wheel', base: false, rotate: false, machine: 'wheel',  from: 'gears' },
+    conveyor:{ name: 'Conveyor belt', base: false, rotate: true,  machine: null,     from: 'motor' }
   };
   var MACHINES = { ramp: 'Ramp', lever: 'Lever', pulley: 'Pulley', wedge: 'Wedge', screw: 'Screw', wheel: 'Wheel and axle' };
 
@@ -340,6 +348,16 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
       out.bodies.push(tag(fb, info()));
     } else if (p.type === 'bumper') {
       out.bodies.push(tag(B.circle(p.x, p.y, 18, { isStatic: true, restitution: 1 }, 30), info()));
+    } else if (p.type === 'paddle') {
+      // four paddles on a hub, pinned so it can only spin
+      var pa = B.rectangle(p.x, p.y, 120, 10), pb = B.rectangle(p.x, p.y, 10, 120), hub = B.circle(p.x, p.y, 12);
+      var pw = Bd.create({ parts: [pa, pb, hub], density: 0.0015, friction: 0.2, frictionAir: 0.02 });
+      out.bodies.push(tag(pw, info()));
+      out.constraints.push(C.create({ pointA: { x: p.x, y: p.y }, bodyB: pw, pointB: { x: 0, y: 0 }, length: 0, stiffness: 1 }));
+      out.pivot = { x: p.x, y: p.y };
+    } else if (p.type === 'conveyor') {
+      out.bodies.push(tag(B.rectangle(p.x, p.y, 200, 14, { isStatic: true, angle: a, friction: 0.6 }), info()));
+      out.belt = { speed: 3.2 };
     } else if (p.type === 'cart') {
       // wheel and axle: a little cart body with two wheels pinned on axles
       var grp = M.Body.nextGroup(true);
@@ -519,6 +537,21 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
           M.Composite.add(world, dpt); st.drops.push(dpt);
         }
       }
+      parts.forEach(function (pt) {
+        if (!pt.belt) return;
+        var bb = pt.bodies[0], dx = Math.cos(bb.angle), dy = Math.sin(bb.angle);
+        engine.pairs.list.forEach(function (pr) {
+          if (!pr.isActive) return;
+          var A = pr.bodyA.parent || pr.bodyA, Bb = pr.bodyB.parent || pr.bodyB, o = A === bb ? Bb : (Bb === bb ? A : null);
+          if (!o || o.isStatic) return;
+          var along = o.velocity.x * dx + o.velocity.y * dy;
+          if (along < pt.belt.speed) {
+            var k = (pt.belt.speed - along) * 0.25;
+            M.Body.setVelocity(o, { x: o.velocity.x + dx * k, y: o.velocity.y + dy * k });
+            if (st.steps > SETTLE && !st.links[pt.pid]) activate(pt);
+          }
+        });
+      });
       if (st.opened && ex.door && !ex.doorGone) { ex.doorGone = true; M.Composite.remove(world, ex.door); M.Composite.remove(world, ex.latch); note('open'); }
       M.Engine.update(engine, 1000 / 60);
       // settle detection: nothing moving for a while
@@ -1017,6 +1050,185 @@ var C = {
     { id: 'st-flush', name: 'The Flush', zone: 'home' }, { id: 'st-fridge', name: 'The Fridge', zone: 'home' },
     { id: 'st-sink', name: 'Under the Sink', zone: 'home' }, { id: 'st-locks', name: 'Locks and Latches', zone: 'home' },
     { id: 'st-inside', name: 'Look Inside', zone: 'home' }, { id: 'st-mission-tank', name: 'Tank and trap mission', zone: 'home', photo: true });
+  /* ---------------- On the Move (Rafa, garage) — batch 3 ---------------- */
+  C.onmove = {
+    hello: "Welcome to the garage! Everything in here turns: gears, pedals, wheels, crankshafts and motors. The engine and the motor plug in or burn fuel, so we only open those on screen.",
+    stations: [
+      {
+        id: 'gears', name: 'Gear Lab', part: 'paddle', machine: 'gears',
+        intro: 'Gears are wheels with teeth. When two gears mesh, turning one turns the other. A small gear driving a big one turns it slowly but with more force. A big gear driving a small one spins it fast.',
+        tip: 'Meshed gears always turn in opposite directions. Put a helper gear in the middle and the output turns the same way as the crank, without changing its speed.',
+        sizes: [8, 12, 16, 24, 32, 48],
+        parts: [
+          { id: 'drive', name: 'Drive gear', job: 'The gear you turn with the crank. It pushes on the next gear\'s teeth.' },
+          { id: 'driven', name: 'Output gear', job: 'The gear that gets turned. Its speed depends on how many teeth each gear has.' },
+          { id: 'idler', name: 'Helper gear (idler)', job: 'A gear in the middle that flips the direction back. Its own size doesn\'t change the speed.' },
+          { id: 'teeth', name: 'Teeth', job: 'Each tooth pushes one tooth on the other gear, so both gears move the same number of teeth past each other.' },
+          { id: 'crank', name: 'Crank', job: 'A handle on the drive gear: a little wheel and axle for your hand.' }
+        ],
+        sets: {
+          sketch: [
+            { t: 'gear', text: 'Make the output gear spin faster than the crank gear. Pick an output gear, then press Check.', drive: 32, want: 'faster', choices: [16, 32, 48] },
+            { t: 'gear', text: 'Now make the output gear turn slower than the crank gear.', drive: 16, want: 'slower', choices: [8, 16, 48] },
+            { t: 'gear', text: 'Make the output gear turn the same way as the crank gear. Something has to go in the middle!', drive: 24, want: 'equal', dir: 'same', choices: [24] },
+            { t: 'choice', q: 'Two meshed gears always turn…', opts: ['In opposite directions', 'The same way', 'Only when they match in size'], a: 0, why: 'The teeth push each other apart: one goes clockwise, the other goes counterclockwise.' },
+            { t: 'choice', q: 'Where can you find gears at home?', opts: ['Inside a hand-crank eggbeater or can opener', 'Inside a pillow', 'Inside a spoon'], a: 0, why: 'Hand-crank eggbeaters and can openers use gears to turn your slow crank into fast spinning or a strong grip.' }
+          ],
+          prototype: [
+            { t: 'gear', text: 'The crank gear has 24 teeth. Make the output gear turn 2 times for every turn of the crank.', drive: 24, want: 2, choices: [8, 12, 16, 24] },
+            { t: 'gear', text: 'The crank gear has 16 teeth. Make the output gear turn half a turn for every turn of the crank.', drive: 16, want: 0.5, choices: [8, 16, 32, 48] },
+            { t: 'choice', q: 'A 48-tooth gear drives a 16-tooth gear. One turn of the big gear moves 48 teeth past. How many turns does the small gear make?', opts: ['2', '3', '4'], a: 1, why: '48 ÷ 16 = 3 turns.', check: { f: 'div', args: [48, 16] } },
+            { t: 'choice', q: 'Gears A, B and C are in a row. A turns clockwise. Which way does C turn?', opts: ['Clockwise', 'Counterclockwise', 'It doesn\'t turn'], a: 0, why: 'A clockwise turns B counterclockwise, and B turns C clockwise again.' },
+            { t: 'choice', q: 'A 12-tooth gear drives a 36-tooth gear. How many times must you turn the small gear to turn the big one once?', opts: ['2', '3', '4'], a: 1, why: 'The big gear needs 36 teeth to pass: 36 ÷ 12 = 3 turns of the small gear.', check: { f: 'div', args: [36, 12] } }
+          ],
+          patent: [
+            { t: 'gear', text: 'Crank gear: 48 teeth. Make the output turn 4 times per crank turn, the same way as the crank.', drive: 48, want: 4, dir: 'same', choices: [8, 12, 16, 24] },
+            { t: 'gear', text: 'Crank gear: 12 teeth. Make the output turn a quarter of a turn per crank turn.', drive: 12, want: 0.25, choices: [16, 24, 32, 48] },
+            { t: 'choice', q: 'Gear ratio: an 8-tooth gear drives a 40-tooth gear. How many turns of the small gear for one turn of the big one?', opts: ['4', '5', '8'], a: 1, why: '40 ÷ 8 = 5. The ratio is 5 to 1.', check: { f: 'div', args: [40, 8] } },
+            { t: 'choice', q: 'A 30-tooth gear turns 4 times and drives a 10-tooth gear. How many turns does the 10-tooth gear make?', opts: ['8', '12', '40'], a: 1, why: '4 turns × 30 teeth = 120 teeth pass. 120 ÷ 10 = 12 turns.', check: { f: 'mulDiv', args: [4, 30, 10] } },
+            { t: 'choice', q: 'The slow, big output gear can push harder than the fast, small one. Why?', opts: ['Its teeth are farther from its center, like a longer lever', 'It is heavier', 'It has thicker paint'], a: 0, why: 'Each gear is a lever going around in a circle. What you trade in speed, you win back in turning force.' }
+          ]
+        }
+      },
+      {
+        id: 'bike', name: 'Bike Anatomy', machine: 'bike',
+        intro: 'A bike is a bundle of simple machines: pedals and cranks are a wheel and axle, the chain and sprockets are gears, and the brake levers are levers.',
+        tip: 'A big front sprocket and a small rear cog is a hard gear for going fast. A big rear cog is an easy gear for hills.',
+        wheel: 20, front: 32, rear: [12, 16, 20, 24, 32],
+        parts: [
+          { id: 'pedal', name: 'Pedals and crank arms', job: 'You push the pedals around in a circle. The crank arms are a wheel and axle.' },
+          { id: 'chainring', name: 'Chainring', job: 'The big front sprocket, fixed to the crank. Its teeth pull the chain.' },
+          { id: 'chain', name: 'Chain', job: 'Carries your pedaling from the front sprocket to the rear cog. Both turn the same way.' },
+          { id: 'cog', name: 'Rear cogs', job: 'The small sprockets on the back wheel. Smaller cog = harder pedaling but faster.' },
+          { id: 'derailleur', name: 'Derailleur', job: 'Pushes the chain sideways onto a different rear cog when you shift.' },
+          { id: 'brake', name: 'Brake lever and pads', job: 'Squeeze the lever (a lever!) and a cable pulls rubber pads against the wheel. Friction slows you down.' },
+          { id: 'tire', name: 'Tire and valve', job: 'Air in the tube makes a cushion. The valve lets air in but not out.' },
+          { id: 'spokes', name: 'Spokes and hub', job: 'Thin wires that hold the rim to the hub, the axle in the middle of the wheel.' },
+          { id: 'frame', name: 'Frame', job: 'Triangles of tube. Triangles are the strongest simple shape, so the frame doesn\'t bend.' }
+        ],
+        sets: {
+          sketch: [
+            { t: 'choice', q: 'Which part carries your pedaling to the back wheel?', opts: ['The chain', 'The handlebar', 'The seat'], a: 0, why: 'The chain wraps around the front sprocket and the rear cog.' },
+            { t: 'choice', q: 'The front sprocket and the rear cog are joined by a chain. Which way do they turn?', opts: ['The same way', 'Opposite ways', 'Only the front one turns'], a: 0, why: 'Unlike meshed gears, a chain makes both sprockets turn the same way.' },
+            { t: 'choice', q: 'Going up a hill, which rear cog makes pedaling easier?', opts: ['A big rear cog', 'A small rear cog', 'It doesn\'t matter'], a: 0, why: 'A big rear cog means more pedal turns for each wheel turn: each push is gentler.' },
+            { t: 'choice', q: 'What slows the bike when you squeeze the brakes?', opts: ['Friction from the pads rubbing the wheel', 'The chain stopping', 'Air in the tires'], a: 0, why: 'The pads rub the wheel, and friction turns your speed into a little heat.' },
+            { t: 'choice', q: 'Why is a bike frame made of triangles?', opts: ['Triangles don\'t bend out of shape', 'Triangles are lighter than air', 'To look like mountains'], a: 0, why: 'Push on a square and it squashes into a diamond. A triangle holds its shape.' }
+          ],
+          prototype: [
+            { t: 'choice', q: 'Front sprocket 32 teeth, rear cog 16 teeth. How many times does the back wheel turn for each pedal turn?', opts: ['1', '2', '4'], a: 1, why: '32 ÷ 16 = 2 wheel turns per pedal turn.', check: { f: 'div', args: [32, 16] } },
+            { t: 'choice', q: 'Front 32, rear 32. How many wheel turns per pedal turn?', opts: ['1', '2', '32'], a: 0, why: '32 ÷ 32 = 1. One pedal turn, one wheel turn: a very easy gear.', check: { f: 'div', args: [32, 32] } },
+            { t: 'choice', q: 'Count the teeth: a rear cog has 12 and the chainring has 36. How many wheel turns per pedal turn?', opts: ['2', '3', '4'], a: 1, why: '36 ÷ 12 = 3.', check: { f: 'div', args: [36, 12] } },
+            { t: 'choice', q: 'The brake lever is a lever. Where is the fulcrum?', opts: ['The pivot near the handlebar', 'The tip where your fingers pull', 'The brake pad'], a: 0, why: 'Your fingers pull at the long end; the lever turns on a pivot by the handlebar and pulls the cable with more force.' }
+          ],
+          patent: [
+            { t: 'choice', q: 'A 20-inch wheel goes about 63 inches (20 × 3.14) in one turn. Front 32, rear 16. About how far does one pedal turn take you?', opts: ['About 63 inches', 'About 126 inches', 'About 189 inches'], a: 1, why: '2 wheel turns × about 63 inches ≈ 126 inches, a bit over 10 feet.', check: { f: 'bikeDist', args: [32, 16, 20] } },
+            { t: 'choice', q: 'Same wheel, front 32, rear 24. About how far per pedal turn?', opts: ['About 84 inches', 'About 63 inches', 'About 126 inches'], a: 0, why: '32 ÷ 24 = 1⅓ wheel turns × 62.8 ≈ 84 inches.', check: { f: 'bikeDist', args: [32, 24, 20] } },
+            { t: 'choice', q: 'You pedal 60 times a minute in a gear that goes 126 inches per pedal turn. How many inches in a minute?', opts: ['5,040', '7,560', '12,600'], a: 1, why: '60 × 126 = 7,560 inches, which is 630 feet.', check: { f: 'mul', args: [60, 126] } },
+            { t: 'choice', q: 'A 12-tooth rear cog and a 36-tooth chainring. To make pedaling easier for a hill, you should shift to a rear cog with…', opts: ['More teeth', 'Fewer teeth', 'The same teeth'], a: 0, why: 'A bigger rear cog lowers the ratio (36 ÷ 24 = 1.5 instead of 3): less distance per pedal turn, but much easier pushing.' }
+          ]
+        }
+      },
+      {
+        id: 'engine', name: 'Four-Stroke Engine (screen only)', screenOnly: true, machine: 'engine',
+        intro: 'A car engine burns a tiny puff of fuel and air inside a cylinder. The push from the burning gas shoves a piston down, and the piston turns a crankshaft. It does this in four steps called strokes.',
+        tip: 'A memory trick for the four strokes: suck, squeeze, bang, blow. Engines are hot, have moving belts and burn fuel, so we only open this one on screen.',
+        parts: [
+          { id: 'piston', name: 'Piston', job: 'A metal plug that slides up and down inside the cylinder.' },
+          { id: 'cylinder', name: 'Cylinder', job: 'The tube the piston slides in. The fuel burns at the top.' },
+          { id: 'rod', name: 'Connecting rod', job: 'Links the piston to the crankshaft, turning up-and-down into round-and-round.' },
+          { id: 'crank', name: 'Crankshaft', job: 'A bent shaft, like bike pedals. It turns around and around and drives the wheels.' },
+          { id: 'intake', name: 'Intake valve', job: 'Opens to let fuel and air in.' },
+          { id: 'exhaust', name: 'Exhaust valve', job: 'Opens to let the burned gas out to the tailpipe.' },
+          { id: 'spark', name: 'Spark plug', job: 'Makes a tiny spark that lights the squeezed fuel and air.' }
+        ],
+        sets: {
+          sketch: [
+            { t: 'choice', q: 'Which stroke pushes the piston down with burning gas?', opts: ['Power', 'Intake', 'Exhaust'], a: 0, why: 'In the power stroke the burning gas expands and shoves the piston down. That push is what drives the car.' },
+            { t: 'choice', q: 'What turns the piston\'s up-and-down into round-and-round?', opts: ['The crankshaft', 'The spark plug', 'The tailpipe'], a: 0, why: 'The connecting rod pushes the bent crankshaft around, just like your legs push bike pedals around.' },
+            { t: 'choice', q: 'What does the spark plug do?', opts: ['Lights the fuel and air', 'Lets air in', 'Cools the engine'], a: 0, why: 'A spark jumps across a tiny gap and lights the squeezed fuel and air.' },
+            { t: 'choice', q: 'Why do we only look inside an engine on screen?', opts: ['It gets very hot, burns fuel and has fast moving parts', 'It is too small', 'It is boring'], a: 0, why: 'Engines can burn, pinch and spray fuel. Mechanics are trained and wait for them to cool.' }
+          ],
+          prototype: [
+            { t: 'choice', q: 'Put the strokes in order: intake, compression, power, exhaust. What comes right after compression?', opts: ['Power', 'Intake', 'Exhaust'], a: 0, why: 'Suck (intake), squeeze (compression), bang (power), blow (exhaust).' },
+            { t: 'choice', q: 'During intake, which valve is open?', opts: ['The intake valve', 'The exhaust valve', 'Both'], a: 0, why: 'The piston moves down and pulls fuel and air in through the open intake valve.' },
+            { t: 'choice', q: 'The crankshaft turns once for every two strokes. How many turns for all four strokes?', opts: ['1', '2', '4'], a: 1, why: '4 strokes ÷ 2 strokes per turn = 2 turns.', check: { f: 'div', args: [4, 2] } },
+            { t: 'choice', q: 'Of the four strokes, how many push the car along?', opts: ['1', '2', '4'], a: 0, check: { f: 'same', args: [1] }, why: 'Only the power stroke pushes. A heavy flywheel keeps the crankshaft turning through the other three.' }
+          ],
+          patent: [
+            { t: 'choice', q: 'The crankshaft turns 3,000 times a minute. Each cylinder fires once every 2 turns. How many power strokes per minute in one cylinder?', opts: ['1,500', '3,000', '6,000'], a: 0, why: '3,000 ÷ 2 = 1,500 power strokes per minute.', check: { f: 'div', args: [3000, 2] } },
+            { t: 'choice', q: 'A 4-cylinder engine at 3,000 turns a minute. Power strokes per minute for the whole engine?', opts: ['3,000', '6,000', '12,000'], a: 1, why: '1,500 per cylinder × 4 cylinders = 6,000.', check: { f: 'mulDiv', args: [3000, 4, 2] } },
+            { t: 'choice', q: 'That is how many power strokes per second?', opts: ['50', '100', '600'], a: 1, why: '6,000 ÷ 60 seconds = 100 every second.', check: { f: 'div', args: [6000, 60] } },
+            { t: 'choice', q: 'A diesel engine has no spark plug. How does its fuel light?', opts: ['Squeezing the air makes it hot enough to light the fuel', 'A match', 'Sunlight through a window'], a: 0, why: 'Squeezing a gas heats it. Diesels squeeze the air so hard that sprayed-in fuel lights by itself.' }
+          ]
+        }
+      },
+      {
+        id: 'motor', name: 'Electric Motor (screen only)', part: 'conveyor', screenOnly: true, machine: 'motor',
+        intro: 'An electric motor spins using magnets. Electricity flowing through a coil of wire turns the coil into a magnet, and the fixed magnets around it push and pull it around.',
+        tip: 'Like poles push apart and opposite poles pull together. A part called the commutator flips the coil\'s poles every half turn, so it keeps spinning the same way.',
+        parts: [
+          { id: 'magnet', name: 'Magnets', job: 'Fixed magnets, one north and one south, around the coil.' },
+          { id: 'coil', name: 'Coil (armature)', job: 'Wire wrapped many times. With electricity flowing it becomes a magnet that can spin.' },
+          { id: 'comm', name: 'Commutator', job: 'A split ring on the shaft. Every half turn it swaps which way the electricity flows through the coil.' },
+          { id: 'brush', name: 'Brushes', job: 'Springy contacts that rub on the commutator and carry electricity into it.' },
+          { id: 'battery', name: 'Battery', job: 'Pushes electricity around the circuit. Never open or bite a battery.' },
+          { id: 'shaft', name: 'Shaft', job: 'Spins with the coil. A fan blade or wheel goes on the end.' }
+        ],
+        sets: {
+          sketch: [
+            { t: 'choice', q: 'Two magnets with north facing north…', opts: ['Push apart', 'Pull together', 'Do nothing'], a: 0, why: 'Like poles push apart; opposite poles pull together.' },
+            { t: 'choice', q: 'Flip the battery around. What happens to the motor?', opts: ['It spins the other way', 'It stops forever', 'It spins the same way'], a: 0, why: 'The electricity flows the other way, the coil\'s poles swap, and the push goes the other way.' },
+            { t: 'choice', q: 'Which of these has an electric motor?', opts: ['A fan', 'A pencil', 'A ruler'], a: 0, why: 'Fans, blenders, drills, toy cars and washing machines all have electric motors.' },
+            { t: 'choice', q: 'Why do we only look inside a motor on screen?', opts: ['It uses electricity and spins fast', 'It is too heavy', 'It is invisible'], a: 0, why: 'Never open a battery or poke into anything that plugs in. Motors spin fast and can pinch fingers.' }
+          ],
+          prototype: [
+            { t: 'choice', q: 'Add a second battery in the sim. What happens?', opts: ['The motor spins faster', 'It spins backward', 'It stops'], a: 0, why: 'More push from the batteries means more electricity in the coil: stronger magnet, faster spin.' },
+            { t: 'choice', q: 'How many times per turn does the commutator flip the electricity in the coil?', opts: ['1', '2', '4'], a: 1, why: 'Every half turn, so twice per turn.', check: { f: 'same', args: [2] } },
+            { t: 'choice', q: 'What would happen without the commutator?', opts: ['The coil would turn halfway and stop', 'It would spin faster', 'The magnets would melt'], a: 0, why: 'The coil would swing until its poles faced the opposite magnets, then stop there. Flipping the current keeps the chase going.' }
+          ],
+          patent: [
+            { t: 'choice', q: 'A small motor spins 3,000 times a minute. How many turns per second?', opts: ['30', '50', '300'], a: 1, why: '3,000 ÷ 60 = 50 turns every second.', check: { f: 'div', args: [3000, 60] } },
+            { t: 'choice', q: 'At 50 turns a second, how many times a second does the commutator flip the current?', opts: ['25', '50', '100'], a: 2, why: '2 flips per turn × 50 turns = 100 flips a second.', check: { f: 'mul', args: [2, 50] } },
+            { t: 'choice', q: 'Spin a motor\'s shaft by hand very fast with a light bulb wired to it. What can happen?', opts: ['It makes a little electricity and the bulb glows', 'Nothing at all', 'The magnets fall off'], a: 0, why: 'Run backward, a motor is a generator. Spinning coils near magnets make electricity.' },
+            { t: 'choice', q: 'A toy motor spins too fast to push a car. What helps it push harder?', opts: ['Gears that turn the fast motor into a slow, strong wheel', 'A bigger battery only', 'Painting it'], a: 0, why: 'A small gear on the motor driving a big gear on the axle trades speed for turning force, just like in the Gear Lab.' }
+          ]
+        }
+      }
+    ],
+    mission: {
+      id: 'bike', title: 'Gear teeth and wheel turns', time: 'About 25 minutes', where: 'Garage or driveway, with a grown-up',
+      supplies: ['A bike (yours is fine)', 'A grown-up to hold the bike', 'Sidewalk chalk', 'A strip of masking tape', 'A tape measure', 'Paper and pencil'],
+      why: 'In the app you changed gears with a tap. Now count the real thing.',
+      steps: {
+        sketch: [
+          'With the grown-up holding the bike, make a chalk mark on the front of the tire where it touches the ground, and a chalk line on the ground under it.',
+          'Put one pedal straight down. Walk the bike forward slowly while the grown-up turns the pedal one full turn by hand. Keep your fingers away from the chain and the spokes.',
+          'Watch the chalk mark on the back tire (make one there too). Did the back wheel turn more than once, less, or the same?',
+          'Draw the bike and circle the chain, the front sprocket and the rear cog.'
+        ],
+        prototype: [
+          'With the bike still, put a piece of masking tape on one tooth of the front sprocket. Count the teeth all the way around back to the tape. Write it down.',
+          'Do the same for the rear cog the chain is on.',
+          'Work out the ratio: front teeth ÷ rear teeth. That is how many times the back wheel should turn for one pedal turn.',
+          'Test it: chalk mark on the back tire, then walk the bike while the grown-up turns the pedal once. Count the wheel turns. Fingers away from the chain and spokes.'
+        ],
+        patent: [
+          'Count the front and rear teeth as in Prototype. Work out front ÷ rear.',
+          'Measure the wheel: roll the bike until the chalk mark on the back tire goes around once, and measure that distance on the ground with the tape measure.',
+          'Predict: ratio × wheel distance = how far one pedal turn takes you.',
+          'Test: chalk line on the ground, walk the bike while the grown-up turns the pedal once, chalk line where you stop, measure. How close was your prediction?',
+          'If the bike has gears, ask the grown-up to shift to a bigger rear cog and do it again.'
+        ]
+      },
+      note: 'Walk the bike only: no riding during the mission. A grown-up turns the pedals and shifts gears. Keep fingers, laces and hair away from the chain, sprockets and spokes.',
+      checks: [ { f: 'div', args: [32, 16], expect: 2 } ]
+    }
+  };
+  C.zones.forEach(function (z) { if (z.id === 'move') { z.ready = true; } });
+  C.stamps.splice(12, 0,
+    { id: 'st-gears', name: 'Gear Lab', zone: 'move' }, { id: 'st-bike', name: 'Bike Anatomy', zone: 'move' },
+    { id: 'st-engine', name: 'Four-Stroke Engine', zone: 'move' }, { id: 'st-motor', name: 'Electric Motor', zone: 'move' },
+    { id: 'st-mission-bike', name: 'Bike gears mission', zone: 'move', photo: true });
 if (typeof module !== 'undefined' && module.exports) module.exports = C; else root.GIZMO_CONTENT = C;
 })(typeof self !== 'undefined' ? self : this);
 
@@ -1038,13 +1250,15 @@ function partCards(host, st, H) {
   var card = document.createElement('div'); card.className = 'readout partcard'; card.setAttribute('aria-live', 'polite');
   card.textContent = 'Tap any part to see its name and its job.';
   host.appendChild(card);
-  host.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-part]'); if (!t) return;
+  // react on finger-down: animated sims redraw every frame, so the element may be gone by the time a click would fire
+  var show = function (t) {
     var p = st.parts.filter(function (q) { return q.id === t.getAttribute('data-part'); })[0]; if (!p) return;
     H.SND.click();
     $$('[data-part]', host).forEach(function (el) { el.classList.toggle('lit', el.getAttribute('data-part') === p.id); });
     card.innerHTML = '<b>' + H.esc(p.name) + ':</b> ' + H.esc(p.job);
-  });
+  };
+  host.addEventListener('pointerdown', function (e) { var t = e.target.closest('[data-part]'); if (t) show(t); });
+  host.addEventListener('keydown', function (e) { var t = e.target.closest && e.target.closest('[data-part]'); if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); show(t); } });
   return card;
 }
 function hit(id, inner) { return '<g data-part="' + id + '" class="tappable" role="button" tabindex="0">' + inner + '</g>'; }
@@ -1387,6 +1601,338 @@ function inside(host, st, H) {
 }
 
 window.GizmoHomeSims = { flush: flush, fridge: fridge, sink: sink, locks: locks, inside: inside };
+window.GizmoSimKit = { partCards: partCards, hit: hit };
+})();
+
+</script>
+<script>
+/* Gizmo Lab batch 3: On the Move sims (Rafa's garage).
+   Each sim: function (host, st, H, opts) -> { setPuzzle?, destroy? }. Uses GizmoSimKit from homesims.js. */
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var KIT = window.GizmoSimKit, hit = KIT.hit;
+var TAU = Math.PI * 2;
+var still = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
+
+/* a gear outline: n teeth on pitch radius r */
+function gearPath(n, r, depth) {
+  depth = depth || 5;
+  var out = r + depth, root = r - depth, d = '', step = TAU / n;
+  for (var i = 0; i < n; i++) {
+    var a = i * step, pts = [[root, a], [out, a + step * 0.18], [out, a + step * 0.5], [root, a + step * 0.68]];
+    pts.forEach(function (p, k) { d += (i === 0 && k === 0 ? 'M' : 'L') + (Math.cos(p[1]) * p[0]).toFixed(1) + ' ' + (Math.sin(p[1]) * p[0]).toFixed(1) + ' '; });
+  }
+  return d + 'Z';
+}
+function gearSVG(n, r, fill, deg, label) {
+  return '<g transform="rotate(' + deg.toFixed(2) + ')"><path d="' + gearPath(n, r) + '" fill="' + fill + '" stroke="#3B2A20" stroke-width="2" stroke-linejoin="round"/>' +
+    '<circle r="' + (r * 0.55).toFixed(1) + '" fill="none" stroke="#3B2A20" stroke-width="1.5" opacity=".35"/><circle r="7" fill="#3B2A20"/>' +
+    '<path d="M0 0 L' + (r * 0.8).toFixed(1) + ' 0" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity=".8"/></g>' +
+    (label ? '<text y="' + (r * 0.55 + 18).toFixed(0) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#2C2430" font-family="sans-serif" paint-order="stroke" stroke="#FFFBF2" stroke-width="4">' + label + '</text>' : '');
+}
+function arrow(cx, cy, r, cw, col) {
+  // a curved arrow above a gear showing its turning direction
+  var a0 = -2.3, a1 = -0.85, s = cw ? 1 : -1;
+  var x0 = cx + Math.cos(a0) * r, y0 = cy + Math.sin(a0) * r, x1 = cx + Math.cos(a1) * r, y1 = cy + Math.sin(a1) * r;
+  var from = cw ? [x0, y0] : [x1, y1], to = cw ? [x1, y1] : [x0, y0];
+  var tang = cw ? a1 + Math.PI / 2 : a0 - Math.PI / 2;
+  var hx = to[0], hy = to[1], h1 = [hx - Math.cos(tang - 0.5) * 12, hy - Math.sin(tang - 0.5) * 12], h2 = [hx - Math.cos(tang + 0.5) * 12, hy - Math.sin(tang + 0.5) * 12];
+  return '<path d="M' + from[0].toFixed(1) + ' ' + from[1].toFixed(1) + ' A' + r + ' ' + r + ' 0 0 ' + (cw ? 1 : 0) + ' ' + to[0].toFixed(1) + ' ' + to[1].toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="4"/>' +
+    '<path d="M' + h1[0].toFixed(1) + ' ' + h1[1].toFixed(1) + ' L' + hx.toFixed(1) + ' ' + hy.toFixed(1) + ' L' + h2[0].toFixed(1) + ' ' + h2[1].toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+}
+var SIZEWORD = { 8: 'Tiny', 12: 'Small', 16: 'Medium', 24: 'Big', 32: 'Bigger', 48: 'Huge' };
+
+/* ---------- Gear Lab ---------- */
+function gears(host, st, H, opts) {
+  var lv = H.level(), nums = lv !== 'sketch';
+  var S = { drive: 16, driven: 32, idler: false, th: 0, turns: 0 }, puzzle = null, raf = 0, IDL = 16;
+  var K = 2.3;   // pixels of pitch radius per tooth
+  host.innerHTML = '<div class="sim"><svg class="gearsvg" aria-label="Two gears with a crank"></svg></div>' +
+    '<div class="gearctl"><div class="row" id="gDrive"></div><div class="row" id="gOut"></div><div class="row"><button type="button" class="chip" data-act="idler" aria-pressed="false">Helper gear</button>' +
+    '<button type="button" class="go" data-act="turn">Turn the crank once</button><button type="button" class="ghost" data-act="zero">Reset count</button><button type="button" class="go" data-act="check" hidden>Check</button></div></div>' +
+    '<div class="readout" id="gOutTxt"></div>';
+  var svg = $('.gearsvg', host), out = $('#gOutTxt', host);
+  function chipRow(el, label, list, key) {
+    el.innerHTML = '<b class="rowlbl">' + label + '</b>' + list.map(function (n) {
+      return '<button type="button" class="chip gchip" data-' + key + '="' + n + '" aria-pressed="' + (S[key] === n) + '" aria-label="' + n + ' teeth"><svg viewBox="-30 -30 60 60" width="34" height="34"><path d="' + gearPath(n, 9 + n * 0.4, 2.6) + '" fill="currentColor"/><circle r="3.5" fill="#FFFBF2"/></svg>' + (nums ? '<span>' + n + '</span>' : '<span>' + SIZEWORD[n] + '</span>') + '</button>';
+    }).join('');
+    $$('[data-' + key + ']', el).forEach(function (b) { b.onclick = function () { S[key] = +b.getAttribute('data-' + key); S.th = 0; S.turns = 0; H.SND.click(); render(); }; });
+  }
+  function rates() { return { out: S.drive / S.driven, sameDir: S.idler }; }
+  function draw() {
+    var r1 = S.drive * K, r2 = (S.driven || 16) * K, ri = IDL * K, pad = 26, maxR = Math.max(r1, r2, S.idler ? ri : 0);
+    var cy = pad + maxR + 6, x1 = pad + r1, xi = x1 + r1 + ri, x2 = (S.idler ? xi + ri : x1 + r1) + r2;
+    var W = x2 + r2 + pad, Hh = cy + maxR + pad + 4;
+    svg.setAttribute('viewBox', '0 0 ' + W.toFixed(0) + ' ' + Hh.toFixed(0));
+    var th = S.th * 180 / Math.PI, R = rates();
+    var thI = -th * S.drive / IDL + 180 / IDL, th2 = (S.idler ? 1 : -1) * th * S.drive / (S.driven || 16) + 180 / (S.driven || 16);
+    var h = '<rect x="0" y="0" width="' + W + '" height="' + Hh + '" fill="transparent"/>';
+    h += '<g transform="translate(' + x1.toFixed(1) + ' ' + cy.toFixed(1) + ')">' + hit('drive', gearSVG(S.drive, r1, '#C46A2E', th, nums ? S.drive + ' teeth' : '')) + '</g>';
+    if (S.idler) h += '<g transform="translate(' + xi.toFixed(1) + ' ' + cy.toFixed(1) + ')">' + hit('idler', gearSVG(IDL, ri, '#9AA5AE', thI, '')) + '</g>';
+    if (S.driven) h += '<g transform="translate(' + x2.toFixed(1) + ' ' + cy.toFixed(1) + ')">' + hit('driven', gearSVG(S.driven, r2, '#2A8A6F', th2, nums ? S.driven + ' teeth' : '')) + '</g>';
+    else h += '<g transform="translate(' + x2.toFixed(1) + ' ' + cy.toFixed(1) + ')"><circle r="' + r2.toFixed(1) + '" fill="none" stroke="#6A5B60" stroke-width="3" stroke-dasharray="8 8"/><text text-anchor="middle" y="6" font-size="16" fill="#6A5B60" font-family="sans-serif">pick a gear</text></g>';
+    // crank handle on the drive gear
+    var kr = r1 * 0.62, kx = x1 + Math.cos(S.th) * kr, ky = cy + Math.sin(S.th) * kr;
+    h += hit('crank', '<path d="M' + x1.toFixed(1) + ' ' + cy.toFixed(1) + ' L' + kx.toFixed(1) + ' ' + ky.toFixed(1) + '" stroke="#3B2A20" stroke-width="7" stroke-linecap="round"/><circle id="gKnob" cx="' + kx.toFixed(1) + '" cy="' + ky.toFixed(1) + '" r="15" fill="#E2AE38" stroke="#3B2A20" stroke-width="2" style="cursor:grab"/>');
+    h += hit('teeth', '<circle cx="' + (x1 + r1 + 1).toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="12" fill="transparent"/>');
+    if (S.th !== 0 && S.driven) {
+      h += arrow(x1, cy, r1 + 14, true, '#C46A2E');
+      h += arrow(x2, cy, r2 + 14, R.sameDir, '#2A8A6F');
+    }
+    svg.innerHTML = h; H.fixVars(host);
+    if (!S.driven) { out.textContent = 'Pick an output gear.'; return; }
+    var outTurns = S.turns * R.out, dirTxt = R.sameDir ? 'the same way as the crank' : 'the opposite way';
+    if (lv === 'sketch') out.textContent = 'The green gear turns ' + (R.out > 1 ? 'faster than' : R.out < 1 ? 'slower than' : 'just as fast as') + ' the orange gear, ' + dirTxt + '.';
+    if (lv === 'prototype') out.textContent = 'Crank turns: ' + S.turns + '.  Output turns: ' + (+outTurns.toFixed(2)) + '.  It turns ' + dirTxt + '.';
+    if (lv === 'patent') out.textContent = 'Output turns = crank turns × ' + S.drive + ' ÷ ' + S.driven + ' = ' + S.turns + ' × ' + (+R.out.toFixed(3)) + ' = ' + (+outTurns.toFixed(2)) + '.  Direction: ' + dirTxt + '.';
+  }
+  function render() {
+    var drives = puzzle ? [puzzle.drive] : st.sizes, outs = puzzle ? puzzle.choices : st.sizes;
+    chipRow($('#gDrive', host), 'Crank gear', drives, 'drive');
+    chipRow($('#gOut', host), 'Output gear', outs, 'driven');
+    var ib = $('[data-act=idler]', host); ib.setAttribute('aria-pressed', S.idler);
+    $('[data-act=check]', host).hidden = !puzzle;
+    draw();
+  }
+  $('[data-act=idler]', host).onclick = function () { S.idler = !S.idler; S.th = 0; S.turns = 0; H.SND.clack(); render(); };
+  $('[data-act=zero]', host).onclick = function () { S.th = 0; S.turns = 0; draw(); };
+  $('[data-act=turn]', host).onclick = function () {
+    if (!S.driven) { H.SND.wrong(); return; }
+    cancelAnimationFrame(raf); var start = S.turns * TAU, t0 = performance.now(), dur = still() ? 1 : 1400;
+    H.SND.whirr();
+    (function f(now) { var k = Math.min(1, (now - t0) / dur); S.th = start + k * TAU; draw(); if (k < 1) raf = requestAnimationFrame(f); else { S.turns++; S.th = S.turns * TAU; draw(); } })(t0);
+  };
+  // drag the crank knob around
+  var dragging = false, last = 0;
+  svg.addEventListener('pointerdown', function (e) { if (e.target.id !== 'gKnob' || !S.driven) return; dragging = true; svg.setPointerCapture(e.pointerId); var p = H.svgPoint(svg, e.clientX, e.clientY), r1 = S.drive * K; last = Math.atan2(p.y - (26 + Math.max(r1, S.driven * K, S.idler ? IDL * K : 0) + 6), p.x - (26 + r1)); });
+  svg.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var r1 = S.drive * K, cy = 26 + Math.max(r1, S.driven * K, S.idler ? IDL * K : 0) + 6, p = H.svgPoint(svg, e.clientX, e.clientY), a = Math.atan2(p.y - cy, p.x - (26 + r1)), d = a - last;
+    if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU;
+    last = a; S.th += d; var t = Math.floor(Math.abs(S.th) / TAU); if (t !== S.turns) { S.turns = t; H.SND.click(); } draw();
+  });
+  svg.addEventListener('pointerup', function () { dragging = false; });
+  $('[data-act=check]', host).onclick = function () {
+    if (!puzzle || !opts || !opts.onSolved) return;
+    if (!S.driven) { opts.onSolved(false, 'Pick an output gear first.'); return; }
+    var r = S.drive / S.driven, q = puzzle;
+    var speedOk = q.want === 'faster' ? r > 1 : q.want === 'slower' ? r < 1 : q.want === 'equal' ? r === 1 : r === q.want;
+    var dirOk = q.dir === 'same' ? S.idler : true;
+    if (speedOk && dirOk) { opts.onSolved(true); return; }
+    var hint;
+    if (!speedOk) {
+      var tooFast = q.want === 'slower' ? true : q.want === 'faster' ? false : r > (q.want === 'equal' ? 1 : q.want);
+      hint = tooFast ? 'The output turns too fast. A bigger output gear turns more slowly.' : 'The output turns too slowly. A smaller output gear spins faster.';
+    } else hint = 'Right speed, but it turns the wrong way. What could go in the middle?';
+    opts.onSolved(false, hint);
+  };
+  KIT.partCards(host, st, H);
+  render();
+  return {
+    setPuzzle: function (q) {
+      puzzle = q && q.t === 'gear' ? q : null;
+      if (puzzle) { S.drive = q.drive; S.driven = 0; S.idler = false; } else { S.drive = 16; S.driven = 32; S.idler = false; }
+      S.th = 0; S.turns = 0; render();
+    },
+    destroy: function () { cancelAnimationFrame(raf); }
+  };
+}
+
+/* ---------- Bike Anatomy ---------- */
+function bike(host, st, H) {
+  var lv = H.level(), nums = lv !== 'sketch';
+  var rear = 16, pedalA = 0, wheelA = 0, pedals = 0, dist = 0, raf = 0, braking = false;
+  var circ = Math.PI * st.wheel;   // inches per wheel turn
+  host.innerHTML = '<div class="sim"><svg viewBox="0 0 560 330" aria-label="A bike with its gears"></svg></div>' +
+    '<div class="row" id="bRear"></div><div class="row"><button type="button" class="go" data-act="pedal">Pedal once</button><button type="button" class="chip" data-act="brake" aria-pressed="false">Squeeze the brake</button><button type="button" class="ghost" data-act="zero">Reset</button></div><div class="readout" id="bOut"></div>';
+  var svg = $('.sim svg', host), out = $('#bOut', host);
+  var RW = { x: 130, y: 225 }, FW = { x: 440, y: 225 }, BB = { x: 270, y: 235 }, WR = 82;
+  function draw() {
+    var cr = 8 + st.front * 0.9, cg = 6 + rear * 0.9, ratio = st.front / rear;
+    var h = '<rect x="0" y="307" width="560" height="23" fill="#9AA5AE"/>';
+    var off = (dist * 2) % 60;
+    for (var x = -off; x < 560; x += 60) h += '<rect x="' + x.toFixed(1) + '" y="316" width="30" height="5" fill="#FFFFFF" opacity=".7"/>';
+    function wheel(c, ang, id) {
+      var s = '<circle cx="' + c.x + '" cy="' + c.y + '" r="' + WR + '" fill="none" stroke="#2C2430" stroke-width="12"/><circle cx="' + c.x + '" cy="' + c.y + '" r="' + (WR - 9) + '" fill="none" stroke="#8C95A0" stroke-width="3"/>';
+      var sp = '';
+      for (var i = 0; i < 12; i++) { var a = ang + i * TAU / 12; sp += '<path d="M' + c.x + ' ' + c.y + ' L' + (c.x + Math.cos(a) * (WR - 9)).toFixed(1) + ' ' + (c.y + Math.sin(a) * (WR - 9)).toFixed(1) + '" stroke="#B8C2CC" stroke-width="1.5"/>'; }
+      var mark = '<circle cx="' + (c.x + Math.cos(ang) * WR).toFixed(1) + '" cy="' + (c.y + Math.sin(ang) * WR).toFixed(1) + '" r="6" fill="#F2C230"/>';
+      return hit('tire', s) + hit('spokes', sp + '<circle cx="' + c.x + '" cy="' + c.y + '" r="8" fill="#5E6878"/>') + mark;
+    }
+    h += wheel(RW, wheelA) + wheel(FW, wheelA);
+    // frame: two triangles
+    var seatTop = { x: 240, y: 95 }, headTop = { x: 405, y: 100 }, headBot = { x: 418, y: 150 };
+    h += hit('frame', '<path d="M' + RW.x + ' ' + RW.y + ' L' + BB.x + ' ' + BB.y + ' L' + seatTop.x + ' ' + seatTop.y + ' Z M' + seatTop.x + ' ' + seatTop.y + ' L' + headTop.x + ' ' + headTop.y + ' L' + headBot.x + ' ' + headBot.y + ' L' + BB.x + ' ' + BB.y + '" fill="none" stroke="#2F64B0" stroke-width="9" stroke-linejoin="round"/><path d="M' + headBot.x + ' ' + headBot.y + ' L' + FW.x + ' ' + FW.y + '" stroke="#5E6878" stroke-width="7"/>');
+    h += '<rect x="214" y="78" width="54" height="12" rx="6" fill="#3B2A20"/><path d="M240 90 V96" stroke="#5E6878" stroke-width="6"/>';
+    // handlebar and brake lever
+    h += '<path d="M405 100 L398 72 L430 66" fill="none" stroke="#5E6878" stroke-width="7" stroke-linecap="round"/>';
+    var lev = braking ? 74 : 80;
+    h += hit('brake', '<path d="M428 70 L452 ' + lev + '" stroke="#D9453B" stroke-width="5" stroke-linecap="round"/><path d="M430 70 Q470 120 ' + (FW.x + 6) + ' ' + (FW.y - WR - 4) + '" fill="none" stroke="#2C2430" stroke-width="1.5"/>' +
+      '<rect x="' + (FW.x - 6) + '" y="' + (FW.y - WR - (braking ? 10 : 18)) + '" width="12" height="8" rx="2" fill="#D9453B"/><rect x="' + (FW.x - 26) + '" y="' + (FW.y - WR - 12) + '" width="52" height="34" fill="transparent"/>');
+    // chain: two tangent lines plus wraps
+    h += hit('chain', '<path d="M' + BB.x + ' ' + (BB.y - cr) + ' L' + RW.x + ' ' + (RW.y - cg) + ' M' + BB.x + ' ' + (BB.y + cr) + ' L' + RW.x + ' ' + (RW.y + cg) + '" stroke="#3B2A20" stroke-width="5" stroke-dasharray="5 3"/><path d="M' + (RW.x + 20) + ' ' + (RW.y - cg - 6) + ' L' + (BB.x - 20) + ' ' + (BB.y - cr - 6) + ' L' + (BB.x - 20) + ' ' + (BB.y - cr + 6) + ' L' + (RW.x + 20) + ' ' + (RW.y - cg + 6) + ' Z" fill="transparent"/>');
+    h += '<g transform="translate(' + RW.x + ' ' + RW.y + ')">' + hit('cog', gearSVG(rear, cg, '#8C95A0', wheelA * 180 / Math.PI, '')) + '</g>';
+    h += hit('derailleur', '<path d="M' + (RW.x + 6) + ' ' + (RW.y + cg + 4) + ' l-10 26 l18 6" fill="none" stroke="#5E6878" stroke-width="5" stroke-linecap="round"/><circle cx="' + (RW.x - 4) + '" cy="' + (RW.y + cg + 30) + '" r="6" fill="#5E6878"/>');
+    h += '<g transform="translate(' + BB.x + ' ' + BB.y + ')">' + hit('chainring', gearSVG(st.front, cr, '#B8C2CC', pedalA * 180 / Math.PI, '')) + '</g>';
+    var px = BB.x + Math.cos(pedalA + Math.PI / 2) * 46, py = BB.y + Math.sin(pedalA + Math.PI / 2) * 46;
+    h += hit('pedal', '<path d="M' + BB.x + ' ' + BB.y + ' L' + px.toFixed(1) + ' ' + py.toFixed(1) + '" stroke="#2C2430" stroke-width="8" stroke-linecap="round"/><rect x="' + (px - 16).toFixed(1) + '" y="' + (py - 5).toFixed(1) + '" width="32" height="10" rx="3" fill="#C46A2E"/>');
+    if (nums) h += '<text x="' + BB.x + '" y="' + (BB.y + cr + 26) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#2C2430" font-family="sans-serif" paint-order="stroke" stroke="#FFFBF2" stroke-width="4">' + st.front + ' teeth</text><text x="' + RW.x + '" y="' + (RW.y - cg - 12) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#2C2430" font-family="sans-serif" paint-order="stroke" stroke="#FFFBF2" stroke-width="4">' + rear + '</text>';
+    svg.innerHTML = h; H.fixVars(host);
+    var wt = pedals * ratio;
+    if (braking) { out.textContent = 'The lever pulls the cable, and the pads squeeze the rim. Friction stops the wheel.'; return; }
+    if (lv === 'sketch') out.textContent = pedals ? 'The back wheel turned ' + (ratio > 1 ? 'more than' : ratio < 1 ? 'less than' : 'the same as') + ' the pedals. Watch the yellow dot. ' + (ratio > 1.6 ? 'Fast but hard to push.' : 'An easy gear for hills.') : 'Pick a rear cog, then pedal. Watch the yellow dot on the tire.';
+    if (lv === 'prototype') out.textContent = 'Front ' + st.front + ' ÷ rear ' + rear + ' = ' + (+ratio.toFixed(2)) + ' wheel turns per pedal turn.  Pedal turns: ' + pedals + '.  Wheel turns: ' + (+wt.toFixed(2)) + '.';
+    if (lv === 'patent') out.textContent = 'One pedal turn = ' + (+ratio.toFixed(2)) + ' × ' + circ.toFixed(1) + ' in ≈ ' + Math.round(ratio * circ) + ' in.  Traveled: ' + Math.round(dist) + ' in (' + (dist / 12).toFixed(1) + ' ft).';
+  }
+  function rearChips() {
+    var el = $('#bRear', host);
+    el.innerHTML = '<b class="rowlbl">Rear cog</b>' + st.rear.map(function (n, i) {
+      var word = ['Hardest', 'Hard', 'Middle', 'Easy', 'Easiest'][i];
+      return '<button type="button" class="chip gchip" data-r="' + n + '" aria-pressed="' + (n === rear) + '" aria-label="' + n + ' teeth"><svg viewBox="-30 -30 60 60" width="30" height="30"><path d="' + gearPath(n, 8 + n * 0.55, 2.6) + '" fill="currentColor"/><circle r="3.5" fill="#FFFBF2"/></svg><span>' + (nums ? n : word) + '</span></button>';
+    }).join('');
+    $$('[data-r]', el).forEach(function (b) { b.onclick = function () { rear = +b.dataset.r; H.SND.clack(); rearChips(); draw(); }; });
+  }
+  $('[data-act=pedal]', host).onclick = function () {
+    if (braking) { H.SND.wrong(); return; }
+    cancelAnimationFrame(raf); var p0 = pedalA, w0 = wheelA, d0 = dist, ratio = st.front / rear, t0 = performance.now(), dur = still() ? 1 : 1500;
+    H.SND.whirr();
+    (function f(now) { var k = Math.min(1, (now - t0) / dur); pedalA = p0 + k * TAU; wheelA = w0 + k * TAU * ratio; dist = d0 + k * ratio * circ; draw(); if (k < 1) raf = requestAnimationFrame(f); else { pedals++; draw(); } })(t0);
+  };
+  $('[data-act=brake]', host).onclick = function () { braking = !braking; cancelAnimationFrame(raf); this.setAttribute('aria-pressed', braking); this.textContent = braking ? 'Let go of the brake' : 'Squeeze the brake'; H.SND.creak(); draw(); };
+  $('[data-act=zero]', host).onclick = function () { pedals = 0; dist = 0; pedalA = 0; wheelA = 0; draw(); };
+  KIT.partCards(host, st, H);
+  rearChips(); draw();
+  return { destroy: function () { cancelAnimationFrame(raf); } };
+}
+
+/* ---------- Four-Stroke Engine (screen only) ---------- */
+function engine(host, st, H) {
+  var lv = H.level(), phi = 0, raf = 0, running = false, turns = 0;
+  var STROKES = [
+    { name: 'Intake (suck)', what: 'The piston slides down and pulls fuel and air in through the open intake valve.' },
+    { name: 'Compression (squeeze)', what: 'Both valves shut. The piston slides up and squeezes the fuel and air into a tiny space.' },
+    { name: 'Power (bang)', what: 'The spark plug sparks. The fuel burns, the hot gas expands and shoves the piston down hard.' },
+    { name: 'Exhaust (blow)', what: 'The exhaust valve opens and the piston pushes the burned gas out to the tailpipe.' }
+  ];
+  host.innerHTML = '<p class="tip"><b>Screen only.</b> Real engines are hot, burn fuel and have fast belts. Mechanics wait for them to cool.</p>' +
+    '<div class="sim"><svg viewBox="0 0 440 440" aria-label="One cylinder of an engine, cut open"></svg></div>' +
+    '<div class="row"><button type="button" class="go" data-act="next">Next stroke</button><button type="button" class="chip" data-act="run" aria-pressed="false">Run the engine</button></div><div class="readout" id="eOut"></div>';
+  var svg = $('.sim svg', host), out = $('#eOut', host);
+  var CX = 220, CY = 340, CR = 46, L = 140, TOP = 70, BORE = 120;
+  function draw() {
+    var a = phi % 720, si = Math.floor(a / 180), crankA = (phi * Math.PI / 180) % TAU;
+    var px = CX + Math.sin(crankA) * CR, py = CY - Math.cos(crankA) * CR;
+    var pistonY = CY - (CR * Math.cos(crankA) + Math.sqrt(L * L - Math.pow(CR * Math.sin(crankA), 2)));
+    var topY = TOP + 24, gasH = pistonY - 30 - topY;
+    var gas = ['#7CC0E8', '#4F8FCF', '#F08A3A', '#9AA5AE'][si], k = (a % 180) / 180;
+    var inOpen = si === 0, exOpen = si === 3, spark = si === 2 && k < 0.18;
+    var h = '<rect x="' + (CX - BORE / 2 - 18) + '" y="' + TOP + '" width="' + (BORE + 36) + '" height="' + (CY - TOP + 60) + '" rx="10" fill="#C9D3DA" stroke="#5E6878" stroke-width="3"/>';
+    h += hit('cylinder', '<rect x="' + (CX - BORE / 2) + '" y="' + topY + '" width="' + BORE + '" height="' + (CY - topY - 40) + '" fill="#EEF2F5" stroke="#5E6878" stroke-width="2"/>');
+    if (gasH > 0) h += '<rect x="' + (CX - BORE / 2 + 2) + '" y="' + topY + '" width="' + (BORE - 4) + '" height="' + gasH.toFixed(1) + '" fill="' + gas + '" opacity="' + (si === 1 ? 0.55 + k * 0.4 : 0.75) + '" pointer-events="none"/>';
+    // ports and valves
+    h += '<path d="M' + (CX - 40) + ' ' + TOP + ' L' + (CX - 70) + ' 20 H' + (CX - 120) + '" fill="none" stroke="#9AA5AE" stroke-width="22"/><path d="M' + (CX + 40) + ' ' + TOP + ' L' + (CX + 70) + ' 20 H' + (CX + 120) + '" fill="none" stroke="#9AA5AE" stroke-width="22"/>';
+    if (inOpen) h += '<path d="M' + (CX - 118) + ' 20 H' + (CX - 72) + ' L' + (CX - 44) + ' ' + (TOP + 10) + '" fill="none" stroke="#7CC0E8" stroke-width="8" stroke-dasharray="8 8" pointer-events="none"><animate attributeName="stroke-dashoffset" from="16" to="0" dur=".4s" repeatCount="indefinite"/></path>';
+    if (exOpen) h += '<path d="M' + (CX + 44) + ' ' + (TOP + 10) + ' L' + (CX + 72) + ' 20 H' + (CX + 118) + '" fill="none" stroke="#6A6A6A" stroke-width="8" stroke-dasharray="8 8" pointer-events="none"><animate attributeName="stroke-dashoffset" from="16" to="0" dur=".4s" repeatCount="indefinite"/></path>';
+    var vi = inOpen ? 12 : 0, ve = exOpen ? 12 : 0;
+    h += hit('intake', '<path d="M' + (CX - 40) + ' ' + (TOP - 40 + vi) + ' V' + (TOP + 14 + vi) + '" stroke="#5E6878" stroke-width="5"/><rect x="' + (CX - 56) + '" y="' + (TOP + 12 + vi) + '" width="32" height="7" rx="3" fill="#2F64B0"/><rect x="' + (CX - 60) + '" y="' + (TOP - 44) + '" width="40" height="70" fill="transparent"/>');
+    h += hit('exhaust', '<path d="M' + (CX + 40) + ' ' + (TOP - 40 + ve) + ' V' + (TOP + 14 + ve) + '" stroke="#5E6878" stroke-width="5"/><rect x="' + (CX + 24) + '" y="' + (TOP + 12 + ve) + '" width="32" height="7" rx="3" fill="#7A4E8E"/><rect x="' + (CX + 20) + '" y="' + (TOP - 44) + '" width="40" height="70" fill="transparent"/>');
+    h += hit('spark', '<rect x="' + (CX - 7) + '" y="' + (TOP - 40) + '" width="14" height="56" rx="3" fill="#F4F2EE" stroke="#5E6878" stroke-width="2"/><rect x="' + (CX - 3) + '" y="' + (TOP + 14) + '" width="6" height="10" fill="#5E6878"/>' + (spark ? '<path d="M' + CX + ' ' + (TOP + 26) + ' l-10 12 l12 -2 l-8 14" stroke="#FFE07A" stroke-width="4" fill="none"/><circle cx="' + CX + '" cy="' + (TOP + 34) + '" r="18" fill="#FFE07A" opacity=".5"/>' : ''));
+    // rod, crank, piston
+    h += hit('crank', '<circle cx="' + CX + '" cy="' + CY + '" r="' + (CR + 18) + '" fill="#8C95A0" stroke="#5E6878" stroke-width="3"/><path d="M' + CX + ' ' + CY + ' L' + px.toFixed(1) + ' ' + py.toFixed(1) + '" stroke="#3B2A20" stroke-width="16" stroke-linecap="round"/><circle cx="' + CX + '" cy="' + CY + '" r="8" fill="#3B2A20"/>');
+    h += hit('rod', '<path d="M' + px.toFixed(1) + ' ' + py.toFixed(1) + ' L' + CX + ' ' + pistonY.toFixed(1) + '" stroke="#B8862A" stroke-width="12" stroke-linecap="round"/>');
+    h += hit('piston', '<rect x="' + (CX - BORE / 2 + 3) + '" y="' + (pistonY - 30).toFixed(1) + '" width="' + (BORE - 6) + '" height="46" rx="4" fill="#9AA5AE" stroke="#5E6878" stroke-width="2"/><path d="M' + (CX - BORE / 2 + 3) + ' ' + (pistonY - 22).toFixed(1) + ' h' + (BORE - 6) + ' M' + (CX - BORE / 2 + 3) + ' ' + (pistonY - 15).toFixed(1) + ' h' + (BORE - 6) + '" stroke="#5E6878" stroke-width="2"/><circle cx="' + CX + '" cy="' + pistonY.toFixed(1) + '" r="6" fill="#3B2A20"/>');
+    // stroke strip
+    h += STROKES.map(function (s, i) { return '<rect x="' + (14 + i * 103) + '" y="410" width="96" height="22" rx="11" fill="' + (i === si ? '#C46A2E' : '#EBDDC1') + '"/><text x="' + (62 + i * 103) + '" y="425" text-anchor="middle" font-size="12" font-weight="700" fill="' + (i === si ? '#FFFFFF' : '#6A5B60') + '" font-family="sans-serif">' + s.name.split(' ')[0] + '</text>'; }).join('');
+    svg.innerHTML = h; H.fixVars(host);
+    var msg = STROKES[si].name + ': ' + STROKES[si].what;
+    if (lv === 'prototype') msg += '  Crankshaft turns so far: ' + (Math.floor(phi / 360));
+    if (lv === 'patent') msg += '  Crankshaft turns: ' + Math.floor(phi / 360) + '. Power strokes: ' + (Math.floor((phi + 180) / 720)) + ' (one every 2 turns).';
+    out.textContent = msg;
+  }
+  function animateTo(target, dur, done) {
+    cancelAnimationFrame(raf); var p0 = phi, t0 = performance.now();
+    (function f(now) { var k = Math.min(1, (now - t0) / dur); phi = p0 + (target - p0) * k; draw(); if (k < 1) raf = requestAnimationFrame(f); else if (done) done(); })(t0);
+  }
+  $('[data-act=next]', host).onclick = function () {
+    if (running) return; var target = Math.floor(phi / 180) * 180 + 180, si = Math.floor(phi / 180) % 4;
+    if (si === 1) H.SND.pop(); else H.SND.whirr();
+    animateTo(target, still() ? 1 : 1100);
+  };
+  $('[data-act=run]', host).onclick = function () {
+    running = !running; this.setAttribute('aria-pressed', running); this.textContent = running ? 'Stop the engine' : 'Run the engine';
+    if (running) { var t0 = performance.now(), p0 = phi; (function f(now) { if (!running) return; phi = p0 + (now - t0) * 0.36; draw(); raf = requestAnimationFrame(f); })(t0); H.SND.whirr(); }
+    else { cancelAnimationFrame(raf); }
+  };
+  KIT.partCards(host, st, H);
+  draw();
+  return { destroy: function () { running = false; cancelAnimationFrame(raf); } };
+}
+
+/* ---------- Electric Motor (screen only) ---------- */
+function motor(host, st, H) {
+  var lv = H.level(), on = false, flip = false, cells = 1, ang = 0.6, raf = 0, last = 0, flips = 0, turnsDone = 0;
+  host.innerHTML = '<p class="tip"><b>Screen only.</b> Never open a battery or poke into anything that plugs in.</p>' +
+    '<div class="sim"><svg viewBox="0 0 440 380" aria-label="A simple electric motor"></svg></div>' +
+    '<div class="row"><button type="button" class="go" data-act="on">Switch on</button><button type="button" class="chip" data-act="flip" aria-pressed="false">Flip the battery</button><button type="button" class="chip" data-act="cells" aria-pressed="false">Add a second battery</button></div><div class="readout" id="mOut"></div>';
+  var svg = $('.sim svg', host), out = $('#mOut', host);
+  var CX = 220, CY = 150;
+  function draw() {
+    var half = Math.floor(((ang % TAU) + TAU) % TAU / Math.PI);   // which half turn the coil is in
+    var coilN = (half === 0) !== flip;   // the commutator swaps the coil's poles every half turn
+    var h = '';
+    h += hit('magnet', '<rect x="30" y="80" width="80" height="140" rx="8" fill="#D9453B"/><text x="70" y="160" text-anchor="middle" font-size="36" font-weight="800" fill="#FFFFFF" font-family="sans-serif">N</text>' +
+      '<rect x="330" y="80" width="80" height="140" rx="8" fill="#2F64B0"/><text x="370" y="160" text-anchor="middle" font-size="36" font-weight="800" fill="#FFFFFF" font-family="sans-serif">S</text>');
+    var cx = Math.cos(ang), sy = Math.sin(ang), len = 92;
+    var e1 = [CX + cx * len, CY + sy * len], e2 = [CX - cx * len, CY - sy * len];
+    h += hit('coil', '<path d="M' + e2[0].toFixed(1) + ' ' + e2[1].toFixed(1) + ' L' + e1[0].toFixed(1) + ' ' + e1[1].toFixed(1) + '" stroke="#B8862A" stroke-width="30" stroke-linecap="round"/>' +
+      [-0.6, -0.3, 0, 0.3, 0.6].map(function (f) { var x = CX + cx * len * f, y = CY + sy * len * f; return '<path d="M' + (x - sy * 16).toFixed(1) + ' ' + (y + cx * 16).toFixed(1) + ' L' + (x + sy * 16).toFixed(1) + ' ' + (y - cx * 16).toFixed(1) + '" stroke="#8A5A1E" stroke-width="3"/>'; }).join('') +
+      (on ? '<text x="' + e1[0].toFixed(1) + '" y="' + (e1[1] + 7).toFixed(1) + '" text-anchor="middle" font-size="20" font-weight="800" fill="#FFFFFF" font-family="sans-serif">' + (coilN ? 'N' : 'S') + '</text><text x="' + e2[0].toFixed(1) + '" y="' + (e2[1] + 7).toFixed(1) + '" text-anchor="middle" font-size="20" font-weight="800" fill="#FFFFFF" font-family="sans-serif">' + (coilN ? 'S' : 'N') + '</text>' : ''));
+    h += hit('shaft', '<circle cx="' + CX + '" cy="' + CY + '" r="9" fill="#5E6878"/><path d="M' + CX + ' ' + CY + ' V260" stroke="#5E6878" stroke-width="8"/>');
+    // commutator: two half rings turning with the shaft, seen below
+    var ca = ang * 180 / Math.PI;
+    h += hit('comm', '<g transform="translate(' + CX + ' 270) rotate(' + ca.toFixed(1) + ')"><path d="M-22 -4 A22 22 0 0 1 22 -4 L14 -4 A14 14 0 0 0 -14 -4 Z" fill="#C46A2E"/><path d="M22 4 A22 22 0 0 1 -22 4 L-14 4 A14 14 0 0 0 14 4 Z" fill="#E2AE38"/></g><circle cx="' + CX + '" cy="270" r="30" fill="transparent"/>');
+    h += hit('brush', '<rect x="' + (CX - 46) + '" y="262" width="20" height="16" rx="3" fill="#3B2A20"/><rect x="' + (CX + 26) + '" y="262" width="20" height="16" rx="3" fill="#3B2A20"/>');
+    // wires and battery
+    var w = on ? (flip ? '#2F64B0' : '#D9453B') : '#9AA5AE';
+    h += '<path d="M' + (CX - 46) + ' 270 H110 V330 H150 M' + (CX + 46) + ' 270 H330 V330 H' + (cells === 2 ? 330 : 290) + '" fill="none" stroke="' + w + '" stroke-width="4"/>';
+    var bat = function (x) { return '<rect x="' + x + '" y="314" width="70" height="32" rx="6" fill="#2C2430"/><rect x="' + (flip ? x - 6 : x + 70) + '" y="322" width="6" height="16" fill="#B8C2CC"/><text x="' + (x + 35) + '" y="336" text-anchor="middle" font-size="16" font-weight="800" fill="#F2C230" font-family="sans-serif">' + (flip ? '− +' : '+ −') + '</text>'; };
+    h += hit('battery', bat(150) + (cells === 2 ? bat(232) : '') + '<rect x="140" y="304" width="' + (cells === 2 ? 180 : 90) + '" height="52" fill="transparent"/>');
+    if (!on) h += '<path d="M' + (cells === 2 ? 312 : 230) + ' 330 l20 -14" stroke="#9AA5AE" stroke-width="4" pointer-events="none"/>';
+    // push arrows when running
+    if (on) {
+      var dir = flip ? -1 : 1;
+      h += '<path d="M' + (CX + dir * 60) + ' ' + (CY - 70) + ' q' + (-dir * 60) + ' -30 ' + (-dir * 120) + ' 0" fill="none" stroke="#2E8B57" stroke-width="4" stroke-dasharray="6 6" pointer-events="none"/>';
+    }
+    svg.innerHTML = h; H.fixVars(host);
+    var rps = cells === 2 ? 1.2 : 0.6;
+    var msg = !on ? 'Switch it on. Electricity will flow through the coil and turn it into a magnet.' :
+      'The coil\'s poles chase the fixed magnets ' + (flip ? 'counterclockwise' : 'clockwise') + '. Every half turn the commutator swaps them so the chase never ends.';
+    if (lv === 'prototype' && on) msg += '  Flips so far: ' + flips + '.';
+    if (lv === 'patent' && on) msg += '  This sim turns ' + rps + ' times a second (slowed way down); a real toy motor turns about 50. Flips: ' + flips + ', about 2 per turn.';
+    out.textContent = msg;
+  }
+  function tick(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (on) {
+      var before = Math.floor(((ang % TAU) + TAU) % TAU / Math.PI), sp = (cells === 2 ? 1.2 : 0.6) * TAU * (flip ? -1 : 1);
+      ang += sp * dt;
+      var after = Math.floor(((ang % TAU) + TAU) % TAU / Math.PI);
+      if (after !== before) { flips++; H.SND.click(); }
+    }
+    draw(); raf = requestAnimationFrame(tick);
+  }
+  $('[data-act=on]', host).onclick = function () { on = !on; this.textContent = on ? 'Switch off' : 'Switch on'; H.SND.whirr(); if (on && still()) { ang += Math.PI; flips++; } draw(); };
+  $('[data-act=flip]', host).onclick = function () { flip = !flip; this.setAttribute('aria-pressed', flip); H.SND.clack(); draw(); };
+  $('[data-act=cells]', host).onclick = function () { cells = cells === 1 ? 2 : 1; this.setAttribute('aria-pressed', cells === 2); this.textContent = cells === 2 ? 'Back to one battery' : 'Add a second battery'; H.SND.click(); draw(); };
+  KIT.partCards(host, st, H);
+  draw();
+  if (!still()) { last = performance.now(); raf = requestAnimationFrame(tick); }
+  return { destroy: function () { cancelAnimationFrame(raf); } };
+}
+
+window.GizmoMoveSims = { gears: gears, bike: bike, engine: engine, motor: motor };
 })();
 
 </script>
@@ -1511,9 +2057,16 @@ var ICON = {
   tank: '<svg viewBox="0 0 64 40"><rect x="10" y="4" width="44" height="32" rx="3" fill="#FFFBF2" stroke="#237D8C" stroke-width="3"/><rect x="16" y="14" width="18" height="14" fill="#7CC0E8"/><path d="M40 18 V28 Q40 32 44 32 Q48 32 48 28 V24" fill="none" stroke="#5E6878" stroke-width="3"/></svg>',
   funnel: '<svg viewBox="0 0 64 40"><path d="M10 6 L28 28 M54 6 L36 28" stroke="#5C7FA8" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="36" r="3" fill="#3E86C6"/></svg>',
   bumper: '<svg viewBox="0 0 64 40"><circle cx="32" cy="20" r="14" fill="#D9453B" stroke="#7A2A1E" stroke-width="3"/><circle cx="32" cy="20" r="6" fill="#F4C9C2"/></svg>',
+  gears: '<svg viewBox="0 0 64 40"><g transform="translate(22 20)"><path d="M-14 -3 L-18 -3 L-18 3 L-14 3 L-12 8 L-15 11 L-11 15 L-8 12 L-3 14 L-3 18 L3 18 L3 14 L8 12 L11 15 L15 11 L12 8 L14 3 L18 3 L18 -3 L14 -3 L12 -8 L15 -11 L11 -15 L8 -12 L3 -14 L3 -18 L-3 -18 L-3 -14 L-8 -12 L-11 -15 L-15 -11 L-12 -8 Z" fill="#C46A2E"/><circle r="4" fill="#FFFBF2"/></g><g transform="translate(46 26) scale(.6)"><path d="M-14 -3 L-18 -3 L-18 3 L-14 3 L-12 8 L-15 11 L-11 15 L-8 12 L-3 14 L-3 18 L3 18 L3 14 L8 12 L11 15 L15 11 L12 8 L14 3 L18 3 L18 -3 L14 -3 L12 -8 L15 -11 L11 -15 L8 -12 L3 -14 L3 -18 L-3 -18 L-3 -14 L-8 -12 L-11 -15 L-15 -11 L-12 -8 Z" fill="#2A8A6F"/></g></svg>',
+  bike: '<svg viewBox="0 0 64 40"><circle cx="15" cy="27" r="10" fill="none" stroke="#2C2430" stroke-width="3"/><circle cx="49" cy="27" r="10" fill="none" stroke="#2C2430" stroke-width="3"/><path d="M15 27 L28 28 L24 12 Z M24 12 L44 12 L28 28 M44 12 L49 27 M42 8 L48 6" fill="none" stroke="#2F64B0" stroke-width="3" stroke-linejoin="round"/></svg>',
+  engine: '<svg viewBox="0 0 64 40"><rect x="20" y="4" width="24" height="26" rx="3" fill="#C9D3DA" stroke="#5E6878" stroke-width="2"/><rect x="23" y="16" width="18" height="10" fill="#9AA5AE"/><rect x="24" y="8" width="16" height="8" fill="#F08A3A"/><path d="M32 26 L36 36" stroke="#B8862A" stroke-width="4"/><circle cx="32" cy="36" r="3" fill="#3B2A20"/></svg>',
+  motor: '<svg viewBox="0 0 64 40"><rect x="4" y="8" width="12" height="24" rx="2" fill="#D9453B"/><rect x="48" y="8" width="12" height="24" rx="2" fill="#2F64B0"/><rect x="20" y="16" width="24" height="8" rx="4" fill="#B8862A" transform="rotate(-25 32 20)"/><circle cx="32" cy="20" r="3" fill="#5E6878"/></svg>',
+  bikemission: '<svg viewBox="0 0 64 40"><rect x="8" y="4" width="48" height="32" rx="3" fill="#FFFBF2" stroke="#B5452F" stroke-width="3"/><circle cx="26" cy="22" r="9" fill="none" stroke="#2C2430" stroke-width="3"/><circle cx="26" cy="13" r="3" fill="#F2C230"/><path d="M40 12 V30 M36 30 H46" stroke="#B5452F" stroke-width="3"/></svg>',
+  paddle: '<svg viewBox="0 0 64 40"><g transform="rotate(20 32 20)"><rect x="12" y="17" width="40" height="6" fill="#2A8A6F"/><rect x="29" y="0" width="6" height="40" fill="#2A8A6F"/></g><circle cx="32" cy="20" r="5" fill="#3B2A20"/></svg>',
+  conveyor: '<svg viewBox="0 0 64 40"><rect x="4" y="16" width="56" height="12" rx="6" fill="#3B2A20"/><circle cx="10" cy="22" r="4" fill="#B8C2CC"/><circle cx="54" cy="22" r="4" fill="#B8C2CC"/><path d="M22 10 L32 10 M28 6 L32 10 L28 14" stroke="#E2AE38" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
   sandbox: '<svg viewBox="0 0 64 40"><rect x="6" y="26" width="52" height="8" fill="#A8703F"/><rect x="12" y="12" width="12" height="14" fill="#5C7FA8"/><rect x="30" y="6" width="6" height="20" fill="#F4EEDD" stroke="#2C2430"/><circle cx="48" cy="20" r="6" fill="#3E86C6"/></svg>'
 };
-var STAMPICON = { 'st-lever': 'lever', 'st-pulley': 'pulley', 'st-ramp': 'ramp', 'st-wedge': 'wedge', 'st-wheel': 'wheel', 'st-mission-seesaw': 'mission', 'st-bell': 'bell', 'st-balloon': 'balloon', 'st-plant': 'plant', 'st-bowl': 'bowl', 'st-spot': 'spot', 'st-patent': 'patent', 'st-flush': 'flush', 'st-fridge': 'fridge', 'st-sink': 'sink', 'st-locks': 'locks', 'st-inside': 'inside', 'st-mission-tank': 'tank' };
+var STAMPICON = { 'st-lever': 'lever', 'st-pulley': 'pulley', 'st-ramp': 'ramp', 'st-wedge': 'wedge', 'st-wheel': 'wheel', 'st-mission-seesaw': 'mission', 'st-bell': 'bell', 'st-balloon': 'balloon', 'st-plant': 'plant', 'st-bowl': 'bowl', 'st-spot': 'spot', 'st-patent': 'patent', 'st-flush': 'flush', 'st-fridge': 'fridge', 'st-sink': 'sink', 'st-locks': 'locks', 'st-inside': 'inside', 'st-mission-tank': 'tank', 'st-gears': 'gears', 'st-bike': 'bike', 'st-engine': 'engine', 'st-motor': 'motor', 'st-mission-bike': 'bikemission' };
 var ICO_HOME = '<svg viewBox="0 0 28 28"><path d="M4 14 L14 5 L24 14 M7 12 V23 H21 V12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="14" cy="17" r="2.6" fill="#C46A2E"/></svg>';
 var ICO_BOOK = '<svg viewBox="0 0 24 24"><path d="M4 4 H18 a2 2 0 0 1 2 2 V20 H6 a2 2 0 0 1 -2 -2 Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="3.5" fill="#E2AE38"/></svg>';
 var ICO_BIN = '<svg viewBox="0 0 24 24"><path d="M3 9 H21 L19 20 H5 Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 9 L9 4 M17 9 L15 4" stroke="currentColor" stroke-width="2"/></svg>';
@@ -1601,7 +2154,7 @@ function houseSVG() {
       img('jules', 'hero', 456, 474, 92) + plaque(276, 412, 'Living room', 'Rube Goldberg Workshop', true)) +
     room('move', 'M700 400 L980 400 L980 600 L700 600 Z', 'color-mix(in srgb, var(--wall) 80%, var(--ink2))',
       '<circle cx="770" cy="566" r="28" fill="none" stroke="var(--ink)" stroke-width="5"/><circle cx="860" cy="566" r="28" fill="none" stroke="var(--ink)" stroke-width="5"/><path d="M770 566 L810 534 L860 566 M810 534 L800 520" stroke="var(--copper)" stroke-width="5" fill="none"/>' +
-      img('rafa', 'hero', 900, 500, 64) + plaque(716, 412, 'Garage', 'On the Move · soon', false)) +
+      img('rafa', 'hero', 900, 500, 64) + plaque(716, 412, 'Garage', 'On the Move', true)) +
     room('apart', 'M260 610 L980 610 L980 712 L260 712 Z', 'color-mix(in srgb, var(--wall) 70%, var(--wood-dk))',
       '<rect x="820" y="630" width="140" height="8" fill="var(--wood)"/><rect x="830" y="606" width="30" height="24" fill="var(--soft)"/><rect x="880" y="612" width="40" height="18" fill="var(--soft)"/>' +
       img('tansy', 'hero', 720, 616, 66) + plaque(276, 620, 'Basement', 'Take It Apart · soon', false)) +
@@ -1641,9 +2194,10 @@ SCREENS.home = function () {
 
 /* ---------------- station zones (backyard, kitchen and bathroom) ---------------- */
 var ZONES = { simple: { key: 'simple', guide: 'ozzie', place: 'Backyard · Simple Machines', back: 'Back to the backyard' },
-              home: { key: 'homemach', guide: 'pim', place: 'Kitchen and bathroom · Home Machines', back: 'Back to the kitchen' } };
+              home: { key: 'homemach', guide: 'pim', place: 'Kitchen and bathroom · Home Machines', back: 'Back to the kitchen' },
+              move: { key: 'onmove', guide: 'rafa', place: 'Garage · On the Move', back: 'Back to the garage' } };
 function zoneOf(stationId) { for (var z in ZONES) if (K[ZONES[z].key].stations.some(function (s) { return s.id === stationId; })) return z; return 'simple'; }
-function allStations() { return K.simple.stations.concat(K.homemach.stations); }
+function allStations() { return K.simple.stations.concat(K.homemach.stations, K.onmove.stations); }
 function stationById(id) { return allStations().filter(function (s) { return s.id === id; })[0]; }
 SCREENS.simple = function () { return SCREENS.zone('simple'); };
 SCREENS.zone = function (zid) {
@@ -1651,11 +2205,11 @@ SCREENS.zone = function (zid) {
   var cards = ZC.stations.map(function (st) {
     var dots = ['sketch', 'prototype', 'patent'].map(function (l) { return '<span class="dot ' + (S.done[st.id + ':' + l] ? 'on' : '') + '" title="' + K.levels[l].name + '"></span>'; }).join('');
     var reward = st.part ? Core.PARTS[st.part].name + (st.bonus ? ' and ' + Core.PARTS[st.bonus].name : '') : '';
-    return '<button type="button" class="card" data-st="' + st.id + '"><span class="ico">' + ICON[st.machine || st.id] + '</span><h3>' + esc(st.name) + '</h3><p>' + esc(st.intro.split('. ')[0]) + '.</p>' +
+    return '<button type="button" class="card" data-st="' + st.id + '"><span class="ico">' + ICON[st.machine || st.id] + '</span><h3>' + esc(st.name) + '</h3><p>' + esc(st.intro.split('. ')[0].replace(/\.$/, '')) + '.</p>' +
       '<div class="dots">' + dots + '<span>Sketch · Prototype · Patent</span></div><div class="reward">' + (reward ? 'Earns for the workshop: <b>' + esc(reward) + '</b>' : 'Earns a stamp') + '</div></button>';
   }).join('');
   var mis = ZC.mission;
-  cards += '<button type="button" class="card mission" data-mission="1"><span class="ico">' + ICON.mission + '</span><h3>Paper mission: ' + esc(mis.title) + '</h3><p>' + esc(mis.time + ' · ' + mis.where) + '</p>' +
+  cards += '<button type="button" class="card mission" data-mission="1"><span class="ico">' + ICON[{ seesaw: 'mission', tank: 'tank', bike: 'bikemission' }[mis.id] || 'mission'] + '</span><h3>Paper mission: ' + esc(mis.title) + '</h3><p>' + esc(mis.time + ' · ' + mis.where) + '</p>' +
     '<div class="reward">' + (S.stamps['st-mission-' + mis.id] ? '<b>Done!</b> Stamp in your Patent Book.' : 'Earns a photo stamp') + '</div></button>';
   return {
     place: Z.place,
@@ -1989,7 +2543,9 @@ SCREENS.station = function (id) {
       if (id === 'wedge') sim = wedgeSim(simHost, st);
       if (id === 'wheel') sim = wheelSim(simHost, st);
       var HS = window.GizmoHomeSims, HH = { level: function () { return S.level; }, SND: SND, esc: esc, fixVars: fixVars, svgPoint: svgPoint };
-      if (HS[id]) sim = HS[id](simHost, st, HH, { onSolved: function (ok, hint) { answer(ok, hint); } });
+      var MS2 = window.GizmoMoveSims, solved = { onSolved: function (ok, hint) { answer(ok, hint); } };
+      if (HS[id]) sim = HS[id](simHost, st, HH, solved);
+      if (MS2[id]) sim = MS2[id](simHost, st, HH, solved);
       current.cleanup = function () { if (sim && sim.destroy) sim.destroy(); };
       var chal = $('#chal'), i = -1, tries = 0, answered = false;
       function head() {
@@ -2003,29 +2559,30 @@ SCREENS.station = function (id) {
       }
       function ask() {
         var q = set[i]; tries = 0; answered = false;
-        if (sim && sim.setPuzzle) sim.setPuzzle(q.t === 'balance' || q.t === 'key' ? q : null);
+        if (sim && sim.setPuzzle) sim.setPuzzle(q.t === 'balance' || q.t === 'key' || q.t === 'gear' ? q : null);
         var body = '';
         if (q.t === 'balance') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the seesaw on this page. Drag from the tray onto a peg, then press Check balance.</p>';
         if (q.t === 'key') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the lock on this page. Drag a key step, or use the arrows under it.</p>';
+        if (q.t === 'gear') body = '<p class="q">' + esc(q.text) + '</p><p class="note">Use the gears on this page: pick an output gear, add the helper gear if you need it, turn the crank to test, then press Check.</p>';
         if (q.t === 'choice') body = '<p class="q">' + esc(q.q) + '</p><div class="opts">' + q.opts.map(function (o, k) { return '<button type="button" class="opt" data-k="' + k + '">' + esc(o) + '</button>'; }).join('') + '</div>';
         if (q.t === 'screwcount') body = '<p class="q">' + esc(q.text) + '</p><div style="max-width:150px">' + screwSVG(q.threads, 0, false) + '</div><div class="opts">' + q.opts.map(function (o, k) { return '<button type="button" class="opt" data-k="' + k + '">' + o + ' turns</button>'; }).join('') + '</div>';
         chal.innerHTML = head() + body + '<div id="fb"></div>'; fixVars(chal);
         Array.prototype.forEach.call(chal.querySelectorAll('.opt'), function (b) {
           b.onclick = function () { if (answered) return; var ok = +b.dataset.k === q.a; if (ok) b.classList.add('right'); else b.classList.add('wrong', 'wiggle'); answer(ok); };
         });
-        if ((q.t === 'balance' || q.t === 'key') && window.innerWidth < 900) simHost.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if ((q.t === 'balance' || q.t === 'key' || q.t === 'gear') && window.innerWidth < 900) simHost.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       function answer(ok, hint) {
         var q = set[i]; if (i < 0 || answered) return;
         var fb = $('#fb');
         if (ok) {
           answered = true; SND.right();
-          fb.innerHTML = '<div class="feedback pop">' + mouseImg(gd, 'cheer') + '<div><b>Yes!</b> ' + esc(q.why || (q.t === 'key' ? 'Every gap sits on the shear line, so the plug turns.' : 'Balanced! Both sides push the same.')) + '</div></div><div class="row" style="margin-top:10px"><button type="button" class="go" id="nextQ">' + (i + 1 < set.length ? 'Next' : 'Finish') + '</button></div>';
+          fb.innerHTML = '<div class="feedback pop">' + mouseImg(gd, 'cheer') + '<div><b>Yes!</b> ' + esc(q.why || (q.t === 'key' ? 'Every gap sits on the shear line, so the plug turns.' : q.t === 'gear' ? 'That gear train does exactly what was asked.' : 'Balanced! Both sides push the same.')) + '</div></div><div class="row" style="margin-top:10px"><button type="button" class="go" id="nextQ">' + (i + 1 < set.length ? 'Next' : 'Finish') + '</button></div>';
           $('#nextQ').onclick = function () { SND.tap(); i++; if (i < set.length) ask(); else finish(); };
         } else {
           tries++; SND.wrong();
           var pose = tries > 1 ? 'think' : 'encourage';
-          var msg = hint || (tries > 1 && q.t !== 'balance' && q.t !== 'key' ? 'Hint: ' + (q.why ? q.why.split('.')[0] + '.' : 'Look at the machine again.') : 'Not quite. Try again!');
+          var msg = hint || (tries > 1 && q.t !== 'balance' && q.t !== 'key' && q.t !== 'gear' ? 'Hint: ' + (q.why ? q.why.split('.')[0] + '.' : 'Look at the machine again.') : 'Not quite. Try again!');
           if (q.t === 'balance' && !hint) msg = 'Not balanced yet. Try another peg.';
           fb.innerHTML = '<div class="feedback wiggle">' + mouseImg(gd, pose) + '<div>' + esc(msg) + '</div></div>';
         }
@@ -2053,7 +2610,7 @@ SCREENS.mission = function (zid) {
     html: '<div class="station"><section class="panel"><h2>' + esc(m.title) + '</h2><p class="intro">' + esc(m.time + ' · ' + m.where) + '</p><p>' + esc(m.why) + '</p>' +
       '<h3>Supplies</h3><ul class="checklist">' + m.supplies.map(function (s, k) { return '<li><label><input type="checkbox" id="sup' + k + '" data-k="' + k + '"' + (MS.checked.indexOf(k) >= 0 ? ' checked' : '') + '> ' + esc(s) + '</label></li>'; }).join('') + '</ul>' +
       '<h3>' + K.levels[lv].name + ' steps</h3><ol class="steps">' + m.steps[lv].map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol><p class="tip">' + esc(m.note) + '</p></section>' +
-      '<section class="panel">' + guide(Z.guide, 'hero', K.cast[Z.guide].name, zid === 'simple' ? 'When your seesaw works, take a photo of it. It becomes a stamp in your Patent Book.' : 'Take a photo of your drawing or of the U-bend you found. It becomes a stamp in your Patent Book.') +
+      '<section class="panel">' + guide(Z.guide, 'hero', K.cast[Z.guide].name, { simple: 'When your seesaw works, take a photo of it. It becomes a stamp in your Patent Book.', home: 'Take a photo of your drawing or of the U-bend you found. It becomes a stamp in your Patent Book.', move: 'Take a photo of your chalk marks or your tooth count. It becomes a stamp in your Patent Book.' }[zid]) +
       '<div id="photoBox"></div><div class="row"><span class="filebtn go"><span>Add a photo</span><input type="file" id="photoIn" accept="image/*" aria-label="Add a photo"></span>' +
       '<button type="button" class="ghost" id="markDone">' + (MS.done ? 'Mission done ✓' : 'Mark mission done') + '</button></div><p class="note" id="photoNote"></p></section></div>',
     after: function () {
@@ -2349,6 +2906,18 @@ function workshop(scene, g, lv, rules) {
         drawBody(pt.bodies[0], '#D9453B', stroke || '#7A2A1E', lw);
         [1, 2].forEach(function (k) { var wb = pt.bodies[k]; ctx.fillStyle = '#2C2430'; ctx.beginPath(); ctx.arc(wb.position.x, wb.position.y, 15, 0, 7); ctx.fill(); ctx.strokeStyle = '#B8C2CC'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(wb.position.x, wb.position.y); ctx.lineTo(wb.position.x + Math.cos(wb.angle) * 12, wb.position.y + Math.sin(wb.angle) * 12); ctx.stroke(); });
       }
+      if (pt.type === 'paddle') {
+        var pb = pt.bodies[0]; pb.parts.slice(1, 3).forEach(function (q) { drawBody(q, '#2A8A6F', stroke || '#1D6550', lw); });
+        ctx.fillStyle = '#3B2A20'; ctx.beginPath(); ctx.arc(pt.pivot.x, pt.pivot.y, 10, 0, 7); ctx.fill(); ctx.fillStyle = '#E2AE38'; ctx.beginPath(); ctx.arc(pt.pivot.x, pt.pivot.y, 4, 0, 7); ctx.fill();
+      }
+      if (pt.type === 'conveyor') {
+        var cb = pt.bodies[0]; drawBody(cb, '#3B2A20', stroke || '#1B120D', lw);
+        ctx.save(); ctx.translate(cb.position.x, cb.position.y); ctx.rotate(cb.angle);
+        ctx.fillStyle = '#B8C2CC'; [-92, 92].forEach(function (x) { ctx.beginPath(); ctx.arc(x, 0, 6, 0, 7); ctx.fill(); });
+        var shift = run ? (run.steps * 2) % 24 : 0; ctx.strokeStyle = '#E2AE38'; ctx.lineWidth = 3;
+        for (var bx2 = -84 + shift; bx2 < 84; bx2 += 24) { ctx.beginPath(); ctx.moveTo(bx2 - 4, -3); ctx.lineTo(bx2, 0); ctx.lineTo(bx2 - 4, 3); ctx.stroke(); }
+        ctx.restore();
+      }
       if (pt.type === 'funnel') { pt.bodies[0].parts.slice(1).forEach(function (q) { drawBody(q, '#5C7FA8', stroke || '#34506F', lw); }); }
       if (pt.type === 'bumper') { var bm = pt.bodies[0]; ctx.fillStyle = '#D9453B'; ctx.beginPath(); ctx.arc(bm.position.x, bm.position.y, 18, 0, 7); ctx.fill(); ctx.strokeStyle = stroke || '#7A2A1E'; ctx.lineWidth = lw + 1; ctx.stroke(); ctx.fillStyle = '#F4C9C2'; ctx.beginPath(); ctx.arc(bm.position.x, bm.position.y, 7, 0, 7); ctx.fill(); }
       if (run && run.links[pt.pid]) { var bb = pt.bodies[0].bounds; ctx.fillStyle = '#2E8B57'; ctx.beginPath(); ctx.arc(bb.max.x, bb.min.y, 7, 0, 7); ctx.fill(); }
@@ -2380,7 +2949,7 @@ SCREENS.book = function (focus) {
   };
 };
 function stampSVG(s, on) {
-  var col = s.zone === 'simple' ? '#2A8A6F' : (s.zone === 'home' ? '#237D8C' : '#C98A1E');
+  var col = { simple: '#2A8A6F', home: '#237D8C', move: '#B5452F' }[s.zone] || '#C98A1E';
   return '<svg viewBox="0 0 112 112" role="img" aria-label="' + esc(s.name) + '"><circle cx="56" cy="56" r="52" fill="var(--card)" stroke="' + col + '" stroke-width="5"/><circle cx="56" cy="56" r="44" fill="none" stroke="' + col + '" stroke-width="1.5" stroke-dasharray="3 4"/>' +
     '<g transform="translate(24 30)">' + ICON[STAMPICON[s.id]].replace('<svg viewBox="0 0 64 40">', '<svg viewBox="0 0 64 40" width="64" height="40">') + '</g>' +
     '<text x="56" y="88" text-anchor="middle" font-size="10" font-weight="700" fill="' + col + '" font-family="sans-serif" letter-spacing="1">' + (on ? 'PATENTED' : '') + '</text></svg>';
@@ -2397,9 +2966,9 @@ function holdButton(el, ms, done) {
 SCREENS.grownups = function () {
   return {
     place: 'Grown-ups',
-    html: '<section class="panel"><h2>For grown-ups</h2><p>Gizmo Lab is Felix\'s engineering and design lab. So far it has the backyard (Simple Machines), the kitchen and bathroom (Home Machines), each with five stations, three levels and a paper mission, and the living-room Rube Goldberg Workshop (four jobs plus free build). The garage, basement and attic are coming.</p>' +
+    html: '<section class="panel"><h2>For grown-ups</h2><p>Gizmo Lab is Felix\'s engineering and design lab. So far it has the backyard (Simple Machines), the kitchen and bathroom (Home Machines) and the garage (On the Move), each with its stations at three levels and a paper mission, and the living-room Rube Goldberg Workshop (four jobs plus free build). The basement and attic are coming.</p>' +
       '<p class="note">Progress, builds and photos stay on this device only. Nothing is sent anywhere. No timers, no ads, no voice, no Claude features.</p>' +
-      '<p class="note">Paper mission safety: the ruler seesaw uses coins and school supplies only. The tank-and-trap mission needs a grown-up to lift the heavy tank lid and to open the sink cabinet; Felix looks but does not touch anything stored under the sink. Missions never open anything that plugs in or has a battery.</p>' +
+      '<p class="note">Paper mission safety: the ruler seesaw uses coins and school supplies only. The tank-and-trap mission needs a grown-up to lift the heavy tank lid and to open the sink cabinet; Felix looks but does not touch anything stored under the sink. In the bike mission a grown-up turns the pedals while Felix walks the bike; no riding, and fingers stay away from the chain and spokes. Missions never open anything that plugs in or has a battery.</p>' +
       '<div class="row"><button type="button" class="ghost" id="sndBtn">Sound: ' + (S.sound ? 'on' : 'off') + '</button></div>' +
       '<h3>Hold to fill the Parts Bin</h3><p class="note">Unlocks every workshop part (2 of each) so you can try the workshop before Felix earns them.</p><div class="row"><button type="button" class="go" id="fillBtn">Hold 2 seconds</button></div>' +
       '<h3>Hold to reset progress</h3><p class="note">Clears stamps, parts, saved builds, the mission photo and finished levels.</p><div class="row"><button type="button" class="go" id="resetAll" style="background:#B03A2E">Hold 3 seconds to reset</button></div><p id="gNote" class="note" aria-live="polite"></p>' +
