@@ -846,7 +846,7 @@ var C = {
       { id: 'bowl',    scene: 'bowl',    name: "Fill the cat's bowl", blurb: "Hit the latch to open the hopper, then steer the food into the bowl." }
     ],
     levelRules: {
-      sketch:    'Use at least 2 parts in your chain.',
+      sketch:    'Use at least 2 parts in your chain. No more than 12 parts placed.',
       prototype: 'Use at least 3 parts in your chain. No more than 8 parts placed.',
       patent:    'Use at least 4 parts in your chain, including 2 different simple machines. No more than 8 parts placed.'
     },
@@ -1634,12 +1634,23 @@ function fridge(host, st, H) {
     var svg = $('.sim svg', fh), out = $('.frcold', fh);
     function fresh() { return { T: 38, dial: 3, door: false, dusty: false, comp: false, t: 0, inZone: 0, ran: 0, running: false, ev: 0, msg: 'Press Start the day. Pim will keep things busy: watch the thermometer and fix whatever goes wrong.' }; }
     G = fresh();
-    var EVENTS = [
-      { at: 7, msg: 'Snack time! Someone left the door open.', go: function () { G.door = true; } },
-      { at: 19, msg: 'Oops, someone bumped the dial all the way to warm.', go: function () { G.dial = 1; } },
-      { at: 31, msg: 'The coils on the back got dusty. Dusty coils can\'t let the heat out well.', go: function () { G.dusty = true; } },
-      { at: 43, msg: 'Grabbing the milk… and the door is open again.', go: function () { G.door = true; } }
-    ];
+    // each level gets a busier day: Sketch 3 problems, Prototype 4, Patent 7 including soup, a power blink and a too-cold dial
+    var E = {
+      door1: { msg: 'Snack time! Someone left the door open.', go: function () { G.door = true; } },
+      warm: { msg: 'Oops, someone bumped the dial all the way to warm.', go: function () { G.dial = 1; } },
+      dust: { msg: 'The coils on the back got dusty. Dusty coils can\'t let the heat out well.', go: function () { G.dusty = true; } },
+      door2: { msg: 'Grabbing the milk… and the door is open again.', go: function () { G.door = true; } },
+      soup: { msg: 'A big pot of warm soup just went in. The fridge has to soak up all that heat. (Shallow containers cool faster.)', go: function () { G.loadUntil = G.t + 6; } },
+      cold: { msg: 'Someone turned the dial all the way to coldest. Careful: the lettuce could freeze!', go: function () { G.dial = 5; } },
+      power: { msg: 'The power blinked off for a moment. Keep the door shut and wait for the compressor.', go: function () { G.powerUntil = G.t + 5; } },
+      door3: { msg: 'Lunch time. The door is wide open again.', go: function () { G.door = true; } }
+    };
+    var PLAN = {
+      sketch: [[9, 'door1'], [25, 'warm'], [42, 'door2']],
+      prototype: [[7, 'door1'], [19, 'warm'], [31, 'dust'], [43, 'door2']],
+      patent: [[5, 'door1'], [12, 'soup'], [19, 'cold'], [26, 'dust'], [33, 'power'], [41, 'door3'], [49, 'warm']]
+    }[lv];
+    var EVENTS = PLAN.map(function (p) { return { at: p[0], msg: E[p[1]].msg, go: E[p[1]].go }; });
     var DAY = 60;
     function draw() {
       var T = G.T, clock = 6 + G.t / DAY * 18, hh = Math.floor(clock), mm = Math.floor((clock - hh) * 60);
@@ -1667,9 +1678,11 @@ function fridge(host, st, H) {
       out.textContent = line;
     }
     function step(dt) {
-      var set = SET[G.dial], cool = G.dusty ? 0.45 : 1.0;
+      var set = SET[G.dial], cool = G.dusty ? 0.45 : 1.0, power = !(G.powerUntil && G.t < G.powerUntil);
       if (G.T > set + 1.2) G.comp = true; else if (G.T < set - 1.2) G.comp = false;
-      var dT = 0.012 * (70 - G.T) + (G.door ? 0.08 * (70 - G.T) : 0) - (G.comp ? cool : 0);
+      if (!power) G.comp = false;
+      var soup = G.loadUntil && G.t < G.loadUntil ? 1.3 : 0;
+      var dT = 0.012 * (70 - G.T) + (G.door ? 0.08 * (70 - G.T) : 0) + soup - (G.comp ? cool : 0);
       G.T += dT * dt; G.t += dt;
       if (G.T >= 33 && G.T <= 40) G.inZone += dt;
       if (G.comp) G.ran += dt;
@@ -1682,13 +1695,14 @@ function fridge(host, st, H) {
       raf = requestAnimationFrame(loop);
     }
     function finish() {
-      var pct = Math.round(G.inZone / G.t * 100), stars = pct >= 90 ? 3 : pct >= 75 ? 2 : 1;
-      out.innerHTML = '<b>End of the day!</b> ' + '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars) + ' ' + (nums ? 'The fridge was in the safe zone ' + pct + '% of the day.' : (stars === 3 ? 'The fridge stayed just right almost all day.' : 'It got too warm or too cold for part of the day. Try again!')) +
+      var pct = Math.round(G.inZone / G.t * 100), hard = lv === 'patent', stars = pct >= (hard ? 80 : 90) ? 3 : pct >= (hard ? 65 : 75) ? 2 : 1;
+      var duty = Math.round(G.ran / G.t * 100), saver = lv === 'patent' ? (duty <= 60 ? ' Energy saver: the compressor ran only ' + duty + '% of the day!' : ' The compressor ran ' + duty + '% of the day. Can you keep it under 60%? Fix the dust and the door fast.') : '';
+      out.innerHTML = '<b>End of the day!</b> ' + '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars) + ' ' + (nums ? 'The fridge was in the safe zone ' + pct + '% of the day.' : (stars === 3 ? 'The fridge stayed just right almost all day.' : 'It got too warm or too cold for part of the day. Try again!')) + saver +
         ' Tip: the door is the biggest leak, and dusty coils make the compressor work much harder.';
       H.SND[stars === 3 ? 'stamp' : 'right']();
       $('[data-c=start]', fh).textContent = 'Play the day again';
     }
-    $('[data-c=start]', fh).onclick = function () { stop(); G = fresh(); G.running = true; G.msg = 'Morning. Everything is fine… for now.'; last = performance.now(); this.textContent = 'Restart the day'; H.SND.tap(); raf = requestAnimationFrame(loop); };
+    $('[data-c=start]', fh).onclick = function () { stop(); G = fresh(); G.running = true; G.msg = 'Morning. Everything is fine… for now. Today: ' + (nums ? EVENTS.length : 'a few') + ' things will go wrong.'; last = performance.now(); this.textContent = 'Restart the day'; H.SND.tap(); raf = requestAnimationFrame(loop); };
     $('[data-c=door]', fh).onclick = function () { G.door = !G.door; H.SND.clack(); if (!G.door && G.running) G.msg = 'Door shut. The compressor will catch up.'; draw(); };
     $('[data-c=warmer]', fh).onclick = function () { G.dial = Math.max(1, G.dial - 1); H.SND.click(); if (G.dial === 1) G.msg = 'Warmest setting: food can spoil.'; draw(); };
     $('[data-c=colder]', fh).onclick = function () { G.dial = Math.min(5, G.dial + 1); H.SND.click(); if (G.dial === 5) G.msg = 'Coldest setting: careful, the lettuce could freeze.'; else if (G.running) G.msg = 'Dial set to ' + (nums ? G.dial : 'a new spot') + '.'; draw(); };
