@@ -160,6 +160,12 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .toggle[aria-checked="true"] .sw{background:var(--teal)}
 .toggle[aria-checked="true"] .sw::after{left:27px;background:var(--cream)}
 .setup{padding:22px;display:flex;flex-direction:column;gap:18px}
+.countrow{gap:10px}
+.countin{width:3.6ch;min-width:84px;height:56px;padding:0 10px;border:4px solid var(--ink);border-radius:8px;background:var(--cream);color:var(--ink-text);font:800 30px/1 var(--body);text-align:center;font-variant-numeric:tabular-nums;box-shadow:4px 4px 0 var(--ink)}
+.countin:focus{outline:4px solid var(--cyan);outline-offset:2px}
+.countmsg{min-height:1.2em;color:var(--yellow);font-weight:700;font-size:15px}
+.countmsg:empty{display:none}
+.progress.count{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--cyan)}
 .setup .opchips .chip{font-size:28px;min-width:64px;justify-content:center;font-weight:800}
 
 /* patterns */
@@ -905,29 +911,52 @@ function openCrew(){
 
 /* =================== FLASHCARD RUN =================== */
 const FL={op:'mix',timer:false};
+const FL_MIN=1,FL_MAX=100;
+function flashN(){const n=parseInt(S.flashN,10);return n>=FL_MIN&&n<=FL_MAX?n:10;}
+function flashKey(op,L,n){return n===10?`flash-${op}-${L}`:`flash-${op}-${L}-${n}`;} // 10-card runs keep their original best-time key
 function startFlash(){
   keyHandler=null;const L=level();const st=$('#stage');st.textContent='';
   sayLine('hero');say('hero','Pick your operation, pilot. Want the timer on? You only race your own best time.');
   const opChips=el('div',{class:'row opchips',role:'group','aria-label':'Operation'});
   const ops=[['add','+'],['sub','−'],['mul','×'],['div','÷'],['mix','Mix']];
   const bestLine=el('div',{class:'stat'});
-  const refreshBest=()=>{const b=S.best[`flash-${FL.op}-${L}`];bestLine.innerHTML='';bestLine.append('Best time: ',el('b',{},b?fmtTime(b):'none yet'));};
+  let n=flashN();
+  const refreshBest=()=>{const b=S.best[flashKey(FL.op,L,n)];bestLine.innerHTML='';bestLine.append(`Best time for ${n} ${n===1?'card':'cards'}: `,el('b',{},b?fmtTime(b):'none yet'));};
+  const countIn=el('input',{id:'flashCount',class:'countin',type:'text',inputmode:'numeric',pattern:'[0-9]*',maxlength:'3',autocomplete:'off',value:String(n),'aria-label':`How many cards, ${FL_MIN} to ${FL_MAX}`});
+  const countMsg=el('div',{class:'countmsg','aria-live':'polite'});
+  const launch=el('button',{class:'btn',type:'button'});
+  const setN=(v,fromTyping)=>{const d=String(v).replace(/[^0-9]/g,'').slice(0,3);if(fromTyping)countIn.value=d;const k=parseInt(d,10);
+    if(!d||!(k>=FL_MIN&&k<=FL_MAX)){launch.disabled=true;launch.textContent='Launch';countMsg.textContent=`Pick a number from ${FL_MIN} to ${FL_MAX}.`;return;}
+    n=k;if(!fromTyping)countIn.value=String(k);S.flashN=k;save();launch.disabled=false;launch.textContent=`Launch ${k} ${k===1?'card':'cards'}`;countMsg.textContent='';refreshBest();
+    presets.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(+c.dataset.n===k)));};
+  const step=dv=>{SFX.tap();setN(Math.max(FL_MIN,Math.min(FL_MAX,(parseInt(countIn.value,10)||n)+dv)));};
+  const presets=el('div',{class:'row',role:'group','aria-label':'Quick picks'},[5,10,20,30,50].map(v=>el('button',{class:'chip','data-n':String(v),type:'button','aria-pressed':String(v===n),onclick:()=>{SFX.tap();setN(v);}},String(v))));
+  countIn.addEventListener('input',()=>setN(countIn.value,true));
+  countIn.addEventListener('focus',()=>countIn.select());
+  countIn.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();countIn.blur();if(!launch.disabled)launch.click();}});
+  launch.onclick=()=>{if(launch.disabled)return;SFX.tap();runFlash(n);};
   ops.forEach(([k,lab])=>opChips.append(el('button',{class:'chip',type:'button','aria-pressed':String(FL.op===k),'aria-label':k==='mix'?'Mixed':lab,
     onclick:e=>{FL.op=k;SFX.tap();opChips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));e.currentTarget.setAttribute('aria-pressed','true');refreshBest();}},lab)));
   const tog=el('div',{class:'toggle',role:'switch',tabindex:'0','aria-checked':String(FL.timer),'aria-label':'Beat my time'},el('span',{class:'sw'}),'Beat my time');
   const flip=()=>{FL.timer=!FL.timer;tog.setAttribute('aria-checked',String(FL.timer));SFX.tap();};
   tog.onclick=flip;tog.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();}};
-  refreshBest();
   st.append(el('div',{class:'panel setup'},
     el('div',{class:'label'},'Operation'),opChips,
+    el('label',{class:'label',for:'flashCount'},'How many cards?'),
+    el('div',{class:'row countrow'},el('button',{class:'iconbtn sm',type:'button','aria-label':'One fewer card',onclick:()=>step(-1)},'−'),countIn,
+      el('button',{class:'iconbtn sm',type:'button','aria-label':'One more card',onclick:()=>step(1)},'+'),presets),
+    countMsg,
     el('div',{class:'row',style:'justify-content:space-between'},tog,bestLine),
-    el('div',{},el('button',{class:'btn',type:'button',onclick:()=>{SFX.tap();runFlash();}},'Launch 10 cards'))));
+    el('div',{},launch)));
+  setN(n);
 }
-function runFlash(){
+function runFlash(count){
+  const N=Math.max(FL_MIN,Math.min(FL_MAX,count||flashN()));
   const L=level();const deck=[];
   const opList=FL.op==='mix'?['add','sub','mul','div']:[FL.op];
-  const seen=new Set();
-  while(deck.length<10){const f=flashFact(pick(opList),L);if(seen.has(f.text))continue;seen.add(f.text);deck.push({...f,tries:0,requeued:false});}
+  const seen=new Set();let tries=0;
+  // no repeats while fresh facts are easy to find; small fact pools (like 2–10 × 2–10) allow repeats on big decks
+  while(deck.length<N){const f=flashFact(pick(opList),L);tries++;if(seen.has(f.text)&&tries<N*60)continue;seen.add(f.text);deck.push({...f,tries:0,requeued:false});}
   const total=deck.length;let idx=0,firstTry=0,input='',t0=performance.now(),locked=false;
   const st=$('#stage');st.textContent='';
   const prog=el('div',{class:'progress','aria-hidden':'true'});
@@ -938,11 +967,13 @@ function runFlash(){
     keypad({dot:L===4,onKey:k=>{if(locked)return;if(k==='go')return check();input=editStr(input,k,6);paint();}})),status);
   if(FL.timer)tickId=setInterval(()=>{timerEl.textContent=fmtTime(performance.now()-t0);},100);
   let ansEl;
-  function drawProg(){prog.textContent='';deck.forEach((c,i)=>prog.append(el('i',{class:i<idx?'done':i===idx?'now':c.requeued?'redo':''})));}
+  function drawProg(){prog.textContent='';
+    if(deck.length>30){prog.classList.add('count');prog.textContent=idx<total?`Card ${idx+1} of ${total}`:`Bonus card ${idx-total+1} of ${deck.length-total}`;return;}
+    deck.forEach((c,i)=>prog.append(el('i',{class:i<idx?'done':i===idx?'now':c.requeued?'redo':''})));}
   function show(){
     const c=deck[idx];input='';locked=false;card.className='fcard';card.textContent='';
     ansEl=el('div',{class:'ans','aria-label':'Your answer'},'');
-    card.append(el('div',{class:'corner'},`Card ${Math.min(idx+1,deck.length)}`),el('div',{class:'q'},c.text+' ='),ansEl);
+    card.append(el('div',{class:'corner'},c.requeued?'Bonus try':`Card ${idx+1} of ${total}`),el('div',{class:'q'},c.text+' ='),ansEl);
     anim(card,'flipin');SFX.flip();drawProg();
     if(c.tries===0)say('hero',idx===0?'Here we go. Type the answer and press Check.':pick(['Next card!','Keep it steady.','You\'ve got this.']));
     status.textContent=c.text.replace('−','minus')+' equals?';
@@ -966,13 +997,13 @@ function runFlash(){
   }
   function finish(){
     if(tickId){clearInterval(tickId);tickId=null;}keyHandler=null;
-    const ms=performance.now()-t0;const key=`flash-${FL.op}-${level()}`;
-    const lines=[`${firstTry} of ${total} cards right on the first try.`];let stars=1;
-    if(firstTry===total){stars++;lines.push('Perfect run: bonus star!');}
-    if(FL.timer){const prev=S.best[key];lines.push(`Time: ${fmtTime(ms)}`);
-      if(!prev||ms<prev){S.best[key]=ms;save();if(prev){stars++;lines.push(`New best! Old best was ${fmtTime(prev)}.`);}else lines.push('That\'s your first best time.');}
+    const ms=performance.now()-t0;const key=flashKey(FL.op,level(),total);const big=total>=10;
+    const lines=[`${firstTry} of ${total} ${total===1?'card':'cards'} right on the first try.`];let stars=1;
+    if(firstTry===total){if(big){stars++;lines.push('Perfect run: bonus star!');}else lines.push('Perfect run! Try 10 or more cards for a bonus star.');}
+    if(FL.timer){const prev=S.best[key];lines.push(`Time for ${total} ${total===1?'card':'cards'}: ${fmtTime(ms)}`);
+      if(!prev||ms<prev){S.best[key]=ms;save();if(prev){if(big)stars++;lines.push(`New best! Old best was ${fmtTime(prev)}.`);}else lines.push('That\'s your first best time.');}
       else lines.push(`Your best is ${fmtTime(prev)}.`);}
-    showWin({lines,stars,again:runFlash});
+    showWin({lines,stars,again:()=>runFlash(total)});
   }
   show();
 }
