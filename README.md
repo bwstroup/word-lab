@@ -51,3 +51,9 @@ Open it at https://bwstroup.github.io/word-lab/culture-lab/
 The Museum After Dark: Felix is a junior curator with Nefertiti the museum cat and an eight-person night crew. Eight rooms (Dig Pit, Hall of Writing, Numbers and Stars, Time Road, Hall of Buildings, Map Room, Exhibit Workshop, Living Cultures wing) and ten Night Cases: find, date, read, trace and label a mystery object, then add it to his own wing with a time-road chart and a map.
 
 Open it at https://bwstroup.github.io/word-lab/history-lab/
+
+# Chess Lab
+
+Felix's guided chess training on a cream-and-brown marble board: Think Like a Player (strategy), Tactics, Checkmate Nets, Endgame Mastery (with a perfect king-and-pawn coach), Three Simple Openings, and Bonus Openings (French Defense, Danish Gambit). Short lessons with a For Dad panel. Move rules by chess.js (BSD, see chess-lab/CHESS-JS-LICENSE.txt).
+
+Open it at https://bwstroup.github.io/word-lab/chess-lab/

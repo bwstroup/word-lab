@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2f5b4e">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Chess Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chess Lab">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: a quiet study table. Board is the hero; a calm side panel holds one step at a time. */
+:root {
+  --bg: #ebe8e1;
+  --card: #f8f6f1;
+  --ink: #2a2622;
+  --muted: #6b645b;
+  --line: #d6d0c4;
+  --accent: #2f5b4e;      /* table-felt green */
+  --accent-ink: #f4f1ea;
+  --accent-soft: #dbe6df;
+  --star: #c08a1e;
+  --good: #2f6b45;
+  --good-soft: #dcebdf;
+  --warn: #9a4a2a;
+  --warn-soft: #f4e2d8;
+  --font-display: "Alegreya", Georgia, "Times New Roman", serif;
+  --font-body: "Alegreya Sans", "Gill Sans", "Trebuchet MS", system-ui, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1917; --card: #25221f; --ink: #ede7dd; --muted: #a59d92; --line: #3b3631;
+    --accent: #86b8a6; --accent-ink: #14211c; --accent-soft: #2b3a34; --star: #e0ad45;
+    --good: #8fcc9f; --good-soft: #233629; --warn: #e79a78; --warn-soft: #3d2a22;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1917; --card: #25221f; --ink: #ede7dd; --muted: #a59d92; --line: #3b3631;
+  --accent: #86b8a6; --accent-ink: #14211c; --accent-soft: #2b3a34; --star: #e0ad45;
+  --good: #8fcc9f; --good-soft: #233629; --warn: #e79a78; --warn-soft: #3d2a22;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 18px; line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px 32px;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn {
+  min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1.5px solid var(--line);
+  background: var(--card); font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.small { min-height: 40px; padding: 0 14px; font-size: 16px; }
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* ---------- Home ---------- */
+.home-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 8px 20px; }
+.home-head h1 { font-size: clamp(36px, 6vw, 52px); }
+.home-head p { margin: 4px 0 0; color: var(--muted); }
+.next-card {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
+  background: var(--accent); color: var(--accent-ink); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+}
+.next-card .mini { width: 72px; height: 72px; border-radius: 8px; overflow: hidden; }
+.next-card h2 { font-size: 26px; }
+.next-card .btn { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); }
+@media (max-width: 560px) { .next-card { grid-template-columns: auto 1fr; } .next-card .btn { grid-column: 1 / -1; justify-content: center; } }
+.parts { display: grid; gap: 28px; }
+.warm { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1.5px solid var(--line); background: var(--card); border-radius: var(--radius); padding: 14px 18px; margin: -12px 0 28px; }
+.warm p { margin: 2px 0 0; color: var(--muted); }
+.part h2 { font-size: 26px; margin-top: 2px; }
+.part .blurb { color: var(--muted); margin: 4px 0 12px; max-width: 60ch; }
+.lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.lesson-btn {
+  display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-items: center; text-align: left;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: 64px;
+}
+.lesson-btn .n { grid-row: 1 / 3; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.lesson-btn.done .n { background: var(--accent); color: var(--accent-ink); }
+.lesson-btn .t { font-weight: 700; line-height: 1.2; }
+.stars { color: var(--star); letter-spacing: 2px; font-size: 15px; line-height: 1; }
+.stars .off { color: var(--line); }
+.soon { border: 1.5px dashed var(--line); border-radius: 12px; padding: 12px 16px; color: var(--muted); }
+.grownups { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 16px; color: var(--muted); font-size: 16px; }
+.grownups summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; }
+.grownups .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+
+/* ---------- Lesson ---------- */
+.lesson-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.lesson-top h1 { font-size: clamp(24px, 3.4vw, 32px); flex: 1 1 200px; min-width: 0; }
+.steps { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; }
+.pill { height: 8px; flex: 1 1 18px; max-width: 64px; border-radius: 4px; background: var(--line); }
+.pill.done { background: var(--accent); }
+.pill.now { background: var(--star); }
+.stage { display: grid; gap: 18px; grid-template-columns: 1fr; align-items: start; }
+.board-col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.board-holder { width: min(100%, 620px); }
+@media (min-width: 760px) and (orientation: landscape), (min-width: 980px) {
+  .stage { grid-template-columns: auto minmax(300px, 1fr); }
+  .board-holder { width: min(calc(100dvh - 150px), 60vw, 700px); }
+}
+.turn { margin-top: 8px; font-size: 16px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.turn i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink); display: inline-block; }
+.panel { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 20px; min-width: 0; display: grid; gap: 16px; }
+.panel h2 { font-size: 24px; }
+.idea p { margin: 0 0 10px; max-width: 60ch; }
+.idea p:first-child { font-size: 21px; font-family: var(--font-display); font-weight: 500; line-height: 1.35; }
+.prompt { font-size: 21px; font-family: var(--font-display); font-weight: 500; line-height: 1.35; margin: 0; }
+.say { margin: 0; font-size: 19px; min-height: 3em; }
+.fb { border-radius: 10px; padding: 10px 14px; font-weight: 500; }
+.fb.good { background: var(--good-soft); color: var(--good); }
+.fb.bad { background: var(--warn-soft); color: var(--warn); }
+.fb.hint { background: var(--accent-soft); color: var(--ink); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.actions .grow { flex: 1; }
+.counter { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 16px; }
+.dad { border-top: 1px solid var(--line); padding-top: 12px; font-size: 16px; }
+.dad summary { font-weight: 700; cursor: pointer; color: var(--muted); min-height: 40px; display: flex; align-items: center; }
+.dad p { margin: 6px 0 0; max-width: 62ch; }
+.dad .polgar { color: var(--accent); font-weight: 500; }
+.real { font-size: 19px; margin: 0; }
+.done-stars { font-size: 46px; letter-spacing: 6px; }
+
+/* ---------- Board ---------- */
+.board { position: relative; width: 100%; aspect-ratio: 1; border-radius: 6px; overflow: hidden;
+  box-shadow: 0 0 0 6px #6b4a31, 0 0 0 7px #4d3422, 0 10px 24px rgba(40, 25, 10, .25);
+  margin: 7px; max-width: calc(100% - 14px); touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.board svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.board .b-top { cursor: pointer; }
+.board.locked .b-top { cursor: default; }
+.board.shake { animation: shake .38s ease; }
+@keyframes shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-8px) } 50% { transform: translateX(7px) } 75% { transform: translateX(-4px) } }
+.pc { transition: transform .18s ease; }
+.pulse { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: .35 } 50% { opacity: .9 } }
+.pop { animation: pop .5s ease; transform-origin: center; transform-box: fill-box; }
+@keyframes pop { 0% { transform: scale(.4); opacity: 0 } 70% { transform: scale(1.15) } 100% { transform: scale(1); opacity: 1 } }
+@media (prefers-reduced-motion: reduce) { .board.shake, .pulse, .pop { animation: none; } .pc { transition: none; } }
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="piece-defs"></defs></svg>
+<div class="wrap" id="app"></div>
+
+<script src="chess.js"></script>
+<script src="kpk.js"></script>
+<script>
+const DATA = {"parts":[{"id":"p1","num":1,"title":"Think Like a Player","blurb":"The big ideas strong players use every game.","lessons":[{"id":"s1","title":"Control the center","idea":["The four squares in the middle of the board are d4, e4, d5 and e5.","Pieces in the center can reach more squares, and they can rush to either side fast.","Start the game by putting pawns in the center and aiming your pieces there."],"demo":{"steps":[{"text":"Here are the four center squares. Whoever controls them usually gets the easier game.","marks":["d4","e4","d5","e5"]},{"san":"e4","text":"White grabs the center with a pawn and opens lines for the queen and a bishop."},{"san":"e5","text":"Black does the same thing. Now each side has a pawn in the middle."},{"san":"Nf3","text":"White's knight jumps toward the center and attacks the e5 pawn.","arrows":[["f3","e5"]]},{"san":"Nc6","text":"Black defends e5 with a knight that also points at the center.","arrows":[["c6","e5"]]},{"san":"d4","text":"White pushes a second pawn into the center to fight for it.","arrows":[["d4","e5"]]}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"squares","prompt":"Tap the four center squares.","targets":["d4","e4","d5","e5"],"explain":"Those four squares are the most important real estate on the board.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"move","prompt":"Make a first move that puts a pawn in the center.","answers":["e4","d4"],"hint":"Try the pawn in front of the king or the queen.","hintFrom":"e2","explain":"Both of these put a pawn right in the middle and open lines for your pieces.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"move","prompt":"Bring out a knight that attacks Black's center pawn.","answers":["Nf3"],"notes":{"Nc3":"Good square, but that knight does not attack e5. Try the other knight."},"hint":"Which knight can jump to a square that attacks e5?","hintFrom":"g1","explain":"Nf3 develops a piece and makes Black defend e5.","fen":"rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2"},{"type":"move","prompt":"Black just took your center pawn. Take it back.","answers":["Nxd4"],"notes":{"Qxd4":"That works, but Black's knight on c6 will chase your queen. Take back with a smaller piece."},"hint":"Your knight on f3 can capture.","hintFrom":"f3","explain":"Now your knight sits in the center, and Black has no pawn there.","fen":"r1bqkbnr/pppp1ppp/2n5/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"}],"realSet":"Play the first 4 moves of a game each. Then count: how many of the four center squares does each side touch with a pawn or piece?","dad":"A knight in the center reaches 8 squares, but in a corner only 2. The center is about mobility: pieces there can switch to the kingside or queenside in one move. Ask Felix after every early move: does this help me in the middle?","polgar":null},{"id":"s2","title":"Get your pieces out","idea":["At the start, your knights and bishops are stuck at home. Bring them out early.","Try to move each piece once before you move any piece twice.","Keep your queen home at first, because the other side can chase her and win time."],"demo":{"steps":[{"text":"Watch both sides bring out a new piece on almost every move."},{"san":"e4","text":"Center pawn first."},{"san":"e5","text":"Black matches."},{"san":"Nf3","text":"A knight comes out toward the center."},{"san":"Nc6","text":"Black brings out a knight too."},{"san":"Bc4","text":"A bishop comes out and aims at f7, the weak spot next to Black's king.","arrows":[["c4","f7"]]},{"san":"Bc5","text":"Black's bishop aims at f2, White's weak spot.","arrows":[["c5","f2"]]},{"san":"Nc3","text":"Another knight out. White has three pieces in the game."},{"san":"Nf6","text":"So does Black. Both sides are ready to castle."}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"move","prompt":"Bring a new piece into the game.","answers":["Bc4","Bb5","Nc3"],"notes":{"Ng5":"That knight already moved. Bring out a different piece.","Bd3":"That bishop blocks your d-pawn. Find a better square.","Qe2":"Keep the queen home for now. Bring out a knight or bishop.","Be2":"OK, but a little shy. Can the bishop go somewhere more active?"},"hint":"Your bishop on f1 or your knight on b1 has not moved yet.","hintFrom":"f1","explain":"Every new piece in the game is like another player joining your team.","fen":"r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"},{"type":"squares","prompt":"Tap every White knight or bishop that is still at home.","targets":["b1","c1"],"explain":"The b1 knight and c1 bishop still need to come out.","fen":"r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"},{"type":"move","prompt":"White's queen came out early and threatens checkmate on f7! Stop it.","answers":["g6","Qe7","Qf6"],"notes":{"Nf6":"Careful! Then White plays Qxf7, checkmate.","d6":"Then White plays Qxf7, checkmate. Defend f7 or block the queen."},"hint":"The queen and bishop both aim at f7. Block the queen or guard f7.","hintFrom":"g7","explain":"Now f7 is safe. Next, Black can bring out pieces and chase the queen.","fen":"r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3"},{"type":"move","prompt":"The queen is back, still eyeing f7. Bring out a piece that blocks her.","answers":["Nf6"],"hint":"A knight can stand between the queen and f7.","hintFrom":"g8","explain":"Black blocks the threat and develops at the same time. Two jobs, one move.","fen":"r1bqkbnr/pppp1p1p/2n3p1/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR b KQkq - 1 4"}],"realSet":"Play a game where the rule is: no piece moves twice until all 4 knights and bishops are out. Who gets their pieces out first?","dad":"Development is about tempo. Each move that brings a new piece into play is a gain; moving the same piece twice or chasing with the queen hands the opponent free moves. The early-queen lines here (Qh5) are what beginners meet most online, so it is worth drilling the defense.","polgar":null},{"id":"s3","title":"Castle early","idea":["A king in the middle of the board is in danger once the pawns get traded.","Castling tucks your king into the corner behind pawns and brings a rook toward the middle.","Try to castle in the first 10 moves of every game."],"demo":{"steps":[{"text":"The knight and bishop between the king and rook are out of the way. White can castle."},{"san":"O-O","text":"To castle, the king moves two squares toward the rook, and the rook jumps over to the other side."},{"san":"Nf6","text":"Black clears the last piece on that side."},{"san":"d3","text":"White opens a path for the other bishop."},{"san":"O-O","text":"Black castles too. Both kings are safe behind a wall of pawns."}],"fen":"r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"},"tries":[{"type":"move","prompt":"Get your king safe. Castle!","answers":["O-O"],"hint":"Tap your king, then the square two steps toward the rook.","hintFrom":"e1","explain":"King safe, rook ready to come into the game.","fen":"r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 1 5"},{"type":"move","prompt":"This time castle the other way, toward the queen's side.","answers":["O-O-O"],"hint":"Tap your king, then the square two steps toward the a1 rook.","hintFrom":"e1","explain":"Castling queenside puts your rook right on the center d-file.","fen":"r3kbnr/pppqpppp/2n5/3p1b2/3P1B2/2N5/PPPQPPPP/R3KBNR w KQkq - 6 5"},{"type":"move","prompt":"Your turn as Black. Make your king safe.","answers":["O-O"],"hint":"The squares between your king and rook are empty.","hintFrom":"e8","explain":"Both kings are tucked away. Now the middle of the game can begin.","fen":"r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 b kq - 0 5"}],"realSet":"Play a game where each of you must castle before move 10. Write down the move number when you castled.","dad":"The main reasons to castle: king off the e-file before it opens, and the rook connected to the other rook. You cannot castle out of check, through an attacked square, or after the king or that rook has moved. Once castled, the pawns in front of the king should mostly stay put.","polgar":null},{"id":"s4","title":"What pieces are worth","idea":["Pawn = 1. Knight = 3. Bishop = 3. Rook = 5. Queen = 9.","Take pieces that are free, and trade only when you give the same or less.","Before you grab something, check whether it is guarded."],"demo":{"fen":"6k1/3r1ppp/8/4N3/2b5/8/5PPP/6K1 w - - 0 1","steps":[{"text":"White's knight attacks two things: a rook on d7 and a bishop on c4.","arrows":[["e5","d7"],["e5","c4"]]},{"text":"A rook is worth 5 and a bishop is worth 3. Which would you rather win?"},{"san":"Nxd7","text":"Take the rook! Nothing can take the knight back, so White is up 5 points."}]},"tries":[{"type":"move","fen":"6k1/5ppp/8/3n4/8/8/5PPP/3R2K1 w - - 0 1","prompt":"Something is free. Take it.","answers":["Rxd5"],"hint":"Look down the d-file.","hintFrom":"d1","explain":"Nothing guards the knight, so you win 3 points for free."},{"type":"avoid","fen":"6k1/5ppp/4p3/3p4/8/8/5PPP/3Q2K1 w - - 0 1","prompt":"The pawn on d5 looks free. Is it? Make a safe move.","bad":["Qxd5"],"badNote":"The e6 pawn takes your queen! You gave 9 points for 1.","hint":"Check what guards d5 before you grab it.","explain":"Good. That pawn was guarded by the e6 pawn."},{"type":"move","fen":"6k1/3r1ppp/8/4N3/2b5/8/5PPP/6K1 w - - 0 1","prompt":"Your knight can take two things. Take the bigger one.","answers":["Nxd7"],"notes":{"Nxc4":"A bishop is worth 3. Is there something worth more?","Nxf7":"That pawn is guarded by the king. Look for something bigger."},"hint":"Rook = 5, bishop = 3.","hintFrom":"e5","explain":"Always count points before you capture."}],"realSet":"Set up the board with only pawns, then add one piece at a time. Felix tells you its value before it goes on the board. Then race: Dad calls a total like 11, Felix makes it with pieces.","dad":"The 1-3-3-5-9 scale is a guide, not law: a bishop pair or an active piece can outweigh a point. The habit that matters most at this level is checking whether a target is defended, and counting attackers versus defenders before a capture.","polgar":null},{"id":"s5","title":"Stop and check","idea":["Before every move, ask three questions.","1. What does their last move want to do? 2. Can I give a check? 3. Can I capture something?","Strong players do this every single move. It is the biggest habit in chess."],"demo":{"fen":"6k1/5ppp/8/8/8/1q6/5PPP/3R2K1 w - - 0 1","steps":[{"text":"Black's queen is attacking White's rook. The first thought is to run away.","arrows":[["b3","d1"]]},{"text":"But ask question 2 first: can I give a check? The rook can go to d8.","arrows":[["d1","d8"]]},{"san":"Rd8#","text":"Check, and the king's own pawns block every escape. Checkmate! Asking the questions found a win instead of a retreat."}]},"tries":[{"type":"mate","fen":"6k1/5ppp/8/8/8/1q6/5PPP/3R2K1 w - - 0 1","prompt":"Black's queen attacks your rook. Before you run, ask: do I have a check?","hint":"Look at the back row behind Black's pawns.","hintFrom":"d1","explain":"Checks first. That habit wins games.","solutions":["Rd8#"]},{"type":"move","prompt":"Black just took your e4 pawn. Ask question 3: can you capture something?","answers":["Nxe4"],"notes":{"Bxf7+":"Tricky, and it can work, but keep it simple: take back the knight that just took."},"hint":"Which of your pieces attacks e4?","hintFrom":"c3","explain":"You get your pawn back by taking the piece that took it.","fen":"r1bqkb1r/pppp1ppp/2n5/4p3/2B1n3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 5"},{"type":"stopmate","fen":"3r2k1/5ppp/8/8/8/8/R4PPP/6K1 w - - 0 1","prompt":"Ask question 1: what does Black want to do? Stop it.","hint":"If Black's rook goes to d1, can your king escape?","explain":"Black was threatening Rd1, checkmate. Now you are safe."}],"realSet":"Play a game where before each move the player says out loud: \"What do they want? Any checks? Any captures?\" A point for every move you remember to say it.","dad":"This is the discipline lesson, and the one worth repeating most. Most games at this level are lost to a missed threat, not to a lack of ideas. Some coaches use a physical cue: hands in lap until the three questions are done. A silly phrase helps too.","polgar":null},{"id":"s6","title":"Good squares for pieces","idea":["Rooks love open files, which are columns with no pawns on them.","Bishops love long open diagonals. Knights love center squares where pawns cannot kick them away.","If a piece has few moves, find it a better home."],"demo":{"fen":"r4rk1/pp3ppp/2p5/8/8/2P5/PP3PPP/R4RK1 w - - 0 1","steps":[{"text":"The d-file and e-file have no pawns at all. They are open files.","marks":["d1","d2","d3","d4","d5","d6","d7","d8","e1","e2","e3","e4","e5","e6","e7","e8"]},{"san":"Rad1","text":"A rook on an open file can zoom all the way to the other side.","arrows":[["d1","d8"]]},{"san":"Rfd8","text":"Black does the same. Rooks fight for open files."}]},"tries":[{"type":"move","fen":"r4rk1/pp3ppp/2p5/8/8/2P5/PP3PPP/R4RK1 w - - 0 1","prompt":"Put a rook on an open file.","answers":["Rad1","Rae1","Rfd1","Rfe1"],"hint":"Which files have no pawns?","hintFrom":"a1","explain":"From there the rook can reach the other side of the board."},{"type":"move","fen":"r4rk1/pp3ppp/3p4/2p1p3/4P3/2N5/PPP2PPP/R4RK1 w - - 0 1","prompt":"Find your knight a center square where no Black pawn can ever kick it away.","answers":["Nd5"],"notes":{"Nb5":"Black can play a6 and kick it away. Look for a safer square in the center."},"hint":"Black's c-pawn and e-pawn have already gone past one square.","hintFrom":"c3","explain":"That is called an outpost. Your knight can sit on d5 all game."},{"type":"move","prompt":"Put your bishop on the long diagonal that runs corner to corner.","answers":["Bg2"],"hint":"The g-pawn moved out of the way for a reason.","hintFrom":"f1","explain":"From g2 the bishop looks all the way to a8.","fen":"rnbqkb1r/ppp1pppp/5n2/3p4/8/5NP1/PPPPPP1P/RNBQKB1R w KQkq - 1 3"}],"realSet":"Set up only kings, rooks and pawns. Take turns placing a pawn to close a file. Then find which files are still open and put your rooks on them.","dad":"This is the bridge from tactics to strategy: piece activity. Count the moves a piece has; that number is a quick measure of how good it is. Outposts (squares an enemy pawn can never attack) are a great concept for kids because it is concrete and checkable.","polgar":null},{"id":"s7","title":"Pawn power","idea":["Pawns can never move backward, so think before you push one.","A passed pawn has no enemy pawns in front of it or beside it. It can march all the way and become a queen.","Two pawns stuck on the same file are called doubled pawns. They are weaker."],"demo":{"fen":"8/5pk1/8/1P6/8/6P1/6K1/8 w - - 0 1","steps":[{"text":"The b5 pawn has no Black pawns in front of it or on the files beside it. It is a passed pawn.","marks":["b5"]},{"san":"b6","text":"It marches."},{"san":"Kf6","text":"Black's king runs, but it is too far away."},{"san":"b7","text":"One more step."},{"san":"Ke7","text":"Still too late."},{"san":"b8=Q","text":"A new queen! Passed pawns win games, especially near the end."}]},"tries":[{"type":"squares","fen":"8/5pk1/8/1P6/8/6P1/6K1/8 w - - 0 1","prompt":"Tap White's passed pawn.","targets":["b5"],"explain":"No Black pawn can ever stop it."},{"type":"move","fen":"8/5pk1/8/1P6/8/6P1/6K1/8 w - - 0 1","prompt":"Black's king is far away. Push your passed pawn.","answers":["b6"],"hint":"March it!","hintFrom":"b5","explain":"Keep going and it becomes a queen."},{"type":"squares","fen":"6k1/5ppp/8/8/8/2P5/P1P2PPP/6K1 w - - 0 1","prompt":"Tap White's doubled pawns.","targets":["c2","c3"],"explain":"They are stuck on the same file and cannot protect each other."}],"realSet":"Pawn war: each side gets only 8 pawns. First to get a pawn to the other side wins. Play it three times.","dad":"Pawn wars are the single best game for this age; they teach passed pawns, tempo and the king race all at once. Pawn structure is mostly permanent, which is why it sets the long-term plan. Doubled and isolated pawns are targets, passed pawns are assets.","polgar":null},{"id":"s8","title":"Fix your worst piece","idea":["Sometimes there is no attack and no capture. What now?","Find your worst piece, the one with the fewest moves or nothing to do.","Give it a better job. That is how you make a plan."],"demo":{"fen":"6k1/pp3ppp/2p5/8/8/2P5/PP3PPP/N3R1K1 w - - 0 1","steps":[{"text":"White's rook is happy on the open e-file. The knight in the corner is not doing anything.","marks":["a1"]},{"san":"Nc2","text":"Step one: get the knight out of the corner."},{"san":"Kf8","text":"Black's king comes toward the center."},{"san":"Nd4","text":"Now the knight is in the center, eyeing squares on both sides of the board.","arrows":[["d4","c6"],["d4","e6"]]}]},"tries":[{"type":"squares","fen":"6k1/pp3ppp/2p5/8/8/2P5/PP3PPP/N3R1K1 w - - 0 1","prompt":"Tap White's worst piece.","targets":["a1"],"explain":"A knight in the corner can only go to two squares."},{"type":"move","fen":"6k1/pp3ppp/2p5/8/8/2P5/PP3PPP/N3R1K1 w - - 0 1","prompt":"Start bringing that piece toward the center.","answers":["Nc2","Nb3"],"hint":"Which squares can the knight jump to?","hintFrom":"a1","explain":"Next it can head for d4."}],"realSet":"Pause any game (yours or one on chess.com) and each point to your own worst piece. Do you agree? Then find one move that makes it better.","dad":"\"Improve your worst piece\" is a classic planning rule. It gives a child a concrete question to ask in a quiet position instead of making random moves, which is exactly where impatient players go wrong.","polgar":null}]},{"id":"p2","num":2,"title":"Tactics","blurb":"Tricks that win pieces right now. The fastest way to win more games.","lessons":[{"id":"t1","title":"Loose pieces","idea":["A piece that nothing protects is called a loose piece.","Loose pieces are easy to lose. Grab the other side's loose pieces, and guard or move your own.","Before every move, look for loose pieces on both sides."],"demo":{"fen":"4k3/8/8/1n3r2/8/3Q4/8/4K3 w - - 0 1","steps":[{"text":"White's queen attacks two Black pieces, and nothing guards either one.","arrows":[["d3","b5"],["d3","f5"]]},{"text":"Both are loose. Which one is worth more? The knight is 3. The rook is 5."},{"san":"Qxf5","text":"Take the rook. The queen is safe on f5, and White is ahead by 5 points."}]},"tries":[{"type":"move","fen":"4k3/8/8/3b4/8/8/8/3RK3 w - - 0 1","prompt":"Something is loose. Take it.","answers":["Rxd5"],"hint":"Look straight up the d-file.","hintFrom":"d1","explain":"Nothing protected the bishop."},{"type":"move","fen":"3rk3/8/8/8/3N4/8/5PPP/6K1 b - - 0 1","prompt":"You are Black. Grab the loose piece.","answers":["Rxd4"],"hint":"What does your rook see?","hintFrom":"d8","explain":"White's knight had no guard."},{"type":"move","fen":"4k3/8/8/3p4/4N3/8/5PPP/6K1 w - - 0 1","prompt":"Black's pawn is attacking your knight. Save it.","hint":"Move the knight to a square where nothing can take it.","hintFrom":"e4","explain":"Saved. Nf6+ was extra sneaky: check, and it attacks the d5 pawn too.","answers":["Nf6+","Nc5","Nd6+","Ng5","Ng3","Nd2","Nc3"]},{"type":"move","fen":"4k3/8/2p5/3n4/8/8/5PPP/3Q2K1 w - - 0 1","prompt":"The knight on d5 looks loose. Is it? Make a safe move.","notes":{"Qxd5":"The c6 pawn guards it! Then cxd5 and your queen is gone."},"hint":"Check what guards d5 before you grab.","explain":"That knight was guarded by the c6 pawn. Not loose at all.","answers":["f3","g3","g4","h3","h4","Qc2","Qb3","Qa4","Qd2","Qd3","Qd4","Qe2+","Qf3","Qg4","Qh5+","Qe1+","Qf1","Qc1","Qb1","Qa1","Kh1","Kf1"]},{"type":"move","fen":"4k3/8/8/1n3r2/8/3Q4/8/4K3 w - - 0 1","prompt":"Two loose pieces. Take the bigger one.","answers":["Qxf5"],"notes":{"Qxb5+":"That wins a knight, but there was a rook to take."},"hint":"Rook = 5, knight = 3.","hintFrom":"d3","explain":"Always grab the biggest loose piece."},{"type":"move","fen":"4k3/5ppp/8/8/1b6/2P5/5PPP/6K1 b - - 0 1","prompt":"You are Black. The c3 pawn attacks your bishop. Don't lose it.","hint":"Move it, or look for something even better.","hintFrom":"b4","explain":"Bxc3 was the best: the pawn was loose too!","answers":["Bxc3","Ba5","Bc5","Bd6","Be7","Bf8","Ba3"]}],"realSet":"Set up a few pieces for each side at random. Take turns pointing at every loose piece on the board. A point for each one you find first.","dad":"Coaches call this LPDO: loose pieces drop off. It is the single most useful habit for kids under 1000. Pair it with the three questions from Part 1 (what do they want, checks, captures) and he will stop dropping pieces.","polgar":null},{"id":"t2","title":"Knight forks","idea":["A fork is one piece attacking two things at once.","Knights are the best forkers, because they jump and nothing can block them.","A fork with check is the strongest: the king must move, and you take the other piece."],"demo":{"fen":"2q1k3/8/8/8/4N3/8/5PPP/6K1 w - - 0 1","steps":[{"text":"The king is on e8 and the queen is on c8. Is there a square where a knight hits both?","marks":["e8","c8"]},{"san":"Nd6+","text":"Nd6 is check, and it also attacks the queen.","arrows":[["d6","e8"],["d6","c8"]]},{"san":"Kd7","text":"Black has to get out of check."},{"san":"Nxc8","text":"The knight takes the queen. That fork won 9 points."}]},"tries":[{"type":"move","fen":"2q1k3/8/8/8/4N3/8/5PPP/6K1 w - - 0 1","prompt":"Fork the king and queen.","answers":["Nd6+"],"hint":"Find a square that touches both e8 and c8.","hintFrom":"e4","explain":"Check plus an attack on the queen."},{"type":"move","fen":"2r3k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1","prompt":"Fork the king and the rook.","answers":["Ne7+"],"hint":"Which square touches g8 and c8?","hintFrom":"d5","explain":"The king moves, then Nxc8."},{"type":"move","fen":"6k1/5ppp/8/8/3n4/2Q5/5PPP/6K1 b - - 0 1","prompt":"You are Black. Your knight is attacked, but you can fork!","answers":["Ne2+"],"hint":"Look for a check that also hits the queen.","hintFrom":"d4","explain":"Escaping and forking at the same time."},{"type":"move","fen":"6k1/3q1p1p/6p1/8/4N3/8/5PPP/6K1 w - - 0 1","prompt":"Find the fork.","answers":["Nf6+"],"hint":"Check the king and attack the queen.","hintFrom":"e4","explain":"Royal forks like this win the queen."}],"realSet":"Put a Black king and queen on the board and a White knight. Felix finds every square where the knight forks them. Then add a rook and do it again.","dad":"A useful way to spot forks: look at the enemy's king and big pieces, then ask which squares are a knight's jump from two of them. Knight forks of king, queen and rook are sometimes called family forks.","polgar":"Combinations section: look for knight forks first."},{"id":"t3","title":"Double attacks","idea":["Any piece can fork: queens, bishops, rooks, pawns, even kings.","The queen is great at it because she attacks in eight directions.","A little pawn forking two big pieces is the best fork of all."],"demo":{"fen":"r5k1/8/8/8/8/8/5PPP/3Q2K1 w - - 0 1","steps":[{"text":"Black's king and rook sit on two different diagonals that meet at d5.","arrows":[["d5","g8"],["d5","a8"]]},{"san":"Qd5+","text":"Check, and the queen also attacks the rook."},{"san":"Kh8","text":"The king steps away."},{"san":"Qxa8+","text":"The queen takes the rook."}]},"tries":[{"type":"move","fen":"r5k1/8/8/8/8/8/5PPP/3Q2K1 w - - 0 1","prompt":"Fork with the queen.","answers":["Qd5+"],"hint":"Find the square where the two diagonals meet.","hintFrom":"d1","explain":"Check plus an attack on the rook."},{"type":"move","fen":"6k1/5pp1/7p/n3b3/8/8/5PPP/3Q2K1 w - - 0 1","prompt":"Both Black pieces are loose. Win one with a queen check.","answers":["Qd8+"],"hint":"A check on the back row can also hit a5.","hintFrom":"d1","explain":"Check, then grab the knight."},{"type":"move","fen":"3q2k1/5pp1/7p/8/8/2N5/6PP/R5K1 b - - 0 1","prompt":"You are Black. Fork with your queen.","answers":["Qd4+"],"hint":"A check that also attacks the c3 knight.","hintFrom":"d8","explain":"Check first, then take the knight."},{"type":"move","fen":"6k1/5ppp/8/8/2n1b3/8/2PP1PPP/6K1 w - - 0 1","prompt":"Fork two pieces with a pawn.","answers":["d3"],"hint":"Which pawn move attacks both c4 and e4?","hintFrom":"d2","explain":"A 1-point pawn attacking two 3-point pieces."},{"type":"move","fen":"6k1/5ppp/8/2n1b3/8/2PP4/5PPP/6K1 w - - 0 1","prompt":"Another pawn fork.","answers":["d4"],"hint":"The c3 pawn guards your fork square.","hintFrom":"d3","explain":"The pawn is protected, so Black loses a piece."}],"realSet":"Pawn fork hunt: set up two Black pieces on the same row with one square between them. Felix places a White pawn where it can fork them next move.","dad":"Double attacks with check are the most forcing. A guarded forking piece (like the pawn on d4 backed by c3) is what makes the fork stick; an unguarded one can often just be taken.","polgar":null},{"id":"t4","title":"Pins","idea":["A pin is when a piece cannot move, because a bigger piece behind it would be captured.","If the piece behind is the king, the pinned piece is not allowed to move at all.","Once a piece is pinned, attack it again and win it."],"demo":{"fen":"4k3/8/2q5/8/P7/8/8/5BK1 w - - 0 1","steps":[{"text":"Black's queen and king are on the same diagonal.","arrows":[["b5","e8"]]},{"san":"Bb5","text":"The bishop pins the queen. If she moves off the line, the king would be in check, which is not allowed."},{"san":"Qxb5","text":"Black's best is to take the bishop."},{"san":"axb5","text":"The pawn takes back. White traded a 3-point bishop for a 9-point queen."}]},"tries":[{"type":"move","fen":"4k3/8/2q5/8/P7/8/8/5BK1 w - - 0 1","prompt":"Pin the queen to the king.","answers":["Bb5"],"hint":"Find a protected square on the queen's diagonal.","hintFrom":"f1","explain":"The queen is stuck. She is lost for a bishop."},{"type":"move","fen":"4k3/1p6/2n5/1B6/3P4/8/8/4K3 w - - 0 1","prompt":"Black's knight is pinned. Attack it again.","answers":["d5"],"notes":{"Bxc6+":"That just trades. The b7 pawn takes back. Attack the pinned knight with something smaller."},"hint":"A pawn can attack it.","hintFrom":"d4","explain":"The knight cannot run, so the pawn wins it."},{"type":"move","fen":"4k3/8/8/3p4/1b6/2N5/1P6/4K3 b - - 0 1","prompt":"You are Black. White's knight is pinned. Win it.","answers":["d4"],"hint":"Push a pawn at it.","hintFrom":"d5","explain":"Pinned pieces cannot run away."},{"type":"move","fen":"4r1k1/8/8/8/8/8/4Q3/4K3 b - - 0 1","prompt":"You are Black. White's queen is pinned to her king. Take her.","answers":["Rxe2+"],"hint":"Your rook is on the same file.","hintFrom":"e8","explain":"The king takes back, but you traded a rook for a queen."}],"realSet":"Set up a pin on the real board: a Black king, a Black piece in front of it, and a White bishop or rook. Felix tries to move the pinned piece and Dad explains why he can't.","dad":"Absolute pin: the piece behind is the king, so the pinned piece legally cannot move. Relative pin: the piece behind is just valuable, so moving is legal but costly. The winning idea is \"pile on the pinned piece\", usually with a pawn.","polgar":null},{"id":"t5","title":"Skewers","idea":["A skewer is a pin backwards: the big piece is in front.","Attack the king or queen. When it moves out of the way, take the piece behind it.","Bishops, rooks and queens make skewers, because they attack in straight lines."],"demo":{"fen":"3r4/8/8/3k4/8/8/8/R5K1 w - - 0 1","steps":[{"text":"Black's king is on d5 and the rook is right behind it on d8.","marks":["d5","d8"]},{"san":"Rd1+","text":"Check along the d-file."},{"san":"Ke5","text":"The king has to step off the file."},{"san":"Rxd8","text":"Now the rook behind it is open. Take it."}]},"tries":[{"type":"move","fen":"3r4/8/8/3k4/8/8/8/R5K1 w - - 0 1","prompt":"Skewer the king and rook.","answers":["Rd1+"],"hint":"Check the king on the same file as the rook.","hintFrom":"a1","explain":"King moves, rook falls."},{"type":"move","fen":"8/8/8/4q3/3k4/8/8/2B3K1 w - - 0 1","prompt":"Skewer the king and queen with your bishop.","answers":["Bb2+"],"hint":"The king and queen are on one diagonal.","hintFrom":"c1","explain":"The queen was hiding behind her king."},{"type":"move","fen":"8/8/8/8/q3k3/8/8/6KR w - - 0 1","prompt":"Skewer along the row.","answers":["Rh4+"],"hint":"King and queen share the 4th row.","hintFrom":"h1","explain":"Check along the row, then take the queen."},{"type":"move","fen":"3b2k1/8/8/8/8/2K5/8/4Q3 b - - 0 1","prompt":"You are Black. Skewer White's king and queen.","answers":["Ba5+"],"hint":"White's king and queen share a diagonal.","hintFrom":"d8","explain":"Black wins the queen for nothing."},{"type":"move","fen":"r3k3/8/8/8/8/8/7Q/6K1 w - - 0 1","prompt":"Skewer the king and the a8 rook with your queen.","answers":["Qh8+","Qe5+"],"hint":"Check the king along the back row.","hintFrom":"h2","explain":"Queens make great skewers."}],"realSet":"Set up a king and queen on the same line, then hide a White rook or bishop somewhere. Felix finds the skewer. Then Dad sets one up for him with only one possible answer.","dad":"Pins and skewers use the same line geometry; the difference is which piece is in front. Training the eye to notice two enemy pieces on one line (rank, file or diagonal) catches both.","polgar":null},{"id":"t6","title":"Discovered attacks","idea":["Sometimes one of your pieces blocks another of your pieces.","Move the front piece, and the piece behind attacks. Now you have two attacks at once.","If the back piece gives check, it is a discovered check, and you can take almost anything with the front piece."],"demo":{"fen":"4k3/8/8/1q6/8/8/4N3/4R1K1 w - - 0 1","steps":[{"text":"White's knight blocks the rook on the e-file. Behind the knight, the rook is aimed at Black's king.","arrows":[["e1","e8"]]},{"san":"Nc3+","text":"The knight moves, and the rook gives check. The knight also attacks the queen.","arrows":[["c3","b5"]]},{"san":"Kd7","text":"Black must answer the check first."},{"san":"Nxb5","text":"The knight takes the queen."}]},"tries":[{"type":"move","fen":"4k3/8/8/1q6/8/8/4N3/4R1K1 w - - 0 1","prompt":"Move the knight with check and win the queen.","answers":["Nc3+","Nd4+"],"hint":"The rook gives check when the knight moves. Where should the knight go?","hintFrom":"e2","explain":"Two attacks at once. Black cannot answer both."},{"type":"move","fen":"3q2k1/8/8/8/8/3B4/8/3R2K1 w - - 0 1","prompt":"Move the bishop with check. Your rook will attack the queen.","answers":["Bc4+"],"notes":{"Bh7+":"Check, but the king just takes the bishop. Find a safe check."},"hint":"Find a safe bishop check.","hintFrom":"d3","explain":"Black blocks or moves, then your rook takes the queen."},{"type":"move","fen":"4k3/8/r7/8/8/8/4B3/4R1K1 w - - 0 1","prompt":"Win the rook right now, with discovered check.","answers":["Bxa6+"],"hint":"The bishop can capture and uncover the rook at the same time.","hintFrom":"e2","explain":"Capture plus check. Black can't take back."},{"type":"move","fen":"4r1k1/8/8/4b3/8/2Q5/8/4K3 b - - 0 1","prompt":"You are Black. Uncover a check and win the queen.","answers":["Bxc3+"],"hint":"Your bishop blocks your rook's attack on the king.","hintFrom":"e5","explain":"The bishop takes the queen while the rook gives check."}],"realSet":"Set up a rook behind one of your own knights, aimed at the enemy king. Felix finds every knight move that gives discovered check, and which ones also attack something.","dad":"Discovered attacks are the strongest tactical idea because both pieces attack at once. A double check (both pieces give check) can only be answered by moving the king. Look for your own pieces lined up behind each other.","polgar":null},{"id":"t7","title":"Remove the guard","idea":["Sometimes a piece is protected by just one guard.","Capture the guard, or chase it away, and the piece it protected is loose.","If one guard has two jobs, it can only do one of them."],"demo":{"fen":"6k1/5ppp/5n2/3b2B1/8/8/5PPP/3R2K1 w - - 0 1","steps":[{"text":"White's rook attacks the d5 bishop. Only the f6 knight guards it.","arrows":[["d1","d5"],["f6","d5"]]},{"san":"Bxf6","text":"Take the guard!"},{"san":"gxf6","text":"Black takes back."},{"san":"Rxd5","text":"Now the bishop is loose, and the rook takes it."}]},"tries":[{"type":"move","fen":"6k1/5ppp/5n2/3b2B1/8/8/5PPP/3R2K1 w - - 0 1","prompt":"Remove the guard and win a piece.","answers":["Bxf6"],"hint":"Which Black piece protects d5?","hintFrom":"g5","explain":"No guard, no protection."},{"type":"move","fen":"3r2k1/5ppp/8/8/3B2b1/5N2/5PPP/6K1 b - - 0 1","prompt":"You are Black. Remove the guard of the d4 bishop.","answers":["Bxf3"],"hint":"What protects d4?","hintFrom":"g4","explain":"Then the rook takes the bishop."},{"type":"move","fen":"3q2k1/5ppp/1b3b2/8/3B4/8/5PPP/1R4K1 w - - 0 1","prompt":"Black's queen guards both bishops. Give her too much to do.","answers":["Bxb6"],"hint":"Take the bishop your rook also attacks.","hintFrom":"d4","explain":"If the queen takes back, your rook takes the queen."}],"realSet":"Pick any piece in a real game and ask: who guards it? How many guards? Could I take a guard? Do it for three pieces.","dad":"Removing the defender and overloading are cousins: both attack the guard instead of the target. Counting attackers and defenders on a square is the skill underneath; it is worth slowing down to count out loud.","polgar":"Combinations section: once Felix is comfortable, mixed tactics from the book make a great warm-up."}]},{"id":"p3","num":3,"title":"Checkmate Nets","blurb":"The patterns that trap a king. Learn the shape, then spot it in games.","lessons":[{"id":"m1","title":"Back-rank mate","idea":["A king behind its own pawns has no way out.","A rook or queen on that back row gives checkmate.","Watch for it on both sides of the board, every game."],"demo":{"fen":"6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1","steps":[{"text":"Black's king is boxed in by its own pawns on f7, g7 and h7.","marks":["f7","g7","h7"]},{"san":"Ra8#","text":"The rook checks along the back row. The king cannot step forward and nothing can block. Checkmate."}]},"tries":[{"type":"mate","fen":"6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1","prompt":"Checkmate in one move.","hint":"Use the back row.","hintFrom":"d1","explain":"Same pattern, with the queen.","solutions":["Qd8#"]},{"type":"mate","fen":"2r3k1/5ppp/8/8/8/8/5PPP/2R1R1K1 w - - 0 1","prompt":"Black's rook guards the back row. Checkmate anyway.","hint":"What if you take the guard?","hintFrom":"c1","explain":"Taking the guard with check is the same back-rank mate.","solutions":["Rxc8#"]},{"type":"mate","fen":"1r4k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 1","prompt":"You are Black. Checkmate in one move.","hint":"White's king is boxed in too.","hintFrom":"b8","explain":"It works for both sides. Protect your own back row!","solutions":["Rb1#"]}],"realSet":"Set up a back-rank mate on the real board from memory. Then Felix sets one up for Dad to solve.","dad":"The cure is \"luft\": pushing h3 or g3 (h6 or g6) at a calm moment gives the king an escape square. Teach both the pattern and the defense. Many of the mates in the front of the Polgar book are back-rank mates.","polgar":"Mate-in-one chapter: look for positions with the king behind three pawns."},{"id":"m2","title":"Two-rook ladder","idea":["Two rooks can walk a king to the edge like climbing a ladder.","One rook blocks a whole row. The other rook gives check on the next row.","The king runs out of rows and it is checkmate."],"demo":{"fen":"7k/8/8/8/8/8/R7/1R4K1 w - - 0 1","steps":[{"text":"Black's king is on the top edge. White's rooks are far away, and that is fine."},{"san":"Ra7","text":"This rook cuts off the whole 7th row. The king cannot step down.","arrows":[["a7","h7"]]},{"san":"Kg8","text":"The king can only shuffle along the top row."},{"san":"Rb8#","text":"The other rook checks along the top row. Checkmate."}]},"tries":[{"type":"mate","fen":"7k/R7/8/8/8/8/8/1R4K1 w - - 0 1","prompt":"One rook already blocks the 7th row. Checkmate.","hint":"Use the other rook on the top row.","hintFrom":"b1","explain":"One rook blocks, one rook checks.","solutions":["Rb8#"]},{"type":"mate","fen":"6k1/1R6/8/8/8/8/8/R5K1 w - - 0 1","prompt":"Checkmate in one move.","hint":"Which rook is not blocking anything yet?","hintFrom":"a1","explain":"The ladder pattern again.","solutions":["Ra8#"]},{"type":"mate","fen":"1r2k3/8/8/8/8/8/r7/7K b - - 0 1","prompt":"You are Black. Checkmate in one move.","hint":"Your a2 rook already blocks a row.","hintFrom":"b8","explain":"The ladder works from the top down, too.","solutions":["Rb1#"]}],"realSet":"Put only the two kings and two rooks on the board, with the Black king in the middle. Felix ladders the king to the edge while Dad moves the Black king. Count the moves.","dad":"The key detail: keep the rooks far from the enemy king, or it will attack them. If the king gets close to a rook, move that rook to the far side of the same row. This is the first of the basic mates; queen-plus-king and rook-plus-king come in the endgame part.","polgar":null},{"id":"m3","title":"Queen and king team","idea":["A queen right next to the enemy king gives checkmate if your king guards her.","Players call this the kiss of death.","The queen can also mate on the edge when your king covers the escape squares."],"demo":{"fen":"k7/8/1K6/8/8/8/8/7Q w - - 0 1","steps":[{"text":"White's king on b6 takes away a7 and b7.","marks":["a7","b7"]},{"san":"Qh8#","text":"The queen checks along the top row and also covers b8. No squares left. Checkmate."}]},"tries":[{"type":"mate","fen":"4k3/8/4K3/8/8/8/8/1Q6 w - - 0 1","prompt":"Your king covers the squares in front of Black's king. Checkmate.","hint":"Use the top row.","hintFrom":"b1","explain":"King covers the front, queen covers the row.","solutions":["Qb8#"]},{"type":"mate","fen":"7k/8/6K1/8/8/8/8/5Q2 w - - 0 1","prompt":"Checkmate in one move.","hint":"Your king already covers g7 and h7.","hintFrom":"f1","explain":"Queen on the edge, king in front.","solutions":["Qf8#"]},{"type":"mate","fen":"8/8/8/8/8/1k6/3q4/K7 b - - 0 1","prompt":"You are Black. Give the kiss of death.","hint":"Put your queen right next to White's king where your king guards her.","hintFrom":"d2","explain":"The king cannot take a queen that is protected.","solutions":["Qe1#","Qd1#","Qc1#","Qb2#","Qa2#"]}],"realSet":"Kings and one queen only. Dad's king stands on an edge. Felix finds every square where the queen gives checkmate.","dad":"The kiss of death (queen adjacent, defended by the king) is the finishing shape of the king-and-queen versus king ending. Watch for stalemate traps when the lone king has no moves and is not in check; that comes up in the endgame lessons.","polgar":null},{"id":"m4","title":"Smothered mate","idea":["Sometimes a king is surrounded by its own pieces.","A knight can jump over them and give check. Nothing can block a knight.","If no piece can take the knight, it is smothered mate."],"demo":{"fen":"6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1","steps":[{"text":"Black's king is boxed in by its own rook and pawns.","marks":["g8","g7","h7"]},{"san":"Nf7#","text":"The knight jumps in. The king cannot move and nothing can take the knight. Smothered!"}]},"tries":[{"type":"mate","fen":"r5rk/6pp/7N/8/8/8/8/6K1 w - - 0 1","prompt":"Checkmate with the knight.","hint":"Which square next to the corner can your knight reach?","hintFrom":"h6","explain":"Smothered again.","solutions":["Nf7#"]},{"type":"mate","fen":"6k1/8/8/8/6n1/8/6PP/6RK b - - 0 1","prompt":"You are Black. Smother White's king.","hint":"White's king is trapped by its own rook and pawns.","hintFrom":"g4","explain":"The knight's jump cannot be blocked.","solutions":["Nf2#"]}],"realSet":"Set up a smothered king in the corner with its own pieces around it. Felix finds every knight square that would give smothered mate.","dad":"The famous full version is a queen sacrifice: Nf7+, Kg8, Nh6+ (double check), Kh8, Qg8+!, Rxg8, Nf7#. It is a great one to show him on the real board once the basic shape sticks.","polgar":null},{"id":"m5","title":"Arabian mate","idea":["A rook and a knight make a strong team in the corner.","The rook gives check right next to the king.","The knight guards the rook and covers the last escape square."],"demo":{"fen":"7k/R7/5N2/8/8/8/8/6K1 w - - 0 1","steps":[{"text":"The knight on f6 guards h7 and g8.","arrows":[["f6","h7"],["f6","g8"]]},{"san":"Rh7#","text":"The rook checks. The king cannot take it, because the knight protects it. Checkmate."}]},"tries":[{"type":"mate","fen":"7k/8/5N2/8/8/8/8/6RK w - - 0 1","prompt":"Checkmate with the rook and knight.","hint":"Your knight guards g8.","hintFrom":"g1","explain":"Same team, different square.","solutions":["Rg8#"]},{"type":"mate","fen":"1r4k1/8/8/8/8/2n5/8/K7 b - - 0 1","prompt":"You are Black. Checkmate in one move.","hint":"Your knight guards b1 and a2.","hintFrom":"b8","explain":"The Arabian mate works in every corner.","solutions":["Rb1#"]}],"realSet":"Rook, knight, and the White king in a corner. Felix puts the pieces in a mating position, then moves one piece away and asks Dad to find the mate.","dad":"It is one of the oldest recorded checkmate patterns, from Arabic chess manuscripts over a thousand years old. That bit of history might grab his interest.","polgar":null},{"id":"m6","title":"Anastasia's mate","idea":["A knight near the king can take away two escape squares at once.","Then a rook or queen checks down the edge of the board.","The king's own pawn blocks the last square."],"demo":{"fen":"5r2/4Nppk/8/8/8/3R4/8/6K1 w - - 0 1","steps":[{"text":"The knight on e7 covers g8 and g6. The pawn on g7 blocks the king too.","arrows":[["e7","g8"],["e7","g6"]]},{"san":"Rh3#","text":"The rook checks down the h-file. Every escape is gone. Checkmate."}]},"tries":[{"type":"mate","fen":"5r2/4Nppk/8/8/8/8/8/3Q2K1 w - - 0 1","prompt":"Same net, but with a queen. Checkmate.","hint":"Get to the h-file with check.","hintFrom":"d1","explain":"Knight covers the escapes, queen gives check.","solutions":["Qh5#"]},{"type":"mate","fen":"6k1/8/3r4/8/8/8/4nPPK/5R2 b - - 0 1","prompt":"You are Black. Checkmate in one move.","hint":"Your knight covers g1 and g3.","hintFrom":"d6","explain":"Anastasia's mate, flipped.","solutions":["Rh6#"]}],"realSet":"Set up the demo position on the real board, then move the knight one square at a time. After each move, is it still mate if the rook goes to h3?","dad":"The name comes from an 1803 novel, Anastasia und das Schachspiel. Pattern recognition grows from seeing the same shape in different spots, so moving the pieces around on the real board is worth more than another screen puzzle.","polgar":null},{"id":"m7","title":"Boden's mate","idea":["Two bishops can cross their diagonals like scissors.","This often happens against a king that castled to the queen's side.","One bishop gives check and the other covers the escape squares."],"demo":{"fen":"2kr4/p2n4/8/8/5B2/8/4B3/4K3 w - - 0 1","steps":[{"text":"The bishop on f4 already covers c7 and b8.","arrows":[["f4","b8"]]},{"san":"Ba6#","text":"The other bishop checks from a6. The king's own rook and knight are in the way. Checkmate."}]},"tries":[{"type":"mate","fen":"2kr4/p2n4/8/8/5B2/8/4B3/4K3 w - - 0 1","prompt":"Cross the bishops. Checkmate.","hint":"Your e2 bishop can reach a square next to b7.","hintFrom":"e2","explain":"Two bishops, crossing diagonals.","solutions":["Ba6#"]},{"type":"mate","fen":"4k3/4b3/8/5b2/8/8/P2N4/2KR4 b - - 0 1","prompt":"You are Black. Checkmate with the bishops.","hint":"Your f5 bishop already covers b1 and c2.","hintFrom":"e7","explain":"Boden's mate from the other side.","solutions":["Ba3#"]}],"realSet":"Set up only kings and two bishops. Can Felix find a position where the bishops give checkmate with help from the king's own pieces? Dad checks it.","dad":"Named for Samuel Boden, 1853. It shows why a king castled queenside with pawns moved can be airy: the diagonals cross right in front of it.","polgar":null},{"id":"m8","title":"Two-move nets","idea":["Some checkmates take two moves.","First move: a check that forces the reply, or a quiet move that builds the net.","Second move: checkmate. The computer will answer your first move."],"demo":{"fen":"2r3k1/5ppp/8/8/8/8/3R1PPP/3R2K1 w - - 0 1","steps":[{"text":"Two rooks line up on the d-file. Black's rook guards the back row."},{"san":"Rd8+","text":"Check! Black has only one answer."},{"san":"Rxd8","text":"Black takes the rook."},{"san":"Rxd8#","text":"The second rook takes back, and it is a back-rank mate."}]},"tries":[{"type":"mate2","fen":"2r3k1/5ppp/8/8/8/8/3R1PPP/3R2K1 w - - 0 1","prompt":"Checkmate in two moves.","hint":"Two rooks, one file, one back row.","hintFrom":"d2","explain":"Give up one rook to clear the way for the other.","solutions":["Rd8+"]},{"type":"mate2","fen":"7k/8/8/8/8/8/R7/1R4K1 w - - 0 1","prompt":"Checkmate in two. Your first move does not need to be a check.","hint":"Block the 7th row first.","hintFrom":"a2","explain":"Quiet move, then mate. That is the ladder.","solutions":["Ra7","Rb7"]}],"realSet":"Dad sets up one of today's positions on the real board and plays Black. Felix has to say both moves out loud before touching a piece.","dad":"Calculation habit: say the whole line before moving. For mate-in-two, start by listing every check, then every capture, then quiet moves that cut off squares. The mate-in-two chapter of Polgar is huge; do three a session and set up one on the real board.","polgar":"Mate-in-two chapter: pick three per session and set one up on the real board."}]},{"id":"p4","num":4,"title":"Endgame Mastery","blurb":"Few pieces, careful moves. Finish off a lone king, then win and save king-and-pawn endings against a computer that plays them perfectly.","lessons":[{"id":"e1","title":"Queen checkmate","idea":["A queen and king can always checkmate a lone king.","Use the queen to make the king's box smaller and smaller, staying a knight's jump away so it cannot be attacked.","When the king is stuck on the edge, bring your own king close. Watch out for stalemate!"],"demo":{"fen":"7k/8/5K2/8/8/8/8/6Q1 w - - 0 1","steps":[{"text":"Black's king is stuck in the corner. White's king is close. Time to finish."},{"text":"Careful! Qg6 looks strong, but then Black has no legal move and is not in check. That is stalemate, and stalemate is a draw.","arrows":[["g1","g6"]]},{"text":"Stalemate is the number one way kids throw away a won game. Before every queen move, check that the king still has a square or is in check."},{"san":"Qg7#","text":"Qg7 is checkmate. The queen is right next to the king, and White's king guards her."}]},"tries":[{"type":"mate","fen":"7k/8/5K2/8/8/8/8/6Q1 w - - 0 1","prompt":"Checkmate in one. Don't fall for stalemate!","notes":{"Qg6":"Stalemate! Black has no moves and is not in check. That is a draw."},"hint":"The queen can sit right next to the king if your king guards her.","hintFrom":"g1","explain":"Queen next to the king, guarded by your king.","solutions":["Qg7#"]},{"type":"play","fen":"6k1/8/8/8/8/8/1Q6/6K1 w - - 0 1","limit":15,"prompt":"Play it out: checkmate the king in 15 moves or less. The computer moves Black.","hint":"First move your queen to the 7th row to trap the king on the top edge. Then walk your king up.","explain":"That is the whole queen checkmate. You can do it in any game now."},{"type":"play","fen":"8/8/8/3k4/8/8/8/Q3K3 w - - 0 1","limit":25,"weekend":true,"prompt":"Weekend challenge: the king starts in the middle. Checkmate in 25 moves or less.","hint":"Shrink the box with the queen a knight's jump away from the king. When the king is on the edge, bring your king.","explain":"From anywhere on the board. Real endgame skill."}],"realSet":"Kings and a queen only. Dad puts his king in the middle and defends. Felix must checkmate, and loses if he stalemates. Then switch sides.","dad":"Method: put the queen a knight's move from the enemy king and mirror its moves to shrink the box; once the king is on the edge, stop moving the queen and bring your king up, then mate. The best practical rule for kids: before each queen move, ask \"does he still have a move?\" Stalemate traps are where most kids go wrong here.","polgar":null},{"id":"e2","title":"Rook checkmate","idea":["A rook and king can checkmate too, but it takes teamwork.","The rook cuts the king off along a row or column. Your king walks up to face the other king.","When the two kings face each other, the rook checks on the edge. Checkmate."],"demo":{"fen":"3k4/8/3K4/8/8/8/8/7R w - - 0 1","steps":[{"text":"The kings face each other with one square between them. White's king takes away c7, d7 and e7.","marks":["c7","d7","e7"]},{"san":"Rh8#","text":"The rook checks along the edge. The king has nowhere to go. Checkmate."}]},"tries":[{"type":"mate","fen":"4k3/8/4K3/8/8/8/8/R7 w - - 0 1","prompt":"The kings face each other. Checkmate.","hint":"Use the top edge.","hintFrom":"a1","explain":"Kings face to face, rook on the edge.","solutions":["Ra8#"]},{"type":"play","fen":"6k1/R7/8/8/8/8/8/6K1 w - - 0 1","limit":15,"prompt":"Your rook already traps the king on the top row. Bring your king and checkmate in 15 moves.","hint":"Keep the rook where it is. Walk your king up to face Black's king, then check on the top row.","explain":"Rook holds the line, king does the walking."},{"type":"play","fen":"8/8/4k3/8/8/8/8/R3K3 w - - 0 1","limit":35,"weekend":true,"prompt":"Weekend challenge: checkmate from the middle in 35 moves or less.","hint":"Cut the king off with the rook. Bring your king to face his. When he steps away, cut him off one more row.","explain":"This one takes patience. You did it."}],"realSet":"Kings and one rook. Count how many moves it takes Felix to checkmate Dad's king. Try to beat the record next time.","dad":"The box method: cut the king off with the rook, use your king to take the opposition, and shrink the box one row at a time. If the rook is attacked, move it to the far end of the same row. When the kings are not facing, a quiet rook move along the same line (a waiting move) often forces the enemy king to step into the opposition.","polgar":null},{"id":"e3","title":"Two bishops checkmate","idea":["Two bishops side by side make a wall that the king cannot cross.","Use the wall and your king to push the enemy king into a corner.","The mate always happens in a corner."],"demo":{"fen":"k7/8/1K6/1B2B3/8/8/8/8 w - - 0 1","steps":[{"text":"The king is in the corner. White's king covers a7 and b7. The e5 bishop covers b8.","arrows":[["e5","b8"]]},{"san":"Bc6#","text":"The other bishop checks. Checkmate."}]},"tries":[{"type":"mate","fen":"k7/8/1K6/1B2B3/8/8/8/8 w - - 0 1","prompt":"Checkmate with the bishops.","hint":"One bishop already covers b8.","hintFrom":"b5","explain":"Bishops on neighboring diagonals.","solutions":["Bc6#"]},{"type":"mate","fen":"k7/8/1K6/8/B4B2/8/8/8 w - - 0 1","prompt":"Checkmate in one.","hint":"Which bishop can give check along the long diagonal?","hintFrom":"a4","explain":"The corner is where bishops win.","solutions":["Bc6#"]},{"type":"play","fen":"1k6/8/2K5/8/8/3BB3/8/8 w - - 0 1","limit":20,"weekend":true,"prompt":"Weekend challenge: push the king into the corner and checkmate in 20 moves.","hint":"Keep the bishops side by side as a wall. Use your king to take squares away. Do not stalemate!","explain":"Two bishops, one corner, checkmate."}],"realSet":"Set up the mating picture in all four corners on the real board. Which squares does each piece cover?","dad":"Two bishops versus king is a forced win in under 20 moves from any position, but the technique is fiddly. The key picture: bishops on adjacent diagonals form a barrier; the king and bishops work together to herd the king to any corner. Stalemate is again the main danger.","polgar":null},{"id":"e9","title":"Bishop and knight checkmate","idea":["A bishop and knight can checkmate, but only in a corner the same color as the bishop.","A light-squared bishop mates in the light corners, a8 and h1. A dark-squared bishop mates in a1 and h8.","The pieces work as a team: the king boxes, the knight covers the squares the bishop cannot, and the bishop checks."],"demo":{"fen":"k7/3N4/1K6/8/8/7B/8/8 w - - 0 1","steps":[{"text":"Black's king is in a8, a light corner. White's bishop moves on light squares, so this is the right corner."},{"text":"White's king covers a7 and b7. The knight covers b8.","arrows":[["d7","b8"]],"marks":["a7","b7"]},{"san":"Bg2#","text":"The bishop checks down the long diagonal. Checkmate."}]},"tries":[{"type":"squares","fen":"8/8/8/4k3/8/3BN3/8/4K3 w - - 0 1","prompt":"This bishop moves on light squares. Tap the two corners where it can help checkmate.","targets":["a8","h1"],"explain":"Light bishop, light corners."},{"type":"mate","fen":"k7/3N4/1K6/8/8/7B/8/8 w - - 0 1","prompt":"Checkmate in one.","hint":"The long diagonal leads right to a8.","hintFrom":"h3","explain":"King, knight and bishop all did a job.","solutions":["Bg2#"]},{"type":"mate","fen":"k7/2K5/8/1N6/2B5/8/8/8 w - - 0 1","prompt":"A different team shape. Checkmate in one.","hint":"Your knight covers a7. Check from the diagonal.","hintFrom":"c4","explain":"Same corner, different picture.","solutions":["Bd5#"]},{"type":"play","fen":"2k5/8/1K6/3N4/8/3B4/8/8 w - - 0 1","limit":30,"weekend":true,"prompt":"Weekend challenge: checkmate in 30 moves or less. Push the king into a light corner.","hint":"Keep your king close to his. If he runs toward a dark corner, use the knight and bishop to chase him along the edge to a8.","explain":"This is one of the hardest basic checkmates. Very few kids can do it."}],"realSet":"Set up the mating picture in a8, then try to set it up in a1 with the same bishop. Can you? Why not?","dad":"From the worst case this mate can take up to 33 moves, and the technique (often taught as the \"W manoeuvre\", where the knight walks a W shape to drive the king along the edge to the right corner) is genuinely hard. It almost never happens in real games, so treat this as a challenge, not a requirement. The color-of-corner idea is the part worth keeping.","polgar":null},{"id":"e4","title":"Two knights can't win","idea":["Two knights and a king cannot force checkmate against a lone king.","The king can always step away, and the move that would trap it usually causes stalemate.","Strangely, if the other side has a pawn, checkmate becomes possible, because the pawn gives them a move."],"demo":{"fen":"7k/5K2/8/3N4/5N2/8/8/8 w - - 0 1","steps":[{"text":"The king is in the corner. It looks like White should win."},{"san":"Nf6","text":"Nf6 takes away the last squares. But it is not check, and Black has no legal move. Stalemate! A draw."},{"text":"That is why two knights alone cannot force a win. Next, see what changes when Black has a pawn."}]},"tries":[{"type":"mate","fen":"7k/5K2/8/4N1N1/8/8/8/8 w - - 0 1","prompt":"Black just walked into a trap. Checkmate with a knight.","hint":"A knight check from g6 would hit h8.","hintFrom":"e5","explain":"Mate only happens if the defender makes a mistake.","solutions":["Ng6#"]},{"type":"mate2","fen":"7k/5K2/8/p2N4/5N2/8/8/8 w - - 0 1","prompt":"Same picture, but now Black has a pawn on a5. Checkmate in two.","hint":"Play the move that was stalemate before. Now Black must move the pawn.","hintFrom":"d5","explain":"Black's pawn saved you from stalemate. That is the surprise of two knights.","solutions":["Nf6"]}],"realSet":"Set up the stalemate picture and the pawn picture side by side on two boards (or one after the other). Felix explains to Dad why one is a draw and one is a win.","dad":"With no pawns, KNN vs K is a draw: the defender always has a non-losing move, and the 'trap' move stalemates. If the defender has a pawn, the stalemate defense disappears, which is why some KNN vs K+P positions are winning (the Troitsky line covers which pawn positions). No need to go deeper; the point is stalemate.","polgar":null},{"id":"e5","title":"Rule of the square","idea":["Can a king catch a pawn racing to become a queen? Draw a square to find out.","Make a square from the pawn to its last row. If the king can step into the square, it catches the pawn.","If the king cannot get in, the pawn becomes a queen."],"demo":{"fen":"8/8/8/8/1P6/5k2/8/7K w - - 0 1","steps":[{"text":"White's pawn on b4 wants to reach b8. Its square has corners b4, b8, f8 and f4.","marks":["b4","b8","f8","f4"]},{"text":"White to move: push the pawn, and the square shrinks. Black's king is too far away to get in."},{"san":"b5","text":"Now the square is b5, b8, e8, e5. Can Black's king on f3 step into it? No!","marks":["b5","b8","e8","e5"]},{"san":"Ke4","text":"The king tries, but e4 is outside the new square."},{"san":"b6","text":"The pawn keeps going and will become a queen."}]},"tries":[{"type":"kpk","goal":"win","fen":"8/8/8/8/1P6/5k2/8/7K w - - 0 1","prompt":"Win the race. Make a queen!","hint":"Your king is far away. The pawn has to run.","hintFrom":"b4","explain":"The king never got into the square."},{"type":"kpk","goal":"draw","fen":"8/8/8/8/1P6/5k2/8/7K b - - 0 1","survive":5,"prompt":"Now you are Black, and it is your move. Step into the square and catch the pawn.","hint":"The square is b4, b8, f8, f4. Which king move steps inside?","hintFrom":"f3","explain":"One move made all the difference: whoever moves first wins the race."}],"realSet":"Pawn races: put a White pawn and the Black king anywhere. Before moving, Felix guesses who wins by drawing the square in the air with his finger. Then play it out.","dad":"If the pawn is still on its starting square, draw the square from where it will be after the two-step move. And the side to move matters: with the defender to move, it can step in one move later. This rule decides huge numbers of kids' endgames.","polgar":null},{"id":"e6","title":"Opposition","idea":["When two kings stand face to face with one square between them, they are in opposition.","The side that does NOT have to move wins the standoff, because the other king must step aside.","Taking the opposition is how a king pushes through, or how a defender holds the line."],"demo":{"fen":"8/8/4k3/8/3K4/4P3/8/8 w - - 0 1","steps":[{"text":"White wants to get the king in front of the pawn. The Black king is in the way."},{"san":"Ke4","text":"Ke4! Now the kings face each other on the e-file, and it is Black's turn. White has the opposition.","marks":["e4","e6"]},{"san":"Kd6","text":"Black has to step aside."},{"san":"Kf5","text":"White's king walks forward past the Black king."}]},"tries":[{"type":"kpk","goal":"win","fen":"8/8/4k3/8/3K4/4P3/8/8 w - - 0 1","prompt":"Take the opposition, then win the game. The computer defends perfectly.","hint":"Put your king face to face with Black's king, one square between, with Black to move.","hintFrom":"d4","explain":"Opposition, then king forward, then queen."},{"type":"kpk","goal":"draw","fen":"4k3/8/8/4K3/4P3/8/8/8 b - - 0 1","survive":6,"prompt":"You are Black. Hold the draw by taking the opposition.","hint":"Stand face to face with White's king, one square between.","hintFrom":"e8","explain":"The defender used the opposition to stop the king. Draw."}],"realSet":"Kings only, face to face. Whoever has to move loses the standoff and must step aside. Play \"king tag\" where the goal is to reach the other side.","dad":"Direct opposition: same file (or rank), one square between, opponent to move. With king and pawn vs king, the attacker needs the king in front of the pawn and the opposition (or a king on the 6th rank in front of the pawn, which wins regardless). The defender's mirror rule: when the pawn advances, stay directly in front of it and take the opposition.","polgar":null},{"id":"e7","title":"King in front","idea":["In a king and pawn ending, your king should lead the way, not follow the pawn.","A king in front of its pawn clears the path and takes squares from the defender.","If your king reaches the 6th row in front of the pawn, you win no matter whose turn it is."],"demo":{"fen":"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1","steps":[{"text":"White's king is on the 6th row, right in front of the pawn. This is a win."},{"san":"Kd6","text":"Step aside, keeping control of the squares in front of the pawn."},{"san":"Kd8","text":"Black takes the opposition."},{"san":"e6","text":"Now the pawn moves up."},{"san":"Ke8","text":"Black blocks."},{"san":"e7","text":"Now Black has only one legal move."},{"san":"Kf7","text":"Black's only move."},{"san":"Kd7","text":"White's king guards e8. The pawn will become a queen."}]},"tries":[{"type":"kpk","goal":"win","fen":"8/4k3/8/8/4K3/4P3/8/8 w - - 0 1","prompt":"Lead with your king, then win the game.","hint":"Move your king forward, not your pawn.","hintFrom":"e4","explain":"King first, pawn second. That is the rule."},{"type":"kpk","goal":"win","fen":"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1","prompt":"Your king is on the 6th row. Finish the job and make a queen.","hint":"Your king should guard the square in front of the pawn.","hintFrom":"e6","explain":"King on the 6th in front of the pawn wins every time."}],"realSet":"Set up king and pawn vs king with the White king behind the pawn. Then set it up with the king in front. Play both and see which one wins.","dad":"Key squares: for a pawn on the 2nd to 4th rank, the key squares are the three squares two ranks ahead of it; if the attacking king reaches any of them, it wins (except with a rook pawn). Pushing the pawn too early is the classic mistake: the defender gets in front and takes the opposition.","polgar":null},{"id":"e8","title":"Rook pawns are tricky","idea":["A pawn on the a-file or h-file is called a rook pawn.","If the defending king gets to the corner in front of it, the game is a draw, even if the other king is close.","The attacker keeps getting stuck in stalemate."],"demo":{"fen":"1k6/8/1K6/P7/8/8/8/8 w - - 0 1","steps":[{"text":"White's king is close, but Black's king is near the corner."},{"san":"a6","text":"The pawn moves up."},{"san":"Ka8","text":"Black's king hides in the corner."},{"san":"a7","text":"Black has no legal move and is not in check. Stalemate! A draw."}]},"tries":[{"type":"kpk","goal":"draw","fen":"3k4/8/1K6/8/P7/8/8/8 b - - 0 1","survive":6,"prompt":"You are Black. Head for the corner and hold the draw.","hint":"Which corner is in front of the a-pawn?","hintFrom":"d8","explain":"Once you reach the corner, White can never win."},{"type":"kpk","goal":"draw","fen":"2k5/8/1K6/8/P7/8/8/8 b - - 0 1","survive":6,"prompt":"Black again. Find the only move that holds.","hint":"Get to the corner, even if it means stepping next to the pawn's path.","hintFrom":"c8","explain":"The corner is a fortress against a rook pawn."}],"realSet":"Set up a rook pawn race on the real board. Felix plays the defender and tries to reach the corner. Then switch.","dad":"With a rook pawn, the defender draws if his king reaches the queening corner, because the attacker cannot drive it out without stalemate. That makes rook pawns the weakest pawns in many endings, which is worth remembering when choosing which pawns to trade.","polgar":null}]},{"id":"p5","num":5,"title":"Three Simple Openings","blurb":"Plans, not memorizing. The Italian Game as White, 1...e5 against 1.e4, and 1...d5 against 1.d4.","lessons":[{"id":"o1","title":"Italian Game (White)","idea":["The Italian Game uses every rule from Part 1: center pawn, knight out, bishop out, castle.","White's bishop goes to c4 and aims at f7, the weakest square next to Black's king.","You don't need to memorize long lines. Learn the first six moves and why each one is played."],"demo":{"steps":[{"san":"e4","text":"A pawn in the center. It also opens lines for the queen and bishop."},{"san":"e5","text":"Black takes a share of the center."},{"san":"Nf3","text":"A knight comes out and attacks the e5 pawn.","arrows":[["f3","e5"]]},{"san":"Nc6","text":"Black defends e5 with a knight."},{"san":"Bc4","text":"The Italian bishop. It aims at f7.","arrows":[["c4","f7"]]},{"san":"Bc5","text":"Black copies the idea, aiming at f2. This is the Giuoco Piano, Italian for \"quiet game\"."}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"line","side":"w","prompt":"Play White's moves of the Italian Game. The computer plays Black.","line":[{"san":"e4","why":"Center pawn first.","hint":"Start with a center pawn in front of the king."},{"san":"e5","why":"Black grabs the center too."},{"san":"Nf3","why":"Knight out, attacking e5.","hint":"Bring out a knight that attacks e5."},{"san":"Nc6","why":"Black guards e5."},{"san":"Bc4","why":"Bishop out, aiming at f7.","hint":"Your bishop wants to aim at f7."},{"san":"Bc5","why":"Black's bishop aims at f2."},{"san":"c3","why":"Gets ready to push d4 later.","hint":"A small pawn move that prepares d4."},{"san":"Nf6","why":"Black's other knight comes out and eyes e4."},{"san":"d3","why":"Guards e4 and lets the c1 bishop out.","hint":"Protect your e4 pawn with a pawn."},{"san":"d6","why":"Black guards e5 the same way."},{"san":"O-O","why":"King safe. Ready for the middle of the game.","hint":"Make your king safe."},{"san":"O-O","why":"Black castles too."}],"explain":"Center, knight, bishop, castle. That is the whole plan.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"move","prompt":"Black plays Nf6 instead of Bc5 and attacks your e4 pawn. Protect it calmly.","answers":["d3","Nc3"],"notes":{"Ng5":"That is a famous attacking line, but it gets tricky fast. Keep it calm: just guard e4."},"hint":"Guard e4 with a pawn or a knight.","hintFrom":"d2","explain":"Calm and solid. Your plan stays the same: c3, castle.","fen":"r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"},{"type":"line","side":"w","prompt":"Same plan against Black's Nf6. Play White's moves.","line":[{"san":"e4","why":"Center pawn.","hint":"Same start as always."},{"san":"e5","why":"Black takes the center too."},{"san":"Nf3","why":"Knight attacks e5.","hint":"Knight out, aimed at e5."},{"san":"Nc6","why":"Black guards e5."},{"san":"Bc4","why":"Bishop to c4.","hint":"The Italian bishop."},{"san":"Nf6","why":"Black attacks e4 with a knight."},{"san":"d3","why":"Guard e4 with a pawn.","hint":"Your e4 pawn is attacked. Guard it with a pawn."},{"san":"Be7","why":"Black gets ready to castle."},{"san":"O-O","why":"King safe.","hint":"Make your king safe."},{"san":"O-O","why":"Black castles too."},{"san":"c3","why":"Room for the bishop to retreat, and ready for d4 later.","hint":"Same small pawn move as before."},{"san":"d6","why":"Black guards e5."}],"explain":"Same setup against a different Black move. That is why plans beat memorizing.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}],"realSet":"Play the Italian Game against Dad for the first six moves. Dad tries different Black moves. Felix says the reason for each of his moves out loud.","dad":"The Giuoco Piano / Giuoco Pianissimo setup (c3, d3, O-O) is what many coaches teach first: it follows the opening principles and avoids sharp theory. The 4.Ng5 lines against the Two Knights (Fried Liver territory) are exciting but tactically heavy; save them for later.","polgar":null},{"id":"o2","title":"Answering 1.e4 (Black)","idea":["When White opens with 1.e4, answer with 1...e5. You get your own center pawn.","Then the same rules: knights out, bishops out, castle.","If White's bishop goes to b5 instead of c4, that is the Spanish Game. Ask it a question with a6."],"demo":{"steps":[{"san":"e4","text":"White opens with the king's pawn."},{"san":"e5","text":"Black answers in the center."},{"san":"Nf3","text":"White's knight attacks e5."},{"san":"Nc6","text":"Black guards e5 and develops at the same time."},{"san":"Bb5","text":"This is the Spanish Game, also called the Ruy Lopez. The bishop attacks the knight that guards e5."},{"san":"a6","text":"Black asks the bishop: are you going to take, or go back?"}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"line","side":"b","prompt":"Play Black against the Italian Game. The computer plays White.","line":[{"san":"e4","why":"White starts in the center."},{"san":"e5","why":"Your own center pawn.","hint":"Match White in the center."},{"san":"Nf3","why":"White attacks e5."},{"san":"Nc6","why":"Guard e5 and develop.","hint":"Guard e5 with a knight."},{"san":"Bc4","why":"White aims at f7."},{"san":"Bc5","why":"Your bishop aims at f2.","hint":"Copy the idea with your own bishop."},{"san":"O-O","why":"White castles."},{"san":"Nf6","why":"Last piece before castling.","hint":"Bring out your other knight."},{"san":"d3","why":"White guards e4."},{"san":"d6","why":"Guard e5 and open your c8 bishop.","hint":"Guard e5 with a pawn."},{"san":"c3","why":"White prepares d4."},{"san":"O-O","why":"King safe.","hint":"Make your king safe."}],"explain":"You played the same good moves as White, from the other side.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"line","side":"b","prompt":"Now White plays the Spanish Game. Play Black.","line":[{"san":"e4","why":"White starts in the center."},{"san":"e5","why":"Center pawn.","hint":"Same first move."},{"san":"Nf3","why":"White attacks e5."},{"san":"Nc6","why":"Guard e5.","hint":"Guard e5 with a knight."},{"san":"Bb5","why":"The Spanish bishop attacks your knight."},{"san":"a6","why":"Ask the bishop a question.","hint":"Push a pawn to attack the bishop."},{"san":"Ba4","why":"White keeps the bishop."},{"san":"Nf6","why":"Develop and attack e4.","hint":"Your other knight comes out."},{"san":"O-O","why":"White castles."},{"san":"Be7","why":"Get ready to castle.","hint":"Bishop out, short and safe."},{"san":"Re1","why":"White guards e4 with the rook."},{"san":"b5","why":"Chase the bishop away.","hint":"Push another pawn at the bishop."},{"san":"Bb3","why":"The bishop retreats."},{"san":"O-O","why":"King safe.","hint":"Make your king safe."}],"explain":"The Spanish Game is one of the oldest openings in chess, and you just played it.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"move","prompt":"White's queen and bishop both aim at f7. Stop the checkmate threat.","answers":["Nf6","Qf6","Qe7"],"notes":{"d6":"Then Qxf7 is checkmate!","Nd4":"That attacks the queen, but Qxf7 is still checkmate."},"hint":"Block the queen's line to f7, or guard f7.","hintFrom":"g8","explain":"Nf6 is best: it blocks the queen and develops a piece.","fen":"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR b KQkq - 3 3"}],"realSet":"Dad plays White and mixes the Italian and the Spanish. Felix plays Black and must reach castling without losing a pawn.","dad":"1...e5 lines are the most instructive for kids because they lead to open, tactical positions where development matters. The early-queen tries (Qh5, Qf3 with Bc4) are what he will see constantly on chess.com, so drill the defense. The Spanish line here is the main Closed Ruy Lopez setup, kept short.","polgar":null},{"id":"o3","title":"Answering 1.d4 (Black)","idea":["When White opens with 1.d4, answer with 1...d5. Again, your own center pawn.","If White pushes c4 (the Queen's Gambit), keep your center strong with e6.","Then knights out, bishops out, castle. Same rules, different pawns."],"demo":{"steps":[{"san":"d4","text":"White opens with the queen's pawn."},{"san":"d5","text":"Black answers in the center."},{"san":"c4","text":"The Queen's Gambit. White offers the c-pawn to pull Black's d-pawn away from the center."},{"san":"e6","text":"Black says no thanks and guards d5. This is the Queen's Gambit Declined."}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"line","side":"b","prompt":"Play Black against the Queen's Gambit.","line":[{"san":"d4","why":"White starts in the center."},{"san":"d5","why":"Your own center pawn.","hint":"Match White in the center."},{"san":"c4","why":"The Queen's Gambit attacks d5."},{"san":"e6","why":"Guard d5 with a pawn.","hint":"Guard d5 with a pawn and open your bishop."},{"san":"Nc3","why":"White adds pressure on d5."},{"san":"Nf6","why":"Develop and guard d5 again.","hint":"A knight that also guards d5."},{"san":"Bg5","why":"White pins your knight to the queen."},{"san":"Be7","why":"Break the pin and get ready to castle.","hint":"Put a piece between the pinned knight and your queen."},{"san":"e3","why":"White opens a path for the other bishop."},{"san":"O-O","why":"King safe.","hint":"Make your king safe."},{"san":"Nf3","why":"White develops."},{"san":"Nbd7","why":"Last knight out. It supports the center.","hint":"Your b8 knight comes out, behind the pawns."}],"explain":"The Queen's Gambit Declined is a solid setup used by world champions.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"line","side":"b","prompt":"Now White plays the London System, with the bishop on f4. Play Black.","line":[{"san":"d4","why":"White starts in the center."},{"san":"d5","why":"Center pawn.","hint":"Same first move."},{"san":"Bf4","why":"The London bishop comes out early."},{"san":"Nf6","why":"Develop a knight.","hint":"Knight out toward the center."},{"san":"e3","why":"White guards d4."},{"san":"e6","why":"Open your bishop's path.","hint":"A small pawn move that opens your f8 bishop."},{"san":"Nf3","why":"White develops."},{"san":"Bd6","why":"Challenge White's bishop.","hint":"Put your bishop face to face with White's bishop."},{"san":"Bd3","why":"White develops instead of trading."},{"san":"O-O","why":"King safe.","hint":"Make your king safe."},{"san":"O-O","why":"White castles too."},{"san":"c5","why":"Attack White's center.","hint":"Hit d4 with your c-pawn."}],"explain":"Same rules against a different setup. Then hit the center with c5.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"move","prompt":"White's knight just grabbed your d5 pawn. It looks like your knight can't take back, because the bishop would take your queen. Look closer!","answers":["Nxd5"],"hint":"After Bxd8, your bishop has a check on b4.","hintFrom":"f6","explain":"If Bxd8, then Bb4+ Qd2 Bxd2+ Kxd2 Kxd8, and you are a piece ahead. This is the Elephant Trap.","fen":"r1bqkb1r/pppn1ppp/5n2/3N2B1/3P4/8/PP2PPPP/R2QKBNR b KQkq - 0 6"}],"realSet":"Dad plays 1.d4 openings: sometimes the Queen's Gambit, sometimes the London. Felix plays Black and must castle by move 8.","dad":"1...d5 with ...e6 (QGD structure) is solid and principled. The Elephant Trap is a real trap that catches club players: after 6.Nxd5? Nxd5! 7.Bxd8 Bb4+ 8.Qd2 Bxd2+ 9.Kxd2 Kxd8 Black is up a piece. When he is ready, the French Defense upgrade (1.e4 e6 2.d4 d5) uses many of these same pawn ideas.","polgar":null}]},{"id":"p6","num":6,"title":"Bonus Openings","blurb":"Dad's openings: the French Defense with its pawn-chain plans, and a Danish Gambit day.","lessons":[{"id":"u1","title":"French Defense","idea":["The French Defense answers 1.e4 with 1...e6, then 2...d5. Black builds a strong wall of pawns in the center.","It is quieter than 1...e5: fewer early tricks, more long-term plans.","White has three main ways to play against it: push e5, trade on d5, or bring the knight to c3."],"demo":{"steps":[{"san":"e4","text":"White starts in the center."},{"san":"e6","text":"The French. A small pawn step that gets ready for d5."},{"san":"d4","text":"White takes the whole center."},{"san":"d5","text":"Black hits e4. Now White must decide: push, trade, or defend."},{"san":"e5","text":"The Advance Variation. White grabs space. Black will attack this pawn chain from the side."}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"line","side":"b","prompt":"White pushes e5 (the Advance). Play Black.","line":[{"san":"e4","why":"White starts in the center."},{"san":"e6","why":"The French begins.","hint":"A small pawn step in front of your king."},{"san":"d4","why":"White takes the center."},{"san":"d5","why":"Hit e4.","hint":"Now challenge e4 with your d-pawn."},{"san":"e5","why":"White pushes past."},{"san":"c5","why":"Attack the base of White's pawn chain, d4.","hint":"Hit d4 with a pawn."},{"san":"c3","why":"White guards d4."},{"san":"Nc6","why":"A second attacker on d4.","hint":"Bring a knight to attack d4."},{"san":"Nf3","why":"White guards d4 again."},{"san":"Qb6","why":"A third attacker on d4, and it eyes b2 too.","hint":"Your queen can attack d4 and b2 at the same time."}],"explain":"Three Black pieces aim at d4. That is the French plan in one picture.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"line","side":"b","prompt":"White trades on d5 (the Exchange). Play Black.","line":[{"san":"e4","why":"White starts in the center."},{"san":"e6","why":"The French.","hint":"Same first move as always."},{"san":"d4","why":"White takes the center."},{"san":"d5","why":"Hit e4.","hint":"Challenge e4."},{"san":"exd5","why":"White trades pawns."},{"san":"exd5","why":"Take back. Now your c8 bishop is free!","hint":"Take back with a pawn."},{"san":"Nf3","why":"White develops."},{"san":"Nf6","why":"Develop.","hint":"Knight out."},{"san":"Bd3","why":"White develops."},{"san":"Bd6","why":"Develop, copying White.","hint":"Bishop out, ready to castle."},{"san":"O-O","why":"White castles."},{"san":"O-O","why":"King safe.","hint":"Make your king safe."}],"explain":"In the Exchange, the position is even and calm. Just develop and castle.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"line","side":"b","prompt":"White plays Nc3 (the Classical). Play Black.","line":[{"san":"e4","why":"White starts in the center."},{"san":"e6","why":"The French.","hint":"Same first move."},{"san":"d4","why":"White takes the center."},{"san":"d5","why":"Hit e4.","hint":"Challenge e4."},{"san":"Nc3","why":"White guards e4 with a knight."},{"san":"Nf6","why":"Attack e4 again.","hint":"Add a knight attack on e4."},{"san":"Bg5","why":"White pins your knight."},{"san":"Be7","why":"Break the pin.","hint":"Put a piece between the knight and your queen."},{"san":"e5","why":"White kicks your knight."},{"san":"Nfd7","why":"Retreat. Later the knight helps attack the chain.","hint":"Your knight steps back toward d7."},{"san":"Bxe7","why":"White trades bishops."},{"san":"Qxe7","why":"Take back with the queen.","hint":"Recapture."}],"explain":"Next, Black usually plays c5 to attack White's center, just like in the Advance.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"avoid","prompt":"The d4 pawn looks free for your knight. Is it? Make a safe move.","bad":["Nxd4"],"badNote":"This is a famous trap: Nxd4 Nxd4 Qxd4, then Bb5+! The bishop gives check and White's queen takes yours.","hint":"Before taking, imagine White's bishop moving off the d-file with check.","explain":"Good. The usual move here is Bd7, which takes away that Bb5+ trick.","fen":"r1b1kbnr/pp3ppp/1qn1p3/3pP3/3P4/3B1N2/PP3PPP/RNBQK2R b KQkq - 0 7"}],"realSet":"This is Dad's opening! Dad plays Black with the French and Felix plays White. Then switch: Felix plays the French and Dad tries all three White setups.","dad":"Your speed-chess French will benefit from this too. The core ideas: ...c5 hits the base of the chain (d4), ...f6 hits the head (e5), and the c8 bishop is Black's problem piece. The Advance trap here (7...Nxd4?? 8.Nxd4 Qxd4 9.Bb5+) catches a lot of club players.","polgar":null},{"id":"u2","title":"French plans: pawn chains","idea":["In the French, White's pawns often form a chain: d4 behind e5.","Attack the back of the chain, called the base. If d4 falls, e5 is left alone.","Black's light-squared bishop on c8 is stuck behind the e6 pawn. Strong French players always have a plan for it."],"demo":{"steps":[{"text":"White's d4 and e5 pawns form a chain. d4 is the base, e5 is the head.","marks":["d4","e5"]},{"san":"c5","text":"Black hits the base with c5.","arrows":[["c5","d4"]]},{"san":"c3","text":"White protects the base."},{"san":"Nc6","text":"More pressure on d4.","arrows":[["c6","d4"],["c5","d4"]]},{"text":"Look at the c8 bishop. Its diagonal is blocked by e6. This is the French Defense's problem bishop.","marks":["c8","e6"]}],"fen":"rnbqkbnr/ppp2ppp/4p3/3pP3/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3"},"tries":[{"type":"squares","prompt":"Tap the base of White's pawn chain.","targets":["d4"],"explain":"d4 holds up e5. Attack it and the whole chain wobbles.","fen":"rnbqkbnr/ppp2ppp/4p3/3pP3/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3"},{"type":"move","prompt":"Attack the base of the chain with a pawn.","answers":["c5"],"notes":{"f6":"That hits the head of the chain. Good idea later, but the base comes first."},"hint":"Which pawn can hit d4?","hintFrom":"c7","explain":"c5 is the classic French move.","fen":"rnbqkbnr/ppp2ppp/4p3/3pP3/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3"},{"type":"squares","prompt":"Tap Black's problem bishop, the one stuck behind its own pawns.","targets":["c8"],"explain":"Its diagonal is blocked by e6. Plans for it: b6 and Ba6, or Bd7 then e8 and h5.","fen":"rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/8/PPP2PPP/RNBQKBNR w KQkq c6 0 4"},{"type":"move","prompt":"Pile up on d4. Find a move that adds a third attacker.","answers":["Qb6"],"hint":"Your queen can join the attack, and hit b2 too.","hintFrom":"d8","explain":"Pawn, knight and queen all hit d4.","fen":"r1bqkbnr/pp3ppp/2n1p3/2ppP3/3P4/2P2N2/PP3PPP/RNBQKB1R b KQkq - 2 5"}],"realSet":"Set up the pawns from the Advance French on the real board, no pieces. Felix points to the base and the head of each chain, for both sides.","dad":"Nimzowitsch's rule: attack a pawn chain at its base. In the Advance French, Black hits d4 with ...c5, ...Nc6, ...Qb6 and sometimes ...Nge7-f5. The ...f6 break against e5 comes later. This is the clearest way to teach Felix that strategy means pushing on one target for many moves.","polgar":null},{"id":"u3","title":"Danish Gambit day","idea":["A gambit gives away pawns to get your pieces out faster.","In the Danish, White gives up two pawns. In return, both bishops point straight at Black's king.","It is great fun to play, and it teaches why fast development matters so much."],"demo":{"steps":[{"san":"e4","text":"Center pawn."},{"san":"e5","text":"Black answers."},{"san":"d4","text":"White offers a pawn right away."},{"san":"exd4","text":"Black takes."},{"san":"c3","text":"The Danish Gambit: another pawn offered."},{"san":"dxc3","text":"Black takes again."},{"san":"Bc4","text":"White develops instead of taking back. A third pawn is on offer!"},{"san":"cxb2","text":"Black grabs it."},{"san":"Bxb2","text":"Look at White's bishops: one aims at f7, one at g7. Black is ahead in pawns, but White is way ahead in development.","arrows":[["c4","f7"],["b2","g7"]]}],"fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},"tries":[{"type":"line","side":"w","prompt":"Play the Danish Gambit as White.","line":[{"san":"e4","why":"Center pawn.","hint":"Start in the center."},{"san":"e5","why":"Black answers."},{"san":"d4","why":"Offer the first pawn.","hint":"Push your other center pawn two squares."},{"san":"exd4","why":"Black takes."},{"san":"c3","why":"Offer a second pawn.","hint":"Offer another pawn next to it."},{"san":"dxc3","why":"Black takes."},{"san":"Bc4","why":"Develop and aim at f7.","hint":"Don't take back. Bring out a bishop."},{"san":"cxb2","why":"Black grabs a third pawn."},{"san":"Bxb2","why":"Take back with the other bishop, aiming at g7.","hint":"Take back with a bishop."},{"san":"d6","why":"Black blocks the center."},{"san":"Nf3","why":"Develop.","hint":"Knight out."},{"san":"Nc6","why":"Black develops."},{"san":"O-O","why":"King safe, rook ready to join the attack.","hint":"Make your king safe."}],"explain":"Two pawns down, but every White piece is ready to attack.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},{"type":"move","prompt":"Your bishops point at f7 and g7. Strike!","answers":["Bxf7+","Bxg7"],"notes":{"O-O":"Safe, but there is something sharper. Look at f7 and g7."},"hint":"Take a pawn next to Black's king.","hintFrom":"c4","explain":"After Bxf7+ Kxf7, Qd5+ checks and attacks the c5 bishop. Black's king will never castle now.","fen":"r1bqk1nr/pppp1ppp/2n5/2b5/2B1P3/5N2/PB3PPP/RN1QK2R w KQkq - 3 7"},{"type":"line","side":"b","prompt":"Now be Black and decline the gambit the safe way.","line":[{"san":"e4","why":"White starts."},{"san":"e5","why":"Center pawn.","hint":"Match White."},{"san":"d4","why":"White offers a pawn."},{"san":"exd4","why":"Take the first one.","hint":"Take it."},{"san":"c3","why":"The Danish Gambit."},{"san":"d5","why":"Don't take again. Strike back in the center.","hint":"Push your d-pawn two squares."},{"san":"exd5","why":"White takes."},{"san":"Qxd5","why":"Take back with the queen.","hint":"Recapture."},{"san":"cxd4","why":"White takes back a pawn."},{"san":"Nc6","why":"Develop and attack d4.","hint":"Knight out, aimed at d4."},{"san":"Nf3","why":"White guards d4."},{"san":"Bg4","why":"Pin the knight that guards d4.","hint":"Pin the f3 knight to the queen."}],"explain":"Grab one pawn, then hit back with d5. White's attack never gets going.","fen":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}],"realSet":"Gambit day! Dad and Felix play three games where White must play the Danish. Then three where Black declines with d5. Who wins more?","dad":"Your favorite attack. Objectively the Danish is unsound against 4...d5 or the 3...d5 decline shown here, but in kids' games it is a fantastic lesson in development and open lines. Main tactical themes: Bxf7+, Qb3 against f7, and the long b2 bishop against g7.","polgar":null}]}]};
+const KEY = 'chesslab.v1';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s).replace(/[+#]/g, '');
+const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+const lessons = DATA.parts.flatMap(p => p.lessons.map(l => ({ ...l, part: p })));
+
+/* ---------- Progress ---------- */
+function loadProg() { try { return JSON.parse(localStorage.getItem(KEY)) || { lessons: {} }; } catch (e) { return { lessons: {} }; } }
+function saveProg() { try { localStorage.setItem(KEY, JSON.stringify(PROG)); } catch (e) {} }
+let PROG = loadProg(); if (!PROG.lessons) PROG.lessons = {};
+
+/* ---------- Pieces (rounded, marble-set shapes) ---------- */
+const BASE = '<rect x="19" y="80" width="62" height="11" rx="5.5"/>';
+const SHAPES = {
+  p: BASE + '<path d="M35 80 Q36 62 44 55 L56 55 Q64 62 65 80 Z"/><ellipse cx="50" cy="54" rx="13" ry="4"/><circle cx="50" cy="38" r="13"/>',
+  r: BASE + '<path d="M33 80 L36 46 L64 46 L67 80 Z"/><rect x="27" y="17" width="12" height="16" rx="4"/><rect x="44" y="17" width="12" height="16" rx="4"/><rect x="61" y="17" width="12" height="16" rx="4"/><rect x="27" y="27" width="46" height="16" rx="4"/><rect x="29" y="42" width="42" height="7" rx="3.5"/>',
+  b: BASE + '<path d="M37 80 Q38 66 44 60 L56 60 Q62 66 63 80 Z"/><ellipse cx="50" cy="59" rx="15" ry="4.5"/><path d="M50 21 C63 31 66 44 60 54 Q50 60 40 54 C34 44 37 31 50 21 Z"/><circle cx="50" cy="16" r="5.5"/><path class="d" d="M55.5 33 L47 43"/>',
+  n: BASE + '<path d="M36 80 C35 68 40 60 47 54 C41 56 33 57 27 53 C22 50 23 43 28 39 C34 33 38 26 43 22 L42 12 L49 19 C61 17 73 28 73 47 C73 62 66 71 66 80 Z"/><path class="d" d="M57 22 C65 28 69 38 68 52"/><circle class="e" cx="44" cy="32" r="2.8"/><circle class="e" cx="29" cy="46" r="1.6"/>',
+  q: BASE + '<path d="M33 80 Q37 60 41 48 L59 48 Q63 60 67 80 Z"/><path d="M31 47 L29 33 Q50 24 71 33 L69 47 Z"/><ellipse cx="50" cy="48" rx="17" ry="4.5"/><circle cx="29" cy="30" r="5"/><circle cx="39.5" cy="25.5" r="5"/><circle cx="50" cy="23" r="5.5"/><circle cx="60.5" cy="25.5" r="5"/><circle cx="71" cy="30" r="5"/>',
+  k: BASE + '<path d="M33 80 Q37 60 41 48 L59 48 Q63 60 67 80 Z"/><path d="M46 31 V21 H41 a3 3 0 0 1 -3 -3 v-2 a3 3 0 0 1 3 -3 H46 V10 a3 3 0 0 1 3 -3 h2 a3 3 0 0 1 3 3 V13 H59 a3 3 0 0 1 3 3 v2 a3 3 0 0 1 -3 3 H54 V31 Z"/><path d="M32 47 C32 36 40 29 50 29 C60 29 68 36 68 47 Z"/><ellipse cx="50" cy="48" rx="17" ry="4.5"/>'
+};
+(function buildDefs() {
+  let s = `<radialGradient id="g-ivory" cx="36%" cy="28%" r="80%"><stop offset="0" stop-color="#fffdf8"/><stop offset=".6" stop-color="#f1e7d6"/><stop offset="1" stop-color="#d9c7aa"/></radialGradient>
+  <radialGradient id="g-ebony" cx="36%" cy="28%" r="80%"><stop offset="0" stop-color="#6a5d53"/><stop offset=".55" stop-color="#352d28"/><stop offset="1" stop-color="#1a1512"/></radialGradient>`;
+  for (const t in SHAPES) {
+    s += `<symbol id="P-w${t}" viewBox="0 0 100 100"><g fill="url(#g-ivory)" stroke="#3a2d22" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">${SHAPES[t].replace(/class="d"/g, 'fill="none" stroke-width="2.6"').replace(/class="e"/g, 'fill="#3a2d22" stroke="none"')}</g></symbol>`;
+    s += `<symbol id="P-b${t}" viewBox="0 0 100 100"><g fill="url(#g-ebony)" stroke="#0d0a08" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">${SHAPES[t].replace(/class="d"/g, 'fill="none" stroke="#e2d3bc" stroke-width="2.6"').replace(/class="e"/g, 'fill="#efe2cc" stroke="none"')}</g></symbol>`;
+  }
+  $('#piece-defs').innerHTML = s;
+})();
+
+/* ---------- Board ---------- */
+const LIGHT = '#efe3cb', DARK = '#a9764d';
+function baseSVG() {
+  let lightRects = '', darkRects = '', all = '';
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+    const r = `<rect x="${x * 100}" y="${y * 100}" width="100" height="100"/>`;
+    if ((x + y) % 2 === 0) lightRects += r; else darkRects += r;
+  }
+  return `<defs>
+    <clipPath id="clip-l">${lightRects}</clipPath><clipPath id="clip-d">${darkRects}</clipPath>
+    <filter id="vein-l" x="0" y="0" width="1" height="1"><feTurbulence type="turbulence" baseFrequency="0.0045 0.016" numOctaves="4" seed="11"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.52  0 0 0 0 0.44  0 0 0 0 0.36  -3.4 0 0 0 0.95"/></filter>
+    <filter id="vein-d" x="0" y="0" width="1" height="1"><feTurbulence type="turbulence" baseFrequency="0.005 0.014" numOctaves="4" seed="4"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.93  0 0 0 0 0.82  0 0 0 0 0.66  -3.2 0 0 0 0.85"/></filter>
+    <filter id="cloud" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="2"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 0.97  0 0 0 0 0.9  0 0 0 0.5 -0.12"/></filter>
+  </defs>
+  <g clip-path="url(#clip-l)"><rect width="800" height="800" fill="${LIGHT}"/><rect width="800" height="800" filter="url(#cloud)"/><rect width="800" height="800" filter="url(#vein-l)" opacity=".55"/></g>
+  <g clip-path="url(#clip-d)"><rect width="800" height="800" fill="${DARK}"/><rect width="800" height="800" filter="url(#cloud)" opacity=".7"/><rect width="800" height="800" filter="url(#vein-d)" opacity=".5"/></g>`;
+}
+const FILES = 'abcdefgh';
+function sqXY(sq, orient) {
+  const f = FILES.indexOf(sq[0]), r = +sq[1] - 1;
+  return orient === 'w' ? [f, 7 - r] : [7 - f, r];
+}
+function xySq(x, y, orient) { return orient === 'w' ? FILES[x] + (8 - y) : FILES[7 - x] + (y + 1); }
+
+class Board {
+  constructor(el, onSquare) {
+    this.el = el; this.onSquare = onSquare;
+    el.classList.add('board');
+    el.innerHTML = `<svg class="b-base" viewBox="0 0 800 800" aria-hidden="true">${baseSVG()}</svg><svg class="b-top" viewBox="0 0 800 800" role="img" aria-label="Chess board"></svg>`;
+    this.top = el.querySelector('.b-top');
+    this.top.addEventListener('pointerdown', e => {
+      if (this.locked) return;
+      const r = this.top.getBoundingClientRect();
+      const x = Math.floor((e.clientX - r.left) / r.width * 8), y = Math.floor((e.clientY - r.top) / r.height * 8);
+      if (x < 0 || x > 7 || y < 0 || y > 7) return;
+      e.preventDefault();
+      this.onSquare && this.onSquare(xySq(x, y, this.orient));
+    });
+  }
+  draw(o) {
+    const g = o.game, orient = this.orient = o.orient || 'w';
+    this.locked = !!o.locked; this.el.classList.toggle('locked', this.locked);
+    let s = '';
+    const tint = (sq, fill, cls = '') => { const [x, y] = sqXY(sq, orient); s += `<rect class="${cls}" x="${x * 100}" y="${y * 100}" width="100" height="100" fill="${fill}"/>`; };
+    if (o.last) { tint(o.last.from, 'rgba(214,170,60,.42)'); tint(o.last.to, 'rgba(214,170,60,.5)'); }
+    if (o.sel) tint(o.sel, 'rgba(47,91,78,.45)');
+    if (o.hint) tint(o.hint, 'rgba(47,91,78,.6)', 'pulse');
+    (o.marks || []).forEach(sq => { const [x, y] = sqXY(sq, orient); s += `<rect x="${x * 100 + 5}" y="${y * 100 + 5}" width="90" height="90" rx="10" fill="rgba(47,91,78,.22)" stroke="#2f5b4e" stroke-width="7"/>`; });
+    (o.found || []).forEach(sq => { const [x, y] = sqXY(sq, orient); s += `<circle class="pop" cx="${x * 100 + 50}" cy="${y * 100 + 50}" r="40" fill="none" stroke="#2f6b45" stroke-width="9"/>`; });
+    // check glow
+    if (g.in_check()) {
+      const t = g.turn();
+      for (const sq of allSquares()) { const p = g.get(sq); if (p && p.type === 'k' && p.color === t) { const [x, y] = sqXY(sq, orient); s += `<circle cx="${x * 100 + 50}" cy="${y * 100 + 50}" r="48" fill="rgba(200,50,30,.45)"/>`; } }
+    }
+    // coordinates
+    for (let i = 0; i < 8; i++) {
+      const file = orient === 'w' ? FILES[i] : FILES[7 - i];
+      const rank = orient === 'w' ? 8 - i : i + 1;
+      const fileFill = (i + 7) % 2 === 0 ? DARK : '#5e3f27';
+      s += `<text x="${i * 100 + 92}" y="793" font-size="17" font-family="Alegreya Sans, sans-serif" font-weight="700" text-anchor="end" fill="${(i + 7) % 2 === 0 ? '#7d5434' : '#f3e7d2'}">${file}</text>`;
+      s += `<text x="6" y="${i * 100 + 20}" font-size="17" font-family="Alegreya Sans, sans-serif" font-weight="700" fill="${i % 2 === 0 ? '#7d5434' : '#f3e7d2'}">${rank}</text>`;
+    }
+    // pieces
+    for (const sq of allSquares()) {
+      const p = g.get(sq); if (!p) continue;
+      const [x, y] = sqXY(sq, orient);
+      s += `<use class="pc" href="#P-${p.color}${p.type}" x="${x * 100 + 3}" y="${y * 100 + 3}" width="94" height="94"/>`;
+    }
+    // move targets
+    (o.targets || []).forEach(m => {
+      const [x, y] = sqXY(m.to, orient);
+      if (g.get(m.to)) s += `<circle cx="${x * 100 + 50}" cy="${y * 100 + 50}" r="44" fill="none" stroke="rgba(30,60,50,.55)" stroke-width="8"/>`;
+      else s += `<circle cx="${x * 100 + 50}" cy="${y * 100 + 50}" r="15" fill="rgba(30,60,50,.5)"/>`;
+    });
+    // arrows
+    (o.arrows || []).forEach(([a, b]) => {
+      const [x1, y1] = sqXY(a, orient), [x2, y2] = sqXY(b, orient);
+      const cx1 = x1 * 100 + 50, cy1 = y1 * 100 + 50, cx2 = x2 * 100 + 50, cy2 = y2 * 100 + 50;
+      const ang = Math.atan2(cy2 - cy1, cx2 - cx1), len = Math.hypot(cx2 - cx1, cy2 - cy1);
+      const ex = cx1 + Math.cos(ang) * (len - 34), ey = cy1 + Math.sin(ang) * (len - 34);
+      const hx = cx1 + Math.cos(ang) * (len - 6), hy = cy1 + Math.sin(ang) * (len - 6);
+      const px = Math.cos(ang + Math.PI / 2) * 22, py = Math.sin(ang + Math.PI / 2) * 22;
+      s += `<g opacity=".78"><line x1="${cx1}" y1="${cy1}" x2="${ex}" y2="${ey}" stroke="#2f5b4e" stroke-width="16" stroke-linecap="round"/>
+        <path d="M${hx} ${hy} L${ex + px} ${ey + py} L${ex - px} ${ey - py} Z" fill="#2f5b4e"/></g>`;
+    });
+    this.top.innerHTML = s;
+  }
+  shake() { if (reduced()) return; this.el.classList.remove('shake'); void this.el.offsetWidth; this.el.classList.add('shake'); }
+}
+let _sqs; function allSquares() { if (!_sqs) { _sqs = []; for (const f of FILES) for (let r = 1; r <= 8; r++) _sqs.push(f + r); } return _sqs; }
+const mates = g => g.moves().filter(m => { g.move(m); const r = g.in_checkmate(); g.undo(); return r; });
+const sideName = t => t === 'w' ? 'White' : 'Black';
+const PIECE_NAME = { q: 'queen', r: 'rook', b: 'bishop', n: 'knight', p: 'pawn' };
+
+/* ---------- Endgame coach ---------- */
+// King + pawn table: built once in a background worker, main thread as fallback.
+let kpkState = 'idle', kpkWaiters = [];
+function kpkPrepare(cb) {
+  if (cb) kpkWaiters.push(cb);
+  if (kpkState === 'ready') { const w = kpkWaiters; kpkWaiters = []; w.forEach(f => f()); return; }
+  if (kpkState === 'busy') return;
+  kpkState = 'busy';
+  const done = () => { kpkState = 'ready'; const w = kpkWaiters; kpkWaiters = []; w.forEach(f => f()); };
+  const fallback = () => setTimeout(() => { try { KPK.solve(); } catch (e) {} done(); }, 30);
+  try {
+    fetch('kpk.js').then(r => { if (!r.ok) throw 0; return r.text(); }).then(src => {
+      const url = URL.createObjectURL(new Blob([src + '\nonmessage=function(){var t=KPK.solve();postMessage(t,[t.buffer]);};'], { type: 'text/javascript' }));
+      const wk = new Worker(url);
+      wk.onmessage = e => { KPK.setTable(new Uint8Array(e.data)); wk.terminate(); done(); };
+      wk.onerror = () => { wk.terminate(); fallback(); };
+      wk.postMessage(1);
+    }).catch(fallback);
+  } catch (e) { fallback(); }
+}
+function kpos(g) {
+  const p = { stm: g.turn() };
+  g.board().forEach((row, ri) => row.forEach((x, fi) => {
+    if (!x) return; const sq = FILES[fi] + (8 - ri);
+    if (x.type === 'k') p[x.color === 'w' ? 'wk' : 'bk'] = sq; else if (x.type === 'p') p.wp = sq; else p.other = sq;
+  }));
+  return p;
+}
+// value of the position after a move was just made (any side): 'win' or 'draw' for White
+function kpkResult(g, mv) {
+  if (mv.captured) return 'draw';
+  const p = kpos(g);
+  if (mv.promotion) return KPK.afterPromotion(mv.to, p.wk, p.bk);
+  if (!p.wp) return 'draw';
+  if (g.in_stalemate()) return 'draw';
+  return KPK.value(p) > 0 ? 'win' : 'draw';
+}
+function kpkDepth(g) { const p = kpos(g); return p.wp ? KPK.value(p) : 0; }
+const dist = (a, b) => Math.max(Math.abs(a.charCodeAt(0) - b.charCodeAt(0)), Math.abs(+a[1] - +b[1]));
+// Computer move in a king + pawn ending
+function kpkReply(g) {
+  const ms = g.moves({ verbose: true });
+  const scored = ms.map(m => {
+    g.move(m); const res = kpkResult(g, m); const d = res === 'win' && !m.promotion ? kpkDepth(g) : 0;
+    let s;
+    if (g.turn() === 'b') { // White just moved
+      if (res === 'win') s = 1000 - d + (m.promotion ? 500 : 0);
+      else {
+        const p = kpos(g);
+        const hang = p.wp && dist(p.bk, p.wp) <= 1 && dist(p.wk, p.wp) > 1;
+        s = (hang || (m.promotion)) ? -100 : 0;
+        if (p.wp) s += (m.piece === 'p' ? 3 : 0) - dist(p.wk, p.wp[0] + Math.min(8, +p.wp[1] + 1));
+        if (g.in_stalemate()) s -= 50;
+      }
+    } else {                 // Black just moved
+      s = res === 'draw' ? 1000 : d;
+    }
+    g.undo(); return { m, s: s + Math.random() * 0.1 };
+  });
+  scored.sort((a, b) => b.s - a.s);
+  return scored[0].m;
+}
+// Lone king defender in mating endings: grab anything loose, else stay central and free
+function loneKingReply(g) {
+  const ms = g.moves({ verbose: true });
+  const cap = ms.find(m => m.captured); if (cap) return cap;
+  const scored = ms.map(m => {
+    g.move(m);
+    const f = g.fen().split(' '); f[1] = 'b'; f[3] = '-';
+    const h = new Chess(); let mob = 0; if (h.load(f.join(' '))) mob = h.moves().length;
+    g.undo();
+    const fi = m.to.charCodeAt(0) - 97, ri = +m.to[1] - 1;
+    const center = 7 - (Math.abs(fi - 3.5) + Math.abs(ri - 3.5));
+    return { m, s: mob * 2 + center + Math.random() * 0.5 };
+  });
+  scored.sort((a, b) => b.s - a.s);
+  return scored[0].m;
+}
+
+/* ---------- Views ---------- */
+const app = $('#app');
+let V = null; // current lesson view state
+
+function lessonStars(id) { return (PROG.lessons[id] && PROG.lessons[id].stars) || 0; }
+function starStr(n, max = 3) { return `<span class="stars" aria-label="${n} of ${max} stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(max - n)}</span></span>`; }
+function nextLesson() { return lessons.find(l => !PROG.lessons[l.id]) || null; }
+
+function showHome() {
+  V = null;
+  const nx = nextLesson();
+  let h = `<header class="home-head"><div><div class="eyebrow">Felix's training program</div><h1>Chess Lab</h1><p>One idea at a time. About ten minutes a lesson.</p></div></header>`;
+  if (nx) h += `<section class="next-card"><div class="mini" id="mini"></div><div><div class="eyebrow" style="color:inherit;opacity:.8">Up next · Part ${nx.part.num}</div><h2>${esc(nx.title)}</h2></div><button class="btn" data-open="${nx.id}">Start</button></section>`;
+  else h += `<section class="next-card"><div class="mini" id="mini"></div><div><div class="eyebrow" style="color:inherit;opacity:.8">All done for now</div><h2>Every lesson finished. More parts are on the way.</h2></div></section>`;
+  h += `<section class="warm"><div><div class="eyebrow">Optional warm-up</div><p>Three quick puzzles, mixed from Tactics and Checkmate Nets.</p></div><button class="btn" id="warm">Start warm-up</button></section>`;
+  h += '<div class="parts">';
+  for (const p of DATA.parts) {
+    h += `<section class="part"><div class="eyebrow">Part ${p.num}</div><h2>${esc(p.title)}</h2><p class="blurb">${esc(p.blurb)}</p>`;
+    if (p.soon) h += `<div class="soon">Coming next</div>`;
+    else {
+      h += '<div class="lessons">';
+      p.lessons.forEach((l, i) => {
+        const st = lessonStars(l.id), done = !!PROG.lessons[l.id];
+        h += `<button class="lesson-btn${done ? ' done' : ''}" data-open="${l.id}"><span class="n">${i + 1}</span><span class="t">${esc(l.title)}</span>${starStr(st)}</button>`;
+      });
+      h += '</div>';
+    }
+    h += '</section>';
+  }
+  h += `</div><details class="grownups"><summary>For grown-ups</summary>
+    <p>Stars are saved on this iPad only. Reset clears every lesson so Felix can start over.</p>
+    <div class="row"><button class="btn small" id="reset">Reset all progress</button><span id="reset-msg" aria-live="polite"></span></div></details>`;
+  app.innerHTML = h;
+  // tiny decorative board in the next card
+  const mini = $('#mini');
+  if (mini) { const b = new Board(mini, null); const g = new Chess(); b.draw({ game: g, orient: 'w', locked: true }); mini.style.boxShadow = 'none'; mini.style.margin = '0'; mini.style.maxWidth = '72px'; }
+  $('#warm').addEventListener('click', startWarmup);
+  app.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openLesson(b.dataset.open)));
+  let armed = 0;
+  $('#reset').addEventListener('click', () => {
+    const msg = $('#reset-msg');
+    if (Date.now() - armed < 4000) { PROG = { lessons: {} }; saveProg(); showHome(); return; }
+    armed = Date.now(); msg.textContent = 'Tap again to confirm.';
+    setTimeout(() => { if (msg.isConnected) msg.textContent = ''; }, 4000);
+  });
+  window.scrollTo(0, 0);
+}
+
+function startWarmup() {
+  const pool = DATA.parts.filter(p => p.id === 'p2' || p.id === 'p3').flatMap(p => p.lessons.flatMap(l => l.tries.filter(t => t.type === 'move' || t.type === 'mate')));
+  const pick = [];
+  while (pick.length < 3 && pool.length) pick.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  openLesson('warmup', { id: 'warmup', title: 'Warm-up', warmup: true, tries: pick });
+}
+function openLesson(id, obj) {
+  const L = obj || lessons.find(l => l.id === id);
+  const steps = L.warmup ? [...L.tries.map((_, i) => 'try' + i), 'done'] : ['idea', 'watch', ...L.tries.map((_, i) => 'try' + i), 'real', 'done'];
+  V = { L, steps, step: 0, demoI: 0, tryStars: [], busy: false };
+  if (L.tries.some(t => t.type === 'kpk')) kpkPrepare();
+  app.innerHTML = `
+    <div class="lesson-top">
+      <button class="btn small" id="back">← Lessons</button>
+      <h1>${esc(L.title)}</h1>
+      <div class="steps" id="pills"></div>
+    </div>
+    <div class="stage">
+      <div class="board-col"><div class="board-holder"><div id="board"></div></div><div class="turn" id="turn"></div></div>
+      <div class="panel" id="panel"></div>
+    </div>`;
+  $('#back').addEventListener('click', showHome);
+  V.board = new Board($('#board'), sq => onSquare(sq));
+  window.scrollTo(0, 0);
+  renderStep();
+}
+
+function pills() {
+  $('#pills').innerHTML = V.steps.map((s, i) => `<span class="pill ${i < V.step ? 'done' : i === V.step ? 'now' : ''}" title="${s}"></span>`).join('');
+}
+function dadBlock() {
+  const L = V.L;
+  if (!L.dad) return '';
+  return `<details class="dad"><summary>For Dad</summary><p>${esc(L.dad)}</p>${L.polgar ? `<p class="polgar">Polgar book: ${esc(L.polgar)}</p>` : ''}</details>`;
+}
+function setTurn(g, show = true) {
+  const t = g.turn();
+  $('#turn').innerHTML = show ? `<i style="background:${t === 'w' ? '#f4ecdd' : '#2a231f'}"></i>${sideName(t)} to move` : '';
+}
+
+function renderStep() {
+  pills();
+  const st = V.steps[V.step], L = V.L, P = $('#panel');
+  if (st === 'idea') {
+    const g = new Chess(L.demo.fen);
+    V.board.draw({ game: g, orient: g.turn(), locked: true, marks: L.demo.steps[0].marks, arrows: L.demo.steps[0].arrows });
+    setTurn(g, false);
+    P.innerHTML = `<div class="eyebrow">The idea</div><div class="idea">${L.idea.map(p => `<p>${esc(p)}</p>`).join('')}</div>
+      <div class="actions"><button class="btn primary" id="go">Watch it</button></div>${dadBlock()}`;
+    $('#go').addEventListener('click', nextStep);
+  } else if (st === 'watch') {
+    V.demoI = 0; drawDemo();
+  } else if (st.startsWith('try')) {
+    startTry(+st.slice(3));
+  } else if (st === 'real') {
+    const g = new Chess(L.demo.fen); V.board.draw({ game: g, orient: 'w', locked: true }); setTurn(g, false);
+    P.innerHTML = `<div class="eyebrow">On the real board</div><h2>Now with the real pieces</h2><p class="real">${esc(L.realSet)}</p>
+      <div class="actions"><button class="btn primary" id="did">We did it</button><button class="btn" id="skip">Save it for later</button></div>${dadBlock()}`;
+    $('#did').addEventListener('click', () => { V.real = true; nextStep(); });
+    $('#skip').addEventListener('click', () => { V.real = false; nextStep(); });
+  } else if (st === 'done') {
+    const n = V.tryStars.length;
+    const sum = V.tryStars.reduce((a, b) => a + b, 0);
+    let stars = n ? Math.max(1, Math.round(sum / n)) : 3;
+    if (L.warmup) {
+      P.innerHTML = `<div class="eyebrow">Warm-up done</div><h2>Brain switched on.</h2><div class="done-stars">${starStr(stars)}</div>
+        <div class="actions"><button class="btn primary" id="home">Lessons</button><button class="btn" id="again">Another warm-up</button></div>`;
+      $('#home').addEventListener('click', showHome); $('#again').addEventListener('click', startWarmup);
+      return;
+    }
+    const prev = lessonStars(L.id);
+    PROG.lessons[L.id] = { stars: Math.max(prev, stars), real: !!(V.real || (PROG.lessons[L.id] && PROG.lessons[L.id].real)) };
+    saveProg();
+    const idx = lessons.findIndex(l => l.id === L.id), nx = lessons[idx + 1];
+    P.innerHTML = `<div class="eyebrow">Lesson complete</div><h2>${esc(L.title)}: done!</h2>
+      <div class="done-stars">${starStr(stars)}</div>
+      <p class="real">${stars === 3 ? 'Perfect. Every puzzle on the first try.' : stars === 2 ? 'Nice work. Try it again later for three stars.' : 'Good start. This one is worth doing again soon.'}</p>
+      <div class="actions">${nx ? `<button class="btn primary" id="nx">Next: ${esc(nx.title)}</button>` : ''}<button class="btn" id="home">Lessons</button><button class="btn" id="again">Do it again</button></div>
+      <p class="counter">Short on focus today? One lesson is plenty. Stopping here is a win.</p>`;
+    if (nx) $('#nx').addEventListener('click', () => openLesson(nx.id));
+    $('#home').addEventListener('click', showHome);
+    $('#again').addEventListener('click', () => openLesson(L.id));
+  }
+}
+function nextStep() { V.step = Math.min(V.step + 1, V.steps.length - 1); renderStep(); window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); }
+
+/* ---------- Watch (demo) ---------- */
+function drawDemo() {
+  const L = V.L, steps = L.demo.steps, g = new Chess(L.demo.fen);
+  let last = null;
+  for (let i = 0; i <= V.demoI; i++) if (steps[i].san) { const m = g.move(steps[i].san); last = m ? { from: m.from, to: m.to } : last; }
+  const cur = steps[V.demoI];
+  V.board.draw({ game: g, orient: 'w', locked: true, last, marks: cur.marks, arrows: cur.arrows });
+  setTurn(g, false);
+  const atEnd = V.demoI === steps.length - 1;
+  $('#panel').innerHTML = `<div class="eyebrow">Watch</div>
+    <p class="say">${esc(cur.text)}</p>
+    <div class="actions"><button class="btn" id="prev" ${V.demoI === 0 ? 'disabled' : ''} aria-label="Previous move">◀ Back</button>
+      <button class="btn ${atEnd ? '' : 'primary'}" id="fwd" ${atEnd ? 'disabled' : ''} aria-label="Next move">Next ▶</button>
+      <span class="counter">${V.demoI + 1} / ${steps.length}</span></div>
+    <div class="actions"><button class="btn ${atEnd ? 'primary' : ''}" id="go">Your turn</button></div>${dadBlock()}`;
+  $('#prev').addEventListener('click', () => { V.demoI--; drawDemo(); });
+  $('#fwd').addEventListener('click', () => { V.demoI++; drawDemo(); });
+  $('#go').addEventListener('click', nextStep);
+}
+
+/* ---------- Try ---------- */
+function startTry(i) {
+  const t = V.L.tries[i];
+  V.t = t; V.ti = i; V.g = new Chess(t.fen); V.orient = t.type === 'line' ? t.side : V.g.turn();
+  V.sel = null; V.misses = 0; V.hinted = false; V.solved = false; V.shown = false; V.found = []; V.last = null; V.phase = 1; V.fb = null; V.busy = false;
+  V.used = 0; V.held = 0; V.over = false; V.li = 0; V.anyHint = false;
+  V.startFen = t.fen;
+  if (t.type === 'kpk' && kpkState !== 'ready') {
+    V.busy = true; V.fb = { kind: 'hint', text: 'Setting up the endgame coach. One moment…' }; drawTry();
+    kpkPrepare(() => { if (V && V.t === t) { V.busy = false; V.fb = null; drawTry(); } });
+    return;
+  }
+  if (t.type === 'line' && V.g.turn() !== t.side) { lineReply(''); return; }
+  drawTry();
+}
+function drawTry() {
+  const t = V.t, g = V.g;
+  const targets = V.sel ? g.moves({ square: V.sel, verbose: true }) : [];
+  V.board.draw({ game: g, orient: V.orient, sel: V.sel, targets, last: V.last, hint: V.hinted && !V.solved ? curHintFrom() : null,
+    found: V.found, locked: V.solved || V.busy || V.over });
+  setTurn(g, t.type !== 'squares');
+  const n = V.L.tries.length;
+  let fb = '';
+  if (V.fb) fb = `<div class="fb ${V.fb.kind}" role="status">${esc(V.fb.text)}</div>`;
+  const kindLabel = t.weekend ? 'Weekend challenge' : { mate: 'Checkmate in one', mate2: 'Checkmate in two', squares: 'Tap the squares', stopmate: 'Spot the threat', avoid: 'Safe move', move: 'Your move', line: 'Play the opening', play: 'Play it out', kpk: t.goal === 'win' ? 'Win it' : 'Hold the draw' }[t.type];
+  let extra = '';
+  if (t.type === 'squares') extra = `<span class="counter">${V.found.length} of ${t.targets.length} found</span>`;
+  if (t.type === 'mate2' && !V.solved) extra = `<span class="counter">Move ${V.phase} of 2</span>`;
+  if (t.type === 'play') extra = `<span class="counter">Move ${V.used} of ${t.limit}</span>`;
+  if (t.type === 'line') { const mine = lineMine(t); extra = `<span class="counter">Move ${Math.min(mine.done(V.li), mine.total)} of ${mine.total}</span>`; }
+  if (t.type === 'kpk' && t.goal === 'draw') extra = `<span class="counter">Held ${V.held} of ${t.survive}</span>`;
+  const canShow = V.misses >= 2 && t.type !== 'play' && !V.over;
+  $('#panel').innerHTML = `<div class="eyebrow">Try ${V.ti + 1} of ${n} · ${kindLabel}</div>
+    <p class="prompt">${esc(t.prompt)}</p>
+    ${fb}
+    <div class="actions">
+      ${V.solved
+        ? `<button class="btn primary" id="next">${V.ti + 1 < n ? 'Next try' : 'Finish'}</button>${V.shown ? '' : starStr(tryScore())}`
+        : `<button class="btn" id="hint" ${V.hinted || !curHint() ? 'disabled' : ''}>Hint</button>${canShow ? `<button class="btn" id="show">${t.type === 'kpk' ? 'Show me a move' : 'Show me'}</button>` : ''}<button class="btn" id="redo">Start over</button>`}
+      <span class="grow"></span>${extra}
+    </div>${dadBlock()}`;
+  if (V.solved) $('#next').addEventListener('click', () => { V.tryStars.push(V.shown ? 0 : tryScore()); nextStep(); });
+  else {
+    const h = $('#hint'); if (h) h.addEventListener('click', () => { V.hinted = true; V.anyHint = true; V.fb = { kind: 'hint', text: curHint() }; drawTry(); });
+    const s = $('#show'); if (s) s.addEventListener('click', showMe);
+    $('#redo').addEventListener('click', () => { const keepM = V.misses, keepH = V.hinted; startTry(V.ti); V.misses = keepM; V.hinted = keepH; drawTry(); });
+  }
+}
+function curHint() { const t = V.t; if (t.type === 'line') { const st = t.line[V.li]; return (st && st.hint) || t.hint || null; } return t.hint || null; }
+function curHintFrom() {
+  const t = V.t;
+  if (t.type !== 'line') return t.hintFrom;
+  const st = t.line[V.li]; if (!st) return null;
+  const h = new Chess(V.g.fen()); const m = h.move(st.san); return m ? m.from : null;
+}
+function lineMine(t) {
+  const idx = []; const h = new Chess(t.fen);
+  t.line.forEach((st, k) => { if (h.turn() === t.side) idx.push(k); h.move(st.san); });
+  return { total: idx.length, done: li => idx.filter(k => k < li).length };
+}
+function lineReply(prefix) {
+  const t = V.t, g = V.g;
+  V.busy = true; V.sel = null; drawTry();
+  setTimeout(() => {
+    if (!V || V.g !== g) return;
+    const st = t.line[V.li]; const m = g.move(st.san);
+    V.last = { from: m.from, to: m.to }; V.li++; V.busy = false; V.hinted = false;
+    const said = `${prefix}${prefix ? ' ' : ''}${sideName(m.color)} plays ${m.san}: ${st.why}`;
+    if (V.li >= t.line.length) { V.solved = true; V.fb = { kind: 'good', text: `${said} ${t.explain}` }; }
+    else V.fb = { kind: 'hint', text: said };
+    drawTry();
+  }, reduced() ? 150 : 650);
+}
+function tryScore() { if (V.shown) return 0; if (V.misses === 0 && !V.hinted && !V.anyHint) return 3; if (V.misses <= 1) return 2; return 1; }
+
+function onSquare(sq) {
+  if (!V || !V.t || V.solved || V.busy || V.over || !V.steps[V.step].startsWith('try')) return;
+  const t = V.t, g = V.g;
+  if (t.type === 'squares') {
+    if (t.targets.includes(sq)) {
+      if (!V.found.includes(sq)) V.found.push(sq);
+      V.fb = null;
+      if (V.found.length === t.targets.length) { V.solved = true; V.fb = { kind: 'good', text: t.explain }; }
+    } else { V.misses++; V.fb = { kind: 'bad', text: 'Not that one. Look again.' }; V.board.shake(); }
+    drawTry(); return;
+  }
+  const p = g.get(sq);
+  if (V.sel) {
+    const mv = g.moves({ square: V.sel, verbose: true }).find(m => m.to === sq);
+    if (mv) { V.sel = null; tryMove({ from: mv.from, to: mv.to, promotion: 'q' }); return; }
+  }
+  V.sel = (p && p.color === g.turn() && V.sel !== sq) ? sq : null;
+  drawTry();
+}
+
+function noteFor(t, san) { if (!t.notes) return null; const k = Object.keys(t.notes).find(k => norm(k) === san); return k ? t.notes[k] : null; }
+function tryMove(m) {
+  const t = V.t, g = V.g;
+  const mv = g.move(m); if (!mv) return;
+  const san = norm(mv.san);
+  V.last = { from: mv.from, to: mv.to };
+  let ok = false, note = null;
+  if (t.type === 'move') { ok = t.answers.map(norm).includes(san); note = noteFor(t, san); }
+  else if (t.type === 'mate') { ok = g.in_checkmate(); note = ok ? null : (g.in_check() ? 'Check, but the king can still escape or be saved. Look for a check it cannot get out of.' : 'That is not check. Checkmate starts with a check.'); }
+  else if (t.type === 'avoid') { ok = !t.bad.map(norm).includes(san); note = ok ? null : t.badNote; }
+  else if (t.type === 'stopmate') {
+    const m2 = mates(g); ok = m2.length === 0;
+    note = ok ? null : `Then ${sideName(g.turn())} plays ${m2[0]}, checkmate. Find a move that stops it.`;
+  } else if (t.type === 'mate2') {
+    if (V.phase === 1) {
+      ok = (t.solutions || []).map(norm).includes(san);
+      if (ok) {
+        V.busy = true; V.fb = { kind: 'good', text: 'Good first move! Now watch the reply.' }; drawTry();
+        setTimeout(() => {
+          const replies = g.moves(); const r = g.move(replies[Math.floor(Math.random() * replies.length)]);
+          V.last = { from: r.from, to: r.to }; V.phase = 2; V.busy = false; V.sel = null;
+          V.fb = { kind: 'hint', text: `${sideName(r.color)} played ${r.san}. Now finish it: checkmate!` };
+          drawTry();
+        }, reduced() ? 150 : 700);
+        return;
+      }
+      note = mates(g).length ? null : null;
+      note = 'That does not lead to mate in two. Think about checks first.';
+    } else { ok = g.in_checkmate(); note = ok ? null : 'Not checkmate yet. The king has a way out.'; }
+  }
+  else if (t.type === 'play') {
+    if (g.in_checkmate()) ok = true;
+    else if (g.in_stalemate()) note = 'Stalemate! The king has no moves but is not in check. That is a draw. Leave him a square until you give check.';
+    else {
+      const grab = g.moves({ verbose: true }).find(x => x.captured);
+      if (grab) note = `Careful! The king could take your ${PIECE_NAME[grab.captured]}. Keep your pieces guarded or far away.`;
+      else {
+        V.used++;
+        if (V.used >= t.limit) { V.over = true; V.fb = { kind: 'bad', text: `That was move ${t.limit} and no checkmate yet. Tap Start over and try a faster plan.` }; drawTry(); return; }
+        computerMove(() => loneKingReply(g), null); return;
+      }
+    }
+  } else if (t.type === 'line') {
+    const exp = t.line[V.li];
+    if (exp && norm(exp.san) === san) {
+      V.li++; V.hinted = false;
+      const said = `${mv.san}. ${exp.why}`;
+      if (V.li >= t.line.length) { V.solved = true; V.fb = { kind: 'good', text: `${said} ${t.explain}` }; drawTry(); return; }
+      lineReply(said); return;
+    }
+    note = noteFor(t, san) || 'A fine-looking move, but not the one for this opening. Tap Hint if you are stuck.';
+  } else if (t.type === 'kpk') {
+    const res = kpkResult(g, mv);
+    if (t.goal === 'win') {
+      if (res !== 'win') note = mv.captured ? 'Oops.' : (mv.promotion ? 'The king can take your new queen. Guard the square first.' : 'That lets Black hold a draw. Try a different move.');
+      else if (mv.promotion) ok = true;
+      else { computerMove(() => kpkReply(g), null); return; }
+    } else {
+      if (res !== 'draw') note = 'That lets White win. Try a different square.';
+      else if (mv.captured || g.in_stalemate()) ok = true;
+      else {
+        V.held++;
+        if (V.held >= t.survive) ok = true;
+        else { computerMove(() => kpkReply(g), () => { if (g.in_stalemate()) return 'Stalemate! You held the draw.'; return null; }); return; }
+      }
+    }
+  }
+  note = noteFor(t, san) || note;
+  if (ok) {
+    V.solved = true; V.fb = { kind: 'good', text: (t.type === 'mate' || t.type === 'mate2' || t.type === 'play') ? `Checkmate! ${t.explain}` : (t.type === 'kpk' && t.goal === 'win') ? `A new queen! ${t.explain}` : t.explain };
+    drawTry(); return;
+  }
+  V.misses++; V.busy = true;
+  V.fb = { kind: 'bad', text: note || 'Not quite. Try again.' };
+  drawTry(); V.board.shake();
+  setTimeout(() => { g.undo(); V.last = null; V.busy = false; drawTry(); }, reduced() ? 400 : 1100);
+}
+
+function computerMove(pick, afterCheck) {
+  const g = V.g;
+  V.busy = true; V.sel = null; V.fb = null; drawTry();
+  setTimeout(() => {
+    if (!V || V.g !== g) return;
+    const m = g.move(pick());
+    if (m) V.last = { from: m.from, to: m.to };
+    V.busy = false;
+    const msg = afterCheck && afterCheck();
+    if (msg) { V.solved = true; V.fb = { kind: 'good', text: msg + ' ' + V.t.explain }; }
+    drawTry();
+  }, reduced() ? 150 : 550);
+}
+function bestKpkMove(g, goal) {
+  let best = null, bestS = -1e9;
+  for (const m of g.moves({ verbose: true })) {
+    g.move(m); const res = kpkResult(g, m); const d = kpkDepth(g); g.undo();
+    let s;
+    if (goal === 'win') s = res === 'win' ? (m.promotion ? 1000 : 500 - d) : -1;
+    else s = res === 'draw' ? (m.captured ? 100 : 10) : -1;
+    if (s > bestS) { bestS = s; best = m; }
+  }
+  return best;
+}
+function showMe() {
+  const t = V.t, g = V.g;
+  V.shown = true;
+  if (t.type === 'line') {
+    const h = new Chess(g.fen()); const m = h.move(t.line[V.li].san);
+    if (m) tryMove({ from: m.from, to: m.to, promotion: 'q' });
+    return;
+  }
+  if (t.type === 'kpk') {
+    const m = bestKpkMove(g, t.goal);
+    if (m) { V.fb = { kind: 'hint', text: `Try ${m.san}.` }; tryMove({ from: m.from, to: m.to, promotion: 'q' }); }
+    return;
+  }
+  if (t.type === 'squares') { V.found = t.targets.slice(); V.solved = true; V.fb = { kind: 'hint', text: t.explain }; drawTry(); return; }
+  let san;
+  if (t.type === 'move') san = t.answers[0];
+  else if (t.type === 'mate' || (t.type === 'mate2' && V.phase === 2)) san = mates(g)[0];
+  else if (t.type === 'mate2') san = t.solutions[0];
+  else if (t.type === 'stopmate') san = g.moves().find(m => { g.move(m); const bad = mates(g).length > 0; g.undo(); return !bad; });
+  else if (t.type === 'avoid') san = g.moves().find(m => !t.bad.map(norm).includes(norm(m)));
+  const mv = g.move(san); V.last = { from: mv.from, to: mv.to };
+  if (t.type === 'mate2' && V.phase === 1) {
+    const replies = g.moves(); const r = g.move(replies[0]); const fin = g.move(mates(g)[0]);
+    V.fb = { kind: 'hint', text: `${mv.san}, then ${r.san}, then ${fin.san}. ${t.explain}` }; V.last = { from: fin.from, to: fin.to };
+  } else V.fb = { kind: 'hint', text: `The move is ${mv.san}. ${t.explain}` };
+  V.solved = true; drawTry();
+}
+
+showHome();
+</script>
+
+</body>
+</html>
