@@ -334,6 +334,7 @@ ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
 .designs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
 .design .stats { margin: 0; padding-left: 18px; font-size: .92rem; color: var(--ink2); }
 .design h3 { margin: 0; }
+.lockacts { margin-top: 12px; }
 
 </style>
 </head><body><div class="app" id="app"><p style="padding:24px">Loading Gizmo Lab…</p></div>
@@ -10448,6 +10449,7 @@ function wireBar() {
 var SCREENS = {};
 function go(screen, arg) {
   if (current.cleanup) { try { current.cleanup(); } catch (e) {} current.cleanup = null; }
+  if (current.cleanupSheets) { try { current.cleanupSheets(); } catch (e) {} current.cleanupSheets = null; }
   current.screen = screen; current.arg = arg;
   var r = SCREENS[screen](arg);
   app.innerHTML = bar(r.place) + '<main class="screen" id="main">' + r.html + '</main>';
@@ -10997,12 +10999,43 @@ function hasPart(t) { return Core.PARTS[t].base || (S.parts[t] || 0) > 0; }
 function machinesOwned() { return EARNED.filter(function (t) { return (S.parts[t] || 0) > 0; }).map(function (t) { return Core.PARTS[t].machine; }).filter(function (m, i, a) { return a.indexOf(m) === i; }); }
 function goalLock(g) {
   var lv = S.level, need = (g.needs || []).filter(function (t) { return !hasPart(t); });
-  if (need.length) return 'Needs the ' + need.map(function (t) { return Core.PARTS[t].name.toLowerCase(); }).join(' and ') + '. Earn it at ' + stationOf(need[0]).name + ' in the backyard.';
+  if (need.length) return 'Needs the ' + need.map(function (t) { return Core.PARTS[t].name.toLowerCase(); }).join(' and ') + '. Tap to see where to earn it.';
   if (lv === 'patent') {
     var owned = machinesOwned().concat(['ramp']).filter(function (m, i, a) { return a.indexOf(m) === i; });
-    if (owned.length < 2) return 'Patent level needs two kinds of simple machine. Earn one more part in the backyard first.';
+    if (owned.length < 2) return 'Patent level needs two kinds of simple machine. Tap to see how to unlock it.';
   }
   return '';
+}
+function roomOfStation(st) { var z = zoneOf(st.id); return K.zones.filter(function (q) { return q.id === z; })[0].room.toLowerCase(); }
+/* A locked card explains itself and offers a way in, instead of only wiggling. */
+function lockSheet(title, msg, actions) {
+  var ov = document.createElement('div'); ov.className = 'overlay'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', title);
+  ov.innerHTML = '<div class="panel">' + guide('jules', 'think', 'Jules', msg) + '<div class="row lockacts">' + actions.map(function (a, i) { return '<button type="button" class="' + (i === 0 ? 'go' : 'ghost') + '" data-la="' + i + '">' + esc(a.label) + '</button>'; }).join('') + '<button type="button" class="ghost" data-la="x">Not now</button></div></div>';
+  document.body.appendChild(ov);
+  var close = function () { ov.remove(); };
+  ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+  ov.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  Array.prototype.forEach.call(ov.querySelectorAll('[data-la]'), function (b) {
+    b.onclick = function () { SND.tap(); close(); if (b.dataset.la !== 'x') actions[+b.dataset.la].run(); };
+  });
+  var f = ov.querySelector('[data-la]'); if (f) f.focus();
+  current.cleanupSheets = close;
+}
+function lockedGoal(g) {
+  var lv = S.level, need = (g.needs || []).filter(function (t) { return !hasPart(t); });
+  SND.click();
+  if (need.length) {
+    var st = stationOf(need[0]);
+    lockSheet(g.name, g.name + ' needs the ' + Core.PARTS[need[0]].name.toLowerCase() + '. Finish ' + st.name + ' in the ' + roomOfStation(st) + ' at any level and it goes into your Parts Bin.',
+      [{ label: 'Go to ' + st.name, run: function () { go('station', st.id); } }]);
+    return;
+  }
+  // Patent: needs a part from a second kind of simple machine
+  var have = machinesOwned();
+  var opts = ['lever', 'pulley', 'wedge', 'wheel'].filter(function (m) { return have.indexOf(m) < 0; }).map(function (m) { return K.simple.stations.filter(function (s) { return s.id === m; })[0]; }).filter(Boolean).slice(0, 2);
+  var acts = opts.map(function (st) { return { label: 'Go to ' + st.name, run: function () { go('station', st.id); } }; });
+  acts.push({ label: 'Play it at Prototype', run: function () { S.level = 'prototype'; save(); go('workshop', g.id); } });
+  lockSheet(g.name, 'At Patent level your machine has to use two kinds of simple machine, and so far your Parts Bin only has ramps. Finish one station in the backyard, like ' + opts.map(function (s) { return s.name; }).join(' or ') + ', to earn a part from another kind. Or play this job at Prototype level now.', acts);
 }
 function stationOf(part) { return allStations().filter(function (s) { return s.part === part || s.bonus === part || s.id === Core.PARTS[part].from; })[0]; }
 SCREENS.workshopHub = function () {
@@ -11026,13 +11059,13 @@ SCREENS.workshopHub = function () {
       $('[data-wmission]').onclick = function () { SND.tap(); go('mission', 'workshop'); };
       var tb = document.querySelector('[data-three]');
       if (tb) tb.onclick = function () {
-        if (S.level !== 'patent') { SND.wrong(); tb.classList.remove('wiggle'); void tb.offsetWidth; tb.classList.add('wiggle'); return; }
+        if (S.level !== 'patent') { SND.click(); lockSheet('3D tabletop', 'The 3D tabletop is a Patent-level challenge. Switch the level dial to Patent and build on a real table you can spin around.', [{ label: 'Switch to Patent and open it', run: function () { S.level = 'patent'; save(); go('workshop3d'); } }]); return; }
         SND.tap(); go('workshop3d');
       };
       Array.prototype.forEach.call(document.querySelectorAll('[data-goal]'), function (b) {
         b.onclick = function () {
           var g = K.workshop.goals.filter(function (q) { return q.id === b.dataset.goal; })[0];
-          if (g && goalLock(g)) { SND.wrong(); b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle'); return; }
+          if (g && goalLock(g)) { lockedGoal(g); return; }
           SND.tap(); go('workshop', b.dataset.goal);
         };
       });
@@ -11506,7 +11539,7 @@ function workshop(scene, g, lv, rules) {
         b.onclick = function () {
           var m = galLoad().filter(function (q) { return q.id === b.dataset.open; })[0]; if (!m) return;
           var goal = K.workshop.goals.filter(function (q) { return q.id === m.key; })[0];
-          if (goal && goalLock(goal)) { SND.wrong(); b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle'); return; }
+          if (goal && goalLock(goal)) { close(); lockedGoal(goal); return; }
           var missing = m.parts.filter(function (p) { return !Core.PARTS[p.type] || !hasPart(p.type); }).length;
           close(); SND.tap();
           if (m.key === key) { change(function () { pl = clean(m.parts); sel = -1; }); if (missing) setStatus(missing + ' part' + (missing > 1 ? 's' : '') + ' left out: earn them in the backyard first.', true); }
