@@ -39,3 +39,15 @@ Open it at https://bwstroup.github.io/word-lab/everetts-observatory/
 Felix's engineering and design lab in the Sprocket family's cutaway house. Ozzie's Simple Machines backyard (Lever Lab, Pulley Hoist, Ramp Test, Wedge and Screw, Wheel and Axle, plus the ruler-and-pencil seesaw paper mission), Pim's Home Machines kitchen and bathroom (The Flush, The Fridge with Ride the Loop, Keep It Cold and Pack the Fridge, Under the Sink, Locks and Latches, and an on-screen-only look inside the washer and toaster, plus the tank-and-trap paper mission), Rafa's On the Move garage (Gear Lab, Bike Anatomy, and on-screen-only looks at a four-stroke engine and an electric motor, plus the gear-teeth-and-wheel-turns paper mission), Tansy's Take It Apart basement (Exploded View, Parts Drawer and Mystery Gadget, plus the click-pen paper mission) and Jules's Rube Goldberg Workshop (ring the bell, pop the balloon, water the plant, fill the cat's bowl, and free build). Physics by Matter.js (MIT, see gizmo-lab/MATTER-LICENSE.txt), included in the page so it works offline.
 
 Open it at https://bwstroup.github.io/word-lab/gizmo-lab/
+
+# Culture Lab
+
+The Pen Pal Club: nine kid pen pals plus Wren the pigeon share living cultures (China, India, Thailand, Israel, Morocco, Ghana, France, Mexico, USA). Ten zones: Say It, Write It, Wear It, Mark the Days, Taste It, Pattern It, Play It, Live It, Side by Side and Big Questions. The Mailbag drives it: 26 letters ask Felix for help, he writes back in each pal's script, pays postage, watches Wren fly the letter across the map and collects reply postcards, some with secret words to decode.
+
+Open it at https://bwstroup.github.io/word-lab/culture-lab/
+
+# History Lab
+
+The Museum After Dark: Felix is a junior curator with Nefertiti the museum cat and an eight-person night crew. Eight rooms (Dig Pit, Hall of Writing, Numbers and Stars, Time Road, Hall of Buildings, Map Room, Exhibit Workshop, Living Cultures wing) and ten Night Cases: find, date, read, trace and label a mystery object, then add it to his own wing with a time-road chart and a map.
+
+Open it at https://bwstroup.github.io/word-lab/history-lab/
