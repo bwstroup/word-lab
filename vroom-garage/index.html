@@ -212,6 +212,18 @@ img{max-width:100%;-webkit-user-drag:none}
 .go-btn svg{width:46px;height:46px}
 .nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted)}
 
+/* gentle pace (body.gentle). Turning the Grown-ups switch off removes the class and the original timings apply. */
+.nextbtn{position:fixed;right:max(22px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:44;width:110px;height:110px}
+.nextbtn svg{width:54px;height:54px}
+body.gentle .pop{animation:popg .7s var(--ease)}@keyframes popg{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
+body.gentle .wiggle{animation-duration:.65s}
+body.gentle .big-btn.go.playing{animation:none}
+body.gentle .flame .fl path{animation-duration:1.3s}body.gentle .stream{animation-duration:.8s}body.gentle .honk path{animation-duration:1.1s}
+body.gentle .ping{animation-duration:3s}body.gentle .smoke circle{animation-duration:5s}
+body.gentle .fveh{transition-duration:2s}body.gentle .fveh.go{transition-duration:1.4s}body.gentle #kMov{transition-duration:1s}
+body.gentle .cat{transition-duration:2.1s}body.gentle .ladder g{transition-duration:1.8s}
+body.gentle .screen,body.gentle .screen.on{transition-duration:.5s}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 @media (max-aspect-ratio:1/1){.pspot{aspect-ratio:1/.82}}
 @media (max-width:640px){.bar{flex-wrap:wrap;gap:8px;row-gap:10px}.title{display:none}.seg button{min-width:44px;height:42px;font-size:20px;padding:0 10px}.chip{height:44px;font-size:22px;padding:0 12px}
@@ -467,12 +479,14 @@ img{max-width:100%;-webkit-user-drag:none}
 </section>
 </div>
 
+<button class="go-btn press nextbtn" id="nextBtn" aria-label="Next" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 4 8 8-8 8"/></svg></button>
 <div class="overlay" id="win"><div class="wcard"><div class="flag"></div><img class="wimg" id="wImg" alt=""><div class="wstars"><i></i><span id="wN">0</span></div>
   <button class="go-btn press" id="wGo" data-ic="next" aria-label="Keep going"></button></div></div>
 
 <div class="overlay" id="book"><div class="panel2"><div class="p2head"><span data-ic="book"></span><b>Letter Book</b><span class="grow"></span><button class="icon-btn press" id="bookClose" data-ic="check" aria-label="Close"></button></div><div class="bkgrid" id="bookGrid"></div></div></div>
 <div class="overlay" id="grown"><div class="panel2 gpanel"><div class="p2head"><span data-ic="gear"></span><b>Grown-ups</b><span class="grow"></span><button class="icon-btn press" id="gClose" data-ic="check" aria-label="Done"></button></div>
   <div class="grow-row"><div><b>Sound</b><small>Vehicle sounds and chimes</small></div><button class="switch" role="switch" id="gSound" aria-label="Sound"></button></div>
+  <div class="grow-row"><div><b>Gentle pace</b><small>Slower motion, calmer loops, and Count and Letters wait for a tap on the arrow. Turn off for the original pace.</small></div><button class="switch" role="switch" id="gGentle" aria-label="Gentle pace"></button></div>
   <div id="gRows"></div>
   <p class="gnote">Progress is saved on this iPad only. Safari and the Home Screen icon keep separate progress. Hold a button for about 2 seconds to reset that part.</p></div></div>
 
@@ -1602,7 +1616,9 @@ const S={sound:store.get('vg.sound',true),stars:store.get('vg.stars',0)};
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
-const wait=ms=>new Promise(r=>setTimeout(r,ms));
+let GENTLE=(()=>{try{const v=localStorage.getItem('vg.gentle');return v==null?true:JSON.parse(v)}catch(e){return true}})();   // gentle pace: on by default; Grown-ups switch turns it off
+const PK=()=>GENTLE?1.5:1;
+const wait=ms=>new Promise(r=>setTimeout(r,ms>=200?ms*PK():ms));
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const VEH=VM.CATALOG,byN=n=>VEH.find(v=>v.n===n),THUMB={},MODELS={};
 const CACHE='thumbs-v6';
@@ -1724,7 +1740,8 @@ const img=(n,cls='')=>`<img class="${cls}" data-n="${n}" src="${THUMB[n]}" alt="
 /* ---------- navigation ---------- */
 let cur='loading';
 const starters={home:startHome,rescue:startRescue,call:startCall,garage:startGarage,match:startMatch,park:startPark,count:startCount,order:startOrder,puzzle:startPuzzle,fire:()=>startFire(),letters:()=>startLetters()};
-function go(id,arg){if(cur==='show'&&id!=='show')stopShow();$$('.screen').forEach(s=>s.classList.toggle('on',s.id===id));cur=id;if(starters[id])starters[id](arg)}
+function nextArrow(next){const b=document.getElementById('nextBtn');b.hidden=false;b.onclick=()=>{sfx('tap');b.hidden=true;b.onclick=null;next()}}
+function go(id,arg){{const nb=document.getElementById('nextBtn');if(nb){nb.hidden=true;nb.onclick=null}}if(cur==='show'&&id!=='show')stopShow();$$('.screen').forEach(s=>s.classList.toggle('on',s.id===id));cur=id;if(starters[id])starters[id](arg)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){sfx('tap');go(b.dataset.go)}});
 function seg(sel,key,val){$$(sel+' button').forEach(b=>b.classList.toggle('on',b.dataset[key]==String(val)))}
 function stars(sel,n){$(sel).innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}
@@ -1796,7 +1813,7 @@ function sizeShow(){const st=$('#stage'),d=Math.min(window.devicePixelRatio||1,2
   SH.cam=E.fit(SH.fitB,AZ,.24,glc.width/glc.height,.5,.16)}
 function stopShow(){cancelAnimationFrame(SH.raf);SH.raf=0}
 function frame(ts){const dt=Math.min(.05,(ts-SH.last)/1000);SH.last=ts;
-  if(!SH.drag){SH.vel*=Math.pow(.04,dt);SH.th+=(SH.vel+(SH.act<0?.22:.1))*dt}
+  if(!SH.drag){SH.vel*=Math.pow(.04,dt);SH.th+=(SH.vel+(SH.act<0?(GENTLE?.1:.22):.1))*dt}
   const a=SH.act>=0?(ts-SH.act)/1000:-1,v=SH.v;if(a>8.5){SH.act=-1;$('#playBtn').classList.remove('playing')}
   if(v.update)v.update(ts/1000,a);
   const [cx,cz]=SH.c,Mt=E.mul(E.T(cx,0,cz),E.T(0,0,0,0,SH.th,0)),Mv=E.mul(Mt,E.T(-cx,0,-cz));
@@ -1886,7 +1903,7 @@ $('#cField').addEventListener('click',e=>{const b=e.target.closest('.cv');if(!b|
   if(it.n!==CO.t.n){wiggle(b);sfx('soft');return}if(it.c)return;it.c=++CO.count;b.insertAdjacentHTML('beforeend',`<span class="cb">${it.c}</span>`);sfx('tick',CO.count)});
 $('#cAns').addEventListener('click',e=>{const b=e.target.closest('.ans');if(!b||CO.lock)return;
   if(+b.dataset.v===CO.want){CO.lock=true;b.classList.add('right');sfx('good');CO.n++;stars('#cStars',CO.n);$$('#cField .cv').forEach(el=>{if(CO.items[+el.dataset.i].n===CO.t.n)popEl(el)});
-    if(CO.n>=5)setTimeout(()=>win(CO.t.n,()=>{CO.n=0;stars('#cStars',0);countRound()}),1400);else setTimeout(countRound,1600)}
+    if(CO.n>=5)setTimeout(()=>win(CO.t.n,()=>{CO.n=0;stars('#cStars',0);countRound()}),1400);else if(GENTLE)setTimeout(()=>nextArrow(countRound),900);else setTimeout(countRound,1600)}
   else{wiggle(b);sfx('soft')}});
 
 /* ---------- in order ---------- */
@@ -2269,7 +2286,7 @@ function dragBlock(el){let id=null,x0=0,y0=0,moved=false;
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
 async function lDone(){$('#lSign').classList.add('done');LT.busy=true;popEl($('#lVeh'));sfx('good');const snd=model(LT.n).sound;setTimeout(()=>sfx(SFX[snd]?snd:'engine'),450);
   LT.stars++;stars3();await wait(1900);if(cur!=='letters')return;
-  if(LT.stars>=3)win(LT.n,()=>{LT.stars=0;stars3();lRound()});else lRound()}
+  if(LT.stars>=3)win(LT.n,()=>{LT.stars=0;stars3();lRound()});else if(GENTLE)nextArrow(lRound);else lRound()}
 
 
 /* ---------- D is for... (first letters) + Letter Book ---------- */
@@ -2291,7 +2308,7 @@ $('#lField').addEventListener('click',e=>{const b=e.target.closest('.vcard2');if
   c.done=true;b.classList.add('ok');LT.got++;sfx('good');const isNew=!BOOK[LT.L];if(isNew){BOOK[LT.L]={n:c.n,w:c.w};store.set('vg.lbook',BOOK);bookCount();popEl($('#bookBtn'))}
   if(LT.need>1){$('#fTally').textContent=LT.got+' / '+LT.need;popEl($('#fTally'))}
   if(LT.got>=LT.need){LT.busy=true;const snd=model(c.n).sound;setTimeout(()=>sfx(SFX[snd]?snd:'engine'),450);LT.stars++;stars3();
-    setTimeout(()=>{if(cur!=='letters')return;if(LT.stars>=3)win(c.n,()=>{LT.stars=0;stars3();lRound()});else lRound()},2000)}});
+    setTimeout(()=>{if(cur!=='letters')return;if(LT.stars>=3)win(c.n,()=>{LT.stars=0;stars3();lRound()});else if(GENTLE)nextArrow(lRound);else lRound()},2000*PK())}});
 function bookCount(){$('#bookN').textContent=Object.keys(BOOK).filter(L=>BOOKL.includes(L)).length+' / '+BOOKL.length}
 function openBook(){bookCount();$('#bookGrid').innerHTML=BOOKL.map(L=>{const f=BOOK[L];return `<div class="bk ${f?'on':''}"><b>${L}<small>${L.toLowerCase()}</small></b>${f?img(f.n)+wtile(f.w):'<span class="bk-q">?</span>'}</div>`}).join('');$('#book').classList.add('on')}
 $('#bookBtn').addEventListener('click',()=>{sfx('tap');openBook()});$('#bookClose').addEventListener('click',()=>{sfx('tap');$('#book').classList.remove('on')});
@@ -2306,8 +2323,10 @@ function resetArea(k){const all=k==='all';
   if(all||k==='book'){BOOK={};store.set('vg.lbook',BOOK)}
   if(all||k==='levels'){LVKEYS.forEach(x=>{try{localStorage.removeItem(x)}catch(e){}})}
   if(all||k==='pics'){IDB.open().then(db=>{const tx=db.transaction('t','readwrite');tx.objectStore('t').delete(CACHE)}).catch(()=>{})}}
-$('#gearBtn').addEventListener('click',()=>{sfx('tap');grownRows();$('#gSound').setAttribute('aria-checked',String(S.sound));$('#grown').classList.add('on')});
+$('#gearBtn').addEventListener('click',()=>{sfx('tap');grownRows();$('#gSound').setAttribute('aria-checked',String(S.sound));$('#gGentle').setAttribute('aria-checked',String(GENTLE));$('#grown').classList.add('on')});
 $('#gClose').addEventListener('click',()=>{sfx('tap');$('#grown').classList.remove('on')});
+document.body.classList.toggle('gentle',GENTLE);
+$('#gGentle').addEventListener('click',()=>{GENTLE=!GENTLE;try{localStorage.setItem('vg.gentle',JSON.stringify(GENTLE))}catch(e){}document.body.classList.toggle('gentle',GENTLE);$('#gGentle').setAttribute('aria-checked',String(GENTLE))});
 $('#gSound').addEventListener('click',()=>{S.sound=!S.sound;store.set('vg.sound',S.sound);sndIcon();$('#gSound').setAttribute('aria-checked',String(S.sound))});
 (function(){let t=0,btn=null;const stop=()=>{clearTimeout(t);if(btn&&!btn.classList.contains('done'))btn.classList.remove('holding');btn=null};
   $('#gRows').addEventListener('pointerdown',e=>{const b=e.target.closest('.hold');if(!b||b.classList.contains('done'))return;btn=b;b.classList.add('holding');
