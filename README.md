@@ -57,3 +57,9 @@ Open it at https://bwstroup.github.io/word-lab/history-lab/
 Felix's guided chess training on a cream-and-brown marble board: Think Like a Player (strategy), Tactics, Checkmate Nets, Endgame Mastery (with a perfect king-and-pawn coach), Three Simple Openings, and Bonus Openings (French Defense, Danish Gambit). Short lessons with a For Dad panel. Move rules by chess.js (BSD, see chess-lab/CHESS-JS-LICENSE.txt).
 
 Open it at https://bwstroup.github.io/word-lab/chess-lab/
+
+# Data Lab
+
+Spectrum Works, a rainbow robot workshop for data. Seven bays, one robot each: Tally's Count It, Zola's Ask It (fair surveys), Grid's Table It, Fern's Chart It (with the Chart Studio, Letter Counter and My Charts), Ari's Track It (line graphs and scatter plots), Nia's Crunch It (mean, median, mode, range, outliers) and Vio's Make Sense of It (tricky graphs, chance, cause or coincidence, claim checks). Each bay has three levels and a paper mission. Chief Prism posts a new Data Case every day, and the rainbow meter fills as stamps come in.
+
+Open it at https://bwstroup.github.io/word-lab/data-lab/
