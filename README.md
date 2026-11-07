@@ -63,3 +63,9 @@ Open it at https://bwstroup.github.io/word-lab/chess-lab/
 Spectrum Works, a rainbow robot workshop for data. Seven bays, one robot each: Tally's Count It, Zola's Ask It (fair surveys), Grid's Table It, Fern's Chart It (with the Chart Studio, Letter Counter and My Charts), Ari's Track It (line graphs and scatter plots), Nia's Crunch It (mean, median, mode, range, outliers) and Vio's Make Sense of It (tricky graphs, chance, cause or coincidence, claim checks). Each bay has three levels and a paper mission. Chief Prism posts a new Data Case every day, and the rainbow meter fills as stamps come in.
 
 Open it at https://bwstroup.github.io/word-lab/data-lab/
+
+# Time Lab
+
+Portal Mesa, a desert at sunset with a glowing time portal. Seven zones, three levels each (Sand, Mesa, Summit): Clockmaker's Adobe (clocks through history), Sundial Plaza (reading time, a.m. and p.m., 24-hour time, sundials), the Oasis (life spans and tree rings), Night Mesa (the Moon, sunrise and the planets), the Portal (deep time, from Grand Canyon layers to Halley's Comet), the Radio Tower (time zones, the Date Line, Daylight Saving) and Calendar Rock (month lengths, leap years, weekday names, world calendars). Old Tula the tortoise, Dash the roadrunner, Saguaro Sam and Pip the kangaroo rat guide. Paper missions, 27 badges and a grown-ups reset.
+
+Open it at https://bwstroup.github.io/word-lab/time-lab/
