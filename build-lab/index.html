@@ -653,6 +653,15 @@ body.focus.panelopen .atlasgrid .aside{display:block}
 .rs-msg{min-height:1.4em;font-weight:700;text-align:center;margin:0}
 .rs-msg.ok{color:var(--mint)}.rs-msg.warn{color:var(--tang)}
 .gsize{display:inline-flex;align-items:center;gap:6px}.gsize .tl{font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--chalk-dim)}
+/* ---- Build / Browse switch (Nov 8) ---- */
+.modeseg{display:inline-flex;border:2px solid var(--grid-strong);border-radius:999px;overflow:hidden;background:var(--field-2)}
+.modeseg button{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border:0;background:transparent;color:var(--chalk);cursor:pointer;font:700 .95rem/1 var(--display)}
+.modeseg button+button{border-left:2px solid var(--grid-strong)}
+.modeseg button[aria-pressed="true"]{background:var(--tang);color:var(--tang-ink)}
+.modeseg svg{width:18px;height:18px;flex:none}
+.draft.browsing .grow{display:none}
+.draft.browsing svg.plan{cursor:grab}
+.draft.browsing .sheetwrap{box-shadow:inset 0 0 0 3px var(--tang)}
 </style>
 </head><body>
 
@@ -1221,7 +1230,7 @@ const BL_RESETS=[
   {id:'photos',label:'Notebook photos',on:false,note:()=>{const n=(S.photos||[]).length;return `${n} ${n===1?'photo':'photos'}`},
     async run(){for(const p of (S.photos||[])){try{await PH.del(p.id)}catch(e){}}S.photos=[]}},
   {id:'settings',label:'Levels, budgets and the tool checklist',on:false,note:()=>'math dial picks, scale, budgets, Tool Shed ticks and pencil mode',
-    run(){S.levels={};S.scale=2;S.budget=2000;S.rbudget=2000;S.kit={};delete S.pencil}},
+    run(){S.levels={};S.scale=2;S.budget=2000;S.rbudget=2000;S.kit={};delete S.pencil;delete S.browse}},
 ];
 function openGrownUps(){
   openModal(`<h3>For grown-ups</h3>
@@ -1348,7 +1357,7 @@ function viewDraft(){
   <div class="draft" id="draftWrap">
     <div class="tools panel" id="tools"></div>
     <div class="canvascol">
-      <div class="dtop"><div class="ftabs" id="ftabs" role="group" aria-label="Floors"></div><span class="spacer"></span>
+      <div class="dtop"><div class="modeseg" id="modeSeg" role="group" aria-label="Build or browse"><button data-mode="build" aria-pressed="${!S.browse}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4.6L15.6 5a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8L8.6 18.8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Build</button><button data-mode="browse" aria-pressed="${!!S.browse}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>Browse</button></div><div class="ftabs" id="ftabs" role="group" aria-label="Floors"></div><span class="spacer"></span>
         <div class="zoomer" role="group" aria-label="Zoom"><button id="zOut" aria-label="Zoom out">−</button><button id="zFit">Fit</button><button id="zIn" aria-label="Zoom in">+</button></div>
         <button class="toggle" id="infoBtn" aria-pressed="false">Rooms &amp; checks</button>
         <button class="toggle" id="focusBtn" aria-pressed="${focus}">${focus?'Exit big canvas':'Big canvas'}</button></div>
@@ -1373,6 +1382,7 @@ function viewDraft(){
   renderTools();wireBoard();
   $('#zIn').onclick=()=>setZoom(zoom*1.4);$('#zOut').onclick=()=>setZoom(zoom/1.4);$('#zFit').onclick=()=>{zoom=1;sizeBoard()};
   $('#focusBtn').onclick=()=>setFocus(!document.body.classList.contains('focus'));
+  $('#modeSeg').querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setBrowse(b.dataset.mode==='browse'));applyBrowse();
   $('#infoBtn').onclick=()=>{const on=!document.body.classList.contains('panelopen');document.body.classList.toggle('panelopen',on);$('#infoBtn').setAttribute('aria-pressed',on)};
   $('#view').querySelectorAll('[data-grow]').forEach(b=>b.onclick=()=>growLot(b.dataset.grow));
   $('#mirrorBtn').onclick=()=>{mirror=!mirror;$('#mirrorBtn').setAttribute('aria-pressed',mirror);if(mirror)toast('Mirror is on. Whatever you draw on one side appears on the other side too.');updateBoard()};
@@ -1429,13 +1439,18 @@ function fitLot(){let x0=1e9,y0=1e9,x1=-1,y1=-1;const see=(x,y)=>{x0=Math.min(x0
   const m=2,bw=x1-x0+1,bh=y1-y0+1,nc=Math.max(12,bw+2*m),nr=Math.max(10,bh+2*m),dx=Math.floor((nc-bw)/2)-x0,dy=Math.floor((nr-bh)/2)-y0;
   pushUndo();all.forEach(l=>shiftLevel(l,dx,dy));D.cols=nc;D.rows=nr;if(D.before){D.before.cols=nc;D.before.rows=nr}zoom=1;dirty=true;sizeBoard();updateBoard();toast(`Lot trimmed to ${nc} × ${nr} squares.`)}
 
+function applyBrowse(){const w=$('#draftWrap');if(w)w.classList.toggle('browsing',!!S.browse);
+  const m=$('#modeSeg');if(m)m.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.mode==='browse')===!!S.browse))}
+function setBrowse(on){if(!!S.browse===on)return;S.browse=on;persist();if(on){if(stroke)cancelStroke();fsel=-1;ruler=null;rectPrev=null}
+  applyBrowse();renderTools();updateBoard();
+  toast(on?'Browse mode: the plan is locked. Swipe to look around and pinch to zoom. Nothing will change. Tap Build when you want to draw.':'Build mode: your finger draws on the plan again.')}
 function renderTools(){
   const L=lvl('draft'),t=TOOLS.find(x=>x.k===tool)||TOOLS[0];let sub='';
   if(tool==='paint'||tool==='rect'){const list=ROOM_TYPES.filter(r=>paintGroup==='out'?r.out:!r.out);
     sub=`<div class="gchips" role="group" aria-label="Room groups"><button data-pg="in" class="${paintGroup==='in'?'on':''}">Inside</button><button data-pg="out" class="${paintGroup==='out'?'on':''}">Outside</button></div><div class="palette rpal" role="group" aria-label="Room types">${list.map(r=>`<button class="swatch ${r.k===paintType?'on':''}" data-rt="${r.k}"><i style="background:${r.c}"></i>${esc(D.names[r.k]||r.name)}</button>`).join('')}</div>`}
   if(tool==='furn'){const f=LV().furn[fsel];
     sub=(f?selCard(f,L):'')+`<div class="gchips" role="group" aria-label="Furniture groups">${Object.keys(FGROUPS).map(g=>`<button data-fg="${g}" class="${g===furnGroup?'on':''}">${g}</button>`).join('')}</div><div class="palette" role="group" aria-label="Furniture">${FGROUPS[furnGroup].map(k=>`<button class="fpiece ${k===furnType?'on':''}" data-ft="${k}" aria-label="${FURN[k].name}">${furnIcon(k)}${FURN[k].name}</button>`).join('')}</div>`}
-  $('#tools').innerHTML=`<div class="toolrow tgrid" role="group" aria-label="Drawing tools">${TOOLS.filter(x=>!x.min||L>=x.min).map(x=>`<button class="tool ${x.k===tool?'on':''}" data-tool="${x.k}" aria-pressed="${x.k===tool}">${toolGlyph(x.k)}${x.name}</button>`).join('')}</div>${sub}<div class="tip">${mascot('otto')}<p>${esc(t.tip)}</p></div>`;
+  $('#tools').innerHTML=`<div class="toolrow tgrid" role="group" aria-label="Drawing tools">${TOOLS.filter(x=>!x.min||L>=x.min).map(x=>`<button class="tool ${x.k===tool?'on':''}" data-tool="${x.k}" aria-pressed="${x.k===tool}">${toolGlyph(x.k)}${x.name}</button>`).join('')}</div>${sub}<div class="tip">${mascot('otto')}<p>${S.browse?'Browse mode is on, so your plan is locked. Swipe to look around. Tap Build when you want to draw.':esc(t.tip)}</p></div>`;
   const T=$('#tools');
   T.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;ruler=null;if(tool!=='furn')fsel=-1;renderTools();updateBoard()});
   T.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{paintGroup=b.dataset.pg;const first=ROOM_TYPES.find(r=>paintGroup==='out'?r.out:!r.out);if(!!(RT[paintType].out)!==(paintGroup==='out'))paintType=first.k;renderTools()});
@@ -1467,7 +1482,14 @@ function updateBoard(){const board=$('#board');if(!board)return;const L=lvl('dra
   S.current=D;persist()}
 
 /* ---- pointer handling: draw with one pointer, pinch and pan with two ---- */
-let ptrs=new Map(),gest=null,stroke=null;
+let ptrs=new Map(),gest=null,stroke=null,bpan=null,bfling=0;
+/* Browse mode: one finger scrolls the plan, then the page when the plan reaches its edge */
+function browseScroll(dx,dy){const w=$('#sheetwrap');if(!w)return;const l0=w.scrollLeft,t0=w.scrollTop;w.scrollLeft-=dx;w.scrollTop-=dy;
+  const rx=dx+(w.scrollLeft-l0),ry=dy+(w.scrollTop-t0);if(Math.abs(rx)>.5||Math.abs(ry)>.5)window.scrollBy(-rx,-ry)}
+function browseFling(vx,vy){cancelAnimationFrame(bfling);let last=performance.now();
+  const step=now=>{const dt=Math.min(40,now-last);last=now;browseScroll(vx*dt,vy*dt);const k=Math.pow(.995,dt);vx*=k;vy*=k;if(Math.hypot(vx,vy)>.02)bfling=requestAnimationFrame(step)};
+  if(Math.hypot(vx,vy)>.15)bfling=requestAnimationFrame(step)}
+function browseTap(){const now=Date.now();if(now-(browseTap.t||0)<4000)return;browseTap.t=now;toast('The plan is locked in Browse mode. Tap Build to draw.')}
 function avgPt(){const a=[...ptrs.values()];return {x:a.reduce((s,p)=>s+p.x,0)/a.length,y:a.reduce((s,p)=>s+p.y,0)/a.length}}
 function startGesture(){const svg=$('#board'),r=svg.getBoundingClientRect(),a=[...ptrs.values()],m=avgPt();gest={n:a.length,dist:a.length>1?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0,zoom,fx:(m.x-r.left)/r.width,fy:(m.y-r.top)/r.height}}
 function moveGesture(){const a=[...ptrs.values()];if(!gest||a.length!==gest.n){startGesture();return}const m=avgPt(),wrap=$('#sheetwrap'),svg=$('#board');
@@ -1477,12 +1499,19 @@ function cancelStroke(){if(stroke&&stroke.changed)D=migrateDesign(JSON.parse(str
 function wireBoard(){const svg=$('#board');
   const pt=e=>{const r=svg.getBoundingClientRect();return {gx:(e.clientX-r.left)/r.width*D.cols,gy:(e.clientY-r.top)/r.height*D.rows}};
   svg.addEventListener('pointerdown',e=>{e.preventDefault();ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});try{svg.setPointerCapture(e.pointerId)}catch(_){}
-    if(ptrs.size>=2){if(stroke)cancelStroke();startGesture();return}
+    cancelAnimationFrame(bfling);
+    if(ptrs.size>=2){if(stroke)cancelStroke();bpan=null;startGesture();return}
+    if(S.browse){bpan={x:e.clientX,y:e.clientY,moved:false,t:performance.now(),vx:0,vy:0};return}
     if((S.pencil&&e.pointerType==='touch')||e.button===1){startGesture();return}
     if(viewBefore&&D.before){toast('You\'re looking at Before. Tap After to keep building.');return}
     startStroke(pt(e))});
-  svg.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;p.x=e.clientX;p.y=e.clientY;if(gest){moveGesture();return}if(stroke)moveStroke(pt(e))});
-  const up=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(gest){if(!ptrs.size)gest=null;else startGesture();return}if(stroke&&!ptrs.size)endStroke()};
+  svg.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;p.x=e.clientX;p.y=e.clientY;if(gest){moveGesture();return}
+    if(bpan){const dx=e.clientX-bpan.x,dy=e.clientY-bpan.y;if(!bpan.moved&&Math.hypot(dx,dy)<6)return;bpan.moved=true;
+      const now=performance.now(),dt=Math.max(1,now-bpan.t);bpan.vx=.6*bpan.vx+.4*dx/dt;bpan.vy=.6*bpan.vy+.4*dy/dt;bpan.t=now;bpan.x=e.clientX;bpan.y=e.clientY;browseScroll(dx,dy);return}
+    if(stroke)moveStroke(pt(e))});
+  const up=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(gest){if(!ptrs.size)gest=null;else startGesture();return}
+    if(bpan){const b=bpan;bpan=null;if(!b.moved){if(e.type==='pointerup')browseTap()}else if(performance.now()-b.t<80)browseFling(b.vx,b.vy);return}
+    if(stroke&&!ptrs.size)endStroke()};
   svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);svg.addEventListener('lostpointercapture',up);
   svg.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();setZoom(zoom*(e.deltaY<0?1.12:1/1.12),e.clientX,e.clientY)},{passive:false});
   svg.addEventListener('contextmenu',e=>e.preventDefault())}
