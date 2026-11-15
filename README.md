@@ -69,3 +69,9 @@ Open it at https://bwstroup.github.io/word-lab/data-lab/
 Portal Mesa, a desert at sunset with a glowing time portal. Seven zones, three levels each (Sand, Mesa, Summit): Clockmaker's Adobe (clocks through history), Sundial Plaza (reading time, a.m. and p.m., 24-hour time, sundials), the Oasis (life spans and tree rings), Night Mesa (the Moon, sunrise and the planets), the Portal (deep time, from Grand Canyon layers to Halley's Comet), the Radio Tower (time zones, the Date Line, Daylight Saving) and Calendar Rock (month lengths, leap years, weekday names, world calendars). Old Tula the tortoise, Dash the roadrunner, Saguaro Sam and Pip the kangaroo rat guide. Paper missions, 27 badges and a grown-ups reset.
 
 Open it at https://bwstroup.github.io/word-lab/time-lab/
+
+# Body Lab
+
+Felix's human body atlas: the Body Map with the Map Crew (Marco, Priya, Ollie, Zara and Nia) and five zones (Pump & Breathe, Move Crew, Fuel Factory, Command Center, Defense Squad), plus the Inner Space finale that opens once every zone is visited. Every diagram is a real Wikimedia Commons file, credited in the grown-ups area. 156 stars, three levels, a paper mission in every zone and a PIN-locked grown-ups area.
+
+Open it at https://bwstroup.github.io/word-lab/body-lab/
