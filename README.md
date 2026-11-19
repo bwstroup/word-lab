@@ -75,3 +75,9 @@ Open it at https://bwstroup.github.io/word-lab/time-lab/
 Felix's human body atlas: the Body Map with the Map Crew (Marco, Priya, Ollie, Zara and Nia) and five zones (Pump & Breathe, Move Crew, Fuel Factory, Command Center, Defense Squad), plus the Inner Space finale that opens once every zone is visited. Every diagram is a real Wikimedia Commons file, credited in the grown-ups area. 156 stars, three levels, a paper mission in every zone and a PIN-locked grown-ups area.
 
 Open it at https://bwstroup.github.io/word-lab/body-lab/
+
+# Science Exploration
+
+Felix's physics, chemistry and earth-science expedition on Base Camp Ridge: eight camps (Push and Pull, Light and Sound, Magnets and Electricity, Matter and Mixtures, Reactions, Rocks and Minerals, Restless Earth, Erosion and Fossils) with real specimen photos, a Demo Bench of 20 hands-on demos, paper missions, an Expedition Challenge, a Chart Room and Free Labs.
+
+Open it at https://bwstroup.github.io/word-lab/science-exploration/
