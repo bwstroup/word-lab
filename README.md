@@ -81,3 +81,9 @@ Open it at https://bwstroup.github.io/word-lab/body-lab/
 Felix's physics, chemistry and earth-science expedition on Base Camp Ridge: eight camps (Push and Pull, Light and Sound, Magnets and Electricity, Matter and Mixtures, Reactions, Rocks and Minerals, Restless Earth, Erosion and Fossils) with real specimen photos, a Demo Bench of 20 hands-on demos, paper missions, an Expedition Challenge, a Chart Room and Free Labs.
 
 Open it at https://bwstroup.github.io/word-lab/science-exploration/
+
+# Wild Lab
+
+Felix's life-science lab in The Seven Domes, a glass conservatory with five keepers (Moss, Nell, Kiki, Teo and Leila). Nine zones: Tree of Life, Cells and Microscopes, Plants (with the Seed Vault Field Guide of 100 plants), Fungi and Microbes, Animals, Habitat Tour, Adaptations and Evolution, Food Webs and Wild Watch. 60 stations at three levels, 180 stars, a paper mission in every zone and a press-and-hold grown-ups reset. Every picture is a real photo from Wikimedia Commons, credited in the grown-ups area.
+
+Open it at https://bwstroup.github.io/word-lab/wild-lab/
