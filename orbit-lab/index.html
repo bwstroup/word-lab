@@ -426,7 +426,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .planet .orb.craters{background:radial-gradient(circle at 34% 62%,rgba(0,0,0,.2) 0 9px,transparent 10px),radial-gradient(circle at 60% 40%,rgba(0,0,0,.2) 0 6px,transparent 7px),radial-gradient(circle at 56% 76%,rgba(0,0,0,.2) 0 5px,transparent 6px),var(--c)}
 .planet .orb.craters::after{display:none}
 .planet .orb.moon::after{left:0;top:64%;width:28%;height:28%;border:4px solid var(--ink);background:var(--ring,var(--yellow));box-shadow:none;transform:none}
-.planet .orb.tilt::after{transform:rotate(18deg)}
+.planet .orb.tip::after{transform:rotate(18deg)}
 .planet.soon{min-height:0;padding-bottom:14px}
 .planet.soon .orb{width:84px;height:84px}
 .planet.soon h2{font-size:28px}
@@ -462,6 +462,20 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 @media (max-width:860px){.planet.wide{grid-column:auto;min-height:220px}}
 .planet .doodle{right:140px;width:250px;height:auto}
 .planet .doodle svg{display:block;width:100%;height:auto}
+/* ---------- batch 11: Space Science labs ---------- */
+.sky.lab{flex-direction:column;align-items:center}
+.sky.lab svg{max-width:620px}
+.lab text{font:700 13px Lexend,system-ui,sans-serif;fill:#C3CBEE;text-anchor:middle}
+.status{min-height:1.5em;font-weight:700;color:var(--yellow)}
+.months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));margin-top:-12px;font-size:12px;font-weight:700;color:var(--muted);text-align:center}
+.daybar{height:22px;border:3px solid var(--ink);border-radius:999px;background:#0B1233;overflow:hidden}
+.daybar i{display:block;height:100%;background:var(--yellow);transition:width .15s}
+.sig svg{display:block;width:100%;max-width:440px;height:auto}
+.cmdq{display:flex;flex-wrap:wrap;gap:6px;min-height:48px;padding:8px;border:3px dashed var(--muted);border-radius:8px}
+.cmdq span{padding:3px 10px;border:3px solid var(--ink);border-radius:999px;background:var(--cream);color:var(--ink-text);font-weight:800;font-size:15px}
+.cmdq span.now{background:var(--yellow);box-shadow:0 0 0 3px var(--cyan)}
+.cmdq em{color:var(--muted);font-style:normal;font-size:15px}
+.rule:disabled:not(.right){opacity:.5}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -878,7 +892,7 @@ const ZONES={
     peek:['Add, subtract and doubling patterns','Times patterns, growing jumps, and two-step patterns','Squares, halving, and ×3, ×4, ×5, ×10','Add the two before, cubes, and ×2 then +1','Challenge: decimals, going below zero, and prime numbers']},
   fuel:{name:'Fuel Depot',host:'kofi',orb:'bands',color:'#F26B1D',ring:'#FFD23F',blurb:'Add up the fuel tankers column by column, carrying as you go.',start:startFuel,
     peek:['Two tankers with 3-digit loads','Three tankers with 2- and 3-digit loads','Two tankers with 4-digit loads','Three tankers with 3- and 4-digit loads','Challenge: four tankers, up to 5-digit loads']},
-  ops:{name:'Number Ops',host:'nova',orb:'tilt',color:'#D6336C',ring:'#FFD23F',blurb:'See multiplication as crates and area pieces. Share supplies among pods to divide.',start:startOps,
+  ops:{name:'Number Ops',host:'nova',orb:'tip',color:'#D6336C',ring:'#FFD23F',blurb:'See multiplication as crates and area pieces. Share supplies among pods to divide.',start:startOps,
     peek:['× crate arrays · ÷ 2-digit numbers by 2 to 5','× 2-digit by 1-digit · ÷ 2-digit numbers by 3 to 9','× 2-digit by 2-digit · ÷ 3-digit numbers by 2 to 6','× 3-digit by 1-digit · ÷ 3-digit numbers by 4 to 9','Challenge: × big 2-digit pairs · ÷ 4-digit numbers']},
   shapes:{name:'Shape Forge',host:'kofi',orb:'craters',color:'#7FE9FF',ring:'#F26B1D',blurb:'Name 2-D and 3-D shapes, then measure area and volume.',start:startShapes,
     peek:['Shape names · rectangle area · counting cubes','Triangle and 4-sided shape types · L-shaped areas · box volume','3-D solids · triangles and parallelograms · joined boxes','Faces, edges and vertices · roofs and trapezoids · cylinders with π','Challenge: mixed names · circles with π · spheres and cones']},
@@ -894,13 +908,16 @@ const ZONES={
       'Line up with the asteroid belt and Pluto · Mars, Pluto and Jupiter weigh-ins · gaps between planets',
       'Hottest to coldest · decimal weigh-ins (× 0.9, × 1.1, × 2.4) · scale-model sizes',
       'Challenge: weakest to strongest pull · × 0.38, × 1.12, × 2.36 · AU to million km']},
+  rockets:{name:'Rockets and Orbits',host:'jay',color:'#F26B1D',ring:'#7FE9FF',group:'space',blurb:'Fire a cannonball into orbit, learn push and push back, and do the math of spaceflight.',start:startRockets,
+    peek:['Cannon: fall, orbit and escape · orbit speed × facts','Cannon: land far around the planet · orbits in a day','Cannon: circles and ellipses · 90-minute orbits','Cannon: the slowest orbit · × thousands','Challenge: slowest and fastest orbits · decimals']},
+  seasons:{name:'Seasons and Eclipses',host:'kofi',color:'#FFD23F',ring:'#3FA7F5',orb:'bands',group:'space',blurb:'Slide Earth through a year of seasons. Then line up the Sun, Earth and Moon for phases and eclipses.',start:startSeasons,
+    peek:['Longest day, winter, equal day and night · full, new and quarter moons · hours in a day','Southern summer, shortest day, midnight Sun · eclipses · sunrise to sunset','Hours of daylight · waning moons · degrees Earth turns','Daylight by season, north and south · Moon weeks · Earth\'s speed','Challenge: polar sunset · days before full · tilts and leap years']},
+  stars:{name:'Stars and Galaxies',host:'qel',color:'#B6A8FF',ring:'#FFD23F',orb:'moon',group:'space',blurb:'Build a star, choose its mass, and watch its whole life story. Then explore light-years and giant numbers.',start:startStars,
+    peek:['Sun-like, hottest and red stars · groups of 10 and 100','Long lives and supernovas · powers of ten','Black holes and white dwarfs · light-year distances','Lifetimes and neutron stars · star temperatures','Challenge: sizes and lifetimes · billions and trillions']},
+  mission:{name:'Mission Control',host:'nova',color:'#D6336C',ring:'#C3CBEE',orb:'tip',group:'space',blurb:'Drive a Mars rover across a signal delay, and learn the story of rockets, rovers and telescopes.',start:startMission,
+    peek:['Rover: open ground · years between missions','Rover: rocks in the way · crew supplies','Rover: more rocks · signal delay','Rover: bigger map · countdown seconds','Challenge: very tight command limit · light-speed distances']},
 };
-const SOON=[
-  {name:'Rockets and Orbits',host:'jay',color:'#F26B1D',ring:'#7FE9FF',blurb:'Gravity, push and push back, and why things stay in orbit.'},
-  {name:'Seasons and Eclipses',host:'kofi',color:'#FFD23F',ring:'#3FA7F5',blurb:'Earth\'s tilt makes the seasons. Line up the Sun, Earth and Moon for eclipses.'},
-  {name:'Stars and Galaxies',host:'qel',color:'#B6A8FF',ring:'#FFD23F',blurb:'Star colors and life stories, the Milky Way, light-years and powers of ten.'},
-  {name:'Mission Control',host:'nova',color:'#D6336C',ring:'#C3CBEE',blurb:'Moon landings, the space station, rovers, telescopes and planets around other stars.'},
-];
+const SOON=[]; // every planned zone is built
 let Z=null; // current zone id
 function level(){return S.levels[Z]??0;}
 
@@ -993,7 +1010,7 @@ function editStr(s,k,max=7){ // returns new string for typed key
 let timers=[];
 function later(fn,ms){const t=setTimeout(fn,ms);timers.push(t);return t;}
 let tickId=null;
-function stopTimers(){timers.forEach(clearTimeout);timers=[];if(tickId){clearInterval(tickId);tickId=null;}if(typeof stopSpin==='function')stopSpin();}
+function stopTimers(){timers.forEach(clearTimeout);timers=[];if(tickId){clearInterval(tickId);tickId=null;}if(typeof stopSpin==='function')stopSpin();cancelAnimationFrame(sciRaf);}
 function closeOverlay(){$('#overlay').hidden=true;$('#overlay').textContent='';}
 function award(n){S.stars+=n;save();}
 function showWin({title='Mission complete!',lines=[],stars=1,again,up=false}){
@@ -1022,7 +1039,7 @@ const RESETS=[
   {id:'times',label:'Flashcard best times',on:true,note:()=>{const n=Object.keys(S.best).filter(k=>k.startsWith('flash-')).length;return n?`${n} best time${n===1?'':'s'} saved`:'none saved yet';},
     run(){for(const k of Object.keys(S.best))if(k.startsWith('flash-'))delete S.best[k];}},
   {id:'pi',label:'Pi Vault',on:true,note:()=>`${S.pi.groups*3} digits unlocked · best recite ${S.pi.best}`,run(){S.pi={groups:1,best:0};}},
-  {id:'space',label:'Space Science',on:true,note:()=>{const s=S.solar||{};return `${(s.stamped||[]).length} planet files stamped · paper mission ${s.paper?'done':'not done'}`;},run(){S.solar={seen:[],paper:false,filesDone:false};}},
+  {id:'space',label:'Space Science',on:true,note:()=>{const s=S.solar||{};return `${(s.stamped||[]).length} planet files stamped · paper missions done: ${(s.paper?1:0)+Object.values(S.sci||{}).filter(z=>z.paper).length} of 5`;},run(){S.solar={seen:[],paper:false,filesDone:false};S.sci={};}},
   {id:'mm',label:'Mental math tricks',on:true,note:()=>{const n=Object.values(S.mm||{}).filter(m=>m.s).length;return `${n} of ${MM.length} tricks mastered`;},run(){S.mm={};}},
   {id:'levels',label:'Level picks',on:false,note:()=>{const set=Object.entries(S.levels).filter(([,v])=>v>0);return set.length?`${set.length} zone${set.length===1?'':'s'} above level 4 · resets every zone to 4`:'every zone is on level 4';},run(){S.levels={};}},
 ];
@@ -2631,6 +2648,514 @@ function solarPaper(st,L){
     el('div',{},doneBtn)));
   say('hero',`Paper mission! ${plan.stepSize.charAt(0).toUpperCase()+plan.stepSize.slice(1)}. Turn the level dial to change the scale.`);
 }
+
+/* =================== SPACE SCIENCE ZONES (batch 11): Rockets, Seasons, Stars, Mission Control =================== */
+/* A zone is a set of tabs. Each tab is a lab (missions on a live scene), a math set, a quick quiz, or a paper mission. */
+var sciRaf=0;
+const SCI_CALM=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+function sciLoop(box,fn){cancelAnimationFrame(sciRaf);let last=0;const f=t=>{if(!box.isConnected)return;const dt=Math.min(.05,last?(t-last)/1000:.016);last=t;if(fn(dt)!==false)sciRaf=requestAnimationFrame(f);};sciRaf=requestAnimationFrame(f);}
+function sciState(id){S.sci=S.sci||{};return S.sci[id]=S.sci[id]||{paper:false};}
+function slider(min,max,step,val,label,oninput){const s=el('input',{type:'range',class:'tilt',min,max,step,value:val,'aria-label':label});s.addEventListener('input',()=>oninput(parseFloat(s.value)));return s;}
+function labWin(work,T,done,clean){SFX.ok();work.append(el('div',{class:'factbox'},T.why));sayLine('cheer');done(clean);}
+function sciZone(id,cfg){
+  const L=level(),mode=cfg.get(),tab=cfg.tabs[mode],again=()=>sciZone(id,cfg);
+  if(tab.kind==='paper'){const st=$('#stage');st.textContent='';keyHandler=null;stopSpin();
+    st.append(modeTabs(cfg.modes,mode,k=>{cfg.set(k);stopTimers();again();}));return paperPanel(st,id,tab.paper(L));}
+  let i=0,deck=[];
+  runZone({modes:cfg.modes,mode,setMode:cfg.set,round:typeof tab.round==='function'?tab.round(L):tab.round,title:tab.title,
+    make:()=>{if(tab.kind==='quiz'){if(!deck.length)deck=shuffle(tab.bank.filter(q=>(q[3]||0)<=L));return deck.pop();}return tab.make(L,i++);},
+    play:(T,w,p,d)=>tab.kind==='lab'?tab.play(T,w,p,ok=>d(ok,'next'),L):tab.kind==='math'?mathTask(T,w,p,ok=>d(ok,'next')):quizTask(T,w,p,d),
+    finishLines:(r,c)=>[tab.done(r),`${c} of ${r} with no hints.`],again});
+}
+function quizTask(T,work,pad,done){
+  let tries=0;const opts=el('div',{class:'rules',role:'group','aria-label':'Answers'});
+  shuffle(T[1]).forEach(o=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
+    if(o===T[1][0]){b.classList.add('right');anim(b,'pop');SFX.ok();opts.querySelectorAll('button').forEach(x=>x.disabled=true);work.append(el('div',{class:'factbox'},T[2]));sayLine('cheer');done(tries===0,'next');}
+    else{tries++;b.disabled=true;anim(b,'wiggle');SFX.no();say('enc',tries===1?'Not that one. Think it through and try again.':'Only one left. That must be it!');}}},o)));
+  work.append(el('div',{class:'prompt'},T[0]),opts);say('hero',pick(['Quick quiz. What do you think?','Use what you learned in the lab.','Take your time and read each answer.']));
+}
+function mathTask(T,work,padWrap,done){
+  let tries=0;
+  const inp=numInput({dot:!!T.dot,max:8,onCheck:s=>{
+    if(sameNum(s,T.ans)){inp.box.classList.add('right');anim(inp.box,'pop');SFX.ok();keyHandler=null;if(T.fact)work.append(el('div',{class:'factbox'},T.fact));sayLine('cheer',`${withCommas(T.ans)}${T.unit?' '+T.unit:''}.`);done(tries===0);return;}
+    tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();say(tries===1?'enc':'hint',T.hint[Math.min(tries,2)-1]);}});
+  inp.box.dataset.ans=String(T.ans);
+  work.append(el('div',{class:'prompt'},T.text),el('div',{class:'row'},inp.box,el('span',{class:'eq',style:'font-size:20px'},T.unit)));
+  padWrap.append(inp.pad);say('hero',pick(['Space math! Read it twice, then solve.','What is the question asking for?','Try a mental math trick from Shortcut Station.']));
+}
+function paperPanel(st,id,P){
+  const s=sciState(id);
+  const btn=el('button',{class:'btn teal',type:'button',onclick:()=>{SFX.win();if(!s.paper){s.paper=true;award(2);}save();$('#starCount').textContent=S.stars;btn.disabled=true;btn.textContent='Mission logged ★';say('cheer',P.cheer);}},s.paper?'Do it again!':'We did it! (+2 ★)');
+  st.append(el('div',{class:'panel work paper'},
+    el('div',{class:'paper-top'},el('h2',{class:'sol-title'},P.title),el('span',{class:'sol-kind'},P.kind)),el('p',{},P.intro),
+    el('div',{class:'label'},'You need'),el('ul',{class:'paper-list'},P.need.map(t=>el('li',{},t))),
+    el('div',{class:'label'},'Steps'),el('ol',{class:'paper-list'},P.steps.map(t=>el('li',{},t))),
+    el('div',{class:'factbox'},el('b',{},'What is going on: '),P.fact),el('div',{},btn)));
+  say('hero','Paper mission! This one happens away from the screen. Turn the level dial for a harder challenge.');
+}
+
+/* ---------- ROCKETS AND ORBITS (Jay) ---------- */
+let RK_V=5;
+const RK_TASKS={
+  fall:{t:'Fire the cannonball so it falls back to the ground.',ok:r=>r.type==='crash',hint:'Try a slower speed, under 7 km each second.',why:'Too slow, and gravity curves the path down into the ground. Every ball you have ever thrown did this.'},
+  orbit:{t:'Fire it fast enough to go all the way around the planet.',ok:r=>r.type==='orbit',hint:'It needs about 8 km each second to keep missing the ground.',why:'An orbit is falling around a planet. The ball never stops falling, but the ground curves away just as fast.'},
+  escape:{t:'Fire it so fast that it escapes and never comes back.',ok:r=>r.type==='escape',hint:'Escape speed is a little more than 11 km each second.',why:'At about 11.2 km each second, gravity can slow the ball down but can never pull it back.'},
+  quarter:{t:'Make it fly a long way around the planet before it lands, without going into orbit.',ok:r=>r.type==='crash'&&r.sweep>=45,hint:'Fast, but just under orbit speed. Try between 7.2 and 7.7.',why:'The faster the ball goes, the farther around it gets before it lands. Orbit is just the speed where it never lands.'},
+  circle:{t:'Make an orbit that is a circle, not a stretched loop.',ok:r=>r.type==='orbit'&&r.v>=7.8&&r.v<=8.0,hint:'A circle needs just the right speed: 7.9.',why:'Exactly orbit speed makes a circle. Any faster and the loop stretches into an ellipse.'},
+  ellipse:{t:'Make a stretched orbit (an ellipse) that stays on the screen.',ok:r=>r.type==='orbit'&&!r.long&&r.v>=8.6,hint:'Go faster than a circle. Try between 9 and 10.',why:'Extra speed flings the ball farther out before gravity pulls it back. It slows down far away and speeds up close in.'},
+  slowest:{t:'Find the slowest speed that still makes it all the way around.',ok:r=>r.type==='orbit'&&r.v<=7.85,hint:'Creep down from 7.9, one tenth at a time.',why:'Any slower than this and the ball clips the ground before it gets back around.'},
+  fastest:{t:'Find the fastest speed that still comes back.',ok:r=>r.type==='orbit'&&r.v>=11.05,hint:'Escape happens at 11.2. Go just under it.',why:'Just under escape speed the orbit is enormously stretched, but gravity still wins in the end.'},
+};
+const RK_ROUNDS=[['fall','orbit','escape'],['fall','quarter','orbit','escape'],['quarter','circle','ellipse','escape'],['circle','ellipse','slowest','escape'],['slowest','circle','ellipse','fastest']];
+function cannonLab(T,work,pad,done){
+  const R=100,r0=106,VC=7.9,GM=VC*VC*r0;let tries=0,busy=false,solved=false,v=RK_V;
+  const sky=el('div',{class:'sky lab'});
+  sky.innerHTML=`<svg viewBox="-260 -260 520 520" role="img" aria-label="A planet with a cannon on top of a very tall mountain"><circle r="${R}" fill="#2E7BD6" stroke="#05060F" stroke-width="4" vector-effect="non-scaling-stroke"/><path d="M-60,-40 q30,-30 60,-5 q20,25 -10,45 q-40,15 -50,-40z M20,30 q30,-10 40,20 q-10,30 -40,10z" fill="#3FA65A" opacity=".85"/><path d="M-10,-${R-3} L0,-${r0+1} L10,-${R-3}Z" fill="#8A7B6C" stroke="#05060F" stroke-width="2" vector-effect="non-scaling-stroke"/><polyline class="trail" fill="none" stroke="#FFD23F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><circle class="ball" r="6" cx="0" cy="-${r0}" fill="#F26B1D" stroke="#05060F" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+  const svg=sky.firstChild,trail=svg.querySelector('.trail'),ball=svg.querySelector('.ball');
+  const read=el('div',{class:'stat'}),status=el('div',{class:'status','aria-live':'polite'});
+  const paintV=()=>{read.textContent='';read.append('Launch speed: ',el('b',{},v.toFixed(1)),' km each second');};
+  const sl=slider(1,13,0.1,v,'Launch speed',x=>{v=Math.round(x*10)/10;RK_V=v;paintV();});
+  const nudge=d=>{if(busy||solved)return;SFX.tap();v=Math.max(1,Math.min(13,Math.round((v+d)*10)/10));RK_V=v;sl.value=v;paintV();};
+  const fire=el('button',{class:'btn',type:'button',onclick:()=>launch()},'Fire!');
+  function finish(res){
+    busy=false;fire.disabled=false;sl.disabled=false;
+    status.textContent=res.type==='crash'?`It fell back to the ground after going ${res.sweep<20?'a short way':res.sweep<45?'part of the way':res.sweep<90?'a long way':'more than a quarter of the way'} around.`:res.type==='escape'?'It escaped! Gravity could not pull it back.':res.long?'A hugely stretched orbit. It leaves the screen, but gravity will bring it back.':Math.abs(res.v-VC)<=0.11?'A full orbit, and almost a perfect circle!':'A full orbit! The loop is stretched into an ellipse.';
+    if(T.ok(res)){solved=true;fire.disabled=true;sl.disabled=true;labWin(work,T,done,tries===0);}
+    else{tries++;SFX.no();say(tries===1?'enc':'hint',tries===1?'Not this mission yet. Change the speed and fire again.':T.hint);}
+  }
+  function launch(){
+    if(busy||solved)return;busy=true;fire.disabled=true;sl.disabled=true;SFX.flip();status.textContent='';
+    const k=(v/VC)**2,esc=k>=2,a=esc?Infinity:r0/(2-k),peri=v>=VC?r0:2*a-r0,apo=esc?Infinity:(v>=VC?2*a-r0:r0),crash=!esc&&peri<R;
+    const view=Math.max(260,Math.min(900,(esc?900:apo)*1.12)),long=!esc&&apo*1.03>900;
+    svg.setAttribute('viewBox',`${-view} ${-view} ${2*view} ${2*view}`);ball.setAttribute('r',(6*view/260).toFixed(1));
+    const T0=2*Math.PI*r0/VC,per=esc?0:T0*(a/r0)**1.5,dur=esc?0:Math.max(3.5,Math.min(10,5*(a/r0)**0.75));
+    const ts=esc||long?45:crash?T0/5:per/dur,samp=esc||long?3:crash?0.6:Math.max(0.6,per/400);
+    let x=0,y=-r0,vx=v,vy=0,sweep=0,pa=Math.atan2(y,x),acc=0,ended=null;const pts=[[x,y]];
+    const step=h=>{let r=Math.hypot(x,y),ax=-GM*x/r**3,ay=-GM*y/r**3;vx+=ax*h/2;vy+=ay*h/2;x+=vx*h;y+=vy*h;r=Math.hypot(x,y);ax=-GM*x/r**3;ay=-GM*y/r**3;vx+=ax*h/2;vy+=ay*h/2;
+      const an=Math.atan2(y,x);let d=an-pa;if(d>Math.PI)d-=2*Math.PI;if(d<-Math.PI)d+=2*Math.PI;sweep+=Math.abs(d);pa=an;
+      if(crash&&r<=R)ended='crash';else if(r>view*1.03)ended=esc?'escape':'orbit';else if(!crash&&!esc&&sweep>=2*Math.PI)ended='orbit';};
+    const draw=()=>{ball.setAttribute('cx',x.toFixed(1));ball.setAttribute('cy',y.toFixed(1));trail.setAttribute('points',pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+` ${x.toFixed(1)},${y.toFixed(1)}`);};
+    const adv=simT=>{const h=0.02;let n=Math.ceil(simT/h);while(n-->0&&!ended){step(h);acc+=h;if(acc>=samp){acc=0;pts.push([x,y]);}}};
+    const end=()=>{draw();finish({type:ended,v,sweep:sweep*180/Math.PI,long:ended==='orbit'&&long});};
+    if(SCI_CALM()){while(!ended)adv(50);return end();}
+    sciLoop(sky,dt=>{adv(ts*dt);draw();if(ended){end();return false;}});
+  }
+  paintV();
+  work.append(el('div',{class:'prompt'},'Mission: '+T.t),sky,read,
+    el('div',{class:'slider-row'},el('button',{class:'iconbtn sm',type:'button','aria-label':'A little slower',onclick:()=>nudge(-0.1)},'−'),sl,el('button',{class:'iconbtn sm',type:'button','aria-label':'A little faster',onclick:()=>nudge(0.1)},'+')),
+    el('div',{class:'row'},fire),status,el('div',{class:'formula'},'This is Isaac Newton\'s cannon idea. The mountain is drawn far too tall, and there is no air to slow the ball.'));
+  say('hero','Set the launch speed, then fire the cannon sideways off the mountain.');
+}
+function rkMath(L){return pick([
+  [()=>{const n=ri(2,9);return {text:`The space station travels about 8 km every second. How far does it go in ${n} seconds?`,ans:8*n,unit:'km',hint:[`8 km each second, for ${n} seconds. Multiply.`,`8 × ${n} = ${8*n}.`]};},
+   ()=>{const n=ri(2,6);return {text:`A small rocket burns 5 tons of fuel every second. How many tons does it burn in ${2*n} seconds?`,ans:10*n,unit:'tons',hint:[`5 tons each second, for ${2*n} seconds.`,`× 5 is half of × 10. Half of ${2*n} is ${n}, and ${n} × 10 = ${10*n}.`]};}],
+  [()=>{const d=ri(2,6);return {text:`The space station circles Earth about 16 times a day. How many times does it circle in ${d} days?`,ans:16*d,unit:'orbits',hint:[`16 orbits each day, for ${d} days.`,`10 × ${d} = ${10*d} and 6 × ${d} = ${6*d}. Together that is ${16*d}.`]};},
+   ()=>{const n=ri(11,25);return {text:`The space station travels about 8 km every second. How far does it go in ${n} seconds?`,ans:8*n,unit:'km',hint:['× 8 is double, double, double.',`Double ${n}: ${2*n}. Again: ${4*n}. Again: ${8*n}.`]};}],
+  [()=>{const n=ri(2,8);return {text:`One trip around Earth takes the space station about 90 minutes. How many minutes do ${n} trips take?`,ans:90*n,unit:'minutes',hint:[`90 minutes each, for ${n} trips. Park the zero.`,`9 × ${n} = ${9*n}. Put the zero back: ${90*n}.`]};},
+   ()=>{const n=ri(2,6);return {text:`The space station has been flying for ${90*n} minutes. One trip around Earth takes 90 minutes. How many trips is that?`,ans:n,unit:'trips',hint:['How many 90s fit? Count up: 90, 180, 270…',`${n} × 90 = ${90*n}. So it is ${n}.`]};}],
+  [()=>{const h=ri(2,6);return {text:`In orbit, a ship moves about 28,000 km every hour. How far does it go in ${h} hours?`,ans:28000*h,unit:'km',hint:[`Park the zeros: work out 28 × ${h} first.`,`28 × ${h} = ${28*h}. Put back three zeros: ${withCommas(28000*h)}.`]};},
+   ()=>{const T=100*ri(4,9)+ri(11,89),F=T-ri(35,95);return {text:`A rocket on the launch pad has a mass of ${T} tons. Of that, ${F} tons is fuel. How many tons is everything else?`,ans:T-F,unit:'tons',hint:[`Subtract the fuel: ${T} − ${F}. Try counting up from ${F}.`,`${T} − ${F} = ${T-F}. Most of a rocket is fuel!`]};}],
+  [()=>({text:'Orbit speed is about 7.9 km each second. Escape speed is about 11.2 km each second. How much faster is escape speed?',ans:3.3,unit:'km each second',dot:true,hint:['Subtract: 11.2 − 7.9.','11.2 − 8 = 3.2. You took away 0.1 too much, so add it back: 3.3.']}),
+   ()=>{const n=ri(2,9);return {text:`Orbit speed is about 7.9 km each second. How far does a ship in orbit travel in ${n} seconds?`,ans:Math.round(79*n)/10,unit:'km',dot:true,hint:[`7.9 is almost 8. Do 8 × ${n}, then take away ${n} tenths.`,`8 × ${n} = ${8*n}. Take away ${fmtNum(n/10)}: ${fmtNum(79*n/10)}.`]};},
+   ()=>{const h=pick([0.5,1.5,2.5]);return {text:`In orbit, a ship moves about 28,000 km every hour. How far does it go in ${h} hours?`,ans:28000*h,unit:'km',hint:['Half an hour is half of 28,000, which is 14,000.',`28,000 × ${h} = ${withCommas(28000*h)}.`]};}],
+][L])();}
+const RK_QUIZ=[
+  ['What pulls a ball back down when you throw it?',['Gravity','Wind','Magnets'],'Gravity pulls everything toward the center of the Earth.'],
+  ['A rocket shoots hot gas down. Which way does the rocket go?',['Up','Down','Sideways'],'Push and push back: the rocket pushes gas down, and the gas pushes the rocket up.'],
+  ['Blow up a balloon and let it go. Why does it fly?',['Air rushes out one way and pushes the balloon the other way','The balloon is lighter than air','The wind in the room carries it'],'It is a tiny rocket. Air goes one way, the balloon goes the other.'],
+  ['The Moon orbits Earth. What keeps it from flying away?',['Earth\'s gravity','A very long cable','The Sun\'s light'],'Gravity is the invisible string that keeps the Moon circling Earth.'],
+  ['About how fast must a ship go to stay in a low orbit?',['About 8 km every second','About 8 km every hour','About 800 km every second'],'That is fast enough to cross a big city in one second.'],
+  ['How long does the space station take to go around Earth once?',['About 90 minutes','About one day','About one month'],'The crew sees about 16 sunrises and sunsets every day.'],
+  ['Which needs a bigger push to speed up the same amount?',['A full, heavy rocket','An empty, light rocket','They need the same push'],'More mass needs more push. That is why rockets are built as light as they can be.'],
+  ['Why does the space station not fall to the ground?',['It is falling around Earth so fast that it keeps missing','There is no gravity up there','Its engines are always on'],'It is always falling. It just moves sideways so fast that the ground curves away beneath it.',1],
+  ['Why do astronauts float inside the space station?',['They and the station are falling together','Space has no gravity','Their suits are filled with helium'],'Everything inside is falling at the same rate, so nothing presses down on anything else.',1],
+  ['Is there gravity where the space station flies?',['Yes, almost as strong as on the ground','No, none at all','Only at night'],'Gravity up there is still about nine tenths as strong as on the ground.',2],
+  ['Why do rockets drop their empty stages?',['To get lighter, so the same push speeds them up more','To make a loud noise','So the fuel can cool down'],'An empty tank is dead weight. Dropping it makes the rest of the trip easier.',2],
+  ['Faster than orbit speed, but slower than escape speed. What shape is the path?',['A stretched loop called an ellipse','A straight line','A square'],'Planets, moons and comets all travel on ellipses.',3],
+  ['In deep space with its engines off, what does a spaceship do?',['Keeps moving at the same speed','Slows down and stops','Falls straight down'],'With nothing to push on it or rub against it, a moving thing just keeps going.',3],
+  ['Escape speed from Earth is about…',['11 km every second','1 km every second','100 km every second'],'About 11.2 km each second. The Apollo ships needed nearly that to reach the Moon.',4],
+];
+function rkPaper(L){return {title:'Balloon Rocket',kind:'Indoors · about 15 minutes',cheer:'Mission logged! Push and push back, just like a real rocket.',
+  intro:'Build a rocket that runs on air and race it across the room on a string.',
+  need:['A long piece of string, about 3 big steps long','A drinking straw','A long balloon and some tape','Two chairs and a grown-up helper'],
+  steps:['Thread the string through the straw. Tie the string tight between the two chairs.','Blow up the balloon and pinch the end shut. Do not tie it.','Tape the balloon to the straw, with the pinched end pointing back.','Slide it to one end, count down from 5, and let go!',
+    ['Try it again with more air. Does it go farther?','Fly it 3 times. Measure each flight in steps and add them up.','Tape on a paper clip as cargo. How much farther does the empty rocket go?','Fly it with a little air, half full and full. Measure each one and put them in order.','Tilt the string uphill. How much air does it take to reach the top?'][L]],
+  fact:'Air rushes out the back and pushes the balloon forward. A real rocket does the same thing with hot gas: push one way, go the other.'};}
+let RKMODE='cannon';
+function startRockets(){sciZone('rockets',{modes:[['cannon','Cannon Lab'],['math','Orbit Math'],['quiz','Quick Quiz'],['paper','Paper mission']],get:()=>RKMODE,set:k=>RKMODE=k,tabs:{
+  cannon:{kind:'lab',round:L=>RK_ROUNDS[L].length,title:'Orbit achieved!',make:(L,i)=>RK_TASKS[RK_ROUNDS[L][i%RK_ROUNDS[L].length]],play:cannonLab,done:r=>`${r} cannon missions flown.`},
+  math:{kind:'math',round:5,title:'Orbit math done!',make:rkMath,done:r=>`${r} orbit problems solved.`},
+  quiz:{kind:'quiz',round:6,title:'Quiz complete!',bank:RK_QUIZ,done:r=>`${r} questions answered.`},
+  paper:{kind:'paper',paper:rkPaper}}});}
+
+/* ---------- SEASONS AND ECLIPSES (Kofi) ---------- */
+let SE_DAY=80,SE_LAT=40;
+const SE_MON=['January','February','March','April','May','June','July','August','September','October','November','December'],SE_LEN=[31,28,31,30,31,30,31,31,30,31,30,31];
+function seDate(d){let m=0,x=d;while(x>SE_LEN[m]){x-=SE_LEN[m];m++;}return SE_MON[m]+' '+x;}
+/* year angle: 0 at the March equinox (day 79), 90 at the June solstice (172), 180 in September (265), 270 in December (355) */
+function sePhase(d){const A=[79,172,265,355,444],x=d<79?d+365:d;for(let i=0;i<4;i++)if(x<=A[i+1])return (i+(x-A[i])/(A[i+1]-A[i]))*90;return 360;}
+function seDecl(d){return 23.44*Math.sin(sePhase(d)*Math.PI/180);}
+function seHours(lat,d){const la=Math.max(-89.9,Math.min(89.9,lat)),x=-Math.tan(la*Math.PI/180)*Math.tan(seDecl(d)*Math.PI/180);return x<=-1?24:x>=1?0:2*Math.acos(x)*12/Math.PI;}
+function seSeason(d,south){const i=Math.min(3,Math.floor(sePhase(d)/90));return ['spring','summer','fall','winter'][south?(i+2)%4:i];}
+function seHM(h){if(h>=24)return '24 hours (the Sun never sets)';if(h<=0)return '0 hours (the Sun never rises)';const m=Math.round(h*60/5)*5;return `${Math.floor(m/60)} hours${m%60?` ${m%60} minutes`:''}`;}
+const SE_PLACES=[[0,'Equator'],[40,'40° North'],[90,'North Pole'],[-40,'40° South']];
+const seNear=(d,t,w)=>{const x=Math.abs(d-t);return Math.min(x,365-x)<=w;};
+function seHourTask(lat){const more=Math.random()<.5,h=more?pick([13,14]):pick([10,11]),south=lat<0,sea=more?pick(['spring','summer']):pick(['fall','winter']),nm=south?'40° South':'40° North';
+  return {t:`At ${nm}, find a ${sea} day with about ${h} hours of daylight.`,lat,ok:(d,la,hh)=>Math.abs(hh-h)<=0.25&&seSeason(d,south)===sea,
+    hint:`Days are longer than 12 hours in spring and summer, and shorter in fall and winter. Slide slowly and watch the daylight number. The season must be right for the ${south?'south':'north'}.`,
+    why:`Daylight changes a little every day. At ${nm} it swings between about 9 and 15 hours over the year.`};}
+const SE_TASKS=[
+  [()=>({t:'Find the longest day of the year at 40° North.',lat:40,ok:d=>seNear(d,172,7),hint:'Slide toward late June, when the north leans toward the Sun.',why:'Around June 21 the north leans toward the Sun as far as it can. That day is the summer solstice.'}),
+   ()=>({t:'Find a day when it is winter in the north.',lat:null,ok:d=>seSeason(d,false)==='winter',hint:'Winter is when the north leans away from the Sun.',why:'In winter the north leans away from the Sun. Sunlight arrives at a slant and the days are short.'}),
+   ()=>({t:'At 40° North, find a day when day and night are about equal.',lat:40,ok:(d,la,h)=>Math.abs(h-12)<=0.25,hint:'Look near late March or late September, halfway between the leaning times.',why:'On the equinoxes, in March and September, Earth leans neither toward nor away from the Sun. Day and night are about 12 hours each.'})],
+  [()=>({t:'Find a day when it is summer in the south half of Earth.',lat:null,ok:d=>seSeason(d,true)==='summer',hint:'The south has summer when the north has winter.',why:'The seasons are flipped. December is summer in Australia!'}),
+   ()=>({t:'Find the shortest day of the year at 40° North.',lat:40,ok:d=>seNear(d,355,7),hint:'Slide toward late December.',why:'Around December 21 the north leans farthest away from the Sun. That day is the winter solstice.'}),
+   ()=>({t:'Go to the North Pole. Find a day when the Sun never sets.',lat:90,ok:(d,la,h)=>h>=24,hint:'The pole leans into the sunlight from late March to late September.',why:'At the North Pole the Sun stays up for about six months, then stays down for about six months.'})],
+  [()=>seHourTask(40),
+   ()=>({t:'Find the longest day of the year at 40° South.',lat:-40,ok:d=>seNear(d,355,7),hint:'The south leans toward the Sun in late December.',why:'When the north has its shortest day, the south has its longest.'}),
+   ()=>({t:'Go to the North Pole. Find a day when the Sun never rises.',lat:90,ok:(d,la,h)=>h<=0,hint:'Try any day in the north\'s fall or winter.',why:'The polar night lasts about six months. The pole is tipped into Earth\'s own shadow side.'})],
+  [()=>seHourTask(40),()=>seHourTask(-40),
+   ()=>({t:'Go to the Equator. Slide through the whole year. Can you find a day much longer than 12 hours? Press Check when you have looked.',lat:0,ok:()=>true,hint:'',why:'You cannot! At the equator every day of the year has about 12 hours of daylight.'})],
+  [()=>seHourTask(-40),()=>seHourTask(40),
+   ()=>({t:'Go to the North Pole. Find the day in fall when the Sun finally sets for the winter.',lat:90,ok:d=>seNear(d,265,4),hint:'It happens on the September equinox, around September 22.',why:'At the pole there is one sunrise and one sunset a year, both on the equinoxes.'})],
+];
+function yearLab(T,work,pad,done){
+  let tries=0,solved=false,playing=false,df=SE_DAY;
+  const sky=el('div',{class:'sky lab'});
+  sky.innerHTML=`<svg viewBox="0 0 640 300" role="img" aria-label="Earth going around the Sun, and a close-up of Earth's tilt"><circle cx="150" cy="150" r="105" fill="none" stroke="#3A4A8A" stroke-width="2" stroke-dasharray="4 6"/><circle cx="150" cy="150" r="20" fill="#FFD23F" stroke="#05060F" stroke-width="3"/><text x="274" y="155">Jun</text><text x="150" y="36">Sep</text><text x="26" y="155">Dec</text><text x="150" y="276">Mar</text><g class="e1"><line x1="0" y1="0" x2="-18" y2="0" stroke="#F4F1E8" stroke-width="3" stroke-linecap="round"/><circle r="9" fill="#2E7BD6" stroke="#05060F" stroke-width="2.5"/></g><g stroke="#FFD23F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".8">${[70,110,150,190,230].map(y=>`<path d="M316,${y} h34 m-8,-6 l8,6 l-8,6"/>`).join('')}</g><circle cx="470" cy="150" r="92" fill="#0B1233" stroke="#05060F" stroke-width="4"/><path d="M470,58 A92,92 0 0,0 470,242 Z" fill="#3F8FE0"/><g class="ax"><line x1="0" y1="-110" x2="0" y2="110" stroke="#F4F1E8" stroke-width="3" stroke-dasharray="5 5"/><text x="0" y="-116" style="fill:#F4F1E8">N</text><line x1="-92" y1="0" x2="92" y2="0" stroke="#F4F1E8" stroke-width="2" opacity=".6"/><line class="lat" stroke="#FFD23F" stroke-width="5" stroke-linecap="round"/><circle class="pole" r="6" cy="-92" fill="#FFD23F" stroke="#05060F" stroke-width="2"/></g><text x="470" y="292">Close-up. Sunlight comes from the left.</text></svg>`;
+  const q=s=>sky.querySelector(s),e1=q('.e1'),ax=q('.ax'),latL=q('.lat'),pole=q('.pole');
+  const dd=k=>el('dd',{id:'se-'+k}),facts=el('dl',{class:'sol-facts'},el('dt',{},'Date'),dd('date'),el('dt',{},'North half'),dd('n'),el('dt',{},'South half'),dd('s'),el('dt',{},'Daylight here'),dd('h'));
+  const bar=el('i',{}),places=el('div',{class:'row',role:'group','aria-label':'Place on Earth'});
+  const paint=()=>{const d=SE_DAY,th=(sePhase(d)-90)*Math.PI/180,de=seDecl(d),h=seHours(SE_LAT,d);
+    e1.setAttribute('transform',`translate(${(150+105*Math.cos(th)).toFixed(1)} ${(150-105*Math.sin(th)).toFixed(1)})`);ax.setAttribute('transform',`translate(470 150) rotate(${(-de).toFixed(2)})`);
+    const f=SE_LAT*Math.PI/180,isPole=Math.abs(SE_LAT)===90;pole.style.display=isPole?'':'none';latL.style.display=isPole?'none':'';
+    if(!isPole){const y=-92*Math.sin(f),x=92*Math.cos(f);latL.setAttribute('x1',-x);latL.setAttribute('x2',x);latL.setAttribute('y1',y);latL.setAttribute('y2',y);}
+    facts.querySelector('#se-date').textContent=seDate(d);facts.querySelector('#se-n').textContent=seSeason(d,false);facts.querySelector('#se-s').textContent=seSeason(d,true);facts.querySelector('#se-h').textContent=seHM(h);
+    bar.style.width=(h/24*100).toFixed(1)+'%';};
+  const sl=slider(1,365,1,SE_DAY,'Day of the year',x=>{playing=false;playBtn.textContent='Play the year';SE_DAY=Math.round(x);df=SE_DAY;paint();});
+  const playBtn=el('button',{class:'btn alt',type:'button',style:'font-size:22px;min-height:52px',onclick:()=>{SFX.tap();if(solved)return;playing=!playing;playBtn.textContent=playing?'Pause':'Play the year';
+    if(playing){if(SCI_CALM()){playing=false;playBtn.textContent='Play the year';say('hint','Motion is turned down on this device. Use the slider to move through the year.');return;}
+      sciLoop(sky,dt=>{if(!playing)return false;df+=40*dt;if(df>365)df-=365;SE_DAY=Math.max(1,Math.round(df));sl.value=SE_DAY;paint();});}}},'Play the year');
+  SE_PLACES.forEach(([la,nm])=>places.append(el('button',{class:'chip',type:'button','aria-pressed':String(la===SE_LAT),onclick:e=>{SFX.tap();SE_LAT=la;places.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));e.currentTarget.setAttribute('aria-pressed','true');paint();}},nm)));
+  const btn=el('button',{class:'btn',type:'button',onclick:()=>{if(solved)return;const h=seHours(SE_LAT,SE_DAY);
+    if(T.lat!=null&&SE_LAT!==T.lat){SFX.tap();say('hint',`First set the place to ${SE_PLACES.find(p=>p[0]===T.lat)[1]}.`);return;}
+    if(T.ok(SE_DAY,SE_LAT,h)){solved=true;playing=false;playBtn.textContent='Play the year';btn.disabled=true;labWin(work,T,done,tries===0);}
+    else{tries++;SFX.no();say(tries===1?'enc':'hint',tries===1?'Not this day. Keep sliding and watch the readout.':T.hint);}}},'Check');
+  paint();
+  work.append(el('div',{class:'prompt'},'Mission: '+T.t),sky,sl,el('div',{class:'months','aria-hidden':'true'},SE_MON.map(m=>el('span',{},m.slice(0,3)))),
+    el('div',{class:'label'},'Place on Earth (the yellow line)'),places,facts,el('div',{class:'daybar',role:'img','aria-label':'Share of the day that is light'},bar),
+    el('div',{class:'row'},playBtn,btn),el('div',{class:'formula'},'Earth\'s tilt always points the same way in space. Dates are close, but real sunrise and sunset shift by a few minutes.'));
+  say('hero','Slide through the year. Watch which half of Earth leans toward the Sun.');
+}
+/* Moon phases and eclipses */
+let MO_A=45,MO_T=1;
+function moPhase(a){a=((a%360)+360)%360;if(a<=10||a>=350)return 'New moon';if(a<80)return 'Waxing crescent';if(a<=100)return 'First quarter';if(a<170)return 'Waxing gibbous';if(a<=190)return 'Full moon';if(a<260)return 'Waning gibbous';if(a<=280)return 'Last quarter';return 'Waning crescent';}
+function moEclipse(a,t){if(t!==0)return null;if(a<=5||a>=355)return 'solar';if(a>=175&&a<=185)return 'lunar';return null;}
+function moPath(b,R){if(b<1)return '';const rx=Math.abs(Math.cos(b*Math.PI/180))*R;return `M0,${-R} A${R},${R} 0 0,1 0,${R} A${rx.toFixed(1)},${R} 0 0,${b<90?0:1} 0,${-R}Z`;}
+const moIs=n=>a=>moPhase(a)===n;
+const MO_SOLAR=['Make a solar eclipse. The Moon must block the Sun.',(a,t)=>moEclipse(a,t)==='solar','You need a new moon, with the Moon\'s path set to "On the line".','In a solar eclipse the Moon\'s shadow touches Earth. Never look at the Sun without eclipse glasses, even during an eclipse.'];
+const MO_LUNAR=['Make a lunar eclipse. Earth\'s shadow must cover the Moon.',(a,t)=>moEclipse(a,t)==='lunar','You need a full moon, with the Moon\'s path set to "On the line".','In a lunar eclipse the Moon slides into Earth\'s shadow and turns a coppery red. It is safe to watch with just your eyes.'];
+const MO_WEEK='The Moon takes about 29 and a half days to go from one new moon to the next. That is about one week for each quarter.';
+const MO_TASKS=[
+  [['Make a full moon.',moIs('Full moon'),'Put the Moon on the far side of Earth from the Sun.','At full moon we see the Moon\'s whole sunlit face. The Sun, Earth and Moon are nearly in a row, with Earth in the middle.'],
+   ['Make a new moon.',moIs('New moon'),'Put the Moon between Earth and the Sun.','At new moon the sunlit side faces away from us, so the Moon looks dark. It is up in the daytime, lost in the Sun\'s glare.'],
+   ['Make a first quarter moon. From Earth, the right half is lit.',moIs('First quarter'),'Move the Moon a quarter of the way around from new moon.','It is called a quarter because the Moon is a quarter of the way around its orbit, even though we see half of its face lit.']],
+  [['Make a waxing crescent: a thin sliver that is growing.',moIs('Waxing crescent'),'Move the Moon just a little way past new moon.','Waxing means growing. In the first week after new moon the sliver gets a little fatter every night.'],MO_SOLAR,MO_LUNAR],
+  [['Make a last quarter moon. From Earth, the left half is lit.',moIs('Last quarter'),'Go three quarters of the way around from new moon.','The last quarter moon rises around midnight and is still up in the morning sky.'],
+   ['Make a waning gibbous moon: more than half lit, and shrinking.',moIs('Waning gibbous'),'Go a little past full moon.','Waning means shrinking. Gibbous means more than half lit.'],
+   ['Make a new moon with NO eclipse.',(a,t)=>moPhase(a)==='New moon'&&t!==0,'New moon, with the Moon\'s path above or below the line.','The Moon\'s path is tipped about 5 degrees. Most months the Moon passes a little above or below the line, so there is no eclipse.']],
+  [['Show the Moon about one week after a new moon.',moIs('First quarter'),'One week is a quarter of the trip around.',MO_WEEK],
+   ['Show the Moon about two weeks after a new moon.',moIs('Full moon'),'Two weeks is half of the trip around.',MO_WEEK],
+   ['Show the Moon about three weeks after a new moon.',moIs('Last quarter'),'Three weeks is three quarters of the trip around.',MO_WEEK]],
+  [['Show the Moon 3 days before it is full.',a=>a>=130&&a<=155,'The Moon moves about 12 degrees each day. Go 3 days short of full.','Three days before full, the Moon is a fat waxing gibbous, already bright in the evening sky.'],MO_LUNAR,MO_SOLAR],
+];
+function moonLab(T,work,pad,done){
+  let tries=0,solved=false;
+  const sky=el('div',{class:'sky lab'});
+  sky.innerHTML=`<svg viewBox="0 0 640 320" role="img" aria-label="The Moon going around Earth, seen from above, and the Moon as it looks from Earth"><g stroke="#FFD23F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".8">${[60,105,150,195,240].map(y=>`<path d="M12,${y} h40 m-8,-6 l8,6 l-8,6"/>`).join('')}</g><text x="34" y="282">Sunlight</text><path d="M230,128 L405,136 L405,164 L230,172Z" fill="#05060F" opacity=".55"/><circle cx="230" cy="150" r="95" fill="none" stroke="#3A4A8A" stroke-width="2" stroke-dasharray="4 6"/><circle cx="230" cy="150" r="22" fill="#0B1233" stroke="#05060F" stroke-width="3"/><path d="M230,128 A22,22 0 0,0 230,172Z" fill="#3F8FE0"/><g class="mo"><circle r="12" fill="#3A3F5C" stroke="#05060F" stroke-width="2.5"/><path d="M0,-12 A12,12 0 0,0 0,12Z" fill="#F4F1E8"/></g><text x="230" y="300">From above</text><g transform="translate(530 86)"><g class="ph"><circle r="58" fill="#262B4A" stroke="#05060F" stroke-width="3"/><path class="lit" fill="#F4F1E8"/></g><g class="se" style="display:none"><circle r="70" fill="#FFE9A8" opacity=".35"/><circle r="58" fill="#FFD23F"/><circle r="56" fill="#05060F"/></g></g><text class="pn" x="530" y="172" style="font-size:16px;fill:#FFD23F"></text><text class="pd" x="530" y="192"></text><text x="530" y="226">From the side</text><line x1="436" y1="268" x2="628" y2="268" stroke="#3A4A8A" stroke-width="2" stroke-dasharray="4 6"/><circle cx="446" cy="268" r="11" fill="#FFD23F" stroke="#05060F" stroke-width="2"/><circle cx="545" cy="268" r="8" fill="#3F8FE0" stroke="#05060F" stroke-width="2"/><circle class="ms" r="5" fill="#F4F1E8" stroke="#05060F" stroke-width="1.5"/></svg>`;
+  const q=s=>sky.querySelector(s),mo=q('.mo'),ph=q('.ph'),lit=q('.lit'),se=q('.se'),pn=q('.pn'),pd=q('.pd'),ms=q('.ms');
+  const paint=()=>{const a=MO_A,r=a*Math.PI/180,ec=moEclipse(a,MO_T);
+    mo.setAttribute('transform',`translate(${(230-95*Math.cos(r)).toFixed(1)} ${(150+95*Math.sin(r)).toFixed(1)})`);
+    ms.setAttribute('cx',(545-60*Math.cos(r)).toFixed(1));ms.setAttribute('cy',268-MO_T*13);
+    const wan=a>180;lit.setAttribute('d',moPath(wan?360-a:a,58));lit.setAttribute('transform',wan?'scale(-1 1)':'');lit.setAttribute('fill',ec==='lunar'?'#C4553A':'#F4F1E8');
+    ph.style.display=ec==='solar'?'none':'';se.style.display=ec==='solar'?'':'none';
+    pn.textContent=ec==='solar'?'Solar eclipse!':ec==='lunar'?'Lunar eclipse!':moPhase(a);pd.textContent=`About day ${Math.round(a/360*29.5)} of 29½`;};
+  const sl=slider(0,355,5,MO_A,'Move the Moon around Earth',x=>{MO_A=x;paint();});
+  const tilt=el('div',{class:'row',role:'group','aria-label':'The Moon\'s path'});
+  [[1,'Above the line'],[0,'On the line'],[-1,'Below the line']].forEach(([t,nm])=>tilt.append(el('button',{class:'chip',type:'button','aria-pressed':String(t===MO_T),onclick:e=>{SFX.tap();MO_T=t;tilt.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));e.currentTarget.setAttribute('aria-pressed','true');paint();}},nm)));
+  const btn=el('button',{class:'btn',type:'button',onclick:()=>{if(solved)return;
+    if(T[1](MO_A,MO_T)){solved=true;btn.disabled=true;labWin(work,{why:T[3]},done,tries===0);}
+    else{tries++;SFX.no();say(tries===1?'enc':'hint',tries===1?'Not yet. Look at the Moon picture on the right as you slide.':T[2]);}}},'Check');
+  paint();
+  work.append(el('div',{class:'prompt'},'Mission: '+T[0]),sky,el('div',{class:'label'},'Move the Moon around Earth'),sl,el('div',{class:'label'},'This month, the Moon passes…'),tilt,el('div',{class:'row'},btn),
+    el('div',{class:'formula'},'Not to scale. The real Moon is about 30 Earths away, and the Sun is far off to the left.'));
+  say('hero','Slide the Moon around Earth. The half facing the Sun is always lit. What do we see from Earth?');
+}
+function seMath(L){return pick([
+  [()=>{const h=ri(9,15);return {text:`Today has ${h} hours of daylight. How many hours of night are there?`,ans:24-h,unit:'hours',hint:['A whole day and night is 24 hours.',`24 − ${h} = ${24-h}.`]};},
+   ()=>{const n=ri(2,4);return {text:`Earth spins around once every 24 hours. How many hours does it take to spin ${n} times?`,ans:24*n,unit:'hours',hint:[`24 hours each, ${n} times.`,`20 × ${n} = ${20*n} and 4 × ${n} = ${4*n}. Together ${24*n}.`]};}],
+  [()=>{const a=ri(5,8),b=ri(5,9);return {text:`The Sun rises at ${a} in the morning and sets at ${b} in the evening. How many hours of daylight is that?`,ans:12-a+b,unit:'hours',hint:[`Count from ${a} up to noon, then add the hours after noon.`,`${a} to noon is ${12-a} hours. Noon to ${b} is ${b} more. ${12-a} + ${b} = ${12-a+b}.`]};},
+   ()=>{const n=ri(3,9);return {text:`A week has 7 days. Summer vacation lasts ${n} weeks. How many days is that?`,ans:7*n,unit:'days',hint:[`7 days each week, for ${n} weeks.`,`7 × ${n} = ${7*n}.`]};}],
+  [()=>{const n=ri(2,9);return {text:`Earth turns 15 degrees every hour. How many degrees does it turn in ${n} hours?`,ans:15*n,unit:'degrees',hint:[`15 each hour, for ${n} hours.`,`10 × ${n} = ${10*n} and 5 × ${n} = ${5*n}. Together ${15*n}.`]};},
+   ()=>{const n=ri(2,12);return {text:`The Moon goes around Earth about once every 4 weeks. About how many trips does it make in ${4*n} weeks?`,ans:n,unit:'trips',hint:['How many 4s fit?',`${n} × 4 = ${4*n}. So it is ${n}.`]};}],
+  [()=>{const n=ri(12,40);return {text:`Earth moves around the Sun at about 30 km every second. How far does it move in ${n} seconds?`,ans:30*n,unit:'km',hint:[`Park the zero: work out 3 × ${n} first.`,`3 × ${n} = ${3*n}. Put the zero back: ${30*n}.`]};},
+   ()=>{const b=ri(8,10),a=b+ri(4,7);return {text:`The longest day here has ${a} hours of daylight. The shortest has ${b} hours. How many minutes longer is the longest day?`,ans:(a-b)*60,unit:'minutes',hint:['First find the difference in hours. Then turn hours into minutes.',`${a} − ${b} = ${a-b} hours. ${a-b} × 60 = ${(a-b)*60}.`]};}],
+  [()=>({text:'A year is really about 365.25 days long. How many days are in 4 of those years?',ans:1461,unit:'days',hint:['4 × 365, plus 4 quarter days.','4 × 365 = 1460. Four quarters make 1 more day: 1461. That extra day is February 29 in a leap year!'],fact:'That extra day is why we add February 29 every fourth year.'}),
+   ()=>{const p=pick([['Mars',25],['Saturn',27],['Neptune',28],['Uranus',98]]);return {text:`Earth is tilted 23.5 degrees. ${p[0]} is tilted about ${p[1]} degrees. How many degrees more is ${p[0]} tilted?`,ans:p[1]-23.5,unit:'degrees',dot:true,hint:[`Subtract: ${p[1]} − 23.5.`,`${p[1]} − 23 = ${p[1]-23}. Take away the other half: ${p[1]-23.5}.`]};},
+   ()=>{const n=ri(2,5);return {text:`A year has 365 days. How many days are in ${n} years?`,ans:365*n,unit:'days',hint:[`Break it apart: 300 × ${n}, 60 × ${n} and 5 × ${n}.`,`${300*n} + ${60*n} + ${5*n} = ${365*n}.`]};}],
+][L])();}
+const SE_QUIZ=[
+  ['What causes the seasons?',['Earth is tilted','Earth moves closer to the Sun and farther away','The Sun gets hotter and cooler'],'The tilt leans each half of Earth toward the Sun for part of the year, and away for the rest.'],
+  ['What makes day and night?',['Earth spinning','Earth going around the Sun','The Moon blocking the Sun'],'Earth spins once every 24 hours. You have day when your side faces the Sun.'],
+  ['How long does Earth take to go once around the Sun?',['About 365 days','24 hours','About 30 days'],'One trip around the Sun is one year.'],
+  ['When it is summer in the north half of Earth, the south half has…',['winter','summer too','no seasons at all'],'The halves take turns leaning toward the Sun.'],
+  ['In the north, the longest day of the year is in…',['June','December','March'],'Around June 21, the summer solstice.'],
+  ['In a solar eclipse, what blocks the Sun?',['The Moon','Earth','A cloud of space dust'],'The Moon passes exactly between us and the Sun.'],
+  ['Is it safe to look at the Sun during an eclipse without special glasses?',['No. Never look at the Sun without eclipse glasses','Yes, an eclipse makes it safe','Yes, if you squint'],'The Sun can hurt your eyes even when it is mostly covered. Always use real eclipse glasses.'],
+  ['Why does the Moon seem to change shape?',['We see different amounts of its sunlit half','Earth\'s shadow covers it a bit more each night','It really shrinks and grows'],'Half of the Moon is always lit. How much of that half we see depends on where the Moon is in its orbit.',1],
+  ['In a lunar eclipse, what makes the Moon go dark?',['Earth\'s shadow','The Moon\'s own shadow','The Sun switching off'],'Earth gets between the Sun and the Moon, and its shadow falls on the Moon.',1],
+  ['What Moon phase is needed for a solar eclipse?',['New moon','Full moon','First quarter'],'Only a new moon sits between Earth and the Sun.',2],
+  ['On an equinox, day and night are…',['about equal','day twice as long as night','night twice as long as day'],'Equinox means "equal night". It happens in March and in September.',2],
+  ['Why is there not an eclipse every month?',['The Moon\'s path is tipped, so it usually passes above or below the line','The Moon is too small','Eclipses only happen in summer'],'The Moon\'s orbit is tipped about 5 degrees, so the line-up is usually a near miss.',3],
+  ['About how much is Earth tilted?',['About 23 degrees','About 90 degrees','Not at all'],'23.5 degrees. That lean is enough to make summer and winter.',3],
+  ['Earth is closest to the Sun in which month?',['January','July','It is always the same distance'],'Surprise! Earth is closest in early January, in the middle of northern winter. Distance is not what makes the seasons.',4],
+];
+function sePaper(L){return {title:'Flashlight Seasons',kind:'Indoors, in a dim room · about 15 minutes',cheer:'Mission logged! You carried a planet through a whole year.',
+  intro:'Use a flashlight for the Sun and a ball for Earth, and make the seasons happen in your own room.',
+  need:['A flashlight or a lamp with no shade','A ball, like an orange or a tennis ball','A marker and a small sticker','A grown-up helper to hold the Sun'],
+  steps:['Draw a line around the middle of the ball. That is the equator. Put the sticker halfway up the top half. That is home.','Dim the room. Your helper holds the flashlight still in the middle, pointing at the ball.','Tip the top of the ball toward one wall. Keep it tipped toward that same wall the whole time.','Walk the ball in a big circle around the flashlight. Stop at four places, like the corners of a square.','At each stop, look: is the top half or the bottom half getting more light? Slowly spin the ball. Does your sticker spend more time in the light or in the dark?',
+    ['Find the stop where the sticker gets the most light. That is summer at home.','Find summer and winter for the sticker. Which wall is the ball tipped toward in summer?','Find the two stops where the top and bottom get the same light. Those are the equinoxes.','Move the sticker to the bottom half. How do its seasons change?','Hold the ball with no tilt at all and walk the circle again. What happens to the seasons?'][L]],
+  fact:'The ball keeps leaning the same way, so first the top half and then the bottom half leans into the light. That lean is what makes summer and winter.'};}
+let SEMODE='year';
+function startSeasons(){sciZone('seasons',{modes:[['year','Earth\'s Year'],['moon','Moon and Eclipses'],['math','Sun Math'],['quiz','Quick Quiz'],['paper','Paper mission']],get:()=>SEMODE,set:k=>SEMODE=k,tabs:{
+  year:{kind:'lab',round:3,title:'A year well spent!',make:(L,i)=>SE_TASKS[L][i%3](),play:yearLab,done:r=>`${r} season missions done.`},
+  moon:{kind:'lab',round:3,title:'Moon master!',make:(L,i)=>MO_TASKS[L][i%3],play:moonLab,done:r=>`${r} Moon missions done.`},
+  math:{kind:'math',round:5,title:'Sun math done!',make:seMath,done:r=>`${r} problems solved.`},
+  quiz:{kind:'quiz',round:6,title:'Quiz complete!',bank:SE_QUIZ,done:r=>`${r} questions answered.`},
+  paper:{kind:'paper',paper:sePaper}}});}
+
+/* ---------- STARS AND GALAXIES (Qel) ---------- */
+const STARS=[
+  {m:0.1,col:'#FF4B2B',cn:'red',temp:2500,r:0.12,life:'trillions of years',end:'wd'},
+  {m:0.3,col:'#FF6A3A',cn:'red',temp:3100,r:0.3,life:'hundreds of billions of years',end:'wd'},
+  {m:0.5,col:'#FF8C42',cn:'orange-red',temp:3500,r:0.5,life:'about 70 billion years',end:'wd'},
+  {m:0.8,col:'#FFB35A',cn:'orange',temp:4700,r:0.8,life:'about 20 billion years',end:'wd'},
+  {m:1,col:'#FFE27A',cn:'yellow-white',temp:5500,r:1,life:'about 10 billion years',end:'wd'},
+  {m:2,col:'#F7F7FF',cn:'white',temp:8700,r:1.7,life:'about 1 billion years',end:'wd'},
+  {m:5,col:'#CFE0FF',cn:'blue-white',temp:16000,r:2.7,life:'about 100 million years',end:'wd'},
+  {m:10,col:'#A9C6FF',cn:'blue',temp:24000,r:4,life:'about 25 million years',end:'ns'},
+  {m:25,col:'#8FB4FF',cn:'blue',temp:35000,r:7,life:'about 7 million years',end:'bh'},
+  {m:40,col:'#7AA5FF',cn:'blue',temp:42000,r:10,life:'about 4 million years',end:'bh'},
+];
+let ST_I=4;
+const stEnd=s=>s.end==='bh'?'a supernova, then a black hole':s.end==='ns'?'a supernova, then a neutron star':s.m<0.5?'slowly fades to a white dwarf':'a red giant, then a white dwarf';
+const stMass=s=>s.m===1?'the same as the Sun':s.m<1?`${fmtNum(s.m)} of the Sun's mass`:`${s.m} Suns`;
+function stMix(a,b,t){const h=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)),A=h(a),B=h(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');}
+const ST_TASKS=[
+  [['Make a star like our Sun, and play its life story.',s=>s.m===1,'Set the mass to the same as the Sun.','Our Sun is a middle-sized star, about halfway through a 10-billion-year life.'],
+   ['Make the hottest star you can.',s=>s.m===40,'More mass means a hotter star. Slide all the way up.','The most massive stars are the hottest and the bluest. They also burn out the fastest.'],
+   ['Make a red star.',s=>s.temp<4000,'Red stars are the small, cool ones.','Red stars are the coolest stars. Blue stars are the hottest. That is the opposite of a water tap!']],
+  [['Make a star that lives longer than the Sun.',s=>s.m<1,'Small stars sip their fuel slowly.','Small stars burn their fuel so slowly that they outlive the big ones by billions of years.'],
+   ['Make a star that ends in a supernova.',s=>s.end!=='wd','It takes a star of about 10 Suns or more.','Only heavy stars explode. The blast scatters the stuff that new stars and planets are made from.'],
+   ['Make the smallest star.',s=>s.m===0.1,'Slide all the way down.','The smallest stars are dim red dwarfs. They are the most common stars in our galaxy.']],
+  [['Make a star that ends as a black hole.',s=>s.end==='bh','Only the very heaviest stars leave a black hole.','A black hole\'s gravity is so strong that not even light can get out.'],
+   ['Make a white star with a surface near 8,700 °C.',s=>s.m===2,'It is a bit heavier than the Sun.','Sirius, the brightest star in our night sky, is a white star about twice the Sun\'s mass.'],
+   ['Make a star heavier than the Sun that still ends as a white dwarf.',s=>s.m>1&&s.end==='wd','Heavier than the Sun, but not heavy enough to explode.','Stars up to about 8 Suns end quietly, as a white dwarf about the size of Earth.']],
+  [['Make a star that lives about 100 million years.',s=>s.m===5,'Shorter than the Sun\'s life, so it must be heavier.','That sounds long, but it is 100 times shorter than the Sun\'s life.'],
+   ['Make a star cooler than 4,000 °C that lives about 70 billion years.',s=>s.m===0.5,'It is half the Sun\'s mass.','The universe is about 14 billion years old, so no star like this has died of old age yet.'],
+   ['Make a star that leaves a neutron star behind.',s=>s.end==='ns','About 10 Suns: heavy enough to explode, not heavy enough for a black hole.','A neutron star packs more than the Sun\'s mass into a ball the size of a city.']],
+  [['Make the lightest star that still explodes as a supernova.',s=>s.m===10,'Find where the ending changes from white dwarf to supernova.','The line is near 8 Suns. Below it stars fade quietly. Above it they explode.'],
+   ['Make a star that lives about 1 billion years.',s=>s.m===2,'It is one tenth of the Sun\'s life, so the star is heavier than the Sun.','Twice the mass, but only one tenth of the life. Heavy stars burn fuel much faster.'],
+   ['Make a star about 4 times as wide as the Sun.',s=>s.r===4,'Check the "How wide" line as you slide.','Heavier stars are wider, hotter and far brighter.']],
+];
+function starLab(T,work,pad,done){
+  let tries=0,solved=false,busy=false;
+  const sky=el('div',{class:'sky lab'});const cloud=Array.from({length:14},(_,i)=>{const a=i*2.4,r=40+((i*37)%55);return `<circle cx="${(Math.cos(a)*r).toFixed(0)}" cy="${(Math.sin(a)*r*0.7).toFixed(0)}" r="${14+(i*7)%16}"/>`;}).join('');
+  sky.innerHTML=`<svg viewBox="-200 -130 400 260" role="img" aria-label="A star you can change"><g class="cl" fill="#B6A8FF" opacity="0">${cloud}</g><circle class="fl" r="10" fill="#FFF6D8" opacity="0"/><circle class="sh" r="10" fill="none" stroke="#FF9E7A" stroke-width="6" opacity="0"/><circle class="gl" r="60" opacity=".22"/><circle class="st" r="40" stroke="#05060F" stroke-width="3"/><g class="bh" opacity="0"><circle r="22" fill="none" stroke="#F26B1D" stroke-width="5"/><circle r="15" fill="#000"/></g></svg>`;
+  const q=s=>sky.querySelector(s),cl=q('.cl'),fl=q('.fl'),sh=q('.sh'),gl=q('.gl'),st=q('.st'),bh=q('.bh');
+  const mainR=s=>40+28*Math.log10(s.r);
+  const set=(node,o)=>{for(const k in o)node.setAttribute(k,o[k]);};
+  const idle=()=>{const s=STARS[ST_I],R=mainR(s);set(cl,{opacity:0});set(fl,{opacity:0});set(sh,{opacity:0});set(bh,{opacity:0});set(st,{r:R.toFixed(1),fill:s.col,opacity:1});set(gl,{r:(R*1.5).toFixed(1),fill:s.col,opacity:.22});};
+  const cap=el('div',{class:'status','aria-live':'polite'});
+  const dd=k=>el('dd',{id:'st-'+k}),facts=el('dl',{class:'sol-facts'},el('dt',{},'Mass'),dd('m'),el('dt',{},'Color'),dd('c'),el('dt',{},'Surface'),dd('t'),el('dt',{},'How wide'),dd('r'),el('dt',{},'Lifetime'),dd('l'),el('dt',{},'Ending'),dd('e'));
+  const paint=()=>{const s=STARS[ST_I],f=(k,v)=>facts.querySelector('#st-'+k).textContent=v;
+    f('m',stMass(s));f('c',s.cn);f('t',`about ${withCommas(s.temp)} °C`);f('r',s.r===1?'the same as the Sun':`${fmtNum(s.r)} × the Sun`);f('l',s.life);f('e',stEnd(s));idle();cap.textContent='';};
+  const sl=slider(0,STARS.length-1,1,ST_I,'Mass of the star',x=>{ST_I=x;paint();});
+  const play=el('button',{class:'btn',type:'button',onclick:()=>story()},'Play its life story');
+  function finish(){busy=false;sl.disabled=false;play.disabled=false;const s=STARS[ST_I];
+    if(solved)return;
+    if(T[1](s)){solved=true;play.disabled=true;sl.disabled=true;labWin(work,{why:T[3]},done,tries===0);}
+    else{tries++;SFX.no();say(tries===1?'enc':'hint',tries===1?'A fine star, but not the one for this mission. Change the mass and play again.':T[2]);}}
+  function story(){
+    if(busy||solved)return;busy=true;sl.disabled=true;play.disabled=true;SFX.flip();
+    const s=STARS[ST_I],R=mainR(s),G=Math.min(108,Math.max(R*2.2,62)),small=s.m<0.5,big=s.end!=='wd',giantCol=big?'#FF7A45':'#FF6A3A';
+    const stages=[['cloud',2.2,'A giant cloud of gas and dust pulls itself together.'],['shine',2.8,`The star switches on and shines for ${s.life}.`]];
+    if(small)stages.push(['fade',2.6,'Tiny red stars never swell up. Very slowly, it cools and fades into a white dwarf.']);
+    else{stages.push(['swell',2.6,big?'Its fuel runs low. It swells into a red supergiant.':'Its fuel runs low. It swells into a red giant.']);
+      stages.push(big?['boom',2.4,'Supernova! The star blows itself apart.']:['puff',2.6,'It gently puffs its outer layers into space.']);}
+    stages.push(['rest',1.8,s.end==='bh'?'What is left is a black hole.':s.end==='ns'?'What is left is a neutron star, the size of a city.':'What is left is a white dwarf, about the size of Earth.']);
+    const render=(id,p,t)=>{const e=p*p*(3-2*p);
+      if(id==='cloud'){set(cl,{opacity:(0.5*(1-e)).toFixed(2),transform:`scale(${(1-0.8*e).toFixed(3)})`});set(st,{r:(R*e).toFixed(1),fill:s.col,opacity:e.toFixed(2)});set(gl,{r:(R*1.5*e).toFixed(1),fill:s.col,opacity:(.22*e).toFixed(2)});}
+      else if(id==='shine'){set(cl,{opacity:0});set(st,{r:R.toFixed(1),fill:s.col,opacity:1});set(gl,{r:(R*1.5+3*Math.sin(t*2.2)).toFixed(1),opacity:(.22+.06*Math.sin(t*2.2)).toFixed(2)});}
+      else if(id==='swell'){const r=R+(G-R)*e,c=stMix(s.col,giantCol,e);set(st,{r:r.toFixed(1),fill:c});set(gl,{r:(r*1.35).toFixed(1),fill:c,opacity:.22});}
+      else if(id==='fade'){const r=R+(5-R)*e,c=stMix(s.col,'#F4F1E8',e);set(st,{r:r.toFixed(1),fill:c});set(gl,{r:(r*1.5).toFixed(1),fill:c,opacity:(.22*(1-.6*e)).toFixed(2)});}
+      else if(id==='puff'){set(sh,{r:(G+(190-G)*e).toFixed(1),opacity:(.8*(1-e)).toFixed(2),stroke:giantCol});const r=G+(5-G)*e,c=stMix(giantCol,'#F4F1E8',e);set(st,{r:r.toFixed(1),fill:c});set(gl,{r:(r*1.5).toFixed(1),fill:c,opacity:(.22*(1-.6*e)).toFixed(2)});}
+      else if(id==='boom'){set(fl,{r:(G+(230-G)*e).toFixed(1),opacity:(.6*Math.sin(Math.PI*p)).toFixed(2)});set(sh,{r:(G+(200-G)*e).toFixed(1),opacity:(.8*(1-e)).toFixed(2),stroke:'#FFD23F'});
+        const r=Math.max(s.end==='bh'?0:4,G*(1-e));set(st,{r:r.toFixed(1),fill:stMix(giantCol,'#CFE0FF',e),opacity:s.end==='bh'?(1-e).toFixed(2):1});set(gl,{r:(r*1.5).toFixed(1),opacity:(.22*(1-e)).toFixed(2)});if(s.end==='bh')set(bh,{opacity:e.toFixed(2)});}
+      else{set(fl,{opacity:0});set(sh,{opacity:0});if(s.end==='bh'){set(st,{opacity:0});set(gl,{opacity:0});set(bh,{opacity:1});}else{const c=s.end==='ns'?'#CFE0FF':'#F4F1E8',r=s.end==='ns'?4:5;set(st,{r,fill:c,opacity:1});set(gl,{r:r*2.4+Math.sin(t*2.2),fill:c,opacity:.3});}}};
+    if(SCI_CALM()){const last=stages[stages.length-1];stages.forEach(g=>render(g[0],1,0));cap.textContent=stages.map(g=>g[2]).join(' ');return finish();}
+    let i=0,t=0,tt=0;cap.textContent=stages[0][2];
+    sciLoop(sky,dt=>{t+=dt;tt+=dt;const g=stages[i];render(g[0],Math.min(1,t/g[1]),tt);
+      if(t>=g[1]){i++;t=0;if(i>=stages.length){finish();return false;}cap.textContent=stages[i][2];if(stages[i][0]==='boom')SFX.carry();}});
+  }
+  paint();
+  work.append(el('div',{class:'prompt'},'Mission: '+T[0]),sky,cap,el('div',{class:'label'},'Mass of the star (slide from tiny to giant)'),sl,facts,el('div',{class:'row'},play),
+    el('div',{class:'formula'},'Numbers are rounded, and real stars vary. The story is sped up: a real one takes millions to trillions of years.'));
+  say('hero','Pick how much stuff your star is made of. Its mass decides everything else.');
+}
+const ST_NEAR=[['Proxima Centauri',4],['Sirius',9],['Vega',25],['Arcturus',37],['Capella',43],['Aldebaran',65],['Regulus',79]];
+function stMath(L){return pick([
+  [()=>{const n=ri(2,9),g=pick([10,100]);return {text:`A star cluster has ${n} groups of ${g} stars. How many stars is that?`,ans:n*g,unit:'stars',hint:[`${n} groups of ${g}.`,`Write ${n}, then ${g===10?'one zero':'two zeros'}: ${n*g}.`]};},
+   ()=>{const n=ri(2,5);return {text:`Sunlight takes about 8 minutes to reach Earth. How many minutes would light take to make that trip ${n} times?`,ans:8*n,unit:'minutes',hint:[`8 minutes, ${n} times.`,`8 × ${n} = ${8*n}.`]};}],
+  [()=>{const k=ri(2,4);return {text:`${Array(k).fill(10).join(' × ')} = ?`,ans:10**k,unit:'',hint:['Every × 10 adds one more zero.',`${k} tens multiplied: a 1 with ${k} zeros, which is ${withCommas(10**k)}.`]};},
+   ()=>{const n=ri(2,9),m=ri(1,9);return {text:`A telescope counts ${n} thousand stars in one patch of sky and ${m} hundred in another. How many stars altogether?`,ans:n*1000+m*100,unit:'stars',hint:[`${n} thousand is ${withCommas(n*1000)}. ${m} hundred is ${m*100}.`,`${withCommas(n*1000)} + ${m*100} = ${withCommas(n*1000+m*100)}.`]};}],
+  [()=>{const i=ri(0,5),j=ri(i+1,6),A=ST_NEAR[i],B=ST_NEAR[j];return {text:`${A[0]} is about ${A[1]} light-years away. ${B[0]} is about ${B[1]} light-years away. How many light-years farther is ${B[0]}?`,ans:B[1]-A[1],unit:'light-years',hint:[`Subtract: ${B[1]} − ${A[1]}. Try counting up.`,`${B[1]} − ${A[1]} = ${B[1]-A[1]}.`]};},
+   ()=>{const A=pick(ST_NEAR);return {text:`${A[0]} is about ${A[1]} light-years away. A beam of light goes there and comes back. How many years does the round trip take?`,ans:2*A[1],unit:'years',hint:['A light-year is how far light goes in one year. Double the distance.',`${A[1]} + ${A[1]} = ${2*A[1]}.`]};}],
+  [()=>{const k=ri(2,7);return {text:`The Sun's surface is about 5,500 °C. A hot blue star can be ${k} times as hot. About how hot is that?`,ans:5500*k,unit:'°C',hint:[`Break it apart: 5,000 × ${k} and 500 × ${k}.`,`${withCommas(5000*k)} + ${withCommas(500*k)} = ${withCommas(5500*k)}.`]};},
+   ()=>{const m=ri(2,9);return {text:`Light from the Sun takes about ${m} minutes to reach a planet. How many seconds is that?`,ans:60*m,unit:'seconds',hint:['One minute is 60 seconds. Park the zero.',`6 × ${m} = ${6*m}. Put the zero back: ${60*m}.`]};}],
+  [()=>({text:'The Sun will shine for about 10 billion years in all. It is about 4.6 billion years old now. About how many billion years does it have left?',ans:5.4,unit:'billion years',dot:true,hint:['Subtract: 10 − 4.6. Count up from 4.6.','4.6 up to 5 is 0.4. 5 up to 10 is 5. Together 5.4.']}),
+   ()=>{const n=ri(2,8);return {text:`One light-year is about 9.5 trillion km. About how many trillion km is ${n} light-years?`,ans:9.5*n,unit:'trillion km',dot:true,hint:[`9.5 is almost 10. Do 10 × ${n}, then take away ${n} halves.`,`10 × ${n} = ${10*n}. Take away ${fmtNum(n/2)}: ${fmtNum(9.5*n)}.`]};},
+   ()=>{const k=ri(5,9);return {text:`How many zeros does the answer to ${Array(k).fill(10).join(' × ')} have?`,ans:k,unit:'zeros',hint:['Every × 10 adds one more zero.',`There are ${k} tens, so the answer has ${k} zeros.`]};}],
+][L])();}
+const ST_QUIZ=[
+  ['What is the Sun?',['A star','A planet','A moon'],'The Sun is a star. It only looks different because it is so close to us.'],
+  ['Which color of star is the hottest?',['Blue','Red','Yellow'],'Blue stars are the hottest and red stars are the coolest.'],
+  ['Why do other stars look like tiny dots?',['They are very, very far away','They are much smaller than the Sun','They are behind clouds'],'Many of them are bigger than the Sun. They are just trillions of kilometers away.'],
+  ['What is our galaxy called?',['The Milky Way','Andromeda','The Solar System'],'On a very dark night you can see it as a pale band of light across the sky.'],
+  ['What shape is the Milky Way?',['A spiral, like a pinwheel','A cube','A ring'],'It is a flat spiral with arms that wind around the center.'],
+  ['Stars are born inside giant clouds of gas and dust called…',['nebulas','asteroids','oceans'],'The Orion Nebula is a star nursery you can spot below Orion\'s belt.'],
+  ['What will our Sun become near the end of its life?',['A red giant, then a white dwarf','A black hole','A new planet'],'The Sun is not heavy enough to explode or to make a black hole.'],
+  ['What is a light-year?',['How far light travels in one year','How long a star lives','The time Earth takes to go around the Sun'],'It measures distance, not time. One light-year is about 9.5 trillion kilometers.',1],
+  ['Which stars live the longest?',['Small, cool red stars','Giant blue stars','All stars live the same time'],'Small stars burn their fuel very slowly. Giant stars burn out fast.',1],
+  ['What makes a star shine?',['Squeezing hydrogen into helium deep inside','Burning wood','Reflecting light from the Sun'],'It is called fusion. The squeeze gives off huge amounts of light and heat.',2],
+  ['A very heavy star can end in a huge explosion called…',['a supernova','an eclipse','a comet'],'For a few weeks a supernova can outshine a whole galaxy.',2],
+  ['About how many stars are in the Milky Way?',['Hundreds of billions','About a thousand','About a million'],'Astronomers estimate 100 to 400 billion stars.',3],
+  ['What is the nearest star to us after the Sun?',['Proxima Centauri','Polaris','Betelgeuse'],'It is a small red dwarf about 4 light-years away.',3],
+  ['About how long does light from Proxima Centauri take to reach us?',['About 4 years','About 4 minutes','About 4 days'],'When you see a star, you are seeing light that left it long ago.',4],
+];
+function stPaper(L){return {title:'Star Color Hunt',kind:'Outdoors on a clear, dark evening · about 20 minutes',cheer:'Mission logged! You read the temperature of a star with your own eyes.',
+  intro:'Stars are not all white. Go outside and find a red one and a blue one.',
+  need:['A clear evening, and a spot away from bright lights','Warm clothes, and a grown-up','The Observatory in this app, to learn Orion first','Never look at the Sun. This mission is only for the night sky.'],
+  steps:['Go outside and look at no screens or lights for 10 minutes. Your eyes will get much better at seeing in the dark.','Find the brightest stars you can. On winter evenings, look for the three stars of Orion\'s belt.','Look closely at each bright star. Is it more orange, yellow, white or blue-white?','In Orion, Betelgeuse (the shoulder) is orange-red and Rigel (the foot) is blue-white. Which one is hotter?',
+    ['Find one star that looks orange and one that looks white.','Find 3 bright stars and say the color of each.','Make a tally: how many orange stars and how many blue-white stars can you find?','Draw Orion and color Betelgeuse and Rigel the way they really look.','Sirius, below Orion, flashes many colors when it is low. Watch it and work out why (hint: it is the air).'][L]],
+  fact:'A star\'s color tells its temperature. Blue-white stars are the hottest, yellow ones are in the middle and orange-red ones are the coolest.'};}
+let STMODE='maker';
+function startStars(){sciZone('stars',{modes:[['maker','Star Maker'],['math','Big Number Math'],['quiz','Quick Quiz'],['paper','Paper mission']],get:()=>STMODE,set:k=>STMODE=k,tabs:{
+  maker:{kind:'lab',round:3,title:'Star maker!',make:(L,i)=>ST_TASKS[L][i%3],play:starLab,done:r=>`${r} stars made.`},
+  math:{kind:'math',round:5,title:'Big numbers tamed!',make:stMath,done:r=>`${r} problems solved.`},
+  quiz:{kind:'quiz',round:6,title:'Quiz complete!',bank:ST_QUIZ,done:r=>`${r} questions answered.`},
+  paper:{kind:'paper',paper:stPaper}}});}
+
+/* ---------- MISSION CONTROL (Nova) ---------- */
+const RV_CFG=[{w:5,h:4,rocks:0,cap:8},{w:6,h:4,rocks:3,cap:10},{w:6,h:5,rocks:5,cap:12},{w:7,h:5,rocks:7,cap:14},{w:7,h:5,rocks:9,cap:0}];
+const RV_DX=[0,1,0,-1],RV_DY=[-1,0,1,0];
+function rvPar(P){const key=(x,y,d)=>(y*P.w+x)*4+d,seen=new Set([key(P.sx,P.sy,P.sd)]);const q=[[P.sx,P.sy,P.sd,0]];
+  while(q.length){const [x,y,d,n]=q.shift();if(x===P.tx&&y===P.ty)return n;
+    const nx=x+RV_DX[d],ny=y+RV_DY[d],opts=[[x,y,(d+3)%4],[x,y,(d+1)%4]];if(nx>=0&&ny>=0&&nx<P.w&&ny<P.h&&!P.rock.has(ny*P.w+nx))opts.push([nx,ny,d]);
+    for(const o of opts){const k=key(o[0],o[1],o[2]);if(!seen.has(k)){seen.add(k);q.push([o[0],o[1],o[2],n+1]);}}}
+  return -1;}
+function makeRover(L){const c=RV_CFG[L];
+  for(let t=0;t<600;t++){const P={w:c.w,h:c.h,sx:ri(0,c.w-1),sy:ri(0,c.h-1),sd:ri(0,3),tx:ri(0,c.w-1),ty:ri(0,c.h-1),rock:new Set()};
+    if(Math.abs(P.sx-P.tx)+Math.abs(P.sy-P.ty)<3)continue;
+    while(P.rock.size<c.rocks){const k=ri(0,c.w*c.h-1);if(k!==P.sy*c.w+P.sx&&k!==P.ty*c.w+P.tx)P.rock.add(k);}
+    P.par=rvPar(P);const min=L===0?3:5,max=(c.cap||13)-1;if(P.par<min||P.par>max)continue;
+    P.cap=c.cap||P.par+1;P.delay=ri(4,22);return P;}
+  return makeRover(0);}
+function roverLab(T,work,pad,done){
+  let tries=0,solved=false,busy=false;const q=[],C=64,W=T.w*C,H=T.h*C;
+  const cell=(x,y)=>[x*C+C/2,y*C+C/2];
+  let g='';for(let y=0;y<T.h;y++)for(let x=0;x<T.w;x++)g+=`<rect x="${x*C}" y="${y*C}" width="${C}" height="${C}" fill="${(x+y)%2?'#A8553A':'#9C4A32'}" stroke="#7A3524" stroke-width="1"/>`;
+  T.rock.forEach(k=>{const [cx,cy]=cell(k%T.w,Math.floor(k/T.w));g+=`<path transform="translate(${cx} ${cy})" d="M-20,12 L-16,-8 L-2,-20 L16,-12 L22,8 L8,20Z" fill="#4A2A22" stroke="#05060F" stroke-width="3"/>`;});
+  const [tx,ty]=cell(T.tx,T.ty);g+=`<g transform="translate(${tx} ${ty})"><circle r="22" fill="none" stroke="#7FE9FF" stroke-width="4" stroke-dasharray="6 5"/><path d="M0,-14 l4,9 l10,1 l-7,7 l2,10 l-9,-5 l-9,5 l2,-10 l-7,-7 l10,-1z" fill="#FFD23F" stroke="#05060F" stroke-width="2.5"/></g>`;
+  g+=`<g class="rv"><rect x="-22" y="-20" width="8" height="14" rx="3" fill="#14121F"/><rect x="14" y="-20" width="8" height="14" rx="3" fill="#14121F"/><rect x="-22" y="6" width="8" height="14" rx="3" fill="#14121F"/><rect x="14" y="6" width="8" height="14" rx="3" fill="#14121F"/><rect x="-15" y="-18" width="30" height="36" rx="6" fill="#DCE3F5" stroke="#05060F" stroke-width="3"/><path d="M-8,-10 L0,-24 L8,-10Z" fill="#F26B1D" stroke="#05060F" stroke-width="2.5"/><rect x="-9" y="0" width="18" height="12" rx="2" fill="#2E7BD6" stroke="#05060F" stroke-width="2"/></g>`;
+  const box=el('div',{class:'sky lab'});box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="A Mars rover on a grid, with rocks and a science target">${g}</svg>`;
+  const rv=box.querySelector('.rv'),pose=(x,y,a)=>rv.setAttribute('transform',`translate(${(x*C+C/2).toFixed(1)} ${(y*C+C/2).toFixed(1)}) rotate(${a.toFixed(1)})`);pose(T.sx,T.sy,T.sd*90);
+  const sig=el('div',{class:'sig'});sig.innerHTML=`<svg viewBox="0 0 400 34" role="img" aria-label="A radio signal travelling from Earth to Mars"><line x1="26" y1="17" x2="374" y2="17" stroke="#3A4A8A" stroke-width="3" stroke-dasharray="3 7"/><circle cx="16" cy="17" r="11" fill="#2E7BD6" stroke="#05060F" stroke-width="2.5"/><circle cx="384" cy="17" r="9" fill="#C8553A" stroke="#05060F" stroke-width="2.5"/><circle class="pu" cx="26" cy="17" r="6" fill="#FFD23F" stroke="#05060F" stroke-width="2" opacity="0"/></svg>`;
+  const pu=sig.querySelector('.pu'),status=el('div',{class:'status','aria-live':'polite'},`Today a signal takes ${T.delay} minutes to reach Mars. You cannot steer live. Send a whole plan.`);
+  const qbox=el('div',{class:'cmdq','aria-label':'Your plan'}),count=el('div',{class:'label'});
+  const NAME={F:'Go',L:'Left',R:'Right'};
+  const paintQ=()=>{qbox.textContent='';q.forEach((c,i)=>qbox.append(el('span',{},`${i+1}. ${NAME[c]}`)));if(!q.length)qbox.append(el('em',{},'Your plan is empty. Add commands below.'));count.textContent=`Plan: ${q.length} of ${T.cap} commands`;sendB.disabled=busy||solved||!q.length;};
+  const add=c=>{if(busy||solved)return;if(q.length>=T.cap){SFX.no();say('hint',`The plan is full at ${T.cap} commands. Use Undo and look for a shorter way.`);return;}SFX.tap();q.push(c);paintQ();};
+  const mk=(lab,fn,cls)=>el('button',{class:'btn '+(cls||'alt'),type:'button',style:'font-size:22px;min-height:52px;padding:0 16px',onclick:fn},lab);
+  const btns=[mk('Go forward',()=>add('F')),mk('Turn left',()=>add('L')),mk('Turn right',()=>add('R')),mk('Undo',()=>{if(busy||solved)return;SFX.tap();q.pop();paintQ();}),mk('Clear',()=>{if(busy||solved)return;SFX.tap();q.length=0;paintQ();})];
+  const sendB=mk('Send to Mars',()=>send(),'');
+  const lock=on=>{btns.forEach(b=>b.disabled=on);sendB.disabled=on||!q.length;};
+  function send(){
+    if(busy||solved||!q.length)return;busy=true;lock(true);SFX.flip();status.textContent=`Signal on its way. In real life this takes ${T.delay} minutes.`;
+    let x=T.sx,y=T.sy,d=T.sd,ang=T.sd*90,i=-1,ph=0,from=null,to=null,fail=null,s=0;const chips=[...qbox.children];
+    const begin=()=>{if(i>=0&&chips[i])chips[i].classList.remove('now');i++;if(i>=q.length)return false;const c=q[i];if(chips[i])chips[i].classList.add('now');from={x,y,ang};
+      if(c==='F'){const nx=x+RV_DX[d],ny=y+RV_DY[d];if(nx<0||ny<0||nx>=T.w||ny>=T.h){fail='edge';return false;}if(T.rock.has(ny*T.w+nx)){fail='rock';return false;}x=nx;y=ny;}
+      else{d=(d+(c==='L'?3:1))%4;ang+=c==='L'?-90:90;}
+      to={x,y,ang};ph=0;return true;};
+    const outcome=()=>{busy=false;pu.setAttribute('opacity',0);
+      if(!fail&&x===T.tx&&y===T.ty){solved=true;status.textContent=`The rover reached the rock with ${q.length} commands. The shortest plan is ${T.par}.`;
+        labWin(work,{why:'Mars is so far away that a radio signal takes between about 3 and 22 minutes to get there. Rover drivers cannot steer live. They plan a whole drive, send it, and wait.'},done,tries===0);return;}
+      tries++;SFX.no();status.textContent=fail==='rock'?'Safety stop! A rock is in the way. The rover goes back to the start.':fail==='edge'?'Safety stop! That is the edge of the map. The rover goes back to the start.':'The plan ended before the rover reached the science rock. Back to the start.';
+      say(tries===1?'enc':'hint',tries===1?'Real rovers stop safely too. Fix the plan and send it again.':'Trace the route with your finger first. Count each square, and remember that a turn uses up a command.');
+      later(()=>{pose(T.sx,T.sy,T.sd*90);chips.forEach(c=>c.classList.remove('now'));lock(false);},1500);};
+    if(SCI_CALM()){while(begin());pose(x,y,ang);return outcome();}
+    pu.setAttribute('opacity',1);
+    sciLoop(box,dt=>{
+      if(s<1){s=Math.min(1,s+dt/1.6);pu.setAttribute('cx',(26+348*s).toFixed(1));if(s<1)return;status.textContent='Signal received. The rover is driving.';if(!begin()){outcome();return false;}return;}
+      ph=Math.min(1,ph+dt/0.42);const e=ph*ph*(3-2*ph);pose(from.x+(to.x-from.x)*e,from.y+(to.y-from.y)*e,from.ang+(to.ang-from.ang)*e);
+      if(ph>=1&&!begin()){outcome();return false;}});
+  }
+  paintQ();
+  work.append(el('div',{class:'prompt'},'Mission: Plan a route to the science rock, then send the whole plan to the rover.'),sig,status,box,count,qbox,el('div',{class:'row'},btns.slice(0,3)),el('div',{class:'row'},btns[3],btns[4],sendB),
+    el('div',{class:'formula'},'The orange nose shows which way the rover is facing. "Go forward" moves one square that way.'));
+  say('hero','Plan every move before you send. The rover cannot hear you again until it is done.');
+}
+const MC_EVENTS=[['Sputnik, the first satellite, launched',1957],['Yuri Gagarin became the first person in space',1961],['Apollo 11 landed the first people on the Moon',1969],['The Voyager spacecraft launched',1977],['The Hubble Space Telescope launched',1990],['The first crew moved into the International Space Station',2000],['The Curiosity rover landed on Mars',2012],['New Horizons flew past Pluto',2015],['The Perseverance rover landed on Mars',2021]];
+function mcMath(L){return pick([
+  [()=>{const i=ri(0,MC_EVENTS.length-2),j=ri(i+1,Math.min(MC_EVENTS.length-1,i+4)),A=MC_EVENTS[i],B=MC_EVENTS[j];return {text:`${A[0]} in ${A[1]}. ${B[0]} in ${B[1]}. How many years apart were they?`,ans:B[1]-A[1],unit:'years',hint:[`Count up from ${A[1]} to ${B[1]}.`,`${B[1]} − ${A[1]} = ${B[1]-A[1]}.`]};}],
+  [()=>{const c=ri(3,7),d=ri(2,5);return {text:`${c} astronauts each eat 3 meals a day. How many meals does the crew need for ${d} days?`,ans:3*c*d,unit:'meals',hint:[`First find the meals for one day: ${c} × 3. Then multiply by ${d} days.`,`${c} × 3 = ${3*c} a day. ${3*c} × ${d} = ${3*c*d}.`]};},
+   ()=>{const c=ri(3,7),l=ri(2,4);return {text:`Each astronaut drinks about ${l} liters of water a day. How many liters do ${c} astronauts need for a week?`,ans:7*c*l,unit:'liters',hint:[`First one day: ${c} × ${l}. Then × 7 days.`,`${c} × ${l} = ${c*l} a day. ${c*l} × 7 = ${7*c*l}.`]};}],
+  [()=>{const m=ri(4,22);return {text:`Today a radio signal takes ${m} minutes to reach Mars. You send a command and the rover answers right away. How many minutes until you hear back?`,ans:2*m,unit:'minutes',hint:['The signal has to go there and come back.',`${m} + ${m} = ${2*m}.`]};},
+   ()=>{const m=ri(4,12),n=ri(3,6);return {text:`A signal takes ${m} minutes to reach Mars. Mission Control sends ${n} commands, one after another, and waits for each to arrive. How many minutes of travel time is that?`,ans:m*n,unit:'minutes',hint:[`${m} minutes each, ${n} times.`,`${m} × ${n} = ${m*n}.`]};}],
+  [()=>{const m=ri(2,9),s=5*ri(1,11);return {text:`The countdown clock says T minus ${m} minutes and ${s} seconds. How many seconds until liftoff?`,ans:60*m+s,unit:'seconds',hint:[`Turn the minutes into seconds first: ${m} × 60.`,`${m} × 60 = ${60*m}. Add ${s}: ${60*m+s}.`]};},
+   ()=>{const x=1000*ri(120,300);return {text:`The Moon is about 384,000 km away. A lander has flown ${withCommas(x)} km so far. How many km does it still have to go?`,ans:384000-x,unit:'km',hint:[`Park the zeros: work out 384 − ${x/1000}.`,`384 − ${x/1000} = ${384-x/1000}. Put back three zeros: ${withCommas(384000-x)}.`]};}],
+  [()=>{const n=ri(2,9);return {text:`Light and radio signals travel about 300,000 km every second. How far do they go in ${n} seconds?`,ans:300000*n,unit:'km',hint:[`Park the zeros: 3 × ${n} first.`,`3 × ${n} = ${3*n}. Put back five zeros: ${withCommas(300000*n)}.`],fact:'The Moon is about 384,000 km away, so a signal gets there in just over one second.'};},
+   ()=>{const y=pick([2027,2030,2037,2050]);return {text:`Voyager 1 launched in 1977 and is still flying. How many years will it have been travelling in ${y}?`,ans:y-1977,unit:'years',hint:[`Count up from 1977 to ${y}.`,`1977 up to 2000 is 23. 2000 up to ${y} is ${y-2000}. Together ${y-1977}.`]};},
+   ()=>{const d=ri(3,6);return {text:`A spacecraft flies 40,000 km every hour. How far does it fly in ${d} days? (A day has 24 hours.)`,ans:40000*24*d,unit:'km',hint:[`First find the hours: 24 × ${d}. Then × 40,000.`,`24 × ${d} = ${24*d} hours. ${24*d} × 4 = ${96*d}. Put back four zeros: ${withCommas(40000*24*d)}.`]};}],
+][L])();}
+const MC_QUIZ=[
+  ['Which mission first landed people on the Moon?',['Apollo 11','Voyager 1','Sputnik 1'],'Apollo 11 landed in July 1969. Neil Armstrong and Buzz Aldrin walked on the Moon.'],
+  ['Who was the first person to walk on the Moon?',['Neil Armstrong','Yuri Gagarin','Sally Ride'],'He stepped onto the Moon on July 20, 1969.'],
+  ['Which of these is a Mars rover?',['Perseverance','Hubble','Sputnik'],'Perseverance landed on Mars in 2021 and collects rock samples.'],
+  ['Which of these is a telescope in space?',['The James Webb Space Telescope','Curiosity','Apollo 11'],'Webb launched in 2021 and looks at the most distant galaxies ever seen.'],
+  ['Where do astronauts live and work in orbit right now?',['On the International Space Station','On the Moon','On Mars'],'Crews have lived on the space station without a break since the year 2000.'],
+  ['Why does a Mars rover wait many minutes for each command?',['Radio signals take minutes to cross space, even at the speed of light','Its batteries are slow','Mission Control only works at night'],'Light is the fastest thing there is, and Mars is still minutes away.'],
+  ['What was the first satellite ever launched?',['Sputnik 1','Hubble','The space station'],'Sputnik 1 launched in 1957. It was a metal ball about the size of a beach ball.'],
+  ['Who was the first person to fly in space?',['Yuri Gagarin','Neil Armstrong','Buzz Aldrin'],'He circled Earth once in 1961. The flight took 108 minutes.',1],
+  ['What flew on Mars for the first time in 2021?',['A small helicopter named Ingenuity','A hot-air balloon','A paper airplane'],'It was the first powered flight on another planet.',1],
+  ['Which spacecraft is the farthest from Earth?',['Voyager 1','Apollo 11','The space station'],'Voyager 1 launched in 1977 and has left the Sun\'s neighborhood.',2],
+  ['Planets that orbit other stars are called…',['exoplanets','asteroids','moons'],'Astronomers have found thousands of them so far.',2],
+  ['Who was the first American woman in space?',['Sally Ride','Amelia Earhart','Marie Curie'],'She flew on the space shuttle Challenger in 1983.',3],
+  ['How many people have walked on the Moon so far?',['12','2','50'],'Twelve astronauts walked on the Moon, on six Apollo landings from 1969 to 1972.',3],
+  ['What kind of light does the Webb telescope mostly see?',['Infrared light, which we feel as heat','Only blue light','Only X-rays'],'Infrared light passes through dust clouds, so Webb can see stars being born.',4],
+];
+function mcPaper(L){return {title:'Touchdown!',kind:'Indoors · about 25 minutes',cheer:'Mission logged! Test, fix, test again. That is real engineering.',
+  intro:'Design a lander that keeps two marshmallow astronauts safe when it drops.',
+  need:['A paper or plastic cup','Paper or index cards, straws and tape','2 marshmallows (the astronauts)','Scissors and a grown-up helper'],
+  steps:['The cup is the cabin. It must stay open on top, with no lid.','Build shock absorbers under the cup. Try folded-paper springs, straw legs or a wide paper platform.','Put the two astronauts in the cup.','Drop the lander straight down. Did it land upright? Did both astronauts stay in?','Change one thing and test again. Engineers call this a test flight.',
+    ['Start from knee height.','Start from knee height, then try waist height.','Land safely from waist height 3 times in a row.','Land safely from shoulder height.','Land safely from shoulder height using only 2 pieces of paper and 4 straws.'][L]],
+  fact:'Real landers have used legs, giant airbags and even a rocket-powered sky crane. Every one of them was tested over and over on Earth first.'};}
+let MCMODE='rover';
+function startMission(){sciZone('mission',{modes:[['rover','Rover Command'],['math','Mission Math'],['quiz','Quick Quiz'],['paper','Paper mission']],get:()=>MCMODE,set:k=>MCMODE=k,tabs:{
+  rover:{kind:'lab',round:3,title:'Rover on target!',make:L=>makeRover(L),play:roverLab,done:r=>`${r} rover drives planned.`},
+  math:{kind:'math',round:5,title:'Mission math done!',make:mcMath,done:r=>`${r} problems solved.`},
+  quiz:{kind:'quiz',round:6,title:'Quiz complete!',bank:MC_QUIZ,done:r=>`${r} questions answered.`},
+  paper:{kind:'paper',paper:mcPaper}}});}
 
 /* ---------- boot ---------- */
 sound();showHome();
