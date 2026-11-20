@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-who="__WHO__"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="__TITLE__">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="apple-touch-icon.png">
+<title>__TITLE__</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* One shelf of apps per boy. Felix: night-sky blue with named cards. Everett: warm morning with big picture tiles, no reading needed. */
+:root{--bg:#0f2547;--bg2:#183563;--card:#ffffff;--ink:#0f2547;--muted:#5b6b85;--accent:#4fb3ff;--hi:#ffd166}
+html[data-who=everett]{--bg:#ffe9b8;--bg2:#ffd27a;--card:#fffaf0;--ink:#3b2a12;--muted:#7a6340;--accent:#ff8a3d;--hi:#ff8a3d}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;min-height:100%}
+body{background:linear-gradient(180deg,var(--bg),var(--bg2));background-attachment:fixed;color:#fff;font:17px/1.4 Fredoka,ui-rounded,system-ui,sans-serif;
+ padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html[data-who=everett] body{color:var(--ink)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1100px;margin:0 auto 18px}
+h1{margin:0;font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-.01em}
+.gear{width:52px;height:52px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:inherit;font:inherit;font-size:13px;display:grid;place-items:center;position:relative;touch-action:none}
+html[data-who=everett] .gear{background:rgba(59,42,18,.1)}
+.gear svg{width:26px;height:26px}
+.gear .ring{position:absolute;inset:-4px;border-radius:50%;border:4px solid var(--hi);clip-path:inset(0 100% 0 0);opacity:0}
+.gear.holding .ring{opacity:1;animation:fill 1.6s linear forwards}
+@keyframes fill{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+main{max-width:1100px;margin:0 auto}
+.keep{margin-bottom:18px}
+.label{font-size:15px;font-weight:600;opacity:.8;margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+a.app{display:flex;align-items:center;gap:14px;background:var(--card);color:var(--ink);text-decoration:none;border-radius:22px;padding:12px 16px 12px 12px;min-height:104px;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+a.app:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+a.app img{width:80px;height:80px;border-radius:18px;flex:none;background:#eee}
+a.app b{display:block;font-size:21px;font-weight:700;line-height:1.1}
+a.app span{display:block;font-size:15px;color:var(--muted);margin-top:3px}
+.keep a.app{min-height:120px}.keep a.app img{width:96px;height:96px}
+html[data-who=everett] .grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:4vh}
+html[data-who=everett] a.app{flex-direction:column;justify-content:center;padding:22px;min-height:min(46vh,330px);border-radius:34px}
+html[data-who=everett] a.app img{width:min(220px,52vw);height:min(220px,52vw);border-radius:40px}
+html[data-who=everett] a.app b{font-size:26px;text-align:center}
+html[data-who=everett] a.app b i{font-style:normal;color:var(--accent)}
+html[data-who=everett] .keep{display:none}
+:focus-visible{outline:4px solid var(--hi);outline-offset:3px}
+#grown{position:fixed;inset:0;background:rgba(10,18,32,.55);display:none;align-items:flex-end;justify-content:center;z-index:9}
+#grown.open{display:flex}
+.sheet{background:#fff;color:#18202c;width:min(720px,100%);max-height:88vh;overflow:auto;border-radius:24px 24px 0 0;padding:22px 20px max(24px,env(safe-area-inset-bottom));font-size:16px;-webkit-user-select:text;user-select:text}
+.sheet h2{margin:0 0 4px;font-size:24px}.sheet h3{margin:20px 0 6px;font-size:18px}
+.sheet p,.sheet li{color:#3d4757;margin:4px 0}
+.row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #e7eaef}
+.row img{width:40px;height:40px;border-radius:10px}.row .n{flex:1}
+.sw{appearance:none;width:52px;height:32px;border-radius:16px;background:#c9ced6;position:relative;flex:none;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:left .15s}
+.sw:checked{background:#2fa36b}.sw:checked::after{left:23px}
+.btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:14px;padding:12px 20px;min-height:48px;background:#18202c;color:#fff;cursor:pointer}
+.links a{color:#1f5fd6}
+@media (prefers-reduced-motion:reduce){.gear.holding .ring{animation:none;clip-path:none}}
+</style></head><body>
+<header>
+  <h1>__TITLE__</h1>
+  <button class="gear" id="gear" aria-label="Grown-ups: press and hold"><span class="ring"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
+</header>
+<main>
+  <section class="keep" id="keep" hidden><p class="label">Keep going</p><div id="keepcard"></div></section>
+  <div class="grid" id="grid"></div>
+</main>
+<div id="grown" role="dialog" aria-modal="true" aria-labelledby="gh"><div class="sheet">
+  <h2 id="gh">Grown-ups</h2>
+  <p>Choose which apps show on this launcher. Changes stay on this iPad.</p>
+  <div id="rows"></div>
+  <h3>Add it to the home screen</h3>
+  <ol><li>Open this page in Safari.</li><li>Tap the Share button (the square with an up arrow).</li><li>Tap Add to Home Screen, then Add.</li></ol>
+  <p>Each app opens in its own window. Tap Done at the top to come back here.</p>
+  <h3>Every app</h3>
+  <div class="links" id="links"></div>
+  <p style="margin-top:14px"><button class="btn" id="close">Close</button></p>
+</div></div>
+<script>
+{
+const WHO=document.documentElement.dataset.who;
+const APPS=__APPS__;
+const KEY='launcher.v1.'+WHO;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let st={hidden:[],last:null};
+try{st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const mine=()=>APPS.filter(a=>a.who===WHO&&!st.hidden.includes(a.id));
+const nameHtml=n=>WHO==='everett'?`<i>${esc(n[0])}</i>${esc(n.slice(1))}`:esc(n);
+const card=a=>`<a class="app" href="${esc(a.href)}" target="_blank" rel="noopener" data-id="${esc(a.id)}"><img src="${esc(a.icon)}" alt="" width="80" height="80" loading="lazy"><div><b>${nameHtml(a.name)}</b>${a.blurb&&WHO==='felix'?`<span>${esc(a.blurb)}</span>`:''}</div></a>`;
+function render(){
+  const list=mine();
+  document.getElementById('grid').innerHTML=list.map(card).join('');
+  const last=list.find(a=>a.id===st.last);
+  const k=document.getElementById('keep');k.hidden=!last;
+  if(last)document.getElementById('keepcard').innerHTML=card(last);
+}
+document.body.addEventListener('click',e=>{const a=e.target.closest('a.app');if(a){st.last=a.dataset.id;save();setTimeout(render,400)}});
+const grown=document.getElementById('grown'),gear=document.getElementById('gear');
+function openGrown(){
+  document.getElementById('rows').innerHTML=APPS.filter(a=>a.who===WHO).map(a=>`<label class="row"><img src="${esc(a.icon)}" alt=""><span class="n">${esc(a.name)}</span><input type="checkbox" class="sw" data-id="${esc(a.id)}" ${st.hidden.includes(a.id)?'':'checked'} aria-label="Show ${esc(a.name)}"></label>`).join('');
+  const other=WHO==='felix'?'everett':'felix';
+  document.getElementById('links').innerHTML=`<p><a href="../${other}/">${other==='felix'?"Felix's":"Everett's"} launcher</a></p>`+APPS.map(a=>`<a href="${esc(a.href)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(' · ');
+  grown.classList.add('open');
+}
+document.getElementById('rows').addEventListener('change',e=>{const id=e.target.dataset.id;if(!id)return;st.hidden=st.hidden.filter(x=>x!==id);if(!e.target.checked)st.hidden.push(id);save();render()});
+document.getElementById('close').addEventListener('click',()=>grown.classList.remove('open'));
+grown.addEventListener('click',e=>{if(e.target===grown)grown.classList.remove('open')});
+let t=null;
+const start=e=>{e.preventDefault();gear.classList.add('holding');t=setTimeout(()=>{gear.classList.remove('holding');openGrown()},1600)};
+const stop=()=>{clearTimeout(t);gear.classList.remove('holding')};
+gear.addEventListener('pointerdown',start);['pointerup','pointerleave','pointercancel'].forEach(ev=>gear.addEventListener(ev,stop));
+gear.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openGrown()}});
+render();
+}
+</script>
+</body></html>

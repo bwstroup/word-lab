@@ -87,3 +87,12 @@ Open it at https://bwstroup.github.io/word-lab/science-exploration/
 Felix's life-science lab in The Seven Domes, a glass conservatory with five keepers (Moss, Nell, Kiki, Teo and Leila). Nine zones: Tree of Life, Cells and Microscopes, Plants (with the Seed Vault Field Guide of 100 plants), Fungi and Microbes, Animals, Habitat Tour, Adaptations and Evolution, Food Webs and Wild Watch. 60 stations at three levels, 180 stars, a paper mission in every zone and a press-and-hold grown-ups reset. Every picture is a real photo from Wikimedia Commons, credited in the grown-ups area.
 
 Open it at https://bwstroup.github.io/word-lab/wild-lab/
+
+# Launchers
+
+One home-screen icon per boy that opens all his apps. Each app opens in its own window; tap Done to come back. Press and hold the gear for the grown-ups area (show or hide apps on that iPad, links to every app).
+
+- Felix: https://bwstroup.github.io/word-lab/felix/
+- Everett: https://bwstroup.github.io/word-lab/everett/
+
+To add an app, add a row to `launcher/build_launchers.py`, run `python3 launcher/build_launchers.py`, and commit.
