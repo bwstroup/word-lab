@@ -346,6 +346,99 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .rs-msg{margin:0;min-height:1.4em;font-weight:700;text-align:center}
 .rs-msg.ok{color:var(--good)}
 .rs-msg.warn{color:var(--yellow)}
+/* ---------- batch 8: Space Science section + Solar System Tour ---------- */
+.map-head{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:6px 0 -6px;padding-bottom:6px;border-bottom:3px dashed #2C3D7E}
+.map-head h2{font-size:34px;color:var(--cyan);-webkit-text-stroke:1px var(--ink);text-shadow:3px 3px 0 var(--ink)}
+.map-head p{margin:0;color:var(--muted);font-size:15px}
+.part{display:inline-grid;place-items:center;flex:none}
+.part svg{display:block}
+.sol-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px}
+.sol-pick{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:96px;padding:8px 4px;border:3px solid var(--ink);border-radius:8px;background:var(--navy);color:var(--cream);font-weight:700;font-size:14px;cursor:pointer;touch-action:manipulation;position:relative}
+.sol-pick.on{background:var(--panel-2);box-shadow:0 0 0 4px var(--cyan)}
+.sol-pick.seen::after{content:"✓";position:absolute;top:3px;right:6px;color:var(--good);font-weight:800}
+.sol-card{gap:14px}
+.sol-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.sol-head>div{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.sol-title{font-size:40px;color:var(--yellow);-webkit-text-stroke:1px var(--ink);text-shadow:3px 3px 0 var(--ink)}
+.sol-kind{display:inline-block;padding:2px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--teal);color:var(--ink-text);font-weight:800;font-size:14px}
+.sol-line{margin:0;font-size:19px;font-weight:600}
+.sol-facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 16px;margin:0;font-size:17px}
+.sol-facts dt{color:var(--muted);font-weight:700}
+.sol-facts dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:480px){.sol-facts{grid-template-columns:minmax(0,1fr)}.sol-facts dd{margin-bottom:6px}}
+.sol-more{display:flex;flex-direction:column;gap:8px;padding:12px 16px;border:3px solid var(--ink);border-radius:8px;background:var(--panel-2)}
+.sol-more p{margin:0}
+.sol-size{display:flex;flex-direction:column;gap:6px;background:#070A1F;border:3px solid var(--ink);border-radius:8px;padding:10px 10px 4px;overflow:hidden}
+.sol-size svg{display:block;width:100%;max-width:560px;height:auto}
+.sol-size .sz{fill:var(--cream);font:700 15px var(--body);text-anchor:middle}
+.sol-size .sz.dark{fill:#14121F;font-size:20px}
+/* line-up */
+.lu-ends{display:flex;justify-content:space-between;font-weight:800;color:var(--cyan);font-size:15px}
+.lu-slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:8px}
+.lu-slot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:104px;padding:16px 2px 6px;border:3px dashed var(--muted);border-radius:8px;background:var(--navy);color:var(--cream);font-weight:700;font-size:13px;cursor:pointer;touch-action:manipulation}
+.lu-slot.full{border-style:solid;border-color:var(--cyan)}
+.lu-slot.right{border-color:var(--good);background:rgba(91,224,138,.16)}
+.lu-n{position:absolute;top:2px;left:6px;font-family:var(--display);font-size:18px;color:var(--yellow)}
+.lu-empty{font-family:var(--display);font-size:30px;color:var(--muted)}
+.lu-name{line-height:1.1;text-align:center}
+.lu-pool{display:flex;flex-wrap:wrap;gap:10px;min-height:64px}
+.lu-item{display:inline-flex;align-items:center;gap:8px;min-height:60px;padding:4px 14px 4px 6px;border:3px solid var(--ink);border-radius:999px;background:var(--cream);color:var(--ink-text);font-weight:800;font-size:16px;box-shadow:3px 3px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.lu-item:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.lu-reveal{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:8px}
+.lu-reveal>div{display:flex;flex-wrap:wrap;min-width:0;align-items:center;gap:4px 8px;padding:6px 10px;border:3px solid var(--ink);border-radius:8px;background:var(--panel-2);font-size:15px}
+.lu-reveal span:last-child{margin-left:auto;color:var(--yellow);font-weight:800;white-space:nowrap}
+/* weigh-in */
+.wi-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.wi-side{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wi-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--cyan)}
+.wi-scale{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:150px;min-height:96px;padding:8px 14px;border:4px solid var(--ink);border-radius:14px 14px 22px 22px;background:#DCE3F5;color:var(--ink-text);font-weight:800;font-size:36px;box-shadow:4px 4px 0 var(--ink);font-variant-numeric:tabular-nums}
+.wi-scale small{font-size:14px;color:#3A4660}
+.wi-scale.q{background:#B9C6E8}
+.wi-scale .ansbox{height:56px;font-size:32px}
+.wi-arrow{font-family:var(--display);font-size:44px;color:var(--yellow)}
+/* scale walk ribbon */
+.rb svg{max-width:680px}
+.rb .rb-line{stroke:#7FE9FF;stroke-width:3}
+.rb .rb-tick{stroke:#C3CBEE;stroke-width:2}
+.rb .rb-num{fill:#C3CBEE;font:700 13px var(--body);text-anchor:middle}
+.rb .rb-lab{fill:#C3CBEE;font:700 13px var(--body);text-anchor:middle}
+.rb .rb-lab.on{fill:#7FE9FF;font-size:16px}
+.rb .rb-unit{fill:#8A95C4;font:600 12px var(--body);text-anchor:end}
+/* paper mission */
+.paper{gap:12px}
+.paper-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.paper p{margin:0;font-size:18px}
+.paper-list{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
+.paper-table{border-collapse:collapse;width:100%;max-width:440px;font-variant-numeric:tabular-nums}
+.paper-table th,.paper-table td{padding:4px 8px;border-bottom:2px solid #2C3D7E;text-align:left}
+.paper-table td:last-child,.paper-table thead th:last-child{text-align:right;font-weight:800;color:var(--yellow)}
+.paper-table thead th{color:var(--muted);font-size:14px}
+/* ---------- batch 9: ranks, mission counts, file checks, tile art ---------- */
+.rank{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;border:4px solid var(--ink);border-radius:8px;background:var(--navy);box-shadow:4px 4px 0 var(--ink)}
+.rank-name{font-family:var(--display);font-size:26px;letter-spacing:1px;color:var(--yellow)}
+.rank-bar{flex:1 1 160px;height:16px;border:3px solid var(--ink);border-radius:999px;background:var(--deep);overflow:hidden}
+.rank-bar i{display:block;height:100%;background:var(--teal)}
+.rank-next{font-size:15px;font-weight:700;color:var(--muted)}
+.planet .host-row{flex-wrap:wrap}
+.planet .flown{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.planet .orb.bands{background:repeating-linear-gradient(-18deg,transparent 0 13px,rgba(0,0,0,.17) 13px 23px),var(--c)}
+.planet .orb.bands::after{display:none}
+.planet .orb.craters{background:radial-gradient(circle at 34% 62%,rgba(0,0,0,.2) 0 9px,transparent 10px),radial-gradient(circle at 60% 40%,rgba(0,0,0,.2) 0 6px,transparent 7px),radial-gradient(circle at 56% 76%,rgba(0,0,0,.2) 0 5px,transparent 6px),var(--c)}
+.planet .orb.craters::after{display:none}
+.planet .orb.moon::after{left:0;top:64%;width:28%;height:28%;border:4px solid var(--ink);background:var(--ring,var(--yellow));box-shadow:none;transform:none}
+.planet .orb.tilt::after{transform:rotate(18deg)}
+.planet.soon{min-height:0;padding-bottom:14px}
+.planet.soon .orb{width:84px;height:84px}
+.planet.soon h2{font-size:28px}
+.planet.soon .host-row .avatar{width:40px;height:40px}
+.planet .doodle{position:absolute;right:170px;top:24px;width:300px;height:130px;opacity:.85;pointer-events:none}
+@media (max-width:860px){.planet .doodle{display:none}}
+.fcheck{display:flex;flex-direction:column;gap:10px;padding:12px 16px;border:3px dashed var(--cyan);border-radius:8px}
+.fcheck .rule{font-size:16px;min-height:52px}
+.stamp{display:inline-block;padding:4px 14px;border:4px solid var(--good);border-radius:8px;color:var(--good);font-family:var(--display);font-size:24px;letter-spacing:1px;transform:rotate(-3deg);align-self:flex-start}
+.host img{animation:bob 5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+@media (max-width:820px){.host img{animation:none}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -354,7 +447,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 <div class="wrap" id="app">
   <section class="view" id="v-home" aria-label="Star map">
     <div class="home-top">
-      <div class="logo" role="heading" aria-level="1">Orbit Lab<small>Space Station Math</small></div>
+      <div class="logo" role="heading" aria-level="1">Orbit Lab<small>Space Station Math + Science</small></div>
       <div class="top-tools">
         <div class="starpill" aria-label="Stars earned"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z" fill="#14121F"/></svg><span id="starCount">0</span></div>
         <button class="btn alt" id="crewBtn" type="button" style="font-size:22px;min-height:52px">Meet the crew</button>
@@ -366,6 +459,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
       <div class="avatar"><img src="crew/nova_hero.svg" alt=""></div>
       <div class="bubble" id="greet">Welcome aboard, Felix! Pick a destination on the star map.</div>
     </div>
+    <div class="rank" id="rank" aria-live="polite"></div>
     <div class="map" id="map"></div>
   </section>
 
@@ -704,7 +798,7 @@ const SLICE_INFO={
 
 /* ---------- state ---------- */
 const KEY='orbitlab.v1';
-let S={stars:0,levels:{},best:{},pi:{groups:1,best:0},sound:true};
+let S={stars:0,levels:{},done:{},best:{},pi:{groups:1,best:0},solar:{seen:[],paper:false,filesDone:false},sound:true};
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw));}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
@@ -728,17 +822,17 @@ function fmtTime(ms){const s=Math.round(ms/100)/10;const m=Math.floor(s/60);cons
 /* ---------- crew ---------- */
 const CREW={
   nova:{name:'Commander Nova Reyes',bio:'Mission commander. Calm, quick, and always has a plan.',
-    cheer:['Course locked in!','Textbook landing!'],hint:['Break it into smaller steps.'],enc:['Every mission gets a second run.']},
+    cheer:['Course locked in!','Textbook landing!','Mission on track!','Clean work, crew!','That is how it is done.','Steady hands!'],hint:['Break it into smaller steps.','One piece at a time.','What do you already know here?'],enc:['Every mission gets a second run.','Good try. Check it once more.','Commanders double-check. Go again.']},
   jay:{name:'Pilot Jay Park',bio:'Shuttle pilot. Races his own best time, never anyone else\'s.',
-    cheer:['Full throttle!','Smooth flying!','Nailed the landing!'],hint:['Start with the ones place.'],enc:['Shake it off, pilot. Next run.','Close one. Try it again!']},
+    cheer:['Full throttle!','Smooth flying!','Nailed the landing!','Zoom! Right on it.','Ace flying!','Clear skies ahead!'],hint:['Start with the ones place.','Use a fact you know and build from it.','Slow is smooth. Smooth is fast.'],enc:['Shake it off, pilot. Next run.','Close one. Try it again!','Go around for another pass.']},
   kofi:{name:'Chief Engineer Kofi Asante',bio:'Builds and fixes everything. Measures twice.',
-    cheer:['Built solid!','That column checks out!','Tank sealed!'],hint:['Measure twice, answer once.'],enc:['Even rockets get rebuilt.','Let\'s re-check that column.']},
+    cheer:['Built solid!','That checks out!','Tank sealed!','Tight as a bolt!','Strong work!','Fits like a glove!'],hint:['Measure twice, answer once.','Go one step at a time.','Check each part before the whole.'],enc:['Even rockets get rebuilt.','Let\'s re-check that one.','Good builders test again.']},
   priya:{name:'Dr. Priya Raman',bio:'Station astronomer, never without her zoom monocle.',
-    cheer:['Stellar!','Bright as a supernova!','Right on target!','Sharp eyes!'],hint:['Zoom in. What do you notice?'],enc:['Scientists check twice. Look again.']},
+    cheer:['Stellar!','Bright as a supernova!','Right on target!','Sharp eyes!','Great observing!','That is real science!'],hint:['Zoom in. What do you notice?','Look for a clue on the screen.','Estimate first. Does your answer make sense?'],enc:['Scientists check twice. Look again.','Not yet. Good data takes a second look.','Close! Try once more.']},
   qel:{name:'Qel, the navigator',bio:'A friendly navigator from a far-off star. Loves a good pattern.',
-    cheer:['The stars agree!','Course plotted!','Bright as a nova!'],hint:['Every pattern has a rule. Find it.'],enc:['Navigators recalculate. So can you.','Look at the jumps between the stars.']},
+    cheer:['The stars agree!','Course plotted!','Bright as a nova!','You found the path!','Zip-zap, correct!','My antennae are tingling!'],hint:['Every pattern has a rule. Find it.','How do you get from one star to the next?','Are the jumps the same, or do they change?'],enc:['Navigators recalculate. So can you.','Look at the jumps between the stars.','Not that way. Plot it again.']},
   pix:{name:'Pix (PX-314)',bio:'The station robot, built to remember. Keeper of the Pi Vault.',
-    cheer:['Digits stored! Beep-boop!','Memory banks glowing!'],hint:['Processing… try chunks of three.'],enc:['Rebooting memory. Retry!','Almost! Here is the digit.']},
+    cheer:['Digits stored! Beep-boop!','Memory banks glowing!','Saved to the vault!','Beep! Perfect recall.','Circuits happy!'],hint:['Processing… try chunks of three.','Say the digits out loud like a phone number.'],enc:['Rebooting memory. Retry!','Almost! Here is the digit.','Bzzt. Try that chunk again.']},
 };
 const SHORT={nova:'Commander Nova',jay:'Pilot Jay',kofi:'Engineer Kofi',priya:'Dr. Priya',qel:'Navigator Qel',pix:'Pix the robot'};
 const EXPR_FILE={hero:'hero',cheer:'cheer',hint:'think',enc:'encourage'};
@@ -757,39 +851,67 @@ const LEVEL_LABELS=['4','4+','5','5+','6★'];
 const ZONES={
   flash:{name:'Flashcard Run',host:'jay',color:'#1FB5A8',ring:'#F26B1D',blurb:'Speed through + − × ÷ facts. Turn on the timer to race your best time.',start:startFlash,
     peek:['Facts up to 10 × 10, and adding 2-digit numbers','Facts up to 12 × 12, and bigger 2-digit numbers','3-digit adding, 2-digit × 1-digit, bigger division','3-digit ± 3-digit, × and ÷ with tens and bigger numbers','Challenge: decimals, teens × facts, ÷ by 11 to 15']},
-  pattern:{name:'Pattern Nebula',host:'qel',color:'#B6A8FF',ring:'#7FE9FF',blurb:'Find the next star in the pattern, then name the rule.',start:startPattern,
+  pattern:{name:'Pattern Nebula',host:'qel',orb:'moon',color:'#B6A8FF',ring:'#7FE9FF',blurb:'Find the next star in the pattern, then name the rule.',start:startPattern,
     peek:['Add, subtract and doubling patterns','Times patterns, growing jumps, and two-step patterns','Squares, halving, and ×3, ×4, ×5, ×10','Add the two before, cubes, and ×2 then +1','Challenge: decimals, going below zero, and prime numbers']},
-  fuel:{name:'Fuel Depot',host:'kofi',color:'#F26B1D',ring:'#FFD23F',blurb:'Add up the fuel tankers column by column, carrying as you go.',start:startFuel,
+  fuel:{name:'Fuel Depot',host:'kofi',orb:'bands',color:'#F26B1D',ring:'#FFD23F',blurb:'Add up the fuel tankers column by column, carrying as you go.',start:startFuel,
     peek:['Two tankers with 3-digit loads','Three tankers with 2- and 3-digit loads','Two tankers with 4-digit loads','Three tankers with 3- and 4-digit loads','Challenge: four tankers, up to 5-digit loads']},
-  ops:{name:'Number Ops',host:'nova',color:'#D6336C',ring:'#FFD23F',blurb:'See multiplication as crates and area pieces. Share supplies among pods to divide.',start:startOps,
+  ops:{name:'Number Ops',host:'nova',orb:'tilt',color:'#D6336C',ring:'#FFD23F',blurb:'See multiplication as crates and area pieces. Share supplies among pods to divide.',start:startOps,
     peek:['× crate arrays · ÷ 2-digit numbers by 2 to 5','× 2-digit by 1-digit · ÷ 2-digit numbers by 3 to 9','× 2-digit by 2-digit · ÷ 3-digit numbers by 2 to 6','× 3-digit by 1-digit · ÷ 3-digit numbers by 4 to 9','Challenge: × big 2-digit pairs · ÷ 4-digit numbers']},
-  shapes:{name:'Shape Forge',host:'kofi',color:'#7FE9FF',ring:'#F26B1D',blurb:'Name 2-D and 3-D shapes, then measure area and volume.',start:startShapes,
+  shapes:{name:'Shape Forge',host:'kofi',orb:'craters',color:'#7FE9FF',ring:'#F26B1D',blurb:'Name 2-D and 3-D shapes, then measure area and volume.',start:startShapes,
     peek:['Shape names · rectangle area · counting cubes','Triangle and 4-sided shape types · L-shaped areas · box volume','3-D solids · triangles and parallelograms · joined boxes','Faces, edges and vertices · roofs and trapezoids · cylinders with π','Challenge: mixed names · circles with π · spheres and cones']},
-  obs:{name:'Observatory',host:'priya',color:'#9AA3B5',ring:'#1FB5A8',blurb:'Find constellations, plot stars on a coordinate grid, and slice a cone to make the shapes of orbits.',start:startObs,wide:true,
+  obs:{name:'Observatory',host:'priya',orb:'craters',color:'#9AA3B5',ring:'#1FB5A8',blurb:'Find constellations, plot stars on a coordinate grid, and slice a cone to make the shapes of orbits.',start:startObs,wide:true,
     peek:['Orion, the Dippers, Cassiopeia · plot stars on a 0–8 grid · slice the cone','Adds Cygnus, Leo, the Southern Cross · plot on a 0–10 grid','Adds Lyra, Gemini, the Great Dog · read a star\'s coordinates','Adds Taurus, Scorpius, and finding bright stars · plot and read · name the slice','Challenge: all 12 constellations · four-quadrant grid with negative numbers · name the slice']},
-  pi:{name:'Pi Vault',host:'pix',color:'#FFD23F',ring:'#D6336C',blurb:'Memorize the digits of π, three at a time, then recite from memory.',start:startPi,
+  pi:{name:'Pi Vault',host:'pix',orb:'bands',color:'#FFD23F',ring:'#D6336C',blurb:'Memorize the digits of π, three at a time, then recite from memory.',start:startPi,
     peek:PI_GOALS.map((g,i)=>`Recite goal: ${g} digits of π${i===4?' (challenge)':''}`)},
+  solar:{name:'Solar System Tour',host:'priya',color:'#E9C9A0',ring:'#D6336C',group:'space',blurb:'Open a file on every world, line up the planets, weigh in on the Moon and walk the solar system to scale.',start:startSolar,
+    peek:['Line up the planets from the Sun · Moon weigh-ins (÷ 6) · 2 steps per AU',
+      'Line up by size · Moon and Mars weigh-ins (3/8) · 10 steps per AU',
+      'Line up with the asteroid belt and Pluto · Mars, Pluto and Jupiter weigh-ins · gaps between planets',
+      'Hottest to coldest · decimal weigh-ins (× 0.9, × 1.1, × 2.4) · scale-model sizes',
+      'Challenge: weakest to strongest pull · × 0.38, × 1.12, × 2.36 · AU to million km']},
 };
-const SOON=[];
+const SOON=[
+  {name:'Rockets and Orbits',host:'jay',color:'#F26B1D',ring:'#7FE9FF',blurb:'Gravity, push and push back, and why things stay in orbit.'},
+  {name:'Seasons and Eclipses',host:'kofi',color:'#FFD23F',ring:'#3FA7F5',blurb:'Earth\'s tilt makes the seasons. Line up the Sun, Earth and Moon for eclipses.'},
+  {name:'Stars and Galaxies',host:'qel',color:'#B6A8FF',ring:'#FFD23F',blurb:'Star colors and life stories, the Milky Way, light-years and powers of ten.'},
+  {name:'Mission Control',host:'nova',color:'#D6336C',ring:'#C3CBEE',blurb:'Moon landings, the space station, rovers, telescopes and planets around other stars.'},
+];
 let Z=null; // current zone id
 function level(){return S.levels[Z]??0;}
 
 function buildMap(){
   const map=$('#map');map.textContent='';
-  for(const [id,z] of Object.entries(ZONES).sort((p,q)=>(p[1].wide?1:0)-(q[1].wide?1:0))){
+  const head=(t,p)=>el('div',{class:'map-head'},el('h2',{},t),el('p',{},p));
+  const zs=Object.entries(ZONES);
+  const math=zs.filter(([,z])=>!z.group).sort((p,q)=>(p[1].wide?1:0)-(q[1].wide?1:0)),space=zs.filter(([,z])=>z.group==='space');
+  map.append(head('Math Missions','Number work for the whole crew.'));
+  for(const item of [...math,null,...space]){
+    if(!item){map.append(head('Space Science','Explore the real solar system and beyond.'));continue;}
+    const [id,z]=item;
     map.append(el('button',{class:'planet'+(z.wide?' wide':''),type:'button',style:`--c:${z.color};--ring:${z.ring}`,onclick:()=>{SFX.tap();openZone(id);}},
-      el('span',{class:'orb','aria-hidden':'true'}),
+      el('span',{class:'orb '+(z.orb||''),'aria-hidden':'true'}),id==='obs'?dipperDoodle():null,
       el('h2',{},z.name),el('p',{},z.blurb),
       el('div',{class:'host-row'},el('div',{class:'avatar'},el('img',{src:`crew/${z.host}_hero.svg`,alt:''})),
-        el('span',{},SHORT[z.host]),el('span',{class:'lvl'},'Level '+LEVEL_LABELS[S.levels[id]??0]))));
+        el('span',{},SHORT[z.host]),el('span',{class:'lvl'},'Level '+LEVEL_LABELS[S.levels[id]??0]),(S.done&&S.done[id])?el('span',{class:'flown'},`${S.done[id]} done`):null)));
   }
   for(const z of SOON){
     map.append(el('div',{class:'planet soon',style:`--c:${z.color};--ring:${z.ring}`,'aria-disabled':'true'},
       el('span',{class:'orb','aria-hidden':'true'}),el('h2',{},z.name),el('p',{},z.blurb),
       el('div',{class:'host-row'},el('div',{class:'avatar'},el('img',{src:`crew/${z.host}_hero.svg`,alt:''})),el('span',{class:'soon-tag'},'Coming next'))));
   }
-  $('#starCount').textContent=S.stars;
+  $('#starCount').textContent=S.stars;paintRank();
 }
+/* ranks: stars add up to a station rank (batch 9) */
+const RANKS=[[0,'Space Cadet'],[10,'Flight Cadet'],[25,'Pilot'],[50,'Navigator'],[90,'Lieutenant'],[150,'Captain'],[250,'Commander'],[400,'Star Admiral']];
+function rankOf(n){let i=0;RANKS.forEach((r,k)=>{if(n>=r[0])i=k;});return {i,name:RANKS[i][1],at:RANKS[i][0],next:RANKS[i+1]||null};}
+function paintRank(){const r=rankOf(S.stars),box=$('#rank');box.textContent='';
+  box.append(el('span',{class:'rank-name'},'Rank: '+r.name));
+  if(r.next){const p=(S.stars-r.at)/(r.next[0]-r.at);const left=r.next[0]-S.stars;
+    box.append(el('span',{class:'rank-bar','aria-hidden':'true'},el('i',{style:`width:${Math.round(p*100)}%`})),el('span',{class:'rank-next'},`${left} more ${left===1?'star':'stars'} to ${r.next[1]}`));}
+  else box.append(el('span',{class:'rank-next'},'Top rank on the station!'));}
+function dipperDoodle(){const c=CONS.bigdipper,P=fitBox(projectCons(c),300,130,14);const f=v=>v.toFixed(1);
+  const sp=el('span',{class:'doodle','aria-hidden':'true'});
+  sp.innerHTML=`<svg viewBox="0 0 300 130" width="300" height="130">${c.lines.map(([a,b])=>`<line x1="${f(P[a][0])}" y1="${f(P[a][1])}" x2="${f(P[b][0])}" y2="${f(P[b][1])}" stroke="#7FE9FF" stroke-width="3" stroke-linecap="round"/>`).join('')}${P.map(q=>`<circle cx="${f(q[0])}" cy="${f(q[1])}" r="5" fill="#FFF6D8" stroke="#FFD23F" stroke-width="2"/>`).join('')}</svg>`;return sp;}
 const GREETS=['Welcome aboard, Felix! Pick a destination on the star map.','Commander on deck. Where are we flying today, Felix?','The crew is ready, Felix. Choose a mission.'];
 function showHome(){
   stopTimers();Z=null;keyHandler=null;
@@ -803,7 +925,7 @@ function openZone(id){
   buildDial();z.start();window.scrollTo(0,0);
 }
 function buildDial(){
-  const d=$('#dial');d.textContent='';
+  const d=$('#dial');d.textContent='';d.hidden=false;
   LEVEL_LABELS.forEach((lab,i)=>d.append(el('button',{type:'button',role:'radio','aria-checked':String(i===level()),'aria-label':'Level '+lab,
     onclick:()=>{if(i===level())return;SFX.tap();S.levels[Z]=i;save();buildDial();stopTimers();ZONES[Z].start();}},lab)));
   $('#peek').innerHTML='';$('#peek').append(el('b',{},`Level ${LEVEL_LABELS[level()]}: `),ZONES[Z].peek[level()]);
@@ -849,14 +971,20 @@ let tickId=null;
 function stopTimers(){timers.forEach(clearTimeout);timers=[];if(tickId){clearInterval(tickId);tickId=null;}if(typeof stopSpin==='function')stopSpin();}
 function closeOverlay(){$('#overlay').hidden=true;$('#overlay').textContent='';}
 function award(n){S.stars+=n;save();}
-function showWin({title='Mission complete!',lines=[],stars=1,again}){
-  award(stars);SFX.win();
+function showWin({title='Mission complete!',lines=[],stars=1,again,up=false}){
+  const before=rankOf(S.stars);award(stars);SFX.win();
+  if(Z){S.done=S.done||{};S.done[Z]=(S.done[Z]||0)+1;save();}
+  const after=rankOf(S.stars);lines=lines.slice();
+  if(after.i>before.i)lines.push(`Promotion! You are now a ${after.name}.`);
+  const canUp=up&&Z&&level()<LEVEL_LABELS.length-1;
+  if(canUp)lines.push('That looked easy for you. Ready for a harder level?');
   const earned=el('div',{class:'earned'},'+0 ★');
   const box=el('div',{class:'win panel',role:'dialog','aria-modal':'true','aria-label':title},
     el('img',{src:`crew/${currentHost}_cheer.svg`,alt:''}),el('h2',{},title),
     el('div',{class:'lines'},lines.map(l=>el('div',{},l))),earned,
     el('div',{class:'row',style:'justify-content:center'},
       el('button',{class:'btn',type:'button',onclick:()=>{closeOverlay();again();}},'Again'),
+      canUp?el('button',{class:'btn yellow',type:'button',onclick:()=>{closeOverlay();S.levels[Z]=level()+1;save();buildDial();stopTimers();ZONES[Z].start();}},'Try level '+LEVEL_LABELS[level()+1]):null,
       el('button',{class:'btn alt',type:'button',onclick:()=>{closeOverlay();showHome();}},'Star map')));
   const ov=$('#overlay');ov.textContent='';ov.append(box);ov.hidden=false;
   let i=0;const step=()=>{i++;earned.textContent=`+${i} ★  ·  ${S.stars-stars+i} total`;if(i<stars)later(step,300);};later(step,350);
@@ -865,10 +993,11 @@ function showWin({title='Mission complete!',lines=[],stars=1,again}){
 
 /* ---------- grown-ups: reset progress ---------- */
 const RESETS=[
-  {id:'stars',label:'Stars',on:true,note:()=>`${S.stars} earned`,run(){S.stars=0;}},
+  {id:'stars',label:'Stars, rank and mission counts',on:true,note:()=>`${S.stars} stars earned · rank ${rankOf(S.stars).name}`,run(){S.stars=0;S.done={};}},
   {id:'times',label:'Flashcard best times',on:true,note:()=>{const n=Object.keys(S.best).filter(k=>k.startsWith('flash-')).length;return n?`${n} best time${n===1?'':'s'} saved`:'none saved yet';},
     run(){for(const k of Object.keys(S.best))if(k.startsWith('flash-'))delete S.best[k];}},
   {id:'pi',label:'Pi Vault',on:true,note:()=>`${S.pi.groups*3} digits unlocked · best recite ${S.pi.best}`,run(){S.pi={groups:1,best:0};}},
+  {id:'space',label:'Space Science',on:true,note:()=>{const s=S.solar||{};return `${(s.stamped||[]).length} planet files stamped · paper mission ${s.paper?'done':'not done'}`;},run(){S.solar={seen:[],paper:false,filesDone:false};}},
   {id:'levels',label:'Level picks',on:false,note:()=>{const set=Object.entries(S.levels).filter(([,v])=>v>0);return set.length?`${set.length} zone${set.length===1?'':'s'} above level 4 · resets every zone to 4`:'every zone is on level 4';},run(){S.levels={};}},
 ];
 function openGrownUps(){
@@ -1003,7 +1132,7 @@ function runFlash(count){
     if(FL.timer){const prev=S.best[key];lines.push(`Time for ${total} ${total===1?'card':'cards'}: ${fmtTime(ms)}`);
       if(!prev||ms<prev){S.best[key]=ms;save();if(prev){if(big)stars++;lines.push(`New best! Old best was ${fmtTime(prev)}.`);}else lines.push('That\'s your first best time.');}
       else lines.push(`Your best is ${fmtTime(prev)}.`);}
-    showWin({lines,stars,again:()=>runFlash(total)});
+    showWin({lines,stars,again:()=>runFlash(total),up:firstTry===total&&big});
   }
   show();
 }
@@ -1013,7 +1142,7 @@ function nodeK(txt){const t=String(txt);const n=t.replace(/[.,]/g,'').length+0.5
   return n<=1?0.5:n<=2?0.42:n<=2.5?0.36:n<=3?0.31:n<=3.5?0.27:n<=4?0.24:n<=5?0.2:0.17;}
 function startPattern(){
   const L=level();const st=$('#stage');st.textContent='';
-  const ROUND=8;let n=0,firstTry=0,P,input,tries,stage,box,qNode,jumpsRow,status;
+  const ROUND=6;let n=0,firstTry=0,P,input,tries,stage,box,qNode,jumpsRow,status;
   const pad=keypad({dot:L===4,minus:L===4,onKey:k=>{if(stage!=='num')return;if(k==='go')return checkNum();input=editStr(input,k,7);paintQ();}});
   const prog=el('div',{class:'progress','aria-hidden':'true'});
   box=el('div',{class:'panel pattern-box'});status=el('div',{class:'sr','aria-live':'assertive'});
@@ -1061,7 +1190,7 @@ function startPattern(){
   }
   function finish(){keyHandler=null;let stars=1;const lines=[`${firstTry} of ${ROUND} next stars found on the first try.`];
     if(firstTry>=ROUND-1){stars++;lines.push('Sharp navigating: bonus star!');}
-    showWin({lines,stars,again:startPattern});}
+    showWin({lines,stars,again:startPattern,up:firstTry>=ROUND-1});}
   next();
 }
 
@@ -1132,7 +1261,7 @@ function startFuel(){
   }
   function finish(){keyHandler=null;let stars=1;const lines=[`${ROUND} rockets fueled.`,`${clean} of ${ROUND} added with no hints.`];
     if(clean===ROUND){stars++;lines.push('Spotless work: bonus star!');}
-    showWin({title:'Rockets fueled!',lines,stars,again:startFuel});}
+    showWin({title:'Rockets fueled!',lines,stars,again:startFuel,up:clean===ROUND});}
   next();
 }
 function rocketSVG(){
@@ -1275,7 +1404,7 @@ function runZone({modes,mode,setMode,round,make,play,finishLines,again,title}){
       if(wait==='next'){const b=el('button',{class:'btn teal',type:'button',onclick:()=>{SFX.tap();b.disabled=true;go();}},n>=round?'Finish':'Next mission');work.append(el('div',{class:'next-row'},b));later(()=>b.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
       else later(go,wait);});};
   const finish=()=>{keyHandler=null;stopSpin();let stars=1;const lines=finishLines(round,clean);if(clean===round){stars++;lines.push('Flawless: bonus star!');}
-    showWin({title,lines,stars,again});};
+    showWin({title,lines,stars,again,up:clean===round});};
   next();
 }
 
@@ -1917,6 +2046,393 @@ function drawSlice2D(cv,deg,revealed,frameN){
   const p=path[Math.floor(st.pos)%path.length];const r=Math.hypot(p.u-F.u,p.v-F.v)||0.1;
   st.pos+=Math.min(3,0.18/(r*r)+0.25);if(!closed&&st.pos>=path.length)st.pos=0;
   ctx.fillStyle=type==='circle'?'#C3CBEE':type==='ellipse'?'#3FA7F5':'#E8EDF4';ctx.beginPath();ctx.arc(X(p.u),Y(p.v),7,0,7);ctx.fill();ctx.stroke();
+}
+
+/* ===== Orbit Lab · Solar System Tour data (batch 8) =====
+   Numbers: NASA NSSDC Planetary Fact Sheet (ratio-to-Earth table and metric table).
+   g = surface gravity as a fraction of Earth's (cloud tops for the giants).
+   au = average distance from the Sun in AU (1 AU = Earth's distance, about 150 million km).
+   xE = width compared with Earth. mkm = average distance from the Sun in millions of km.
+   tempF/tempC = average temperature (Sun: visible surface). */
+const SOLAR={
+  sun:{name:'The Sun',short:'Sun',kind:'Star',au:0,xE:109,km:'1.39 million',g:null,tempF:'about 10,000',tempC:'about 5,500',
+    line:'The Sun is a star: a giant ball of hot, glowing gas. About 109 Earths would fit across it.',
+    more:['It holds about 99.8% of all the stuff (mass) in the solar system. Everything else, every planet, moon and comet, shares the last 0.2%.',
+      'Sunlight takes about 8 minutes to reach Earth. When you look at the Sun (never straight at it!), you see it as it was 8 minutes ago.']},
+  mercury:{name:'Mercury',kind:'Rocky planet',au:0.39,mkm:58,xE:0.38,km:'4,879',g:0.378,tempF:'333',tempC:'167',
+    line:'The smallest planet, and the closest to the Sun.',
+    more:['Mercury has almost no air to hold heat. Days reach about 800 °F (430 °C) and nights drop to about −290 °F (−180 °C).',
+      'It has no moons. Its gray, cratered face looks a lot like our Moon.']},
+  venus:{name:'Venus',kind:'Rocky planet',au:0.72,mkm:108,xE:0.95,km:'12,104',g:0.907,tempF:'867',tempC:'464',
+    line:'The hottest planet, even though Mercury is closer to the Sun.',
+    more:['Its thick air, mostly carbon dioxide, traps heat like a heavy blanket, so the ground is hot enough to melt lead.',
+      'Venus spins backward compared with most planets. There, the Sun rises in the west and sets in the east.']},
+  earth:{name:'Earth',kind:'Rocky planet',au:1,mkm:150,xE:1,km:'12,756',g:1,tempF:'59',tempC:'15',
+    line:'Our home: the only place we know of with life, and the only planet with oceans of liquid water on its surface.',
+    more:['About 71% of Earth\'s surface is ocean.',
+      'Earth has one Moon. Earth\'s distance from the Sun is the measuring stick astronomers call 1 AU.']},
+  moon:{name:'The Moon',short:'Moon',kind:'Earth\'s moon',au:1,xE:0.27,km:'3,475',g:0.166,tempF:'−4',tempC:'−20',
+    line:'Earth\'s Moon. Its gravity pulls about one sixth as hard as Earth\'s.',
+    more:['It is about 384,000 km away. About 30 Earths lined up side by side would fill the gap.',
+      'Twelve astronauts walked on the Moon between 1969 and 1972.']},
+  mars:{name:'Mars',kind:'Rocky planet',au:1.52,mkm:228,xE:0.53,km:'6,792',g:0.377,tempF:'−85',tempC:'−65',
+    line:'The red planet. Its dust is full of iron oxide, the same stuff as rust.',
+    more:['Olympus Mons on Mars is the biggest volcano known in the solar system, more than twice as tall as Mount Everest.',
+      'Mars has two tiny moons, Phobos and Deimos. Robot rovers have been driving on Mars since 1997.']},
+  belt:{name:'Asteroid Belt',short:'Asteroids',kind:'Ring of space rocks',au:2.7,auText:'2.2 to 3.2',xE:null,km:null,g:null,tempF:null,tempC:null,
+    line:'Millions of rocky chunks circling the Sun between Mars and Jupiter.',
+    more:['The biggest one, Ceres, is about 940 km wide. It is round enough to count as a dwarf planet.',
+      'The rocks are so far apart that spacecraft fly through the belt without bumping into anything.']},
+  jupiter:{name:'Jupiter',kind:'Gas giant',au:5.2,mkm:779,xE:11.2,km:'142,984',g:2.36,tempF:'−166',tempC:'−110',
+    line:'The biggest planet. More than 1,000 Earths could fit inside it.',
+    more:['The Great Red Spot is a storm wider than Earth. People have watched it for more than 150 years.',
+      'A gas giant has no solid ground to stand on. Its gravity is measured up at the cloud tops.']},
+  saturn:{name:'Saturn',kind:'Gas giant',au:9.6,mkm:1432,xE:9.45,km:'120,536',g:0.916,tempF:'−220',tempC:'−140',
+    line:'Famous for its bright rings, made of chunks of ice and rock.',
+    more:['Saturn is less dense than water. It would float, if you could find a bathtub big enough!',
+      'From one outer edge to the other, its main rings would fit about 21 Earths in a row, yet in most places they are only about 10 meters thick.']},
+  uranus:{name:'Uranus',kind:'Ice giant',au:19.2,mkm:2867,xE:4.01,km:'51,118',g:0.889,tempF:'−319',tempC:'−195',
+    line:'An ice giant that spins tipped over on its side.',
+    more:['Because of the tilt, each pole gets about 42 years of sunlight, then about 42 years of darkness.',
+      'Methane gas in its air gives it a blue-green color.']},
+  neptune:{name:'Neptune',kind:'Ice giant',au:30.2,mkm:4515,xE:3.88,km:'49,528',g:1.12,tempF:'−328',tempC:'−200',
+    line:'The farthest planet from the Sun: a deep blue ice giant.',
+    more:['Its winds are the fastest measured on any planet: more than 2,000 km per hour.',
+      'Neptune was found with math first. Astronomers worked out where it had to be, then spotted it there in 1846.']},
+  pluto:{name:'Pluto',kind:'Dwarf planet',au:39.5,mkm:5906,xE:0.19,km:'2,376',g:0.063,tempF:'−373',tempC:'−225',
+    line:'A dwarf planet out past Neptune, in a far, icy zone called the Kuiper Belt.',
+    more:['In 2006, astronomers decided Pluto is a dwarf planet instead of a full planet.',
+      'The New Horizons spacecraft flew past in 2015 and found a huge heart-shaped patch of bright ice.']},
+};
+/* Planet Files: one check question per world; the first option is the right one (batch 9) */
+const FILE_Q={
+  sun:{q:'How long does sunlight take to reach Earth?',o:['About 8 minutes','About 8 seconds','About 8 hours']},
+  mercury:{q:'Why do Mercury\'s nights get so cold?',o:['It has almost no air to hold heat','It is the farthest planet from the Sun','It is covered in ice']},
+  venus:{q:'Why is Venus the hottest planet?',o:['Its thick air traps heat','It is the closest planet to the Sun','It is the biggest planet']},
+  earth:{q:'About how much of Earth\'s surface is ocean?',o:['About 71%','About 29%','About 50%']},
+  moon:{q:'How many astronauts have walked on the Moon?',o:['12','2','100']},
+  mars:{q:'What makes Mars look red?',o:['Iron oxide (rust) in its dust','Hot lava on the ground','Red clouds']},
+  belt:{q:'What is the biggest object in the asteroid belt?',o:['Ceres','Pluto','The Moon']},
+  jupiter:{q:'What is Jupiter\'s Great Red Spot?',o:['A giant storm','A volcano','A red ocean']},
+  saturn:{q:'What are Saturn\'s rings made of?',o:['Chunks of ice and rock','One solid sheet of metal','Glowing gas']},
+  uranus:{q:'What is odd about the way Uranus spins?',o:['It is tipped over on its side','It does not spin at all','It spins backward every other day']},
+  neptune:{q:'How was Neptune found?',o:['With math first, then a telescope','By a spacecraft flying past','People could always see it with just their eyes']},
+  pluto:{q:'Which spacecraft flew past Pluto in 2015?',o:['New Horizons','Apollo 11','A Mars rover']},
+};
+const SOLAR_ORDER=['sun','mercury','venus','earth','moon','mars','belt','jupiter','saturn','uranus','neptune','pluto'];
+const PLANETS8=['mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'];
+/* average temperatures used for the hottest-to-coldest line-up (°F) */
+const TEMP_F={mercury:333,venus:867,earth:59,mars:-85,jupiter:-166,saturn:-220};
+
+/* Line-Up sets, one per level. dir 1 = smallest value first. */
+const LINEUPS=[
+  {key:'au',dir:1,items:PLANETS8,ask:'closest to the Sun → farthest',first:'Closest',last:'Farthest',
+    show:id=>`${SOLAR[id].au} AU`,hint:'The four rocky planets come first, then the giants.'},
+  {key:'xE',dir:1,items:PLANETS8,ask:'smallest → biggest',first:'Smallest',last:'Biggest',close:[['venus','earth'],['uranus','neptune']],
+    show:id=>`${SOLAR[id].xE} × Earth`,hint:'Mercury is the smallest planet, and Jupiter is the biggest.'},
+  {key:'au',dir:1,items:[...PLANETS8,'belt','pluto'],ask:'closest to the Sun → farthest',first:'Closest',last:'Farthest',
+    show:id=>`${SOLAR[id].auText||SOLAR[id].au} AU`,hint:'The asteroid belt sits between Mars and Jupiter. Pluto is past Neptune.'},
+  {key:'temp',dir:-1,items:['venus','mercury','earth','mars','jupiter','saturn'],ask:'hottest → coldest',first:'Hottest',last:'Coldest',
+    show:id=>`${TEMP_F[id]<0?'−'+(-TEMP_F[id]):TEMP_F[id]} °F`,hint:'The hottest one is not the closest one. Thick air traps heat.'},
+  {key:'g',dir:1,items:['pluto','moon','mars','saturn','earth','neptune','jupiter'],ask:'weakest pull → strongest pull',first:'Weakest',last:'Strongest',
+    show:id=>`${SOLAR[id].g} × Earth`,hint:'Big does not always mean strong pull at the cloud tops. Saturn pulls a little less than Earth.'},
+];
+function lineValue(set,id){return set.key==='temp'?TEMP_F[id]:SOLAR[id][set.key];}
+function lineAnswer(set,ids){return ids.slice().sort((a,b)=>set.dir*(lineValue(set,a)-lineValue(set,b)));}
+
+/* Weigh-In: rules people can do in their head, from the gravity ratios. */
+const WEIGH_RULES={
+  moon6:{world:'moon',txt:'about 1/6 as hard',how:'divide by 6',f:w=>w/6},
+  mars38:{world:'mars',txt:'about 3/8 as hard',how:'divide by 8, then times 3',f:w=>w/8*3},
+  merc38:{world:'mercury',txt:'about 3/8 as hard',how:'divide by 8, then times 3',f:w=>w/8*3},
+  pluto16:{world:'pluto',txt:'about 1/16 as hard',how:'divide by 16',f:w=>w/16},
+  jup24:{world:'jupiter',txt:'about 2.4 times as hard',how:'times 2.4',f:w=>w*2.4},
+  ven09:{world:'venus',txt:'about 0.9 times as hard',how:'times 0.9',f:w=>w*0.9},
+  sat09:{world:'saturn',txt:'about 0.9 times as hard',how:'times 0.9',f:w=>w*0.9},
+  ura09:{world:'uranus',txt:'about 0.9 times as hard',how:'times 0.9',f:w=>w*0.9},
+  nep11:{world:'neptune',txt:'about 1.1 times as hard',how:'times 1.1',f:w=>w*1.1},
+  mars038:{world:'mars',txt:'0.38 times as hard',how:'times 0.38',f:w=>w*0.38},
+  nep112:{world:'neptune',txt:'1.12 times as hard',how:'times 1.12',f:w=>w*1.12},
+  jup236:{world:'jupiter',txt:'2.36 times as hard',how:'times 2.36',f:w=>w*2.36},
+};
+const WEIGH_THINGS=[[0,['a science camera','a toolbox','a crate of seeds for a space garden','a space helmet']],[40,['a box of station supplies','a space-suit backpack','a repair robot','a telescope mirror']],[120,['a moon rover','a full water tank','a station hatch door','a big solar panel']]];
+function weighThing(w){let list=WEIGH_THINGS[0][1];WEIGH_THINGS.forEach(([min,l])=>{if(w>=min)list=l;});return pick(list);}
+function makeWeigh(L){
+  const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+  let rule,w;
+  if(L===0){rule='moon6';w=6*r(2,15);}
+  else if(L===1){rule=Math.random()<.4?'moon6':(Math.random()<.5?'mars38':'merc38');w=rule==='moon6'?6*r(10,25):8*r(2,12);}
+  else if(L===2){rule=pick(['mars38','pluto16','jup24']);w=rule==='mars38'?8*r(5,15):rule==='pluto16'?16*r(2,9):5*r(2,20);}
+  else if(L===3){rule=pick(['ven09','sat09','ura09','nep11','jup24']);w=r(12,95);}
+  else{rule=pick(['mars038','nep112','jup236']);w=pick([25,50,75,100,150,200]);}
+  const R=WEIGH_RULES[rule];const ans=Math.round(R.f(w)*1000)/1000;
+  return {rule,world:R.world,w,ans,thing:weighThing(w),dec:L>=3};
+}
+
+/* Scale Walk */
+const WALK_AU0={earth:1,jupiter:5,saturn:10,uranus:19,neptune:30,pluto:40};          // first level: whole-number AU
+const WALK_AU1={mercury:0.4,venus:0.7,earth:1,mars:1.5,jupiter:5.2,saturn:9.6,uranus:19.2,neptune:30.2,pluto:39.5}; // one decimal
+const SIZE_X={jupiter:11,saturn:9.5,uranus:4,mars:0.5,moon:0.25,sun:109};
+function makeWalk(L){
+  if(L===0){const id=pick(Object.keys(WALK_AU0));return {kind:'steps',id,per:2,au:WALK_AU0[id],ans:WALK_AU0[id]*2};}
+  if(L===1){const id=pick(Object.keys(WALK_AU1));return {kind:'steps',id,per:10,au:WALK_AU1[id],ans:Math.round(WALK_AU1[id]*10)};}
+  if(L===2){const pairs=[['venus','earth'],['earth','mars'],['mars','jupiter'],['jupiter','saturn'],['saturn','uranus'],['uranus','neptune'],['earth','jupiter'],['neptune','pluto']];
+    const [a,b]=pick(pairs);return {kind:'gap',a,b,per:10,ans:Math.round(WALK_AU1[b]*10)-Math.round(WALK_AU1[a]*10)};}
+  if(L===3){const id=pick(Object.keys(SIZE_X));const e=id==='mars'||id==='moon'?4:2;return {kind:'size',id,earthCm:e,x:SIZE_X[id],ans:Math.round(e*SIZE_X[id]*100)/100};}
+  const id=pick(['mercury','venus','mars','jupiter','saturn','neptune']);const au={mercury:0.4,venus:0.7,mars:1.5,jupiter:5.2,saturn:9.6,neptune:30}[id];
+  return {kind:'km',id,au,ans:Math.round(au*150)};
+}
+
+/* Paper mission: Sidewalk Solar System. Steps from the Sun for each stop. */
+const WALK_PLANS=[
+  {per:1,where:'a driveway or sidewalk',stepSize:'one giant step for each AU'},
+  {per:2,where:'a long sidewalk',stepSize:'two giant steps for each AU'},
+  {per:2,where:'a long sidewalk',stepSize:'two giant steps for each AU'},
+  {per:10,where:'a park path (with a grown-up)',stepSize:'ten giant steps for each AU'},
+  {per:10,where:'a park path (with a grown-up)',stepSize:'ten giant steps for each AU'},
+];
+const WALK_STOPS=['mercury','venus','earth','mars','belt','jupiter','saturn','uranus','neptune','pluto'];
+function walkSteps(per,id){const au=id==='belt'?2.7:SOLAR[id].au;const s=au*per;return s<3?Math.round(s*4)/4:per===1?Math.round(s*2)/2:Math.round(s);}
+/* At this scale, how big is the Sun? A giant step is about 0.6 m; the Sun is 0.0093 AU wide. */
+const SUN_AU=1392700/149600000, EARTH_AU=12756/149600000, JUP_AU=142984/149600000;
+function scaleSizes(per){const m=per*0.6;return {sunMm:SUN_AU*m*1000,earthMm:EARTH_AU*m*1000,jupMm:JUP_AU*m*1000};}
+
+/* =================== SOLAR SYSTEM TOUR (Priya) · batch 8 =================== */
+/* comic planet art, 100×100 viewBox, thick ink outline */
+let ART_N=0;
+function planetArt(id,size=64){
+  const n=++ART_N, cp=`pc${n}`, ink='#05060F';
+  const round=(fill,inner='',r=40)=>`<defs><clipPath id="${cp}"><circle cx="50" cy="50" r="${r}"/></clipPath></defs>
+    <circle cx="50" cy="50" r="${r}" fill="${fill}"/><g clip-path="url(#${cp})">${inner}<circle cx="${50+r*.42}" cy="${50+r*.42}" r="${r*1.02}" fill="none" stroke="rgba(0,0,0,.26)" stroke-width="${r*.55}"/></g>
+    <ellipse cx="${50-r*.42}" cy="${50-r*.45}" rx="${r*.22}" ry="${r*.12}" fill="rgba(255,255,255,.55)" transform="rotate(-30 ${50-r*.42} ${50-r*.45})"/>
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke="${ink}" stroke-width="4"/>`;
+  const crat=(pts,c)=>pts.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>`).join('');
+  const band=(y,h,c)=>`<rect x="0" y="${y}" width="100" height="${h}" fill="${c}"/>`;
+  let s='';
+  switch(id){
+    case 'sun':{let rays='';for(let i=0;i<12;i++){const a=i*Math.PI/6,c=Math.cos(a),d=Math.sin(a);
+        rays+=`<path d="M${50+c*33-d*7} ${50+d*33+c*7} L${50+c*47} ${50+d*47} L${50+c*33+d*7} ${50+d*33-c*7}Z" fill="#F26B1D" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/>`;}
+      s=rays+round('#FFD23F',crat([[40,58,5],[60,40,4],[58,64,3]],'#FFE27A'),32);break;}
+    case 'mercury':s=round('#A9A3A0',crat([[38,40,7],[60,58,9],[44,66,5],[66,34,4],[30,58,3]],'#8C8682'),30);break;
+    case 'venus':s=round('#E8C27A',band(26,8,'#F3DCA4')+band(46,10,'#D9A85B')+band(66,7,'#F3DCA4'),38);break;
+    case 'earth':s=round('#3FA7F5',`<path d="M26 34c8-6 18-4 20 4s-6 10-4 18-8 12-14 6-10-22-2-28z" fill="#5BE08A" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/><path d="M58 50c6-4 16 0 18 8s-8 16-14 12-10-16-4-20z" fill="#5BE08A" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/><path d="M30 26q14-6 26 0M52 78q12 4 22-4" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`,40);break;
+    case 'moon':s=round('#C9C6BE',crat([[38,38,7],[62,56,8],[42,66,5],[64,34,4]],'#A9A59B'),30);break;
+    case 'mars':s=round('#D9572B',`<path d="M24 52c10-4 16 6 26 2s14-10 26-4" stroke="#A33A1A" stroke-width="7" fill="none" stroke-linecap="round"/><ellipse cx="62" cy="68" rx="9" ry="5" fill="#A33A1A"/><ellipse cx="50" cy="14" rx="18" ry="8" fill="#FFF4E6"/>`,34);break;
+    case 'belt':{const rocks=[[22,64,7,'#9C8B7A'],[38,50,9,'#B39E86'],[56,58,6,'#8A7B6C'],[70,44,8,'#A8927A'],[84,36,5,'#9C8B7A'],[30,40,4,'#B39E86'],[62,30,5,'#8A7B6C'],[48,72,5,'#A8927A'],[78,62,4,'#B39E86']];
+      s=rocks.map(([x,y,r,c],i)=>{let p='';for(let k=0;k<7;k++){const a=k*2*Math.PI/7+i,rr=r*(0.78+((i*7+k*3)%5)*0.08);p+=(k?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1);}
+        return `<path d="${p}Z" fill="${c}" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/>`;}).join('');break;}
+    case 'jupiter':s=round('#E9C9A0',band(18,8,'#B9774E')+band(32,6,'#F4E1C4')+band(42,9,'#C98A5C')+band(58,6,'#F4E1C4')+band(68,8,'#B9774E')+band(80,6,'#D9A97E')+`<ellipse cx="62" cy="62" rx="10" ry="6" fill="#C4492F" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>`,40);break;
+    case 'saturn':{const ring=(half)=>`<path d="M${half==='back'?'8 50 A42 12 0 0 1 92 50':'8 50 A42 12 0 0 0 92 50'}" fill="none" stroke="${ink}" stroke-width="12" stroke-linecap="round"/><path d="M${half==='back'?'8 50 A42 12 0 0 1 92 50':'8 50 A42 12 0 0 0 92 50'}" fill="none" stroke="#E6CF96" stroke-width="6" stroke-linecap="round"/>`;
+      s=`<g transform="rotate(-14 50 50)">${ring('back')}</g>`+round('#EBCB8B',band(30,7,'#D2A962')+band(46,8,'#F4E1B8')+band(62,7,'#D2A962'),27)+`<g transform="rotate(-14 50 50)">${ring('front')}</g>`;break;}
+    case 'uranus':s=`<ellipse cx="50" cy="50" rx="7" ry="46" fill="none" stroke="#C9F2F2" stroke-width="2.5" opacity=".9"/>`+round('#9EE6E6',band(40,6,'#B8EEEE'),33);break;
+    case 'neptune':s=round('#3B63D9',`<ellipse cx="40" cy="58" rx="9" ry="5" fill="#22378A"/><path d="M50 40q10-4 22 0" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/>`+band(68,5,'#5A82EC'),32);break;
+    case 'pluto':s=round('#D8B89A',`<path d="M54 58c-6-8-16-6-16 2 0 6 8 10 16 16 8-6 16-10 16-16 0-8-10-10-16-2z" fill="#F7EBDD"/>`+crat([[34,38,4],[62,36,3]],'#B8957A'),24);break;
+  }
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true" focusable="false">${s}</svg>`;
+}
+function artEl(id,size){const sp=el('span',{class:'part'});sp.innerHTML=planetArt(id,size);return sp;}
+function solarName(id){return SOLAR[id].short||SOLAR[id].name;}
+
+let SOLMODE='files';
+function solarState(){S.solar=Object.assign({seen:[],stamped:[],paper:false,filesDone:false},S.solar||{});
+  if(S.solar.filesDone&&S.solar.stamped.length<SOLAR_ORDER.length)S.solar.stamped=SOLAR_ORDER.slice();return S.solar;}
+function startSolar(){
+  const L=level();solarState();buildDial();
+  if(SOLMODE==='files'){$('#dial').hidden=true;$('#peek').textContent='Planet Files are the same at every level. The level dial comes back in the other tabs.';}
+  if(SOLMODE==='files'||SOLMODE==='paper'){
+    const st=$('#stage');st.textContent='';keyHandler=null;
+    st.append(modeTabs(SOL_MODES,SOLMODE,k=>{SOLMODE=k;stopTimers();startSolar();}));
+    return SOLMODE==='files'?solarFiles(st):solarPaper(st,L);
+  }
+  const rounds={order:3,weigh:5,walk:5};
+  const titles={order:'Planets lined up!',weigh:'Weigh-in done!',walk:'Scale walk done!'};
+  let orderN=0;
+  runZone({modes:SOL_MODES,mode:SOLMODE,setMode:k=>SOLMODE=k,round:rounds[SOLMODE],title:titles[SOLMODE],
+    make:()=>SOLMODE==='order'?makeLineup(L,orderN++):SOLMODE==='weigh'?makeWeigh(L):makeWalk(L),
+    play:(T,w,p,d)=>{const d2=ok=>d(ok,'next');return SOLMODE==='order'?lineupTask(T,w,p,d2):SOLMODE==='weigh'?weighTask(T,w,p,d2):walkTask(T,w,p,d2);},
+    finishLines:(r,c)=>[SOLMODE==='order'?`${r} line-ups done.`:SOLMODE==='weigh'?`${r} weigh-ins done.`:`${r} scale problems done.`,`${c} of ${r} with no hints.`],
+    again:startSolar});
+}
+const SOL_MODES=[['files','Planet Files'],['order','Line-Up'],['weigh','Weigh-In'],['walk','Scale Walk'],['paper','Paper mission']];
+
+/* ---------- Planet Files (browse) ---------- */
+function solarFiles(st){
+  const sol=solarState();let cur=sol.lastFile||'sun';
+  const strip=el('div',{class:'sol-strip',role:'group','aria-label':'Pick a world'});
+  const card=el('div',{class:'panel work sol-card'});
+  const count=el('div',{class:'stat'});
+  const paintStrip=()=>{strip.textContent='';SOLAR_ORDER.forEach(id=>strip.append(el('button',{type:'button',class:'sol-pick'+(id===cur?' on':'')+(sol.stamped.includes(id)?' seen':''),'aria-pressed':String(id===cur),
+      onclick:()=>{SFX.tap();cur=id;show();}},artEl(id,52),el('span',{},solarName(id)))));
+    count.textContent='';count.append('Files stamped: ',el('b',{},`${sol.stamped.length} of ${SOLAR_ORDER.length}`));};
+  const show=()=>{const P=SOLAR[cur];sol.lastFile=cur;
+    if(!sol.seen.includes(cur)){sol.seen.push(cur);}
+    save();paintStrip();$('#starCount').textContent=S.stars;
+    const rows=[];
+    if(P.xE!=null)rows.push(['Width',cur==='earth'?`${P.km} km`:`${P.xE} × Earth (${P.km} km)`]);
+    if(cur==='moon')rows.push(['From Earth','about 384,000 km']);
+    else if(cur==='belt')rows.push(['From the Sun',`${P.auText} AU`]);
+    else if(cur!=='sun')rows.push(['From the Sun',`${P.au} AU (about ${withCommas(P.mkm)} million km)`]);
+    if(P.g!=null)rows.push(['Scale reading',cur==='earth'?'100 on Earth reads 100':`100 on Earth reads ${fmtNum(P.g*100)}`]);
+    if(P.tempF)rows.push([cur==='sun'?'Surface temperature':'Average temperature',`${P.tempF} °F (${P.tempC} °C)`]);
+    const more=el('div',{class:'sol-more',hidden:true},P.more.map(m=>el('p',{},m)));
+    const moreBtn=el('button',{class:'chip',type:'button','aria-expanded':'false',onclick:()=>{SFX.tap();more.hidden=!more.hidden;moreBtn.setAttribute('aria-expanded',String(!more.hidden));moreBtn.textContent=more.hidden?'Tell me more':'Show less';}},'Tell me more');
+    card.textContent='';
+    card.append(el('div',{class:'sol-head'},artEl(cur,120),el('div',{},el('h2',{class:'sol-title'},P.name),el('span',{class:'sol-kind'},P.kind),el('p',{class:'sol-line'},P.line))),
+      sizeCompare(cur),
+      el('dl',{class:'sol-facts'},rows.flatMap(([k,v])=>[el('dt',{},k),el('dd',{},v)])),
+      el('div',{},moreBtn),more);
+    const chk=el('div',{class:'fcheck'});
+    const stamped=()=>{chk.textContent='';chk.append(el('span',{class:'stamp'},'File stamped ✓'));};
+    if(sol.stamped.includes(cur))stamped();
+    else{const Q=FILE_Q[cur],opts=el('div',{class:'opts'});
+      shuffle(Q.o).forEach(o=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
+        if(o!==Q.o[0]){anim(b,'wiggle');SFX.no();b.disabled=true;more.hidden=false;moreBtn.setAttribute('aria-expanded','true');moreBtn.textContent='Show less';
+          say('enc','Not that one. The answer is in this file. Read it again, then pick.');return;}
+        sol.stamped.push(cur);let bonus=false;if(!sol.filesDone&&sol.stamped.length===SOLAR_ORDER.length){sol.filesDone=true;award(3);bonus=true;}
+        save();paintStrip();$('#starCount').textContent=S.stars;stamped();
+        if(bonus){card.append(el('div',{class:'factbox'},el('b',{},'Every file stamped! '),'+3 stars for exploring the whole solar system.'));SFX.win();say('cheer','You have stamped every file. A true space explorer!');}
+        else{SFX.ok();sayLine('cheer','File stamped!');}}},o)));
+      chk.append(el('div',{class:'label',style:'color:var(--cyan)'},'File check'),el('div',{class:'prompt'},Q.q),opts);}
+    card.append(chk);
+    say('hero',pick([`${P.name}. Read the file, then answer the file check to stamp it.`,'Tap Tell me more for the best facts.','Compare its size with Earth.']));
+  };
+  st.append(el('div',{class:'prompt'},'Tap a world to open its file.'),strip,count,card);show();
+}
+/* size bar: Earth next to the world, drawn to scale (the Sun is shown as a huge curve) */
+function sizeCompare(id){
+  const P=SOLAR[id];if(P.xE==null||id==='earth')return el('span',{});
+  const box=el('div',{class:'sol-size'});const W=520,H=160;
+  let svg;
+  if(id==='sun'){const eR=1.2,sR=eR*109;svg=`<circle cx="${-sR+170}" cy="${H/2}" r="${sR}" fill="#FFD23F" stroke="#05060F" stroke-width="4"/><circle cx="300" cy="${H/2}" r="${Math.max(eR,2)}" fill="#3FA7F5" stroke="#05060F" stroke-width="1"/><circle cx="300" cy="${H/2}" r="10" fill="none" stroke="#7FE9FF" stroke-width="2" stroke-dasharray="3 3"/><text x="300" y="${H/2-20}" class="sz">Earth (the dot in the ring!)</text><text x="90" y="${H/2+5}" class="sz dark">Sun</text>`;}
+  else{const big=Math.max(1,P.xE);const R=Math.min(58,H/2-22)/big;const eR=R*1,pR=R*P.xE;
+    const used=2*eR+30+2*pR,ex=(W-used)/2+eR,px=ex+eR+30+pR;
+    svg=`<circle cx="${ex}" cy="${H/2}" r="${Math.max(eR,1.5)}" fill="#3FA7F5" stroke="#05060F" stroke-width="${eR>6?3:1}"/><text x="${ex}" y="${H/2-Math.max(eR,2)-8}" class="sz">Earth</text>
+      <circle cx="${px}" cy="${H/2}" r="${Math.max(pR,1.5)}" fill="${{mercury:'#A9A3A0',venus:'#E8C27A',moon:'#C9C6BE',mars:'#D9572B',jupiter:'#E9C9A0',saturn:'#EBCB8B',uranus:'#9EE6E6',neptune:'#3B63D9',pluto:'#D8B89A'}[id]}" stroke="#05060F" stroke-width="${pR>6?3:1}"/><text x="${px}" y="${H/2-Math.max(pR,2)-8}" class="sz">${solarName(id)}</text>`;}
+  box.innerHTML=`<div class="label">Size compared with Earth</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escAttr(solarName(id))} next to Earth, to scale">${svg}</svg>`;
+  return box;
+}
+function escAttr(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---------- Line-Up ---------- */
+function makeLineup(L,n){
+  const set=LINEUPS[L];const all=set.items;const size=n>=2?all.length:Math.min(all.length,n===0?4:5);
+  for(let t=0;t<60;t++){const ids=shuffle(all).slice(0,size);
+    if(size<all.length&&set.close&&set.close.some(([a,b])=>ids.includes(a)&&ids.includes(b)))continue;
+    return {set,ids};}
+  return {set,ids:shuffle(all).slice(0,size)};
+}
+function lineupTask(T,work,padWrap,done){
+  const {set}=T;const answer=lineAnswer(set,T.ids);const N=answer.length;
+  const slots=Array(N).fill(null),locked=Array(N).fill(false);let tries=0;
+  const slotRow=el('div',{class:'lu-slots'});const pool=el('div',{class:'lu-pool'});
+  const check=el('button',{class:'btn',type:'button',disabled:true},'Check order');
+  const ends=el('div',{class:'lu-ends'},el('span',{},'← '+set.first),el('span',{},set.last+' →'));
+  const paint=()=>{slotRow.textContent='';pool.textContent='';
+    slots.forEach((id,i)=>slotRow.append(el('button',{type:'button',class:'lu-slot'+(id?' full':'')+(locked[i]?' right':''),'aria-label':id?`Spot ${i+1}: ${solarName(id)}${locked[i]?', correct':''}. Tap to take it back.`:`Spot ${i+1}: empty`,
+      onclick:()=>{if(!id||locked[i])return;SFX.tap();slots[i]=null;paint();}},el('span',{class:'lu-n'},String(i+1)),id?artEl(id,46):el('span',{class:'lu-empty'},'?'),id?el('span',{class:'lu-name'},solarName(id)):'')));
+    T.ids.filter(id=>!slots.includes(id)).forEach(id=>pool.append(el('button',{type:'button',class:'lu-item',onclick:()=>{const k=slots.indexOf(null);if(k<0)return;SFX.tap();slots[k]=id;paint();}},artEl(id,46),el('span',{},solarName(id)))));
+    check.disabled=slots.includes(null);};
+  check.onclick=()=>{if(slots.includes(null))return;let wrong=0;
+    slots.forEach((id,i)=>{if(id===answer[i])locked[i]=true;else{wrong++;slots[i]=null;}});
+    if(!wrong){SFX.ok();check.disabled=true;paint();slotRow.querySelectorAll('.lu-slot').forEach(b=>b.disabled=true);
+      const tbl=el('div',{class:'lu-reveal'},answer.map(id=>el('div',{},artEl(id,30),el('b',{},solarName(id)),el('span',{},set.show(id)))));
+      work.append(tbl);sayLine('cheer',tries?'Got them all in order.':'Perfect order on the first try!');done(tries===0);return;}
+    tries++;SFX.no();anim(slotRow,'wiggle');paint();
+    say(tries===1?'enc':'hint',tries===1?`${N-wrong} of ${N} are in the right spot, and they stay locked. Try the others again.`:`${set.hint} ${N-wrong} of ${N} are locked in.`);};
+  work.append(el('div',{class:'prompt'},`Line them up: ${set.ask}.`),ends,slotRow,el('div',{class:'label'},'Tap a world to put it in the next spot'),pool,el('div',{},check));
+  paint();say('hero',`${N} worlds. Put them in order, ${set.ask}.`);
+}
+
+/* ---------- Weigh-In ---------- */
+function weighTask(T,work,padWrap,done){
+  const R=WEIGH_RULES[T.rule],W=SOLAR[T.world];let tries=0;
+  const inp=numInput({dot:T.dec,max:7,onCheck:s=>{
+    if(sameNum(s,T.ans)){inp.box.classList.add('right');anim(inp.box,'pop');SFX.ok();keyHandler=null;
+      const first=!S.solar.massTip;S.solar.massTip=true;save();
+      work.append(el('div',{class:'factbox'},first?[el('b',{},'Same stuff, different pull. '),'Things have the same amount of stuff (mass) on every world. The scale changes because each world pulls with a different strength (gravity).']
+        :[el('b',{},`${W.name}: `),`a scale ${['jupiter','saturn','uranus','neptune'].includes(T.world)?'floating at the cloud tops would read':'there reads'} ${fmtNum(W.g*100)} for every 100 on Earth.`]));
+      sayLine('cheer');done(tries===0);return;}
+    tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();
+    if(tries===1)say('enc',`${W.name} pulls ${R.txt} as Earth. So ${R.how}.`);
+    else{say('hint',`${withCommas(T.w)}, ${R.how}: ${fmtNum(T.ans)}. Type ${fmtNum(T.ans)}.`);}
+  }});
+  inp.box.dataset.ans=String(T.ans);
+  const scale=(world,val,q)=>el('div',{class:'wi-side'},artEl(world,70),el('div',{class:'wi-name'},SOLAR[world].short||SOLAR[world].name),
+    el('div',{class:'wi-scale'+(q?' q':'')},q?inp.box:el('span',{},withCommas(val)),el('small',{},'pounds')));
+  work.append(el('div',{class:'prompt'},`${cap(T.thing)} weighs ${withCommas(T.w)} pounds on Earth. What would a scale read on ${W.short?'the '+W.short:W.name}?`),
+    el('div',{class:'wi-row'},scale('earth',T.w,false),el('div',{class:'wi-arrow','aria-hidden':'true'},'→'),scale(T.world,null,true)),
+    el('div',{class:'stat'},`${W.short?'The '+W.short:W.name} pulls `,el('b',{},R.txt),' as Earth.'));
+  padWrap.append(inp.pad);say('hero',T.dec?'Watch the decimal point. Estimate first, then work it out.':`Think: ${R.how}.`);
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+/* ---------- Scale Walk ---------- */
+function ribbon(highlight,{per=0,maxAU=41}={}){
+  const W=640,H=124,M=26,X=au=>M+au/maxAU*(W-2*M);
+  const ids=['mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto'];
+  let s=`<rect width="${W}" height="${H}" rx="8" fill="#070A1F"/><line x1="${M}" y1="72" x2="${W-M}" y2="72" class="rb-line"/>`;
+  for(let a=0;a<=maxAU;a+=5)s+=`<line x1="${X(a)}" y1="66" x2="${X(a)}" y2="78" class="rb-tick"/><text x="${X(a)}" y="98" class="rb-num">${a}</text>`;
+  for(let k=0;k<7;k++)s+=`<circle cx="${(X(2.2)+(X(3.2)-X(2.2))*k/6).toFixed(1)}" cy="${72+[-6,4,-2,7,-7,2,5][k]}" r="1.8" fill="#B39E86"/>`;
+  if(!highlight.some(id=>SOLAR[id].au<4))s+=`<text x="16" y="24" class="rb-lab" style="text-anchor:start">4 inner planets</text><line x1="${X(0.8)}" y1="30" x2="${X(0.8)}" y2="60" class="rb-tick"/>`;
+  s+=`<circle cx="${M}" cy="72" r="9" fill="#FFD23F" stroke="#05060F" stroke-width="3"/>`;
+  ids.forEach((id,i)=>{const on=highlight.includes(id);const x=X(SOLAR[id].au);
+    s+=`<circle cx="${x}" cy="72" r="${on?8:4.5}" fill="${on?'#7FE9FF':'#C3CBEE'}" stroke="#05060F" stroke-width="${on?3:1.5}"/>`;
+    if(on||SOLAR[id].au>4)s+=`<text x="${x}" y="${on?46:54}" class="rb-lab${on?' on':''}">${solarName(id)}</text>`;});
+  s+=`<text x="${W-M}" y="118" class="rb-unit">AU from the Sun${per?` · ${per} step${per===1?'':'s'} per AU`:''}</text>`;
+  const box=el('div',{class:'sky rb'});box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Distance ribbon from the Sun out to Pluto">${s}</svg>`;return box;
+}
+function walkTask(T,work,padWrap,done){
+  let tries=0,prompt,hint1,hint2,visual,unit;
+  const P=id=>SOLAR[id].short||SOLAR[id].name;
+  if(T.kind==='steps'){prompt=`Sidewalk model: ${T.per} giant steps for every AU. ${P(T.id)} is about ${T.au} AU from the Sun. How many steps from the Sun?`;
+    hint1=`Multiply the AU by ${T.per}.`;hint2=`${T.au} × ${T.per} = ${T.ans}.`;visual=ribbon([T.id],{per:T.per});unit='steps';}
+  else if(T.kind==='gap'){const sa=Math.round(WALK_AU1[T.a]*10),sb=Math.round(WALK_AU1[T.b]*10);
+    prompt=`10 steps per AU: ${P(T.a)} is ${sa} steps from the Sun and ${P(T.b)} is ${sb} steps. How many steps from ${P(T.a)} to ${P(T.b)}?`;
+    hint1='Take the smaller number away from the bigger one.';hint2=`${sb} − ${sa} = ${T.ans}.`;visual=ribbon([T.a,T.b],{per:10});unit='steps';}
+  else if(T.kind==='size'){const what=T.id==='sun'?'The Sun':P(T.id);const xs=T.x===0.5?'about half as wide as':T.x===0.25?'about a quarter as wide as':`about ${T.x} times as wide as`;
+    prompt=`Model: Earth is a ball ${T.earthCm} cm wide. ${what} is ${xs} Earth. How wide is its ball?`;
+    hint1=T.x<1?`${T.x===0.5?'Half':'A quarter'} of ${T.earthCm} cm.`:`${T.earthCm} × ${T.x}.`;hint2=`${T.earthCm} × ${T.x} = ${fmtNum(T.ans)} cm.`;visual=sizeCompare(T.id);unit='cm';}
+  else{prompt=`1 AU is about 150 million km. ${P(T.id)} is about ${T.au} AU from the Sun. How many million km is that?`;
+    hint1='Multiply the AU by 150.';hint2=`${T.au} × 150 = ${T.ans}.`;visual=ribbon([T.id]);unit='million km';}
+  const inp=numInput({dot:T.kind==='size',max:6,onCheck:s=>{
+    if(sameNum(s,T.ans)){inp.box.classList.add('right');anim(inp.box,'pop');SFX.ok();keyHandler=null;
+      const tip=T.kind==='gap'&&['saturn','uranus','neptune','pluto'].includes(T.b)?'Out past Jupiter, the gaps get huge. The outer planets are lonely!'
+        :T.kind==='size'&&T.id==='sun'?'A 218 cm ball is taller than a grown-up. And Earth is just a marble!'
+        :T.kind==='km'?`Real average: about ${withCommas(SOLAR[T.id].mkm)} million km.`
+        :`${P(T.id||T.b)}: ${SOLAR[T.id||T.b].line}`;
+      work.append(el('div',{class:'factbox'},tip));sayLine('cheer');done(tries===0);return;}
+    tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();say(tries===1?'enc':'hint',tries===1?hint1:`${hint2} Type ${fmtNum(T.ans)}.`);}});
+  inp.box.dataset.ans=String(T.ans);
+  work.append(el('div',{class:'prompt'},prompt),visual,el('div',{class:'row'},inp.box,el('span',{class:'eq'},unit)));
+  padWrap.append(inp.pad);say('hero',T.kind==='size'?'Sizes first, then multiply.':'Look at the ribbon. Everything in the inner solar system is squeezed close to the Sun!');
+}
+
+/* ---------- Paper mission: Sidewalk Solar System ---------- */
+function halfStr(x){const w=Math.floor(x),f=Math.round((x-w)*4);return (w?String(w):'')+['','¼','½','¾'][f]||'0';}
+function solarPaper(st,L){
+  const plan=WALK_PLANS[L],sz=scaleSizes(plan.per);const sol=solarState();
+  const sunLike=plan.per===1?'a peppercorn':plan.per===2?'a blueberry':'a lime';
+  const earthLike=plan.per===1?'about as thin as a hair':plan.per===2?'a speck of dust':'a grain of sand';
+  const jupLike=plan.per===1?'a grain of sand':plan.per===2?'a poppy seed':'a peppercorn';
+  const rows=WALK_STOPS.map(id=>el('tr',{},el('td',{},artEl(id,30)),el('th',{scope:'row'},solarName(id)),el('td',{},halfStr(walkSteps(plan.per,id)))));
+  const doneBtn=el('button',{class:'btn teal',type:'button',onclick:()=>{SFX.win();if(!sol.paper){sol.paper=true;award(2);}save();$('#starCount').textContent=S.stars;
+    doneBtn.disabled=true;doneBtn.textContent=sol.paper?'Mission logged ★':'Mission logged';say('cheer','Mission logged! Did the outer planets feel far away?');}},sol.paper?'Do it again!':'We did it! (+2 ★)');
+  st.append(el('div',{class:'panel work paper'},
+    el('div',{class:'paper-top'},el('h2',{class:'sol-title'},'Sidewalk Solar System'),el('span',{class:'sol-kind'},'Outdoors · about 20 minutes')),
+    el('p',{},`Walk the solar system to scale on ${plan.where}: ${plan.stepSize}.`),
+    el('div',{class:'label'},'You need'),
+    el('ul',{class:'paper-list'},['Sidewalk chalk, or paper signs and tape','A grown-up helper','A place to walk: '+plan.where].map(t=>el('li',{},t))),
+    el('div',{class:'label'},'Steps'),
+    el('ol',{class:'paper-list'},[
+      'Draw a small Sun where you start.',
+      'Walk out with giant steps, counting from the Sun. Mark each stop in the table with chalk or a sign.',
+      'At each stop, say one fact from its Planet File.',
+      'At the end, turn around and look back. How crowded are the first four planets? How empty is the rest?',
+    ].map(t=>el('li',{},t))),
+    el('table',{class:'paper-table'},el('thead',{},el('tr',{},el('td',{}),el('th',{scope:'col'},'Stop'),el('th',{scope:'col'},'Steps from the Sun'))),el('tbody',{},rows)),
+    el('div',{class:'factbox'},el('b',{},'At this scale: '),`the Sun would be about ${sz.sunMm<20?Math.round(sz.sunMm)+' mm':Math.round(sz.sunMm/10)+' cm'} wide, like ${sunLike}. Jupiter would be like ${jupLike}, and Earth would be ${earthLike}. Space is mostly empty!`),
+    el('div',{},doneBtn)));
+  say('hero',`Paper mission! ${plan.stepSize.charAt(0).toUpperCase()+plan.stepSize.slice(1)}. Turn the level dial to change the scale.`);
 }
 
 /* ---------- boot ---------- */
