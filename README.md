@@ -12,7 +12,7 @@ Open it at https://bwstroup.github.io/word-lab/build-lab/
 
 # Orbit Lab
 
-Space-station math and science: Flashcard Run, Pattern Nebula, the Fuel Depot (big addition), Number Ops (visual multiplication and division), the Shape Forge (shapes, area, volume), the Pi Vault, the Observatory (constellations, star plotting, cone slicing) and the Solar System Tour (planet files, line-ups, weigh-ins, scale walk, sidewalk paper mission), with the Orbit Lab crew, station ranks and level-up prompts.
+Space-station math and science: Flashcard Run, Pattern Nebula, the Fuel Depot (big addition), Number Ops (visual multiplication and division), the Shape Forge (shapes, area, volume), the Pi Vault, Shortcut Station (14 mental math tricks with practice), the Observatory (constellations, star plotting, cone slicing) and the Solar System Tour (planet files, line-ups, weigh-ins, scale walk, sidewalk paper mission), with the Orbit Lab crew, station ranks and level-up prompts.
 
 Open it at https://bwstroup.github.io/word-lab/orbit-lab/
 
