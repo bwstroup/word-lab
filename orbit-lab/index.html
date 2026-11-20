@@ -476,6 +476,28 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:1.5px;margin:
 .cmdq span.now{background:var(--yellow);box-shadow:0 0 0 3px var(--cyan)}
 .cmdq em{color:var(--muted);font-style:normal;font-size:15px}
 .rule:disabled:not(.right){opacity:.5}
+/* ---------- batch 12: Fact Trainer, older-zone animations ---------- */
+.blks .drop{animation:blkdrop .45s both}
+@keyframes blkdrop{from{transform:translateY(-70px) scale(.5);opacity:0}}
+.blks .split{animation:blksplit .4s both}
+@keyframes blksplit{from{transform:scale(2.4);opacity:0}}
+.ship{position:absolute;left:0;top:0;width:30px;height:40px;pointer-events:none;z-index:2}
+.rocket{overflow:hidden}
+.rocket svg.liftoff{transform:translateY(-115%);transition:transform 1.1s cubic-bezier(.5,0,.9,.4)}
+.orb-key{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--muted)}
+.orb-key::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--c);border:2px solid var(--ink)}
+.spin-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:10px 14px;border:3px solid var(--ink);border-radius:8px;background:#070A1F}
+.spin svg{display:block}
+.ft-sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ft-set{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:3px solid var(--ink);border-radius:8px;background:var(--panel)}
+.ft-set.cur{box-shadow:0 0 0 3px var(--cyan)}
+.ft-set .rank-bar{flex:none;height:16px}
+.ft-top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.ft-set small{color:var(--muted);font-size:13px}
+.ft-rules{padding:10px 14px;border:3px dashed #2C3D7E;border-radius:8px;color:var(--muted);font-size:15px}
+.ft-rules summary{cursor:pointer;font-weight:700;color:var(--cream);min-height:32px}
+.mm-card .mm-ready{font-size:12px;font-weight:800;color:var(--muted);border:2px dashed var(--muted);border-radius:999px;padding:1px 8px;margin-top:2px}
+.mm-card .mm-ready.ok{color:var(--good);border:2px solid var(--good)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -900,8 +922,8 @@ const ZONES={
     peek:['Orion, the Dippers, Cassiopeia · plot stars on a 0–8 grid · slice the cone','Adds Cygnus, Leo, the Southern Cross · plot on a 0–10 grid','Adds Lyra, Gemini, the Great Dog · read a star\'s coordinates','Adds Taurus, Scorpius, and finding bright stars · plot and read · name the slice','Challenge: all 12 constellations · four-quadrant grid with negative numbers · name the slice']},
   pi:{name:'Pi Vault',host:'pix',orb:'bands',color:'#FFD23F',ring:'#D6336C',blurb:'Memorize the digits of π, three at a time, then recite from memory.',start:startPi,
     peek:PI_GOALS.map((g,i)=>`Recite goal: ${g} digits of π${i===4?' (challenge)':''}`)},
-  mental:{name:'Shortcut Station',host:'nova',color:'#5BE08A',ring:'#FFD23F',orb:'moon',blurb:'Learn mental math tricks, like making tens. Then train your brain with no pencil.',start:startMental,
-    peek:['14 tricks with small numbers: single digits and easy 2-digit numbers','Bigger 2-digit numbers','2-digit numbers and the first 3-digit numbers','3-digit numbers, × 99 and bigger fives','Challenge: big numbers, × 25, × 50 and × 19']},
+  mental:{name:'Shortcut Station',host:'nova',color:'#5BE08A',ring:'#FFD23F',orb:'moon',blurb:'Train math facts until they are instant, learn mental math tricks, and practice estimating before you solve.',start:startMental,
+    peek:['Tricks with small numbers · estimate 2-digit sums · head or paper?','Bigger 2-digit numbers · estimate 3-digit sums and × 1-digit','First 3-digit numbers · estimate 2-digit × 2-digit','3-digit numbers and × 99 · estimate ÷ and thousands · percents in your head','Challenge: big numbers, × 25 and × 50 · estimate 3-digit × 2-digit']},
   solar:{name:'Solar System Tour',host:'priya',color:'#E9C9A0',ring:'#D6336C',group:'space',blurb:'Open a file on every world, line up the planets, weigh in on the Moon and walk the solar system to scale.',start:startSolar,
     peek:['Line up the planets from the Sun · Moon weigh-ins (÷ 6) · 2 steps per AU',
       'Line up by size · Moon and Mars weigh-ins (3/8) · 10 steps per AU',
@@ -1041,6 +1063,7 @@ const RESETS=[
   {id:'pi',label:'Pi Vault',on:true,note:()=>`${S.pi.groups*3} digits unlocked · best recite ${S.pi.best}`,run(){S.pi={groups:1,best:0};}},
   {id:'space',label:'Space Science',on:true,note:()=>{const s=S.solar||{};return `${(s.stamped||[]).length} planet files stamped · paper missions done: ${(s.paper?1:0)+Object.values(S.sci||{}).filter(z=>z.paper).length} of 5`;},run(){S.solar={seen:[],paper:false,filesDone:false};S.sci={};}},
   {id:'mm',label:'Mental math tricks',on:true,note:()=>{const n=Object.values(S.mm||{}).filter(m=>m.s).length;return `${n} of ${MM.length} tricks mastered`;},run(){S.mm={};}},
+  {id:'ft',label:'Fact Trainer progress',on:false,note:()=>{const f=(S.ft||{}).f||{};const v=Object.values(f);return `${v.length} facts started · ${v.filter(r=>r[2]>=3).length} mastered · clears the review schedule`;},run(){S.ft={pace:(S.ft||{}).pace||2,track:(S.ft||{}).track||'mul',f:{},day:0,newToday:0};}},
   {id:'levels',label:'Level picks',on:false,note:()=>{const set=Object.entries(S.levels).filter(([,v])=>v>0);return set.length?`${set.length} zone${set.length===1?'':'s'} above level 4 · resets every zone to 4`:'every zone is on level 4';},run(){S.levels={};}},
 ];
 function openGrownUps(){
@@ -1207,7 +1230,7 @@ function startPattern(){
   function node(txt){return el('div',{class:'node',style:`--k:${nodeK(txt)}`},txt);}
   function paintQ(){qNode.textContent=input||'?';qNode.classList.toggle('filled',!!input);qNode.style.setProperty('--k',nodeK(input||'?'));}
   function showJumps(){
-    jumpsRow.textContent='';P.jumps.forEach((j,i)=>{jumpsRow.append(el('span',{class:'jump',style:`grid-column:${2*i+2}/span 2`},(j>=0?'+':'')+fmtNum(j)));});
+    hopShip(box.querySelector('.track'),P.jumps);jumpsRow.textContent='';P.jumps.forEach((j,i)=>{jumpsRow.append(el('span',{class:'jump',style:`grid-column:${2*i+2}/span 2`},(j>=0?'+':'')+fmtNum(j)));});
   }
   function checkNum(){
     if(!input)return;
@@ -1298,7 +1321,7 @@ function startFuel(){
   function hint(){if(!F||col>=W)return;hinted=true;SFX.tap();const s=F.steps[col];
     say('hint',`Add the ${PLACES[col]}: ${s.digits.join(' + ')}${s.carryIn?` + ${s.carryIn} carried`:''}. Write only the ones digit of the total.`);}
   function done(){
-    if(!hinted)clean++;rocket.set(1,withCommas(F.sum));
+    if(!hinted)clean++;rocket.set(1,withCommas(F.sum));later(()=>rocket.launch(),700);
     say('cheer',`Tank full: ${withCommas(F.sum)} liters! ${pick(CREW.kofi.cheer)}`);SFX.win();
     n++;later(()=>{if(n>=ROUND)finish();else next();},1800);
   }
@@ -1325,8 +1348,11 @@ function rocketSVG(){
   <path id="flame" d="M58 256 Q70 300 82 256 Z" fill="#FFD23F" stroke="#05060F" stroke-width="3" opacity="0"/>
   <text id="fuelLabel" x="70" y="292" text-anchor="middle" font-family="Lexend, sans-serif" font-weight="800" font-size="15" fill="#FFD23F"></text></svg>`;
   const svg=wrap.firstElementChild;const r=svg.querySelector('#fuelRect'),top=svg.querySelector('#fuelTop'),fl=svg.querySelector('#flame'),lab=svg.querySelector('#fuelLabel');
-  return {svg,set(frac,label){const h=150*frac;r.setAttribute('y',220-h);r.setAttribute('height',h);top.setAttribute('y',220-h);top.setAttribute('height',Math.min(h,8));
-    fl.setAttribute('opacity',frac>=1?1:0);lab.textContent=label?label+' L':'';}};
+  let curF=0,raf=0;const draw=f=>{const h=150*f;r.setAttribute('y',220-h);r.setAttribute('height',h);top.setAttribute('y',220-h);top.setAttribute('height',Math.min(h,8));};
+  return {svg,set(frac,label){cancelAnimationFrame(raf);svg.classList.remove('liftoff');fl.setAttribute('opacity',frac>=1?1:0);lab.textContent=label?label+' L':'';
+      if(frac<=curF||SCI_CALM()){curF=frac;draw(frac);return;}
+      const from=curF,t0=performance.now();const step=now=>{const p=Math.min(1,(now-t0)/500),e=p*p*(3-2*p);curF=from+(frac-from)*e;draw(curF);if(p<1&&svg.isConnected)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);},
+    launch(){if(!SCI_CALM())svg.classList.add('liftoff');}};
 }
 
 /* =================== SHORTCUT STATION: mental math tricks (batch 10) =================== */
@@ -1415,16 +1441,16 @@ const MM=[
 ];
 const MM_GROUPS=[['Add','Adding tricks'],['Subtract','Subtracting tricks'],['Multiply','Multiplying tricks']];
 var MMCUR=null; // null = trick menu, 'mix' = mixed workout, else a trick id
-function startMental(){S.mm=S.mm||{};if(MMCUR==='mix')return mmRun(null);if(MMCUR)return mmTeach(MMCUR);mmMenu();}
+function mmTricks(){S.mm=S.mm||{};if(MMCUR==='mix')return mmRun(null);if(MMCUR)return mmTeach(MMCUR);mmMenu();}
 function mmMenu(){
-  keyHandler=null;MMCUR=null;const st=$('#stage');st.textContent='';
+  keyHandler=null;MMCUR=null;const st=$('#stage');st.textContent='';st.append(mmTabs());
   const n=MM.filter(t=>S.mm[t.id]&&S.mm[t.id].s).length;
   say('hero','Pick a trick to learn, or try the Mixed Workout. No pencil needed. These all happen in your head!');
   st.append(el('div',{class:'stat'},'Tricks mastered: ',el('b',{},`${n} of ${MM.length}`)));
   st.append(el('button',{class:'mm-card mix',type:'button',onclick:()=>{SFX.tap();MMCUR='mix';startMental();}},el('h3',{},'Mixed Workout'),el('span',{},'8 problems. You choose which trick fits each one.')));
   for(const [g,label] of MM_GROUPS){
     st.append(el('div',{class:'label'},label),el('div',{class:'mm-grid'},MM.filter(t=>t.group===g).map(t=>
-      el('button',{class:'mm-card'+(S.mm[t.id]&&S.mm[t.id].s?' done':''),type:'button','aria-label':t.name+(S.mm[t.id]&&S.mm[t.id].s?', mastered':''),onclick:()=>{SFX.tap();MMCUR=t.id;startMental();}},el('h3',{},t.name),el('span',{},t.short)))));
+      el('button',{class:'mm-card'+(S.mm[t.id]&&S.mm[t.id].s?' done':''),type:'button','aria-label':t.name+(S.mm[t.id]&&S.mm[t.id].s?', mastered':''),onclick:()=>{SFX.tap();MMCUR=t.id;startMental();}},el('h3',{},t.name),el('span',{},t.short),mmReady(t.id)))));
   }
 }
 function mmBack(){return el('button',{class:'chip',type:'button',onclick:()=>{SFX.tap();stopTimers();MMCUR=null;startMental();}},'← All tricks');}
@@ -1498,6 +1524,298 @@ function calcBox(inp,allowDec){
   const flip=()=>{S.calc=!S.calc;save();tog.setAttribute('aria-checked',String(S.calc));panel.hidden=!S.calc;SFX.tap();if(S.calc)say('hero','Calculator on. The π key types 3.14 for you.');};
   tog.onclick=flip;tog.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();}};
   return el('div',{class:'calc-wrap'},tog,panel);
+}
+
+/* =================== SHORTCUT STATION v2 (batch 12) ===================
+   Built on Bryan's "Rote math memorization rules" plan:
+   Phase 1 fact fluency (Fact Trainer: ordered sets, small batches, short daily sessions, spaced review, mastery = right and instant on 3 days),
+   Phase 2 a set moves forward at 90% instant, Phase 3 mental strategies first (Tricks), estimate first, and head-or-paper judgment. */
+var MMTAB='facts';
+const MM_TABS=[['facts','Fact Trainer'],['tricks','Tricks'],['est','Estimate First'],['sort','Head or Paper?']];
+function mmTabs(){return modeTabs(MM_TABS,MMTAB,k=>{MMTAB=k;MMCUR=null;stopTimers();startMental();});}
+function startMental(){
+  S.mm=S.mm||{};buildDial();keyHandler=null;
+  if(MMTAB==='facts'){$('#dial').hidden=true;$('#peek').textContent='The Fact Trainer sets its own pace: a few new facts a day, and old ones come back just before they would be forgotten.';return ftHome();}
+  if(MMTAB==='tricks')return mmTricks();
+  return mmJudge();
+}
+/* ---------- fact sets, in the order they should be learned ---------- */
+const FT_TRACKS=[['add','Addition'],['mul','Multiplication'],['pow','Squares and cubes'],['dh','Doubles and halves']];
+const FT_SETS=(()=>{
+  const sets=[],used=new Set();
+  const push=(id,track,name,trick,facts)=>sets.push({id,track,name,trick,facts});
+  const pair=(a,b,op,ans,how)=>{const lo=Math.min(a,b),hi=Math.max(a,b),k=lo+op+hi;if(used.has(k))return null;used.add(k);return {k,a:lo,b:hi,op,ans,how};};
+  const keep=x=>x.filter(Boolean);
+  // addition
+  push('a1','add','Doubles','doubles',keep([...Array(11)].map((_,i)=>{const a=i+2;return pair(a,a,'+',2*a,a<=5?`Two ${a}s. Count by ${a}: ${a}, ${2*a}.`:a<=9?`Think 5 + 5 = 10, and ${a-5} + ${a-5} = ${2*(a-5)}. Together ${2*a}.`:`10 + 10 = 20, and ${a-10} + ${a-10} = ${2*(a-10)}. Together ${2*a}.`);})));
+  push('a2','add','Near doubles','doubles',keep([...Array(10)].map((_,i)=>{const n=i+2;return pair(n,n+1,'+',2*n+1,`Double ${n} is ${2*n}. One more makes ${2*n+1}.`);})));
+  const a3=[[1,9],[2,8],[3,7],[4,6]].map(([a,b])=>pair(a,b,'+',10,`${a} and ${b} are partners that make 10.`));
+  for(let a=9;a>=6;a--)for(let b=2;b<a;b++)if(a+b>10)a3.push(pair(b,a,'+',a+b,`Give ${10-a} to the ${a} to make 10. That leaves ${b-(10-a)}. 10 + ${b-(10-a)} = ${a+b}.`));
+  push('a3','add','Making 10','tens',keep(a3));
+  const a4=[];for(let b=3;b<=12;b++)for(let a=2;a<b;a++){const how=b===10?`10 and ${a} more is ${10+a}.`:b>10?`${a} + 10 = ${a+10}. Then ${b-10} more: ${a+b}.`:`Start at ${b} and count on ${a}: ${a+b}.`;a4.push(pair(a,b,'+',a+b,how));}
+  push('a4','add','The rest, up to 12 + 12',null,keep(a4));
+  // multiplication
+  const T=(k,how)=>keep([...Array(11)].map((_,i)=>{const n=i+2;return pair(k,n,'×',k*n,how(n));}));
+  push('m2','mul','× 2','dd',T(2,n=>`Double ${n}: ${2*n}.`));
+  push('m5','mul','× 5','x5',T(5,n=>`${n} × 10 = ${10*n}. Half of that is ${5*n}.`));
+  push('m10','mul','× 10','zeros',T(10,n=>`Write ${n}, then a zero: ${10*n}.`));
+  push('m4','mul','× 4','dd',T(4,n=>`Double ${n} is ${2*n}. Double again: ${4*n}.`));
+  push('m9','mul','× 9','x9',T(9,n=>`${n} × 10 = ${10*n}. Take away one ${n}: ${9*n}.`));
+  push('m11','mul','× 11',null,T(11,n=>`${n} × 10 = ${10*n}. Add one more ${n}: ${11*n}.`));
+  const mh=[];for(const a of [3,6,7,8,12])for(const b of [3,6,7,8,12])if(a<=b){
+    const how=a===3?`Double ${b} is ${2*b}. One more ${b} makes ${3*b}.`:a===6?`5 × ${b} = ${5*b}. One more ${b} makes ${6*b}.`:b===12?`${a} × 10 = ${10*a} and ${a} × 2 = ${2*a}. Together ${12*a}.`:a===7&&b===7?'7 × 5 = 35 and 7 × 2 = 14. Together 49.':a===7?'7 × 4 = 28. Double it: 56. (Count 5, 6, 7, 8: 56 = 7 × 8.)':'8 × 4 = 32. Double it: 64.';
+    mh.push(pair(a,b,'×',a*b,how));}
+  push('mh','mul','The hard middle (3, 6, 7, 8, 12)','split',keep(mh));
+  // squares and cubes
+  const sq=n=>({k:'sq'+n,q:`${n} × ${n}`,ans:n*n,how:n===20?'2 × 2 = 4. Then put back two zeros: 400.':n===25?'25 × 4 = 100, so 25 × 24 = 600. One more 25 makes 625.':n<20?`${n} × 10 = ${10*n} and ${n} × ${n-10} = ${n*(n-10)}. Together ${n*n}.`:`${n} × 20 = ${20*n} and ${n} × ${n-20} = ${n*(n-20)}. Together ${n*n}.`});
+  push('sq','pow','Squares, 13 to 20','sq5',[13,14,15,16,17,18,19,20].map(sq));
+  push('cu','pow','Cubes, 2 to 10',null,[2,3,4,5,6,7,8,9,10].map(n=>({k:'cu'+n,q:`${n} × ${n} × ${n}`,ans:n**3,how:`${n} × ${n} = ${n*n}. Then ${n*n} × ${n} = ${n**3}.`})));
+  push('sqb','pow','Bonus squares, 21 to 25',null,[21,22,23,24,25].map(sq));
+  // doubles and halves to 100
+  const dbl=[],hlf=[];for(let n=13;n<=50;n++){const t=Math.floor(n/10)*10,o=n%10;
+    dbl.push({k:'d'+n,q:`Double ${n}`,ans:2*n,how:o?`Double ${t} is ${2*t}. Double ${o} is ${2*o}. Together ${2*n}.`:`Double ${n/10} tens is ${n/5} tens: ${2*n}.`});
+    const m=2*n,mt=Math.floor(m/10)*10,mo=m%10,odd=(mt/10)%2===1;
+    hlf.push({k:'h'+m,q:`Half of ${m}`,ans:n,how:!odd?(mo?`Half of ${mt} is ${mt/2}. Half of ${mo} is ${mo/2}. Together ${n}.`:`Half of ${mt/10} tens is ${mt/20} tens: ${n}.`):`Split it into ${mt-10} and ${mo+10}. Their halves are ${(mt-10)/2} and ${(mo+10)/2}. Together ${n}.`});}
+  push('dbl','dh','Doubles to 100','hd',dbl);push('hlf','dh','Halves to 100','hd',hlf);
+  return sets;
+})();
+const FT_IV=[1,1,3,7,30]; // days until a fact comes back, by box
+function ftToday(){return Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5);}
+function ftState(){if(!S.ft)S.ft={};const d={pace:2,track:'mul',f:{},day:0,newToday:0};for(const k in d)if(!(k in S.ft))S.ft[k]=d[k];return S.ft;}
+function ftStats(set){const F=ftState().f;let intro=0,auto=0,mast=0;set.facts.forEach(f=>{const r=F[f.k];if(r){intro++;if(r[4])auto++;if(r[2]>=3)mast++;}});return {n:set.facts.length,intro,auto,mast};}
+function ftForward(set){const s=ftStats(set);return s.intro===s.n&&s.auto>=Math.ceil(s.n*0.9);} // Phase 2: move on at about 90% instant
+function ftSetById(id){return FT_SETS.find(s=>s.id===id);}
+const FT_PREREQ={doubles:'a2',tens:'a3',add9:'a3',swap:'a3',dd:'m4',x5:'m5',x9:'m9',zeros:'m10',split:'mh',sq5:'sq',hd:'dbl'};
+function mmReady(id){const sid=FT_PREREQ[id];if(!sid)return null;const set=ftSetById(sid);
+  return ftForward(set)?el('span',{class:'mm-ready ok'},'Facts ready ✓'):el('span',{class:'mm-ready'},`Train first: ${set.name}`);}
+function ftPlan(track){
+  const ft=ftState(),t=ftToday(),F=ft.f,sets=FT_SETS.filter(s=>s.track===track);
+  const curI=sets.findIndex(s=>!ftForward(s)),cur=curI<0?null:sets[curI];
+  const known=[];sets.forEach(s=>s.facts.forEach(f=>{if(F[f.k])known.push(f);}));
+  const due=shuffle(known.filter(f=>F[f.k][1]<=t)).slice(0,20);
+  const newLeft=Math.max(0,4-(ft.day===t?ft.newToday:0));
+  const fresh=cur&&newLeft>0?cur.facts.filter(f=>!F[f.k]).slice(0,10):[];
+  const pad=shuffle(known.filter(f=>F[f.k][1]>t)).slice(0,Math.max(0,9-due.length));
+  return {sets,cur,due,fresh,pad,newLeft,known};
+}
+function ftHome(){
+  const ft=ftState(),st=$('#stage');st.textContent='';keyHandler=null;
+  const body=el('div',{style:'display:flex;flex-direction:column;gap:16px'});
+  const draw=()=>{body.textContent='';const P=ftPlan(ft.track),nothing=!P.due.length&&!P.fresh.length;
+    const tracks=el('div',{class:'row',role:'group','aria-label':'Which facts'},FT_TRACKS.map(([k,nm])=>el('button',{class:'chip',type:'button','aria-pressed':String(k===ft.track),onclick:()=>{SFX.tap();ft.track=k;save();draw();}},nm)));
+    const pace=el('div',{class:'row',role:'group','aria-label':'Instant means'},[[2,'2 seconds'],[1.5,'1.5 seconds (expert)']].map(([v,nm])=>el('button',{class:'chip',type:'button','aria-pressed':String(v===ft.pace),onclick:()=>{SFX.tap();ft.pace=v;save();draw();}},nm)));
+    const go=el('button',{class:'btn',type:'button',onclick:()=>{SFX.tap();ftRun(ft.track,nothing);}},nothing?'Extra practice':'Start today\'s session');
+    const list=el('div',{class:'ft-sets'});let seenCur=false;
+    P.sets.forEach(set=>{const s=ftStats(set),fw=ftForward(set),isCur=set===P.cur;if(isCur)seenCur=true;
+      const tag=s.mast===s.n?'Mastered ★':fw?'Moved forward ✓':isCur?'Learning now':seenCur?'Up next':'Learning now';
+      list.append(el('div',{class:'ft-set'+(isCur?' cur':'')},el('div',{class:'ft-top'},el('b',{},set.name),el('span',{class:'sol-kind',style:fw?'':'background:var(--navy);color:var(--muted)'},tag)),
+        el('div',{class:'rank-bar',role:'img','aria-label':`${s.auto} of ${s.n} instant`},el('i',{style:`width:${Math.round(s.auto/s.n*100)}%`})),
+        el('small',{},`${s.auto} of ${s.n} instant · ${s.mast} mastered · ${s.n-s.intro} not started`)));});
+    body.append(el('div',{class:'panel work'},el('h2',{class:'sol-title'},'Fact Trainer'),
+        el('p',{class:'sol-line'},nothing?'All caught up for today! Short daily sessions work best, so come back tomorrow. You can still do extra practice.':`Today: ${P.due.length} ${P.due.length===1?'fact':'facts'} to review${P.fresh.length?`, and up to ${P.newLeft} new ${P.newLeft===1?'one':'ones'}`:''}. About 5 minutes.`),
+        el('div',{class:'label'},'Which facts'),tracks,el('div',{class:'label'},'"Instant" means you start typing within'),pace,el('div',{},go)),
+      el('div',{class:'label'},'Sets, in learning order'),list,
+      el('details',{class:'ft-rules'},el('summary',{},'How the trainer works (for grown-ups)'),el('ul',{class:'paper-list'},[
+        'Understand first. Every new fact comes with a way to work it out slowly, before it is drilled.',
+        'Small batches. At most 4 new facts a day, mixed in with facts he already knows. Facts he answers instantly on the first try are marked as known and skipped.',
+        'Short sessions. About 5 minutes. Once a day beats half an hour twice a week.',
+        'Spaced review. A missed fact comes back tomorrow. A fact he gets right waits 1 day, then 3 days, then a week.',
+        `Mastered means right and instant on 3 different days. Instant means he starts typing within ${ft.pace} seconds. Mastered facts come back once a month.`,
+        'A set moves forward when about 90% of its facts are instant. Then the next set opens, and its matching trick is marked ready in the Tricks tab.',
+      ].map(t=>el('li',{},t)))));};
+  st.append(mmTabs(),body);draw();
+  say('hero','A few facts every day makes them instant. Then the tricks get easy.');
+}
+function ftRun(track,extra){
+  const ft=ftState(),t=ftToday(),F=ft.f,P=ftPlan(track),st=$('#stage');st.textContent='';
+  const forwardBefore=P.sets.filter(ftForward).map(s=>s.id);
+  // build the queue: two known facts, then one new try, and so on
+  const rev=extra?shuffle(P.known).slice(0,12).map(f=>({f,kind:'pad'})):[...P.due.map(f=>({f,kind:'review'})),...P.pad.map(f=>({f,kind:'pad'}))];
+  const cold=extra?[]:P.fresh.map(f=>({f,kind:'cold'}));const queue=[];
+  while(rev.length||cold.length){for(let i=0;i<2&&rev.length;i++)queue.push(rev.shift());if(cold.length)queue.push(cold.shift());}
+  if(!queue.length){MMTAB='facts';return startMental();}
+  let i=0,learn=0,knew=0,fast=0,answered=0,misses=0,input='',t0=0,t1=0,locked=false,cur=null;
+  const prog=el('div',{class:'progress count','aria-hidden':'true'}),card=el('div',{class:'fcard'}),note=el('div',{class:'status','aria-live':'polite'});
+  const back=el('button',{class:'chip',type:'button',onclick:()=>{SFX.tap();stopTimers();finish(true);}},'Stop for now');
+  st.append(el('div',{class:'row',style:'justify-content:space-between'},prog,back),el('div',{class:'card-zone'},card,note,
+    keypad({onKey:k=>{if(locked||!cur)return;if(k==='go'){if(input)check();return;}if(k!=='back'&&!/^[0-9]$/.test(k))return;if(!input&&k!=='back')t1=performance.now();input=editStr(input,k,5);paint();if(input.length>=String(cur.f.ans).length)check();}})));
+  let ansEl;
+  const paint=()=>{ansEl.textContent=input;ansEl.classList.toggle('filled',input!=='');};
+  const text=f=>f.q||(Math.random()<.5?`${f.a} ${f.op} ${f.b}`:`${f.b} ${f.op} ${f.a}`);
+  const later2=(item,gap)=>queue.splice(Math.min(queue.length,i+1+gap),0,item);
+  function show(){
+    cur=queue[i];input='';locked=false;card.className='fcard';card.textContent='';note.textContent='';
+    prog.textContent=`Card ${i+1} of ${queue.length}`;
+    ansEl=el('div',{class:'ans','aria-label':'Your answer'},'');
+    card.append(el('div',{class:'corner'},cur.kind==='cold'?'New fact: do you know it?':cur.kind==='learn'?'Learning':'Review'),el('div',{class:'q'},text(cur.f)+' ='),ansEl);
+    anim(card,'flipin');SFX.flip();t0=performance.now();t1=0;
+    if(i===0)say('hero','Type the answer as soon as you know it. No need to press Check.');
+  }
+  function teach(f,why){locked=true;card.className='fcard';card.textContent='';
+    card.append(el('div',{class:'corner'},why),el('div',{class:'q'},`${f.q||`${f.a} ${f.op} ${f.b}`} = ${f.ans}`),el('div',{class:'reveal'},f.how),
+      el('button',{class:'btn teal',type:'button',style:'font-size:22px;min-height:50px',onclick:()=>{SFX.tap();next();}},'Got it'));
+    say('hint','Read how to work it out. Understanding it first makes it stick.');}
+  function next(){i++;if(i>=queue.length)finish();else show();}
+  function check(){
+    locked=true;const f=cur.f,now=performance.now(),ok=sameNum(input,f.ans);
+    const quick=ok&&t1-t0<=ft.pace*1000&&now-t0<=ft.pace*1000+1000*String(f.ans).length;
+    answered++;if(quick)fast++;if(!ok)misses++;let r=F[f.k];
+    if(cur.kind==='cold'){
+      if(quick){knew++;F[f.k]=[2,t+3,1,t,1];}
+      else if(learn<P.newLeft){learn++;F[f.k]=[0,t+1,0,-1,0];later2({f,kind:'learn'},3);later2({f,kind:'learn'},8);
+        for(let j=queue.length-1;j>i;j--)if(queue[j].kind==='cold'&&learn>=P.newLeft)queue.splice(j,1);
+        SFX[ok?'ok':'no']();return teach(f,ok?'Right! Here is a quicker way to see it':'A new fact to learn');}
+      else{SFX.no();return teach(f,'We will learn this one soon');}
+    } else if(cur.kind==='learn'){r[4]=quick?1:0;if(ok)r[0]=Math.max(r[0],1);else{later2({f,kind:'learn'},3);SFX.no();return teach(f,'Not yet. Look again');}}
+    else if(!ok){r[0]=0;r[1]=t+1;r[2]=0;r[4]=0;later2({f,kind:'learn'},3);SFX.no();return teach(f,'This one slipped. Here is how to rebuild it');}
+    else if(cur.kind==='review'){
+      if(quick){if(r[3]!==t){r[2]++;r[3]=t;}r[0]=r[2]>=3?4:Math.min(3,r[0]+1);r[4]=1;r[1]=t+FT_IV[r[0]];}
+      else{r[4]=0;r[0]=Math.max(1,Math.min(r[0],2));r[1]=t+1;}
+    } else r[4]=quick?1:r[4]; // extra practice never moves a fact's schedule
+    card.classList.add('right');anim(card,'pop');SFX.ok();note.textContent=quick?'⚡ Instant!':'Right. Next time, a little faster.';
+    later(next,quick?450:900);
+  }
+  function finish(early){
+    keyHandler=null;if(ft.day!==t){ft.day=t;ft.newToday=0;}ft.newToday+=learn;save();
+    if(early){MMTAB='facts';startMental();if(answered)say('hero','Stopped early. Your progress is saved.');return;}
+    const lines=[`${fast} of ${answered} answers were instant.`];
+    if(learn||knew)lines.push(`${learn} new ${learn===1?'fact':'facts'} started${knew?`, and ${knew} you already knew`:''}.`);
+    P.sets.filter(s=>ftForward(s)&&!forwardBefore.includes(s.id)).forEach(s=>{const tr=s.trick&&MM.find(m=>m.id===s.trick);lines.push(`Set moved forward: ${s.name}!${tr?` The trick "${tr.name}" is ready.`:''}`);});
+    if(P.cur&&!ftForward(P.cur)){const s=ftStats(P.cur);lines.push(`${P.cur.name}: ${s.auto} of ${s.n} instant. The next set opens at ${Math.ceil(s.n*0.9)}.`);}
+    lines.push('Short daily sessions work best. See you tomorrow!');
+    let stars=1;if(!misses&&answered>=6){stars++;lines.push('No misses: bonus star!');}
+    showWin({title:'Session done!',lines,stars,again:()=>{MMTAB='facts';startMental();}});
+  }
+  show();
+}
+/* ---------- Estimate First, and Head or Paper? ---------- */
+const mmRound=(n,p)=>Math.round(n/p)*p;
+const mmSig=n=>{const p=10**Math.floor(Math.log10(n));return Math.round(n/p)*p;};
+function mmEstCore(L){for(let i=0;i<40;i++){const c=mmEstCore0(L),r=c.E/c.V;if(r>0.75&&r<1.35)return c;}return mmEstCore0(L);}
+function mmEstCore0(L){ // a problem, its exact value and a friendly estimate
+  const mk=(text,V,E,how,mul)=>({text,V,E,how,mul});
+  const add=(lo,hi,p)=>{const a=ri(lo,hi),b=ri(lo,hi);return mk(`${withCommas(a)} + ${withCommas(b)}`,a+b,mmRound(a,p)+mmRound(b,p),`${withCommas(mmRound(a,p))} + ${withCommas(mmRound(b,p))}`,false);};
+  const sub=(lo,hi,p)=>{let a,b;do{a=ri(lo,hi);b=ri(lo,hi);}while(mmRound(a,p)-mmRound(b,p)<2*p);return mk(`${withCommas(a)} − ${withCommas(b)}`,a-b,mmRound(a,p)-mmRound(b,p),`${withCommas(mmRound(a,p))} − ${withCommas(mmRound(b,p))}`,false);};
+  const mul=(alo,ahi,ap,blo,bhi,bp)=>{let a,b;do{a=ri(alo,ahi);b=ri(blo,bhi);}while(a%ap===0||(bp>1&&b%bp===0));const ra=mmRound(a,ap),rb=bp>1?mmRound(b,bp):b;return mk(`${withCommas(a)} × ${b}`,a*b,ra*rb,`${withCommas(ra)} × ${rb}`,true);};
+  const div=()=>{const k=ri(3,9),q=ri(2,9),base=k*q*100;let N;do{N=base+ri(-6,6)*k;}while(N===base);return mk(`${withCommas(N)} ÷ ${k}`,N/k,q*100,`${withCommas(base)} ÷ ${k}`,true);};
+  return pick([[()=>add(21,79,10),()=>sub(21,98,10)],[()=>add(120,880,100),()=>mul(21,89,10,3,9,1)],[()=>mul(21,89,10,21,69,10),()=>sub(210,980,100)],
+    [()=>mul(210,890,100,3,9,1),div,()=>add(1200,8800,1000)],[()=>mul(210,890,100,21,69,10),div,()=>{const a=ri(1200,4800),b=ri(1200,4800),c=ri(1200,4800),r=x=>mmRound(x,1000);return mk(`${withCommas(a)} + ${withCommas(b)} + ${withCommas(c)}`,a+b+c,r(a)+r(b)+r(c),[a,b,c].map(x=>withCommas(r(x))).join(' + '),false);}]][L])();
+}
+function mmEstOptions(c){const E=c.E,p=10**Math.floor(Math.log10(E));
+  const st=E<3*p?p/2:p,alts=c.mul?[E*10,E/10]:[E+3*st,E>4*st?E-3*st:E+6*st];return [E,...alts].map(v=>'about '+withCommas(Math.round(v)));}
+function makeEst(L){
+  const c=mmEstCore(L);
+  if(Math.random()<.55)return [`About how much is ${c.text}?`,mmEstOptions(c),`Round to friendly numbers: ${c.how} = ${withCommas(c.E)}. The exact answer is ${withCommas(c.V)}.`,0,'Do not work it out exactly. Round, then decide.'];
+  const p=10**Math.floor(Math.log10(c.V)),right=Math.random()<.4,wrong=c.mul?pick([c.V*10,Math.round(c.V/10)]):pick([c.V+3*p,c.V*10]),shown=right?c.V:wrong;
+  return [`Someone says ${c.text} = ${withCommas(shown)}. Does that look right?`,right?['Looks right','Looks wrong']:['Looks wrong','Looks right'],
+    `Estimate: ${c.how} = ${withCommas(c.E)}. ${withCommas(shown)} is ${right?'close to that, so it is believable':'nowhere near that'}.${right?'':` The real answer is ${withCommas(c.V)}.`}`,0,'You do not need the exact answer. Does it pass the sniff test?'];
+}
+function makeSort(L){
+  const head=(text,ans,why,steps)=>({text,kind:'head',ans,why,steps});
+  const paper=(text,c,why)=>({text,kind:'paper',why,est:mmEstOptions(c),E:c.E,V:c.V,how:c.how});
+  const H=[
+    ()=>{const a=ri(23,58),b=ri(14,39);return head(`${a} + ${b}`,a+b,'Two 2-digit numbers: only 2 or 3 small pieces to hold.',`${a} + ${b-b%10} = ${a+b-b%10}, then add ${b%10}.`);},
+    ()=>{const b=ri(14,48),a=b+ri(12,45);return head(`${a} − ${b}`,a-b,'Two 2-digit numbers: count up from the smaller one.',`Count up from ${b} to ${a}.`);},
+    ()=>{const a=ri(3,9);let b;do{b=ri(12,49);}while(b%10===0);return head(`${a} × ${b}`,a*b,'A 2-digit number times a 1-digit number: just two pieces to add.',`${a} × ${b-b%10} = ${a*(b-b%10)} and ${a} × ${b%10} = ${a*(b%10)}.`);},
+    ()=>{const n=ri(3,9);return pick([()=>head(`99 × ${n}`,99*n,'99 is almost 100, so this is easy to adjust.',`100 × ${n} = ${100*n}, then take away one ${n}.`),()=>{const m=4*ri(2,9);return head(`25 × ${m}`,25*m,'25 is a quarter of 100, so this is easy to adjust.',`${m} ÷ 4 = ${m/4}, then × 100.`);}])();},
+    ()=>pick([()=>{const n=20*ri(2,24);return head(`50% of ${n}`,n/2,'50% means half. One step.','Cut it in half.');},()=>{const n=10*ri(4,95);return head(`10% of ${n}`,n/10,'10% means one tenth. Take off a zero.','Divide by 10.');},()=>{const n=40*ri(1,12);return head(`25% of ${n}`,n/4,'25% means a quarter. Half, then half again.','Half, then half again.');}])(),
+  ];
+  const PP=[
+    ()=>{const xs=[1,2,3,4].map(()=>ri(126,689)),r=x=>mmRound(x,100);return paper(xs.join(' + '),{V:xs.reduce((a,b)=>a+b,0),E:xs.reduce((a,b)=>a+r(b),0),how:xs.map(r).join(' + '),mul:false},'Four numbers with lots of carrying: too many pieces to hold.');},
+    ()=>{let a,b;do{a=ri(213,879);b=ri(23,68);}while(a%100===0||b%10===0);return paper(`${a} × ${b}`,{V:a*b,E:mmRound(a,100)*mmRound(b,10),how:`${mmRound(a,100)} × ${mmRound(b,10)}`,mul:true},'A 3-digit number times a 2-digit number makes six pieces to add up. That is a paper job.');},
+    ()=>{const k=ri(6,9),q=ri(213,689),N=k*q,E=mmSig(q);return paper(`${withCommas(N)} ÷ ${k}`,{V:q,E,how:`${withCommas(E*k)} ÷ ${k}`,mul:true},'Long division has many steps, with leftovers to carry along.');},
+    ()=>{const a=1000*ri(5,9)+ri(2,9),b=1000*ri(1,3)+ri(156,889);return paper(`${withCommas(a)} − ${withCommas(b)}`,{V:a-b,E:mmRound(a,1000)-mmRound(b,1000),how:`${withCommas(mmRound(a,1000))} − ${withCommas(mmRound(b,1000))}`,mul:false},'Borrowing across all those zeros is easy to get wrong in your head.');},
+    ()=>{const a=ri(3,6),b=ri(24,48),c=ri(4,7),d=ri(26,38),e=ri(27,64),V=a*b+c*d-e,E=a*mmRound(b,10)+c*mmRound(d,10)-mmRound(e,10);return paper(`A supply ship carries ${a} crates of ${b} meals and ${c} crates of ${d} meals. The crew eats ${e} meals on the way. How many meals are left?`,{V,E,how:`${a} × ${mmRound(b,10)} + ${c} × ${mmRound(d,10)} − ${mmRound(e,10)}`,mul:false},'Several steps, each with its own answer to remember. Write them down.');},
+  ];
+  const nh=[2,3,4,5,5][L],np=[2,3,5,5,5][L];
+  if(Math.random()<.5)return pick(H.slice(0,nh))();
+  for(let i=0;i<40;i++){const t=pick(PP.slice(0,np))(),r=t.E/t.V;if(r>0.75&&r<1.35&&new Set(t.est).size===3)return t;}
+  return PP[1]();
+}
+function sortTask(T,work,padWrap,done){
+  let clean=true,stage='tool';const q=el('div',{class:T.text.length>40?'prompt':'mm-q'},T.text),area=el('div',{style:'display:flex;flex-direction:column;gap:14px'});
+  const choose=el('div',{class:'opts',role:'group','aria-label':'Best tool'});
+  [['head','In my head'],['paper','On paper']].forEach(([k,lab])=>choose.append(el('button',{class:'rule',type:'button',style:'text-align:center;font-size:20px',onclick:e=>{if(stage!=='tool')return;const b=e.currentTarget;
+    if(k!==T.kind){clean=false;b.disabled=true;anim(b,'wiggle');SFX.no();say('enc','Count the pieces you would have to hold in your head. Three or fewer: head. Four or more: paper.');return;}
+    stage='then';b.classList.add('right');anim(b,'pop');SFX.ok();choose.querySelectorAll('button').forEach(x=>x.disabled=true);area.append(el('div',{class:'factbox'},T.why));follow();}},lab)));
+  function follow(){
+    if(T.kind==='head'){let tries=0;
+      const inp=numInput({max:7,onCheck:s=>{if(sameNum(s,T.ans)){inp.box.classList.add('right');anim(inp.box,'pop');SFX.ok();keyHandler=null;sayLine('cheer');done(clean&&tries===0);return;}
+        tries++;SFX.no();anim(inp.box,'wiggle');inp.clear();say(tries===1?'enc':'hint',tries===1?T.steps:`It is ${withCommas(T.ans)}. Type it in.`);}});
+      inp.box.dataset.ans=String(T.ans);area.append(el('div',{class:'prompt'},'Now do it in your head.'),el('div',{class:'row'},el('span',{class:'mm-q'},'='),inp.box));padWrap.append(inp.pad);say('hero','Good call. No pencil for this one!');
+    } else {let tries=0;const opts=el('div',{class:'rules',role:'group','aria-label':'Estimates'});
+      shuffle(T.est).forEach(o=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
+        if(o===T.est[0]){b.classList.add('right');anim(b,'pop');SFX.ok();opts.querySelectorAll('button').forEach(x=>x.disabled=true);
+          area.append(el('div',{class:'factbox'},`${T.how} = ${withCommas(T.E)}. Worked out on paper, the exact answer is ${withCommas(T.V)}.`));sayLine('cheer');done(clean&&tries===0);}
+        else{tries++;b.disabled=true;anim(b,'wiggle');SFX.no();say('enc','Round each number to something friendly first.');}}},o)));
+      area.append(el('div',{class:'prompt'},'Right, paper. But always estimate in your head first! About how big will the answer be?'),opts);say('hero','Paper it is. An estimate first tells you if your paper answer makes sense.');}
+  }
+  work.append(q,el('div',{class:'prompt'},'What is the best tool for this one?'),choose,area);
+  say('hero','Head or paper? Think about how many pieces you would have to remember.');
+}
+function mmJudge(){
+  const L=level(),est=MMTAB==='est';
+  runZone({modes:MM_TABS,mode:MMTAB,setMode:k=>{MMTAB=k;MMCUR=null;},round:6,title:est?'Sharp estimating!':'Good judgment!',
+    make:()=>est?makeEst(L):makeSort(L),play:(T,w,p,d)=>est?quizTask(T,w,p,d):sortTask(T,w,p,ok=>d(ok,'next')),
+    finishLines:(r,c)=>[est?`${r} estimates made.`:`${r} problems sorted.`,`${c} of ${r} right the first time.`],again:startMental});
+}
+
+/* =================== batch 12: animations for the older zones (motion always shows a quantity or a fact) =================== */
+function dropIn(root,sel,cls,ms){root.querySelectorAll('.blks').forEach(g=>[...g.querySelectorAll(sel)].forEach((b,i)=>{b.classList.add(cls);b.style.animationDelay=(i*ms)+'ms';}));}
+/* Line-Up: the planets orbit, each at its real pace compared with Earth */
+const ORB_COL={mercury:'#9AA3B5',venus:'#E9C9A0',earth:'#3FA7F5',mars:'#D9603B',jupiter:'#D9A066',saturn:'#E8D08A',uranus:'#8EE3E0',neptune:'#4C6FE0',pluto:'#C9B8A8'};
+const ORB_YRS={mercury:0.241,venus:0.615,earth:1,mars:1.88,jupiter:11.86,saturn:29.46,uranus:84,neptune:164.8,pluto:248};
+const ORB_YEAR={mercury:'88 days',venus:'225 days',earth:'1 year',mars:'almost 2 years',jupiter:'12 years',saturn:'29 years',uranus:'84 years',neptune:'165 years',pluto:'248 years'};
+function orbitShow(ids){
+  const ps=ids.filter(id=>ORB_COL[id]).sort((a,b)=>SOLAR[a].au-SOLAR[b].au),R=id=>24+(Math.log10(SOLAR[id].au)+0.41)/2.01*150;
+  const box=el('div',{class:'sky lab'});
+  box.innerHTML=`<svg viewBox="-190 -190 380 380" style="max-width:380px" role="img" aria-label="The planets orbiting the Sun. The inner ones move much faster.">${ps.map(id=>`<circle r="${R(id).toFixed(1)}" fill="none" stroke="#2C3D7E" stroke-width="1.5"/>`).join('')}${ids.includes('belt')?`<circle r="${(24+(Math.log10(2.7)+0.41)/2.01*150).toFixed(1)}" fill="none" stroke="#8A7B6C" stroke-width="5" stroke-dasharray="1 6" opacity=".7"/>`:''}<circle r="13" fill="#FFD23F" stroke="#05060F" stroke-width="3"/>${ps.map(id=>`<circle class="pl" r="${['jupiter','saturn'].includes(id)?8:['uranus','neptune'].includes(id)?6.5:5}" fill="${ORB_COL[id]}" stroke="#05060F" stroke-width="2"/>`).join('')}</svg>`;
+  const dots=[...box.querySelectorAll('.pl')],ph=ps.map((_,i)=>i*2.4);let t=0;
+  const place=()=>dots.forEach((d,i)=>{const id=ps[i],a=ph[i]+t*2*Math.PI/(5*SOLAR[id].au**1.5);d.setAttribute('cx',(R(id)*Math.cos(a)).toFixed(1));d.setAttribute('cy',(-R(id)*Math.sin(a)).toFixed(1));});
+  place();if(!SCI_CALM())sciLoop(box,dt=>{t+=dt;place();});
+  const fast=ps[0],slow=ps[ps.length-1];
+  return el('div',{style:'display:flex;flex-direction:column;gap:8px'},el('div',{class:'label'},'Watch them go. Here, Earth takes 5 seconds for one year.'),box,
+    el('div',{class:'row'},ps.map(id=>el('span',{class:'orb-key',style:`--c:${ORB_COL[id]}`},`${solarName(id)}: ${ORB_YEAR[id]}`))),
+    el('div',{class:'formula'},`The closer a planet is to the Sun, the faster it moves and the shorter its year. In the time ${solarName(slow)} goes around once, ${solarName(fast)} goes around about ${withCommas(Math.round(ORB_YRS[slow]/ORB_YRS[fast]))} times. The gaps between orbits are squeezed to fit.`));
+}
+/* Weigh-In: the same thing dropped on Earth and on the other world */
+function dropShow(world){
+  const W=SOLAR[world],g=W.g,name=W.short?'the '+W.short:W.name;
+  const box=el('div',{class:'sky lab'});
+  box.innerHTML=`<svg viewBox="0 0 360 170" style="max-width:420px" role="img" aria-label="A crate dropped on Earth and on ${name}"><rect x="20" y="140" width="140" height="10" fill="#3FA65A" stroke="#05060F" stroke-width="2"/><rect x="200" y="140" width="140" height="10" fill="#9AA3B5" stroke="#05060F" stroke-width="2"/><rect class="c0" x="78" y="12" width="24" height="24" rx="3" fill="#F26B1D" stroke="#05060F" stroke-width="3"/><rect class="c1" x="258" y="12" width="24" height="24" rx="3" fill="#F26B1D" stroke="#05060F" stroke-width="3"/><text x="90" y="166">Earth</text><text x="270" y="166">${W.short||W.name}</text></svg>`;
+  const c=[box.querySelector('.c0'),box.querySelector('.c1')],H=104,T=[0.9,0.9/Math.sqrt(g)];let t=0,runs=0;
+  const cycle=Math.max(T[0],T[1])+1.1;
+  const place=()=>c.forEach((n,i)=>{const p=Math.min(1,t/T[i]);n.setAttribute('y',(12+H*p*p).toFixed(1));});
+  if(SCI_CALM()){t=cycle;place();}
+  else sciLoop(box,dt=>{t+=dt;if(t>cycle){runs++;if(runs>=3){t=cycle;place();return false;}t=0;}place();});
+  const gas=['jupiter','saturn','uranus','neptune'].includes(world);
+  return el('div',{style:'display:flex;flex-direction:column;gap:6px'},el('div',{class:'label'},'Drop test'),box,
+    el('div',{class:'formula'},`${g<1?'Weaker':'Stronger'} gravity pulls things down ${g<1?'more slowly':'faster'}. On ${name} the crate takes about ${fmtNum(Math.round(10/Math.sqrt(g))/10)} times as long to fall as on Earth.${gas?' (There is no ground on a gas giant. This is what gravity is like at the cloud tops.)':''}`));
+}
+/* Pattern Nebula: a ship hops from star to star. Bigger jumps make higher hops. */
+function hopShip(track,jumps){
+  if(!track||track.dataset.hop||SCI_CALM())return;track.dataset.hop='1';
+  const nodes=[...track.querySelectorAll('.node')].slice(0,jumps.length+1);if(nodes.length<2)return;
+  const ship=el('div',{class:'ship','aria-hidden':'true'});ship.innerHTML='<svg viewBox="4 1 16 22" width="30" height="40"><path d="M12 2 C17 7 18 13 16 18 L8 18 C6 13 7 7 12 2Z" fill="#E8EDF4" stroke="#05060F" stroke-width="2"/><path d="M8 18 L5 22 L9 20Z M16 18 L19 22 L15 20Z" fill="#F26B1D" stroke="#05060F" stroke-width="1.5"/><circle cx="12" cy="10" r="2.5" fill="#7FE9FF" stroke="#05060F" stroke-width="1.5"/></svg>';
+  track.style.marginTop='64px';track.append(ship);
+  const pos=n=>[n.offsetLeft+n.offsetWidth/2-15,n.offsetTop-40],mx=Math.max(...jumps.map(j=>Math.abs(j)))||1;
+  let i=0,t=0;const set=(x,y)=>{ship.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;};set(...pos(nodes[0]));
+  sciLoop(track,dt=>{t+=dt/0.55;if(t>=1){t=0;i++;if(i>=nodes.length-1){set(...pos(nodes[nodes.length-1]));return false;}}
+    const a=pos(nodes[i]),b=pos(nodes[i+1]),h=12+34*Math.abs(jumps[i])/mx;set(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t-h*4*t*(1-t));});
+}
+/* Planet Files: each world spins at its real tilt. Slow spinners are sped up so you can see them. */
+const SPIN={sun:[7,609,'about 25 Earth days','7°','#FFD23F','#F2A21D'],mercury:[0,1408,'59 Earth days','almost none','#9AA3B5','#6E7689'],venus:[177,5833,'243 Earth days, and backward','177° (upside down)','#E9C9A0','#C9A06A'],
+  earth:[23.4,24,'24 hours','23°','#3FA7F5','#3FA65A'],moon:[6.7,656,'27 Earth days','7°','#C3CBD8','#8D96A8'],mars:[25.2,24.6,'24 hours 37 minutes','25°','#D9603B','#A8432A'],
+  jupiter:[3.1,9.9,'about 10 hours','3°','#D9A066','#B5743F'],saturn:[26.7,10.7,'about 10 and a half hours','27°','#E8D08A','#C9A85A'],uranus:[97.8,17.2,'17 hours','98° (on its side)','#8EE3E0','#6CC4C1'],
+  neptune:[28.3,16.1,'16 hours','28°','#4C6FE0','#3552B5'],pluto:[122.5,153,'6 Earth days','122° (tipped right over)','#C9B8A8','#9A8672']};
+function spinShow(id){
+  const [tilt,hours,dayTxt,tiltTxt,col,spot]=SPIN[id],R=44,P=2.5+2.6*Math.log10(hours/9.9),bands=['jupiter','saturn','uranus','neptune','venus','sun'].includes(id);
+  const feat=bands?[[-150,-22,60,7],[-70,10,70,8],[10,-8,60,6],[90,22,66,7]].map(f=>`<ellipse cx="${f[0]}" cy="${f[1]}" rx="${f[2]}" ry="${f[3]}"/>`).join(''):[[-150,-14,13,10],[-112,20,9,7],[-70,-26,10,8],[-34,8,15,11],[10,-18,9,8],[48,24,12,8],[90,-6,14,10],[130,16,8,7]].map(f=>`<ellipse cx="${f[0]}" cy="${f[1]}" rx="${f[2]}" ry="${f[3]}"/>`).join('');
+  const box=el('div',{class:'spin'});
+  box.innerHTML=`<svg viewBox="-70 -70 140 140" width="120" height="120" role="img" aria-label="${solarName(id)} spinning on its tilted axis"><defs><clipPath id="spinclip"><circle r="${R}"/></clipPath></defs><g transform="rotate(${tilt})"><line x1="0" y1="-64" x2="0" y2="64" stroke="#F4F1E8" stroke-width="2.5" stroke-dasharray="4 4"/><g clip-path="url(#spinclip)"><circle r="${R}" fill="${col}"/><g class="ft" fill="${spot}" opacity=".85">${feat}<g transform="translate(320 0)">${feat}</g></g></g></g><path d="M0,-${R} A${R},${R} 0 0,1 0,${R} A${R*0.45},${R} 0 0,0 0,-${R}Z" fill="#05060F" opacity=".28"/><circle r="${R}" fill="none" stroke="#05060F" stroke-width="3"/></svg>`;
+  const ft=box.querySelector('.ft');let t=0;const place=()=>ft.setAttribute('transform',`translate(${(((t/P)%1)*320-160).toFixed(1)} 0)`);place();
+  if(!SCI_CALM())sciLoop(box,dt=>{t+=dt;place();});
+  return el('div',{class:'spin-row'},box,el('dl',{class:'sol-facts'},el('dt',{},'One spin'),el('dd',{},dayTxt),el('dt',{},'Tilt'),el('dd',{},tiltTxt),el('dt',{}),el('dd',{class:'formula'},'Slow spinners are sped up here so you can see them turn.')));
 }
 
 /* =================== PI VAULT =================== */
@@ -1718,7 +2036,7 @@ function divShare(P,work,padWrap,done){
     say('hero',S.avail<k?`Only ${S.avail} ${placeWord(S.p,S.avail)}: not enough for every pod. Each pod gets 0 of these.`:`How many ${PLACE_NAMES[S.p]} can every pod get?`);}
   function check(v){const S=steps[si];
     if(sameNum(v,S.each)){SFX.ok();inp.box.classList.add('right');anim(inp.box,'pop');
-      pod[S.p]=S.each;dock[S.p]=S.left;qCells[si].textContent=S.each;qCells[si].classList.toggle('zero',S.each===0&&si===0);render();
+      pod[S.p]=S.each;dock[S.p]=S.left;qCells[si].textContent=S.each;qCells[si].classList.toggle('zero',S.each===0&&si===0);render();dropIn(podsEl,'.b'+S.p,'drop',70);
       const last=si===nd-1;
       if(last){
         remEl.hidden=false;remEl.innerHTML='';remEl.append(`${withCommas(N)} ÷ ${k} = `,el('b',{},withCommas(q)),r?` R ${r}`:'');
@@ -1726,7 +2044,7 @@ function divShare(P,work,padWrap,done){
         sayLine('cheer',r?`${r} left over is the remainder.`:'No remainder!');keyHandler=null;done(!hinted);
       } else if(S.left>0){
         say('cheer',`${S.used} ${placeWord(S.p,S.used)} shared, ${S.left} left. Trade ${S.left} ${placeWord(S.p,S.left)} for ${S.left*10} ${placeWord(S.p-1,S.left*10)}.`);
-        later(()=>{dock[S.p]=0;dock[S.p-1]+=S.left*10;SFX.carry();render();anim(dockEl,'pop');si++;inp.box.classList.remove('right');later(ask,900);},1400);
+        later(()=>{dock[S.p]=0;dock[S.p-1]+=S.left*10;SFX.carry();render();dropIn(dockEl,'.b'+(S.p-1),'split',30);si++;inp.box.classList.remove('right');later(ask,900);},1400);
       } else {say('cheer',`All ${PLACE_NAMES[S.p]} shared evenly.`);later(()=>{si++;inp.box.classList.remove('right');ask();},1000);}
     } else {tries++;hinted=true;SFX.no();anim(inp.box,'wiggle');inp.clear();
       if(tries===1)say('enc',`How many groups of ${k} fit in ${S.avail}? Try ${k} × ${S.each} = ${S.each*k} and ${k} × ${S.each+1} = ${(S.each+1)*k}.`);
@@ -2495,6 +2813,7 @@ function solarFiles(st){
       sizeCompare(cur),
       el('dl',{class:'sol-facts'},rows.flatMap(([k,v])=>[el('dt',{},k),el('dd',{},v)])),
       el('div',{},moreBtn),more);
+    if(SPIN[cur])card.append(spinShow(cur));
     const chk=el('div',{class:'fcheck'});
     const stamped=()=>{chk.textContent='';chk.append(el('span',{class:'stamp'},'File stamped ✓'));};
     if(sol.stamped.includes(cur))stamped();
@@ -2550,7 +2869,7 @@ function lineupTask(T,work,padWrap,done){
     slots.forEach((id,i)=>{if(id===answer[i])locked[i]=true;else{wrong++;slots[i]=null;}});
     if(!wrong){SFX.ok();check.disabled=true;paint();slotRow.querySelectorAll('.lu-slot').forEach(b=>b.disabled=true);
       const tbl=el('div',{class:'lu-reveal'},answer.map(id=>el('div',{},artEl(id,30),el('b',{},solarName(id)),el('span',{},set.show(id)))));
-      work.append(tbl);sayLine('cheer',tries?'Got them all in order.':'Perfect order on the first try!');done(tries===0);return;}
+      work.append(tbl);if(set.key==='au')work.append(orbitShow(T.ids));sayLine('cheer',tries?'Got them all in order.':'Perfect order on the first try!');done(tries===0);return;}
     tries++;SFX.no();anim(slotRow,'wiggle');paint();
     say(tries===1?'enc':'hint',tries===1?`${N-wrong} of ${N} are in the right spot, and they stay locked. Try the others again.`:`${set.hint} ${N-wrong} of ${N} are locked in.`);};
   work.append(el('div',{class:'prompt'},`Line them up: ${set.ask}.`),ends,slotRow,el('div',{class:'label'},'Tap a world to put it in the next spot'),pool,el('div',{},check));
@@ -2562,7 +2881,7 @@ function weighTask(T,work,padWrap,done){
   const R=WEIGH_RULES[T.rule],W=SOLAR[T.world];let tries=0;
   const inp=numInput({dot:T.dec,max:7,onCheck:s=>{
     if(sameNum(s,T.ans)){inp.box.classList.add('right');anim(inp.box,'pop');SFX.ok();keyHandler=null;
-      const first=!S.solar.massTip;S.solar.massTip=true;save();
+      const first=!S.solar.massTip;S.solar.massTip=true;save();work.append(dropShow(T.world));
       work.append(el('div',{class:'factbox'},first?[el('b',{},'Same stuff, different pull. '),'Things have the same amount of stuff (mass) on every world. The scale changes because each world pulls with a different strength (gravity).']
         :[el('b',{},`${W.name}: `),`a scale ${['jupiter','saturn','uranus','neptune'].includes(T.world)?'floating at the cloud tops would read':'there reads'} ${fmtNum(W.g*100)} for every 100 on Earth.`]));
       sayLine('cheer');done(tries===0);return;}
@@ -2672,7 +2991,7 @@ function quizTask(T,work,pad,done){
   shuffle(T[1]).forEach(o=>opts.append(el('button',{class:'rule',type:'button',onclick:e=>{const b=e.currentTarget;
     if(o===T[1][0]){b.classList.add('right');anim(b,'pop');SFX.ok();opts.querySelectorAll('button').forEach(x=>x.disabled=true);work.append(el('div',{class:'factbox'},T[2]));sayLine('cheer');done(tries===0,'next');}
     else{tries++;b.disabled=true;anim(b,'wiggle');SFX.no();say('enc',tries===1?'Not that one. Think it through and try again.':'Only one left. That must be it!');}}},o)));
-  work.append(el('div',{class:'prompt'},T[0]),opts);say('hero',pick(['Quick quiz. What do you think?','Use what you learned in the lab.','Take your time and read each answer.']));
+  work.append(el('div',{class:'prompt'},T[0]),opts);say('hero',T[4]||pick(['Quick quiz. What do you think?','Use what you learned in the lab.','Take your time and read each answer.']));
 }
 function mathTask(T,work,padWrap,done){
   let tries=0;
