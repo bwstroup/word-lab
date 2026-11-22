@@ -66,7 +66,7 @@ Open it at https://bwstroup.github.io/word-lab/data-lab/
 
 # Time Lab
 
-Portal Mesa, a desert at sunset with a glowing time portal. Seven zones, three levels each (Sand, Mesa, Summit): Clockmaker's Adobe (clocks through history), Sundial Plaza (reading time, a.m. and p.m., 24-hour time, sundials), the Oasis (life spans and tree rings), Night Mesa (the Moon, sunrise and the planets), the Portal (deep time, from Grand Canyon layers to Halley's Comet), the Radio Tower (time zones, the Date Line, Daylight Saving) and Calendar Rock (month lengths, leap years, weekday names, world calendars). Old Tula the tortoise, Dash the roadrunner, Saguaro Sam and Pip the kangaroo rat guide. Paper missions, 27 badges and a grown-ups reset.
+Portal Mesa, a desert at sunset with a glowing time portal. Seven zones, three levels each (Sand, Mesa, Summit): Clockmaker's Adobe (clocks through history), Sundial Plaza (reading time, a.m. and p.m., 24-hour time, sundials), the Oasis (life spans and tree rings), Night Mesa (the Moon, sunrise and the planets), the Portal (deep time, from Grand Canyon layers to Halley's Comet), the Radio Tower (time zones, the Date Line, Daylight Saving) and Calendar Rock (month lengths, leap years, weekday names, world calendars). Old Tula the tortoise, Dash the roadrunner, Saguaro Sam and Pip the kangaroo rat guide. Paper missions, 27 badges and a grown-ups reset. The Oasis uses real photos (Wikimedia Commons, plus averaged faces from the Face Research Lab London Set for the human card); credits are under Grown-ups.
 
 Open it at https://bwstroup.github.io/word-lab/time-lab/
 

@@ -191,6 +191,30 @@ ol.steps{margin:0;padding-left:1.4em;display:grid;gap:8px}
   .grid{grid-template-columns:1fr}
   .tile{min-height:76px}
 }
+
+/* real photos (Oasis) */
+.ph{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;background:var(--sand2)}
+.phbox{display:grid;place-items:center;width:100%;aspect-ratio:4/3;border-radius:12px;background:var(--zoneSoft);color:var(--zone)}
+.phbox svg{width:56%;height:auto}
+.card.photo{padding:8px 8px 12px}
+.card.photo .ph,.card.photo .phbox{margin-bottom:4px;box-shadow:inset 0 0 0 3px var(--zone)}
+.card.photo b,.card.photo small{padding:0 4px}
+.photoWrap{position:relative;min-width:0}
+.realchip{position:absolute;left:10px;top:10px;background:rgba(58,36,51,.8);color:#fff;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
+.bigph{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;border:4px solid var(--zone);background:var(--sand2)}
+.detail.withphoto{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+@media (max-width:700px){.detail.withphoto{grid-template-columns:1fr}}
+.phcap{font-size:14px;color:var(--ink2);margin:6px 2px 0}
+.answers.vs{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch}
+.answers.vs .ans{display:flex;flex-direction:column;gap:8px;padding:8px 8px 12px;font-size:19px;line-height:1.2}
+.answers.vs .ans .ph,.answers.vs .ans .phbox{border-radius:10px}
+.vsx{align-self:center;font-family:var(--display);font-size:30px;color:var(--rust)}
+@media (max-width:420px){.vsx{font-size:22px}.answers.vs .ans{font-size:16px}}
+.thumb{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 2px var(--zone)}
+.slot .thumb{width:40px;height:40px}
+.times{background:#fff;border-radius:14px;padding:10px 12px;margin-top:8px}
+.credits{max-height:46vh;overflow:auto;text-align:left;font-size:13px;display:grid;gap:8px;background:#fff;border-radius:14px;padding:12px}
+.credits p{margin:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <div id="app" class="wrap" aria-live="polite"></div>
@@ -282,6 +306,47 @@ const LIFE_EXTRA = {
   jelly:{name:'The "immortal" jellyfish', text:'A tiny jellyfish, Turritopsis, can turn itself back into a young polyp when it is hurt or old, and start growing up all over again.'},
   ming:{name:'Ming the clam', text:'An ocean quahog clam found near Iceland was 507 years old. Scientists counted the growth rings on its shell, just like tree rings.'},
 };
+
+
+// ---------- real photos (Wikimedia Commons, checked Nov 2026; files live in photos/) ----------
+const PHOTO={
+  mayfly:{alt:'An adult mayfly resting on a plant stem', cap:'An adult mayfly resting on a plant stem.', file:'Rhithrogena germanica subimago on Equisetum hyemale.jpg', by:'Richard Bartz', lic:'CC BY-SA 2.5'},
+  ecoli:{alt:'E. coli bacteria seen through an electron microscope', cap:'Seen through an electron microscope, about 10,000 times bigger than life. The bar marked 1 µm is one thousandth of a millimeter. The colors were added by a scientist.', file:'E coli at 10000x, original.jpg', by:'Eric Erbe (photo) and Christopher Pooley (color), USDA Agricultural Research Service', lic:'Public domain'},
+  fruitfly:{alt:'A fruit fly with bright red eyes', cap:'A fruit fly. Those big red eyes are one way scientists tell fruit flies apart.', file:'Drosophila melanogaster Proboscis.jpg', by:'Sanjay Acharya', lic:'CC BY-SA 4.0'},
+  mouse:{alt:'A brown house mouse', cap:'A house mouse.', file:'Mouse white background.jpg', by:'US National Institutes of Health, retouched by Ilmari Karonen', lic:'Public domain'},
+  hummer:{alt:'A male ruby-throated hummingbird hovering', cap:'A male ruby-throated hummingbird, hovering. Only the males have the red throat.', file:'Archilochus colubris -flying -male-8.jpg', by:'jeffreyw', lic:'CC BY 2.0'},
+  dog:{alt:'A golden retriever sitting on grass', cap:'A golden retriever, a big dog breed.', file:'Golden Retriever 2020 2.jpg', by:'Johannnes89', lic:'CC BY-SA 4.0'},
+  dtort:{alt:'A desert tortoise on dry, cracked ground', cap:'A desert tortoise, the same kind of animal as Old Tula.', file:'Gopherus agassizii.jpg', by:'Tigerhawkvok', lic:'CC BY-SA 3.0'},
+  gtort:{alt:'Jonathan the giant tortoise on grass', cap:'This is Jonathan himself, photographed on St Helena in 2020.', file:'Jonathan Tortoise 2020.jpg', by:'Kevstan', lic:'CC BY-SA 4.0'},
+  saguaro:{alt:'Tall saguaro cactuses under a blue sky', cap:'Saguaros in Saguaro National Park, Arizona. Count the arms: each one took decades.', file:'Carnegiea gigantea in Saguaro National Park near Tucson, Arizona during November (58).jpg', by:'WClarke', lic:'CC BY-SA 3.0'},
+  bowhead:{alt:'A bowhead whale seen from above in blue water', cap:'A bowhead whale seen from the air, swimming in Arctic water.', file:'Bowhead Whale NOAA.jpg', by:'Vicki Beaver, NOAA Alaska Fisheries Science Center', lic:'Public domain'},
+  gshark:{alt:'A Greenland shark swimming near the sea floor', cap:'A Greenland shark filmed deep under the sea by a robot camera.', file:'Somniosus microcephalus okeanos.jpg', by:'NOAA Okeanos Explorer Program', lic:'Public domain'},
+  bristle:{alt:'A twisted old bristlecone pine', cap:'A bristlecone pine in California. The bare, twisted wood is part of what keeps it alive so long.', file:'Big bristlecone pine Pinus longaeva.jpg', by:'Dcrjsr', lic:'CC BY-SA 3.0'},
+  jelly:{alt:'A tiny Turritopsis jellyfish', cap:'Turritopsis is smaller than your little fingernail.', file:'Turritopsis dohrnii.jpg', by:'Bachware', lic:'CC BY-SA 4.0'},
+  human:{alt:'Two averaged human faces, a woman and a man', cap:'These two faces are not photos of real people. Each one is a computer average of many volunteers’ photos: 49 women and 53 men. Want to see a real human? Look in a mirror!', file:'Face Research Lab London Set (version 5)', by:'Lisa DeBruine and Benedict Jones (the photo set)', lic:'CC BY 4.0', via:'figshare, doi.org/10.6084/m9.figshare.5047666.v5', changed:'Averaged into one woman and one man, then placed side by side.'},
+  ming:{alt:'The shell of Ming the clam', cap:'Ming’s real shell. The thin curved lines are its growth rings.', file:'Ming clam shell WG061294R.jpg', by:'Alan D. Wanamaker Jr., Jan Heinemeier, James D. Scourse, Christopher A. Richardson, Paul G. Butler, Jón Eiríksson and Karen Luise Knudsen', lic:'CC BY 3.0'},
+};
+const PHOTO_WHERE={mayfly:'Mayfly',ecoli:'E. coli',fruitfly:'Fruit fly',mouse:'House mouse',human:'Human (averaged faces)',hummer:'Hummingbird',dog:'Dog',dtort:'Desert tortoise',gtort:'Giant tortoise (Jonathan)',saguaro:'Saguaro',bowhead:'Bowhead whale',gshark:'Greenland shark',bristle:'Bristlecone pine',jelly:'Immortal jellyfish',ming:'Ming the clam'};
+// typical life in years, for "how many lives fit?" (the middle of the usual range)
+const TYP={mayfly:1/365.25,ecoli:20/525960,fruitfly:45/365.25,mouse:1.5,hummer:4,dog:11.5,dtort:65,human:75,gtort:125,saguaro:175,bowhead:180,gshark:375,bristle:2000};
+const PLURAL={mayfly:'mayflies',ecoli:'E. coli cells',fruitfly:'fruit flies',mouse:'mice',hummer:'hummingbirds',dog:'dogs',dtort:'desert tortoises',human:'humans',gtort:'giant tortoises',saguaro:'saguaros',bowhead:'bowhead whales',gshark:'Greenland sharks',bristle:'bristlecone pines'};
+const SINGLE={mayfly:'mayfly',ecoli:'E. coli cell',fruitfly:'fruit fly',mouse:'mouse',hummer:'hummingbird',dog:'dog',dtort:'desert tortoise',human:'human',gtort:'giant tortoise',saguaro:'saguaro',bowhead:'bowhead whale',gshark:'Greenland shark',bristle:'bristlecone pine'};
+const LIFE_KIND={...Object.fromEntries(LIFE.map(x=>[x.id,x.kind])),jelly:'fish',ming:'fish'};
+function phFail(img,kind){ img.onerror=null; const s=document.createElement('span'); s.className=img.className==='thumb'?'thumb phbox':'phbox'; s.innerHTML=ICON[kind]||''; img.replaceWith(s); }
+// photo, or the kind icon when there is no photo (or it fails to load)
+function ph(id,cls='ph'){ const p=PHOTO[id], kind=LIFE_KIND[id]||'mammal';
+  if(!p) return cls==='thumb'?`<span class="thumb phbox">${ICON[kind]}</span>`:`<span class="${cls==='bigph'?'bigph ':''}phbox">${ICON[kind]}</span>`;
+  return `<img class="${cls}" src="photos/${id}.jpg" alt="${esc(p.alt)}" loading="lazy" decoding="async" onerror="phFail(this,'${kind}')">`; }
+function timesWord(r){
+  if(r<1.9) return null;
+  if(r<10) return `about ${Math.round(r)}`;
+  if(r<100) return `about ${Math.round(r/5)*5}`;
+  if(r<1e6){ const p=Math.pow(10,Math.floor(Math.log10(r))-1); return `about ${fmtN(Math.round(r/p)*p)}`; }
+  const m=r/1e6; return `about ${m<10?Math.round(m):Math.round(m/5)*5} million`; }
+function timesLine(a,b){ // a shorter, b longer
+  const w=timesWord(TYP[b.id]/TYP[a.id]);
+  if(!w) return `<div class="times"><b>How many times longer?</b> Less than twice as long. These two are close!</div>`;
+  return `<div class="times"><b>How many times longer?</b> One ${esc(SINGLE[b.id])} life could hold ${w} ${esc(PLURAL[a.id])}’ lives, one after another.</div>`; }
 
 // a.m./p.m. scenarios: [text, time, answer]
 const AMPM = [
@@ -788,7 +853,7 @@ function runQuiz(host,makeRounds,opts){
   function show(){
     const r=rounds[i];
     host.innerHTML=`${dots(rounds.length,i,res)}${r.html||''}<p class="q">${r.q}</p>${r.sub?`<p class="sub">${r.sub}</p>`:''}
-      <div class="answers">${r.answers.map((a,k)=>`<button class="ans" data-k="${k}">${a.label}</button>`).join('')}</div>
+      <div class="answers ${r.cls||''}">${r.answers.map((a,k)=>`<button class="ans" data-k="${k}">${a.label}</button>`).join(r.joiner||'')}</div>
       <div class="feedback" id="fb" hidden></div><div class="row"><button class="big" id="nextQ" hidden>Next</button></div>`;
     firstTry=true; if(r.after) r.after(host);
     host.querySelectorAll('.ans').forEach(b=>b.onclick=()=>{
@@ -899,11 +964,14 @@ function renderHome(app){
 function grownups(){
   const o=document.createElement('div'); o.className='overlay';
   o.innerHTML=`<div class="box" role="dialog" aria-label="Grown-ups"><h2>Grown-ups</h2><p>Time Lab has earned <b>${ST.stars}</b> stars and <b>${ST.badges.length}</b> badges on this iPad. Progress and photo stamps stay on this device only.</p>
+   <button class="link" id="gCred">Photo credits</button>
+   <div class="credits" id="gCredList" hidden>${Object.entries(PHOTO).map(([k,p])=>`<p><b>${esc(PHOTO_WHERE[k])}</b> (The Oasis): “${esc(p.file)}” by ${esc(p.by)}, ${esc(p.lic)}, via ${esc(p.via||'Wikimedia Commons')}. ${esc(p.changed||'Cropped and resized.')}</p>`).join('')}<p>Our changed versions of the CC BY-SA pictures are shared under the same license.</p></div>
    <div class="row" id="gstep1"><button class="big" id="gReset" style="background:var(--rust)">Erase all progress</button><button class="big alt" id="gClose">Close</button></div>
    <div class="row" id="gstep2" hidden><p style="width:100%">This erases stars, badges, checklists and photo stamps. It can’t be undone.</p><button class="big" id="gYes" style="background:var(--rust)">Yes, erase everything</button><button class="big alt" id="gNo">Keep everything</button></div></div>`;
   document.body.appendChild(o);
   $('#gClose',o).onclick=$('#gNo',o).onclick=()=>o.remove();
   $('#gReset',o).onclick=()=>{$('#gstep1',o).hidden=true;$('#gstep2',o).hidden=false;};
+  $('#gCred',o).onclick=()=>{ const l=$('#gCredList',o); l.hidden=!l.hidden; };
   $('#gYes',o).onclick=async()=>{ const snd=ST.sound; ST=BLANK(); ST.sound=snd; save(); await stampClear(); o.remove(); render(); };
 }
 
@@ -1065,8 +1133,8 @@ function orderGame(host,{items,label,prompt,first,last,check,explain,onWin,extra
   let placed=[];
   function draw(state){
     host.innerHTML=`<p class="q">${prompt}</p><p class="sub">Tap the cards in order. Tap a filled slot to take a card back.</p>
-      <div class="slots">${items.map((_,k)=>{const it=placed[k]; const st=state?(state[k]?'ok':'no'):''; return `<button class="slot ${it?'filled':''} ${st}" data-k="${k}"><span class="n">${k===0?first:k===items.length-1?last:k+1}</span>${it?ICON[it.icon]+esc(it.name)+(state?`<small style="font-weight:400">${esc(label(it))}</small>`:''):''}</button>`;}).join('')}</div>
-      <div class="pool">${items.map((it,k)=>`<button data-p="${k}" ${placed.includes(it)?'disabled':''}>${ICON[it.icon]}${esc(it.name)}</button>`).join('')}</div>
+      <div class="slots">${items.map((_,k)=>{const it=placed[k]; const st=state?(state[k]?'ok':'no'):''; return `<button class="slot ${it?'filled':''} ${st}" data-k="${k}"><span class="n">${k===0?first:k===items.length-1?last:k+1}</span>${it?(it.pic||ICON[it.icon])+esc(it.name)+(state?`<small style="font-weight:400">${esc(label(it))}</small>`:''):''}</button>`;}).join('')}</div>
+      <div class="pool">${items.map((it,k)=>`<button data-p="${k}" ${placed.includes(it)?'disabled':''}>${it.pic||ICON[it.icon]}${esc(it.name)}</button>`).join('')}</div>
       <div class="feedback" id="fb" hidden></div><div id="xtra"></div>
       <div class="row"><button class="big" id="chk" ${placed.filter(Boolean).length<items.length||state?'hidden':''}>Check my order</button><button class="big alt" id="again" ${state&&!state.every(Boolean)?'':'hidden'}>Try again</button></div>`;
     host.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{ const it=items[+b.dataset.p]; const k=[...Array(items.length).keys()].find(j=>!placed[j]); placed[k]=it; sTick(); draw(); });
@@ -1358,11 +1426,13 @@ const lifeIcon=x=>x.kind;
 const yrs=y=> y<1/365.25*1.01? (y*8766<1.5? `${Math.round(y*525960)} minutes`:`${Math.round(y*8766)} hours`) : y<1? `${Math.round(y*365.25)} days` : `${fmtN(Math.round(y))} years`;
 GAMES.fieldguide=(P)=>{
   function list(){ P.innerHTML=guideBlock('sam','Everything here is alive, and everything here has its own speed. Tap a card to meet it.')+
-    `<div class="cards">${LIFE.map(x=>`<button class="card" data-id="${x.id}" style="--zone:${KIND_COL[x.kind]}">${ICON[x.kind]}<b>${esc(x.name)}</b><small>${esc(x.show)}</small></button>`).join('')}
-     ${Object.values(LIFE_EXTRA).map(e=>`<div class="card" style="background:var(--zoneSoft)">${ICON.eye}<b>${esc(e.name)}</b><small>${esc(e.text)}</small></div>`).join('')}</div>`;
+    `<div class="cards">${LIFE.map(x=>`<button class="card photo" data-id="${x.id}" style="--zone:${KIND_COL[x.kind]}">${ph(x.id)}<b>${esc(x.name)}</b><small>${esc(x.show)}</small></button>`).join('')}
+     ${Object.entries(LIFE_EXTRA).map(([k,e])=>`<div class="card photo" style="background:var(--zoneSoft);--zone:${KIND_COL.fish}">${ph(k)}<b>${esc(e.name)}</b><small>${esc(e.text)}</small>${PHOTO[k]?`<small style="font-style:italic">${esc(PHOTO[k].cap)}</small>`:''}</div>`).join('')}</div>`;
     P.querySelectorAll('button.card').forEach(b=>b.onclick=()=>open(b.dataset.id)); }
   function open(id){ const x=LIFE.find(l=>l.id===id), i=LIFE.indexOf(x);
-    P.innerHTML=`<div class="detail"><div class="art" style="color:${KIND_COL[x.kind]}">${ICON[x.kind]}</div><div style="display:grid;gap:10px;min-width:0"><h2 style="color:var(--dusk);font-size:30px">${esc(x.name)}</h2><p class="q" style="font-size:20px">${esc(x.show)}</p><p>${esc(x.note)}</p></div></div>
+    const pic=PHOTO[x.id]?`<div class="photoWrap" style="--zone:${KIND_COL[x.kind]}">${ph(x.id,'bigph')}<span class="realchip">${x.id==='human'?'Averaged faces':'Real photo'}</span><p class="phcap">${esc(PHOTO[x.id].cap)}</p></div>`
+      :`<div class="photoWrap" style="--zone:${KIND_COL[x.kind]}">${ph(x.id,'bigph')}</div>`;
+    P.innerHTML=`<div class="detail withphoto">${pic}<div style="display:grid;gap:10px;min-width:0"><h2 style="color:var(--dusk);font-size:30px">${esc(x.name)}</h2><p class="q" style="font-size:20px">${esc(x.show)}</p><p>${esc(x.note)}</p></div></div>
       <div class="row"><button class="big alt" id="prev">Shorter life</button><button class="big" id="all">All cards</button><button class="big alt" id="next">Longer life</button></div>`;
     $('#prev',P).onclick=()=>open(LIFE[(i+LIFE.length-1)%LIFE.length].id); $('#next',P).onclick=()=>open(LIFE[(i+1)%LIFE.length].id); $('#all',P).onclick=list; }
   list();
@@ -1371,17 +1441,19 @@ GAMES.compare=(host,lv)=>{
   const thr=[20,4,1.0001][lv];
   const pairs=[]; for(const a of LIFE) for(const b of LIFE) if(a!==b && b.lo/a.hi>=thr && a.hi<b.lo) pairs.push([a,b]);
   runQuiz(host,()=>shuffle(pairs).slice(0,8).map(([a,b])=>{ const both=shuffle([a,b]);
-    return {q:'Who usually lives longer?', answers:both.map(c=>({label:`<span style="display:flex;gap:10px;align-items:center;justify-content:center"><span style="width:44px;height:44px;color:${KIND_COL[c.kind]}">${ICON[c.kind]}</span>${esc(c.name)}</span>`,right:c===b,why:c===b?'':`Not this time. ${esc(a.name)}: ${esc(a.show)}.`})),
-      why:`Yes! ${esc(b.name)}: ${esc(b.show)}. ${esc(a.name)}: ${esc(a.show)}.`}; }),{done:(f,n,again)=>{ addStar('compare',lv); winOverlay(`${f} of ${n} on the first try.`,again); }});
+    return {q:'Who usually lives longer?', cls:'vs', joiner:'<span class="vsx" aria-hidden="true">VS</span>', answers:both.map(c=>({label:`<span style="--zone:${KIND_COL[c.kind]};display:contents">${ph(c.id)}</span><span>${esc(c.name)}</span>`,right:c===b,why:c===b?'':`Not this time. ${esc(a.name)}: ${esc(a.show)}.`})),
+      why:`Yes! ${esc(b.name)}: ${esc(b.show)}. ${esc(a.name)}: ${esc(a.show)}.<div class="scroll" style="margin-top:8px">${logChart([a,b])}</div>${timesLine(a,b)}`}; }),{done:(f,n,again)=>{ addStar('compare',lv); winOverlay(`${f} of ${n} on the first try.`,again); }});
 };
 function logChart(items){ // items sorted; bar from scale start to geometric middle, with a lighter range lo..hi
-  const L=Math.log10, minY=L(20/525960)-.4, maxY=L(5000)+.2, W=640, rowH=34, left=170, H=items.length*rowH+56;
+  const L=Math.log10, minY=L(20/525960)-.4, maxY=L(5000)+.2, W=690, rowH=38, left=222, H=items.length*rowH+56;
   const X=v=>left+(L(v)-minY)/(maxY-minY)*(W-left-12);
   const ticks=[[1/8766,'1 hour'],[1/365.25,'1 day'],[1/12,'1 month'],[1,'1 year'],[10,'10 yrs'],[100,'100 yrs'],[1000,'1,000 yrs']];
   let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:520px" role="img" aria-label="Life spans on a scale where each step is ten times bigger">`;
   for(const [v,t] of ticks){ s+=`<line x1="${X(v)}" y1="10" x2="${X(v)}" y2="${H-34}" stroke="#F7E3C2" stroke-width="2"/><text x="${X(v)}" y="${H-14}" font-size="12" text-anchor="middle" fill="#6E5562" font-family="Atkinson Hyperlegible,sans-serif">${t}</text>`; }
   items.forEach((it,k)=>{ const y=14+k*rowH, mid=Math.sqrt(it.lo*it.hi), col=KIND_COL[it.kind];
-    s+=`<text x="${left-10}" y="${y+16}" font-size="14" text-anchor="end" fill="#3A2433" font-weight="700" font-family="Atkinson Hyperlegible,sans-serif">${esc(it.name)}</text>`;
+    const hasPh=!!PHOTO[it.id], tx=hasPh?left-42:left-10;
+    if(hasPh) s+=`<clipPath id="lc-${it.id}"><circle cx="${left-21}" cy="${y+13}" r="15"/></clipPath><image href="photos/${it.id}.jpg" x="${left-36}" y="${y-2}" width="30" height="30" preserveAspectRatio="xMidYMid slice" clip-path="url(#lc-${it.id})"/><circle cx="${left-21}" cy="${y+13}" r="15" fill="none" stroke="${col}" stroke-width="2"/>`;
+    s+=`<text x="${tx}" y="${y+18}" font-size="14" text-anchor="end" fill="#3A2433" font-weight="700" font-family="Atkinson Hyperlegible,sans-serif">${esc(it.name)}</text>`;
     s+=`<rect x="${left}" y="${y+4}" width="${Math.max(2,X(it.lo)-left)}" height="18" rx="4" fill="${col}"/>`;
     if(it.hi>it.lo*1.01) s+=`<rect x="${X(it.lo)}" y="${y+4}" width="${X(it.hi)-X(it.lo)}" height="18" rx="4" fill="${col}" opacity=".4"/>`;
     s+=`<circle cx="${X(mid)}" cy="${y+13}" r="4" fill="#FFF4E0" stroke="${col}" stroke-width="2"/>`; });
@@ -1389,7 +1461,7 @@ function logChart(items){ // items sorted; bar from scale start to geometric mid
 GAMES.lifeline=(host,lv)=>{
   const n=[4,5,6][lv]; let items;
   for(let t=0;t<500;t++){ const s=shuffle(LIFE).slice(0,n).sort((a,b)=>a.lo-b.lo); if(s.every((x,i)=>i===0||s[i-1].hi<x.lo)){ items=s; break; } }
-  const sorted=items.slice(); items=shuffle(items).map(x=>({...x,icon:x.kind}));
+  const sorted=items.slice(); items=shuffle(items).map(x=>({...x,icon:x.kind,pic:`<span style="--zone:${KIND_COL[x.kind]};display:contents">${ph(x.id,'thumb')}</span>`}));
   orderGame(host,{items,label:x=>x.show,prompt:'Line them up from the shortest life to the longest.',first:'Shortest',last:'Longest',
     check:p=>p.map((x,k)=>x.id===sorted[k].id),
     explain:(ok,c)=>ok?`Right! From the ${esc(sorted[0].name.toLowerCase())} all the way to the ${esc(sorted[n-1].name.toLowerCase())}. Look at the chart: 1 year, 10 years, 100 years and 1,000 years are spaced <b>equally</b>, even though each one is 10 times longer than the last.`:`${c} of ${n} are in the right place. The green ones can stay.`,
