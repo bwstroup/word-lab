@@ -88,6 +88,12 @@ Felix's life-science lab in The Seven Domes, a glass conservatory with five keep
 
 Open it at https://bwstroup.github.io/word-lab/wild-lab/
 
+# Energy Lab
+
+Felix's energy lab in The Powerhouse, the building that powers the town of Brightwater. Energy is never made or used up; it only changes form, and Joule (in six forms) shows how. Nine rooms: The Big Idea, Sun, Wind, Water, Earth Heat, Food and Muscle, Ancient Sunlight (coal, oil and gas), Atom Power and Electricity, plus Power the Town, where Felix mixes power sources to keep the town lit through sun, cloud, calm and a heat wave. 60 stations at three levels (Candle, Lantern, Lighthouse), 180 stars, animated labs, a paper mission in every room and a press-and-hold grown-ups reset. Every source is shown by what it does well and what it costs. Two files: `index.html` and `content.js` (all stations and missions).
+
+Open it at https://bwstroup.github.io/word-lab/energy-lab/
+
 # Launchers
 
 One home-screen icon per boy that opens all his apps. Each app opens in its own window; tap Done to come back. Press and hold the gear for the grown-ups area (show or hide apps on that iPad, links to every app).
