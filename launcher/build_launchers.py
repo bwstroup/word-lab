@@ -23,6 +23,7 @@ APPS = [
  ("dino-world",          "Dino World",   "", "everett", "apple-touch-icon.png"),
  ("everetts-observatory","Observatory",  "", "everett", "apple-touch-icon.png"),
  ("vehicle-lot",         "Vehicle Lot",  "", "everett", "apple-touch-icon.png"),
+ ("alphabet-zoo",        "Alphabet Zoo", "", "everett", "apple-touch-icon.png"),
 ]
 for f, n, b, w, i in APPS:
     assert (ROOT / f / i).exists(), f"missing icon {f}/{i}"

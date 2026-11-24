@@ -28,6 +28,12 @@ Open it at https://bwstroup.github.io/word-lab/logic-lab/
 
 Open it at https://bwstroup.github.io/word-lab/vroom-garage/
 
+# Everett's Alphabet Zoo
+
+Everett's letters app with Keeper Lucy, a human zookeeper. Real animal photos for every letter A to Z (Alligator to Zebra) and a recorded Kokoro voice (Bella) that says each letter's name and sound: "B. B says buh. B is for bear!" Six games: Letter Book (26 stickers), First Letter, Find It, Trace It, Name Builder and Count, each with three levels. Photo credits and a press-and-hold reset are under Grown-ups.
+
+Open it at https://bwstroup.github.io/word-lab/alphabet-zoo/
+
 # Everett's Observatory
 
 Everett's space app on Moonberry Hill with Juniper Bear, Pip the Field Mouse and Mo the Moth: 31 realistic space pictures (the Sun's family plus stars, comets, nebulae, galaxies, eclipses and more), with Spot It, First Letter, Spell It, Line Them Up, Count, Draw It and a Letter Book.
