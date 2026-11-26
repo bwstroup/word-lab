@@ -19,6 +19,7 @@ APPS = [
  ("chess-lab",           "Chess Lab",    "Chess ideas to play with Dad",                        "felix", "apple-touch-icon.png"),
  ("energy-lab",          "Energy Lab",   "Power the town: sun, wind, water, atoms and more",   "felix", "apple-touch-icon.png"),
  ("behavior-lab",        "Behavior Lab", "Alien scientists study the strangest creatures: humans", "felix", "apple-touch-icon.png"),
+ ("money-lab",           "Money Lab",    "Earn, save, give and run a smoothie stand in Las Veritas", "felix", "apple-touch-icon.png"),
  ("vroom-garage",        "Vroom Garage", "", "everett", "apple-touch-icon.png"),
  ("dino-world",          "Dino World",   "", "everett", "apple-touch-icon.png"),
  ("everetts-observatory","Observatory",  "", "everett", "apple-touch-icon.png"),

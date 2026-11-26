@@ -108,3 +108,9 @@ One home-screen icon per boy that opens all his apps. Each app opens in its own 
 - Everett: https://bwstroup.github.io/word-lab/everett/
 
 To add an app, add a row to `launcher/build_launchers.py`, run `python3 launcher/build_launchers.py`, and commit.
+
+# Money Lab
+
+Felix's money app, set in the town of Las Veritas with its own currency, the workle: the Mint, the Bank, the Market and Samir's Store, the Works, the Four Jars, Town Hall (Getting taxed), the Planner, the Clinic, Safe Money with Officer Marcus, a Wise or Unwise? deck in every zone, and Felix's Smoothie Stand with six plant-based recipes. No real money, no timers, no chance-based rewards. A grown-ups reset is under Grown-ups.
+
+Open it at https://bwstroup.github.io/word-lab/money-lab/
